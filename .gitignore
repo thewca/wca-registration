@@ -12,7 +12,7 @@
 /db/*.sqlite3-*
 
 # Ignore all logfiles and tempfiles.
-/log/.keep
+/log/*
 /tmp/*
 !/log/.keep
 !/tmp/.keep
@@ -36,3 +36,4 @@
 tmp
 node_modules
 storage
+yarn.lock
