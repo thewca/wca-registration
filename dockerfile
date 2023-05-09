@@ -24,6 +24,10 @@ RUN apt-get update && apt-get install -y \
 
 RUN gem update --system && gem install bundler
 COPY . .
-RUN bundle install && yarn install
 
-CMD ["bin/rails", "server", "-b","0.0.0.0"]
+ENV RAILS_ENV production
+
+RUN bundle install --without development test  # Install production gems
+RUN yarn install --production  # Install production Node.js packages
+
+CMD ["bin/rails", "server", "-e", "production", "-b", "0.0.0.0"]

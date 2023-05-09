@@ -376,9 +376,9 @@ resource "aws_cloudwatch_event_rule" "ecr_image_push" {
     }
   })
 }
-#
-#resource "aws_cloudwatch_event_target" "ecr_image_push" {
-#  rule     = aws_cloudwatch_event_rule.ecr_image_push.name
-#  arn      = aws_codepipeline.this.arn
-#  role_arn = aws_iam_role.codepipeline_role.arn
-#}
+
+resource "aws_cloudwatch_event_target" "ecr_image_push" {
+  rule     = aws_cloudwatch_event_rule.ecr_image_push.name
+  arn      = aws_codepipeline.this.arn
+  role_arn = aws_iam_role.codepipeline_role.arn
+}
