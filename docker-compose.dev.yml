@@ -3,6 +3,7 @@ services:
   wca_registration:
     build:
       context: .
+      dockerfile: dockerfile.dev
     ports:
       - "3001:3000"
     environment:
@@ -17,12 +18,12 @@ services:
       bash -c 'bundle install && yarn install &&
       bin/rails server -b 0.0.0.0'
     networks:
-      - wca-main
+      - wca-registration
 
 volumes:
   gems_volume:
     driver: local
 
 networks:
-  wca-main:
-    name: wca-main
+  wca-registration:
+    name: wca-registration
