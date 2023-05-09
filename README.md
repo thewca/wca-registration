@@ -5,4 +5,4 @@ under development. For more info about the WCA visit the main repo [here](https:
 
 ## How to run
 
-Run  `docker compose up`
+Run  `docker compose -f docker-compose.dev.yml up`
