@@ -151,14 +151,14 @@ resource "aws_ecs_task_definition" "main" {
   task_role_arn      = aws_iam_role.task_role.arn
 
   cpu = "1024"
-  memory = "1024"
+  memory = "800"
 
   container_definitions = jsonencode([
     {
       name              = "main"
       image             = "${aws_ecr_repository.this.repository_url}:latest"
       cpu    = 1024
-      memory = 1024
+      memory = 800
       portMappings = [
         {
           # The hostPort is automatically set for awsvpc network mode,
@@ -176,6 +176,13 @@ resource "aws_ecs_task_definition" "main" {
         }
       }
       environment = local.app_environment
+      healthCheck       = {
+        command            = ["CMD-SHELL", "curl -f http://localhost:3000/healthcheck || exit 1"]
+        interval           = 30
+        retries            = 3
+        startPeriod        = 60
+        timeout            = 5
+      }
     }
   ])
 
@@ -256,7 +263,7 @@ resource "aws_appautoscaling_target" "this" {
   resource_id        = "service/${aws_ecs_cluster.this.name}/${aws_ecs_service.main.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   min_capacity       = 1
-  max_capacity       = 1
+  max_capacity       = 2
 }
 
 resource "aws_appautoscaling_policy" "this" {
@@ -339,7 +346,7 @@ resource "aws_launch_configuration" "this" {
 resource "aws_autoscaling_group" "this" {
   name_prefix               = "${var.name_prefix}-"
   min_size                  = 1
-  max_size                  = 1
+  max_size                  = 2
   desired_capacity          = 1
   vpc_zone_identifier       = aws_subnet.private[*].id
   launch_configuration      = aws_launch_configuration.this.name

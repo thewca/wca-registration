@@ -2,6 +2,12 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
+  config.hosts << "registration.worldcubeassociation.org"
+
+  # Exclude requests for the /healthcheck/ path from host checking
+  Rails.application.config.host_authorization = {
+    exclude: ->(request) { request.path =~ /healthcheck/ }
+  }
 
   # Code is not reloaded between requests.
   config.cache_classes = true
