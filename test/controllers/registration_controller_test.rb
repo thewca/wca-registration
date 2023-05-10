@@ -5,8 +5,8 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     $dynamodb.stub_responses(:put_item, {})
 
     post '/register', params: {
-      competitor_id: '123',
-      competition_id: '456',
+      competitor_id: '2003BRUC01',
+      competition_id: 'Worlds2003',
       event_ids: ['333', '444']
     }
 
