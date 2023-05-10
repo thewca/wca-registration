@@ -54,11 +54,15 @@ locals {
   app_environment = [
     {
       name  = "HOST"
-      value = "${var.host}"
+      value = var.host
     },
     {
       name  = "WCA_HOST"
-      value = "${var.wca_host}"
+      value = var.wca_host
+    },
+    {
+      name = "AWS_REGION"
+      value = var.region
     }
   ]
 }
@@ -131,6 +135,17 @@ data "aws_iam_policy_document" "task_policy" {
     ]
 
     resources = ["*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:PutItem",
+      "dynamodb:GetItem",
+      "dynamodb:Query",
+      "dynamodb:UpdateItem",
+      "dynamodb:DeleteItem",
+    ]
+    resources = [aws_dynamodb_table.registrations.arn]
   }
 }
 

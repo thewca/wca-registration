@@ -1,0 +1,9 @@
+node_modules
+.git
+.github
+tmp/*
+log/*
+infra
+storage/*
+docker-compose.dev.yml
+dockerfile.dev
