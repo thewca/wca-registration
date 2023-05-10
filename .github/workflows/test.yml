@@ -1,0 +1,15 @@
+name: Test
+
+on:
+  pull_request:
+    branches: main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      RACK_ENV: test
+    steps:
+      - uses: actions/checkout@v3
+      - name: Start containers
+        run: docker compose -f "docker-compose.test.yml" up
