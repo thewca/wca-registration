@@ -1,7 +1,19 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
-#   Character.create(name: "Luke", movie: movies.first)
+table_name = 'Registrations'
+key_schema = [
+  { attribute_name: 'competition_id', key_type: 'HASH' },
+  { attribute_name: 'competitor_id', key_type: 'RANGE' }
+]
+attribute_definitions = [
+  { attribute_name: 'competition_id', attribute_type: 'S' },
+  { attribute_name: 'competitor_id', attribute_type: 'S' }
+]
+provisioned_throughput = {
+  read_capacity_units: 5,
+  write_capacity_units: 5
+}
+$dynamodb.create_table({
+ table_name: table_name,
+ key_schema: key_schema,
+ attribute_definitions: attribute_definitions,
+ provisioned_throughput: provisioned_throughput
+})

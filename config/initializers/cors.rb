@@ -5,12 +5,25 @@
 
 # Read more: https://github.com/cyu/rack-cors
 
-Rails.application.config.middleware.insert_before 0, Rack::Cors do
-  allow do
-    origins "*.worldcubeassociation.org"
+if Rails.env.development? || Rails.env.test?
+  Rails.application.config.middleware.insert_before 0, Rack::Cors do
+    allow do
+      origins "*"
 
-    resource "*",
-      headers: :any,
-      methods: [:get, :post, :put, :patch, :delete, :options, :head]
+      resource "*",
+               headers: :any,
+               methods: [:get, :post, :put, :patch, :delete, :options, :head]
+    end
+  end
+
+else
+  Rails.application.config.middleware.insert_before 0, Rack::Cors do
+    allow do
+      origins "*.worldcubeassociation.org", "http://test.registration.worldcubeassociation.org.s3-website-us-west-2.amazonaws.com"
+
+      resource "*",
+               headers: :any,
+               methods: [:get, :post, :put, :patch, :delete, :options, :head]
+    end
   end
 end
