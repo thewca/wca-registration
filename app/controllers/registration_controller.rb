@@ -101,27 +101,6 @@ class RegistrationController < ApplicationController
     render json: registrations
   end
 
-  def work
-    queue = $sqs.get_queue_url(queue_name: "registrations.fifo").queue_url
-    response = $sqs.receive_message({
-     queue_url: queue,
-     max_number_of_messages: 1
-   })
-
-    # Process each message
-    response.messages.each do |message|
-
-
-      # Process the message here
-      RegistrationProcessor.process_message(JSON.parse(message.body))
-      # Delete the message from the queue
-      $sqs.delete_message({
-         queue_url: queue,
-         receipt_handle: message.receipt_handle
-       })
-    end
-  end
-
   private
 
   REGISTRATION_STATUS = %w[waiting accepted]
