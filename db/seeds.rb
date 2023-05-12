@@ -1,3 +1,4 @@
+# Create the DynamoDB Tables
 table_name = 'Registrations'
 key_schema = [
   { attribute_name: 'competition_id', key_type: 'HASH' },
@@ -17,3 +18,12 @@ $dynamodb.create_table({
  attribute_definitions: attribute_definitions,
  provisioned_throughput: provisioned_throughput
 })
+
+# Create SQS Queue
+queue_name = 'registrations.fifo'
+$sqs.create_queue({
+                    queue_name: queue_name,
+                    attributes: {
+                      "FifoQueue": "true"
+                    }
+                  })

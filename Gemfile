@@ -22,6 +22,9 @@ gem 'hiredis'
 # DynamoDB for storing registrations
 gem 'aws-sdk-dynamodb'
 
+# SQS for adding data into a queue
+gem 'aws-sdk-sqs'
+
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 gem "kredis"
 

@@ -89,4 +89,9 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  config.after_initialize do
+    # Immediately Start Polling Job after initializing
+    QueuePollerJob.perform_now
+  end
 end
