@@ -15,8 +15,8 @@ services:
     # First, install Ruby and Node dependencies
     # Start the server and bind to 0.0.0.0 (vs 127.0.0.1) so Docker's port mappings work correctly
     command: >
-      bash -c 'bundle install && yarn install && bin/rake db:seed &&
-      bin/rails server -b 0.0.0.0'
+      bash -c 'bundle install && yarn install &&
+      bin/rails test'
     networks:
       - wca-registration
     depends_on:
