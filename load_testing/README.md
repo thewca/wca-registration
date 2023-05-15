@@ -16,6 +16,22 @@ When monitoring server performance under load, there are a few options:
 
 # SETUP & USAGE
 
+## With docker
+
+_Note that this runs the correct containers, but I haven't gotten tests with it working - I'm getting failures that indicate a lack of internet connection.
+
+Source: https://docs.locust.io/en/stable/running-in-docker.html
+
+1. you might need to run `docker pull locustio/locust` - not sure on this yet
+
+2. Clone this repo and cd into `load_testing`
+
+3. Build the image: `docker build -t wca-locust .`
+
+4. Run the image (specify number of workers with `--scale worker={num_workers}`): `docker compose up --scale worker=4`
+
+## Manual Setup
+
 Ideally you will need pyenv installed. With pyenv installed, run the following command in this directory:
 
 ```bash
