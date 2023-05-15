@@ -16,6 +16,16 @@ When monitoring server performance under load, there are a few options:
 
 # SETUP & USAGE
 
+## Switching between headless and web UI
+
+Assuming you are using `docker compose up --scale worker=4` to run the load tests, this is a case of changing the "command" under the "master" service in docker-compose.yml:
+* Headless: `-f /mnt/locust/locustfile.py --master -H http://master:8089 --headless -u 1000 -r 200 --expect-workers=4 --run-time 30`
+* With web UI: `-f /mnt/locust/locustfile.py --master -H http://master:8089`
+
+Note that headless also includes a runtime constraint, so that errors are shown.
+
+Locust supports saving results as a CSV if better output is needed: https://docs.locust.io/en/stable/retrieving-stats.html
+
 ## With docker
 
 _Note that this runs the correct containers, but I haven't gotten tests with it working - I'm getting failures that indicate a lack of internet connection.

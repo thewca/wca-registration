@@ -6,9 +6,10 @@ import csv
 
 
 # Initialise global variables
-debug = True # Saves HTML pages accessed if true
+debug = False # Saves HTML pages accessed if true
 target_comp = "/competitions/WiltshireSummer2023"
 wca_ids = []
+login_only = True # Set to True to prevent virtual users from trying to register
 
 # Read in the list of WCA IDs
 with open("wca_id_list.csv", "r") as id_list:
@@ -27,13 +28,14 @@ class TestUser(HttpUser):
 
         # Pop WCA ID from list of valid WCA ID's
         wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
-        print(wca_id)
+        if debug:
+            print(wca_id)
 
         # Logs the user in
-        response = self.client.get("/users/sign_in")
+        response = self.client.get("https://staging.worldcubeassociation.org/users/sign_in")
         auth_token = self.extract_auth_token(response.text)
 
-        response = self.client.post("/users/sign_in", data={
+        response = self.client.post("https://staging.worldcubeassociation.org/users/sign_in", data={
             "authenticity_token": auth_token,
             "user[login]": wca_id,
             "user[password]": "wca",
@@ -49,7 +51,7 @@ class TestUser(HttpUser):
 
     @task
     def register_for_comp(self):
-        while self.registered:
+        while self.registered or login_only:
             # Sleep the worker if user is already registered - could just return, but that will tank CPU performance as it will keep trying to run this task
             # Process needs to be manually killed in console with Ctrl+C
             time.sleep(1)
@@ -84,8 +86,9 @@ class TestUser(HttpUser):
         for input in inputs:
             if input["name"] == "authenticity_token":
                 return input["value"]
-        else: 
-            print("No auth token found.")
+        else:
+            if debug:
+                print("No auth token found.")
 
     def add_default_registration_data(self, html: str, registration_data: dict) -> dict:
 
