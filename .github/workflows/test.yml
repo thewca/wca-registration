@@ -12,4 +12,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Start containers
-        run: docker compose -f "docker-compose.test.yml" up
+        run: docker compose -f "docker-compose.test.yml" up wca_registration --abort-on-container-exit
