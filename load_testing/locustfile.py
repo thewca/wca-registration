@@ -4,25 +4,28 @@ from bs4 import BeautifulSoup
 import time
 import csv
 
-debug = True
+
+# Initialise global variables
+debug = True # Saves HTML pages accessed if true
 target_comp = "/competitions/WiltshireSummer2023"
 wca_ids = []
 
+# Read in the list of WCA IDs
 with open("wca_id_list.csv", "r") as id_list:
     reader = csv.reader(id_list)
     for row in reader:
         wca_ids.append(row[0])
 
-print(wca_ids)
-
-
 
 class TestUser(HttpUser):
 
     def on_start(self):
+        """Logs the user in using a random WCA ID from 'wca_id_list.csv'"""
+
+        # Track whether or not the virtual user has registered for a competition
         self.registered = False 
 
-        # Pop credentials from list
+        # Pop WCA ID from list of valid WCA ID's
         wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
         print(wca_id)
 
