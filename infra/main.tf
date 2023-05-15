@@ -23,3 +23,22 @@ provider "aws" {
     }
   }
 }
+
+module "shared_resources" {
+  source = "./shared"
+}
+
+module "handler" {
+  source = "./handler"
+
+  shared_resources = module.shared_resources
+  depends_on = [module.shared_resources]
+}
+
+module "worker" {
+  source = "./worker"
+
+  shared_resources = module.shared_resources
+  depends_on = [module.shared_resources]
+}
+

@@ -1,5 +1,12 @@
+require 'aws-sdk-dynamodb'
+
 class RegistrationProcessor
   def self.process_message(message)
+    if ENV['LOCALSTACK_ENDPOINT']
+      @dynamodb ||= Aws::DynamoDB::Client.new(endpoint: ENV['LOCALSTACK_ENDPOINT'])
+    else
+      @dynamodb ||= Aws::DynamoDB::Client.new
+    end
     # implement your message processing logic here
     puts "Working on Message: #{message}"
     if message['step'] == "Event Registration"
@@ -16,7 +23,7 @@ class RegistrationProcessor
   private
 
   def self.save_registration(registration)
-    $dynamodb.put_item({
+    @dynamodb.put_item({
        table_name: 'Registrations',
        item: registration
      })

@@ -3,7 +3,7 @@ services:
   wca_registration:
     build:
       context: .
-      dockerfile: dockerfile.dev
+      dockerfile: dockerfile.worker.dev
     ports:
       - "3001:3000"
     environment:
@@ -12,8 +12,6 @@ services:
       - .:/app
       - gems_volume:/usr/local/bundle
     tty: true
-    # First, install Ruby and Node dependencies
-    # Start the server and bind to 0.0.0.0 (vs 127.0.0.1) so Docker's port mappings work correctly
     command: >
       bash -c 'bundle install && yarn install &&
       bin/rails test'

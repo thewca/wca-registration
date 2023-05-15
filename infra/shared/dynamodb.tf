@@ -20,3 +20,7 @@ resource "aws_dynamodb_table" "registrations" {
     enabled        = false
   }
 }
+
+output "dynamo_registration_table" {
+  value = aws_dynamodb_table.registrations.arn
+}
