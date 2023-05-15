@@ -31,6 +31,8 @@ Once locust is installed, you can run it by running `locust` in the console. The
 Note that you may have to increase the amount of files your OS allows to be open at once in order to run more than 1000 virtual users - a console warning will prompt you towards instructions to achieve this on your OS.  
 
 # TODO
+
+## Initial setup
 x Set up virtualenv
 x Install locust
 x Visit homepage (basic locust script)
@@ -44,3 +46,19 @@ x Try and submit a registration to staging using Locust (only 1 user)
         - Programmatically generate them/extract them from the html
 x Try and submit registrations for 2 users reading from a dict
 x Generate a bunch of registration information and put it in a CSV, then run locust tests based on it
+
+
+## Overcoming errors
+
+Issue: 
+- can't spawn users fast enough
+- running into OSError101 (no connection)
+
+
+Solution 1:
+- run it through mobile data, see if that helps
+
+Solution 2: Run it from a server
+- Figure out how to run locust cli only
+
+Solution 3: Run across multiple machines / cores
