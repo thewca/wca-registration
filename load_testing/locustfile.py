@@ -32,10 +32,10 @@ class TestUser(HttpUser):
             print(wca_id)
 
         # Logs the user in
-        response = self.client.get("https://staging.worldcubeassociation.org/users/sign_in")
+        response = self.client.get("/users/sign_in")
         auth_token = self.extract_auth_token(response.text)
 
-        response = self.client.post("https://staging.worldcubeassociation.org/users/sign_in", data={
+        response = self.client.post("/users/sign_in", data={
             "authenticity_token": auth_token,
             "user[login]": wca_id,
             "user[password]": "wca",
