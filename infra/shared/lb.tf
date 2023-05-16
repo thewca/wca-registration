@@ -134,3 +134,23 @@ resource "aws_lb_listener" "http" {
     Name = "${var.name_prefix}-http"
   }
 }
+
+output "lb_security" {
+  value = aws_security_group.lb.id
+}
+
+output "main_target_group" {
+  value = aws_lb_target_group.this[0]
+}
+# for Blue Green deployments
+output "secondary_target_group" {
+  value = aws_lb_target_group.this[1]
+}
+
+output "https_listener" {
+  value = aws_lb_listener.https
+}
+
+output "http_listener" {
+  value = aws_lb_listener.http
+}

@@ -95,32 +95,6 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
   policy = data.aws_iam_policy_document.codepipeline_policy.json
 }
 
-#resource "aws_codebuild_project" "migrate" {
-#  name         = "${var.name_prefix}-migrate"
-#  service_role = aws_iam_role.codepipeline_role.arn
-#
-#  artifacts {
-#    type = "NO_ARTIFACTS"
-#  }
-#
-#  environment {
-#    compute_type                = "BUILD_GENERAL1_SMALL"
-#    type                        = "LINUX_CONTAINER"
-#    image                       = "aws/codebuild/standard:6.0"
-#    image_pull_credentials_type = "CODEBUILD"
-#  }
-#
-#  source {
-#    type = "NO_SOURCE"
-#    buildspec = templatefile("templates/buildspec_migrate.yml.tftpl", {
-#      ecs_cluster_name        = aws_ecs_cluster.this.name
-#      ecs_task_definition_arn = aws_ecs_task_definition.migrate.arn
-#      ecs_subnet_ids          = join(",", aws_subnet.private[*].id)
-#      ecs_security_groups     = aws_security_group.cluster.id
-#    })
-#  }
-#}
-
 resource "aws_codebuild_project" "build" {
   name         = "${var.name_prefix}-build"
   service_role = aws_iam_role.codepipeline_role.arn
@@ -138,11 +112,11 @@ resource "aws_codebuild_project" "build" {
 
   source {
     type = "CODEPIPELINE"
-    buildspec = templatefile("templates/buildspec_build.yml.tftpl", {
-      container_name         = "main"
+    buildspec = templatefile("./templates/buildspec_build.yml.tftpl", {
+      container_name         = "handler"
       container_port         = 3000
-      task_definition        = aws_ecs_task_definition.main.arn
-      capacity_provider_name = aws_ecs_capacity_provider.this.name
+      task_definition        = aws_ecs_task_definition.this.arn
+      capacity_provider_name = var.shared_resources.capacity_provider.name
     })
   }
 }
@@ -201,22 +175,22 @@ resource "aws_codedeploy_deployment_group" "this" {
   }
 
   ecs_service {
-    cluster_name = aws_ecs_cluster.this.name
-    service_name = aws_ecs_service.main.name
+    cluster_name = var.shared_resources.ecs_cluster.name
+    service_name = aws_ecs_service.this.name
   }
 
   load_balancer_info {
     target_group_pair_info {
       prod_traffic_route {
-        listener_arns = [aws_lb_listener.https.arn]
+        listener_arns = [var.shared_resources.https_listener.arn]
       }
 
       target_group {
-        name = aws_lb_target_group.this[0].name
+        name = var.shared_resources.main_target_group.name
       }
 
       target_group {
-        name = aws_lb_target_group.this[1].name
+        name = var.shared_resources.secondary_target_group.name
       }
     }
   }
@@ -315,24 +289,6 @@ resource "aws_codepipeline" "this" {
       }
     }
   }
-# At the Moment we don't need a migrate stage
-#  stage {
-#    name = "migrate"
-#
-#    action {
-#      name     = "migrate"
-#      category = "Build"
-#      owner    = "AWS"
-#      provider = "CodeBuild"
-#      version  = "1"
-#
-#      input_artifacts = ["image"]
-#
-#      configuration = {
-#        ProjectName = aws_codebuild_project.migrate.name
-#      }
-#    }
-#  }
 
   stage {
     name = "deploy"

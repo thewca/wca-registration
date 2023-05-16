@@ -19,4 +19,12 @@ resource "aws_dynamodb_table" "registrations" {
     attribute_name = "TimeToExist"
     enabled        = false
   }
+
+  lifecycle {
+    ignore_changes = [ttl]
+  }
+}
+
+output "dynamo_registration_table" {
+  value = aws_dynamodb_table.registrations.arn
 }

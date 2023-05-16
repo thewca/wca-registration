@@ -35,5 +35,5 @@
 .idea
 tmp
 node_modules
-storage
+localstack
 yarn.lock

@@ -1,25 +1,74 @@
 version: "3.8"
 services:
-  wca_registration:
+  wca_registration_handler:
     build:
       context: .
       dockerfile: dockerfile.dev
     ports:
       - "3001:3000"
     environment:
-      WCA_MAIN: test
+      LOCALSTACK_ENDPOINT: "http://localstack:4566"
+      AWS_REGION: "us-east-1"
+      AWS_ACCESS_KEY_ID: "fake-key"
+      AWS_SECRET_ACCESS_KEY: "fake-access-key"
     volumes:
       - .:/app
-      - gems_volume:/usr/local/bundle
+      - gems_volume_handler:/usr/local/bundle
     tty: true
     command: >
       bash -c 'bundle install && yarn install &&
       bin/rails test'
     networks:
       - wca-registration
+    depends_on:
+      - localstack
+
+  wca_registration_worker:
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    environment:
+      LOCALSTACK_ENDPOINT: "http://localstack:4566"
+      AWS_REGION: "us-east-1"
+      AWS_ACCESS_KEY_ID: "fake-key"
+      AWS_SECRET_ACCESS_KEY: "fake-access-key"
+
+    volumes:
+      - .:/app
+      - gems_volume_worker:/usr/local/bundle
+    tty: true
+    # First, install Ruby and Node dependencies
+    # Start the server and bind to 0.0.0.0 (vs 127.0.0.1) so Docker's port mappings work correctly
+    command: >
+      bash -c 'bundle install &&
+      while ! curl http://wca_registration_handler:3000/healthcheck >/dev/null 2>&1; do
+              echo "Waiting for Handler to be ready" && sleep 5 ;
+            done && ruby -r "/app/app/worker/queue_poller.rb" -e "QueuePoller.perform"'
+    networks:
+      - wca-registration
+    depends_on:
+      - wca_registration_handler
+
+  # Emulate AWS Services Locally
+  localstack:
+    container_name: "localstack"
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      - DEBUG=${DEBUG-}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "./localstack/volume:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - wca-registration
 
 volumes:
-  gems_volume:
+  gems_volume_handler:
+    driver: local
+  gems_volume_worker:
     driver: local
 
 networks:
