@@ -81,6 +81,19 @@ services:
     networks:
       - wca-registration
 
+  # Frontend
+  frontend:
+    build:
+      context: Frontend
+    ports:
+      - "3002:3000"
+    tty:
+      true
+    networks:
+      - wca-registration
+    volumes:
+      - ./Frontend:/app
+
 volumes:
   gems_volume_handler:
     driver: local

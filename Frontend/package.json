@@ -1,0 +1,25 @@
+{
+  "name": "wca-registration-frontend",
+  "version": "1.0.0",
+  "description": "The Frontend for the WCA Registration service",
+  "scripts": {
+    "build": "node src/build.js",
+    "watch": "node src/watch.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thewca/wca-registration.git"
+  },
+  "author": "WCA Software Team",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/thewca/wca-registration/issues"
+  },
+  "homepage": "https://github.com/thewca/wca-registration/Frontend/README.md",
+  "dependencies": {
+    "esbuild": "^0.17.19",
+    "esbuild-scss-modules-plugin": "^1.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

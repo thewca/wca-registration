@@ -1,0 +1,31 @@
+# Set the base image to the official Node.js image
+FROM node:18 as build
+
+# Create a working directory for the app
+WORKDIR /app
+
+# Copy the package.json and package-lock.json files to the working directory
+COPY package*.json ./
+
+# Install dependencies using npm
+RUN npm install
+
+COPY src ./src
+
+RUN npm run build
+
+FROM busybox:1.35
+
+# Create a non-root user to own the files and run our server
+RUN adduser -D static
+USER static
+WORKDIR /home/static
+EXPOSE 3000
+
+# Copy the static website
+# Use the .dockerignore file to control what ends up inside the image!
+COPY --from=build /app/dist/bundle.js ./index.js
+COPY --from=build /app/dist/bundle.css ./styles.css
+COPY index.html ./index.html
+
+CMD ["busybox", "httpd", "-f", "-v", "-p", "3000"]

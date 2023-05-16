@@ -39,3 +39,11 @@ jobs:
       - name: Deploy worker
         run: |
           aws ecs update-service --cluster wca-registration --service wca-registration-worker --force-new-deployment
+      - name: Deploy Frontend
+        run: |
+          cd ./Frontend
+          npm install
+          npm run build
+          aws s3 cp dist/bundle.js s3://assets.registration.worldcubeassociation.org/bundle.js
+          aws s3 cp dist/bundles.css s3://assets.registration.worldcubeassociation.org/bundle.css
+          aws cloudfront create-invalidation --distribution-id E27DF3APYZ1XT1 --paths "/bundle.js" "/bundle.css"
