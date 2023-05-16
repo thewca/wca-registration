@@ -172,7 +172,7 @@ resource "aws_ecs_service" "this" {
   }
 
   deployment_controller {
-    type = "CODE_DEPLOY"
+    type = "ECS"
   }
 
   tags = {
