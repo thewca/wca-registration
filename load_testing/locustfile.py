@@ -9,7 +9,7 @@ import csv
 debug = False # Saves HTML pages accessed if true
 target_comp = "/competitions/WiltshireSummer2023"
 wca_ids = []
-login_only = True # Set to True to prevent virtual users from trying to register
+login_only = False # Set to True to prevent virtual users from trying to register
 
 # Read in the list of WCA IDs
 with open("wca_id_list.csv", "r") as id_list:
@@ -69,9 +69,10 @@ class TestUser(HttpUser):
         registration_data["registration[comments]"] = ""
         registration_data["commit"] = "Register!"
 
-        print("Registration data to be submitted")
-        for key in registration_data:
-            print(f"{key}: {registration_data[key]}")
+        if debug:
+            print("Registration data to be submitted")
+            for key in registration_data:
+                print(f"{key}: {registration_data[key]}")
 
         response = self.client.post(f"{target_comp}/registrations", data = registration_data)
 
@@ -114,7 +115,8 @@ class TestUser(HttpUser):
                     try:
                         value = input_tag['value']
                     except KeyError:
-                        print("no value found in tag keys")
+                        if debug:
+                            print("no value found in tag keys")
                         value = ""
                 else:
                     value = input_tag['value']
