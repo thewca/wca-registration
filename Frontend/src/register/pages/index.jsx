@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './index.module.scss'
-import RegistrationList from './register/components/registration_list'
-import RegistrationPanel from './register/components/registration_panel'
+import RegistrationList from '../components/registration_list'
+import RegistrationPanel from '../components/registration_panel'
 
 export default function App() {
   return (

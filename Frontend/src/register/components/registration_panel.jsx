@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import submitEventRegistration from '../../../api/registration/post/submit_registration'
+import submitEventRegistration from '../../api/registration/post/submit_registration'
 import styles from './panel.module.scss'
 
 const EVENTS = ['3x3', '4x4']

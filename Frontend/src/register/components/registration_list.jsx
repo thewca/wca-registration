@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import deleteRegistration from '../../../api/registration/delete/delete_registration'
-import getRegistrations from '../../../api/registration/get/get_registrations'
-import updateRegistration from '../../../api/registration/patch/update_registration'
+import deleteRegistration from '../../api/registration/delete/delete_registration'
+import getRegistrations from '../../api/registration/get/get_registrations'
+import updateRegistration from '../../api/registration/patch/update_registration'
 import styles from './list.module.scss'
 
 function StatusDropdown({ status, setStatus }) {
@@ -9,7 +9,7 @@ function StatusDropdown({ status, setStatus }) {
   return (
     <select onChange={(e) => setStatus(e.target.value)} value={status}>
       {options.map((opt) => (
-        <option key={opt} selected={status === opt}>
+        <option key={opt}>
           {opt}
         </option>
       ))}

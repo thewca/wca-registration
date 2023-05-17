@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import App from './pages'
+import App from './register/pages'
 
 // Clear the existing HTML content
 document.body.innerHTML = '<div id="app"></div>'
