@@ -11,6 +11,8 @@ services:
       AWS_REGION: "us-east-1"
       AWS_ACCESS_KEY_ID: "fake-key"
       AWS_SECRET_ACCESS_KEY: "fake-access-key"
+      VAULT_ADDR: "http://wca_vault:8200"
+      VAULT_DEV_ROOT_TOKEN_ID: aDGdUASDGIUASGDKI
     volumes:
       - .:/app
       - gems_volume_handler:/usr/local/bundle
@@ -24,6 +26,7 @@ services:
       - wca-registration
     depends_on:
       - localstack
+      - wca_vault
 
   wca_registration_worker:
     build:
@@ -78,6 +81,15 @@ services:
       AWS_SECRET_ACCESS_KEY: my_cool_secret
     depends_on:
       - localstack
+    networks:
+      - wca-registration
+
+  wca_vault:
+    image: hashicorp/vault
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=aDGdUASDGIUASGDKI
+    ports:
+      - "8200:8200"
     networks:
       - wca-registration
 
