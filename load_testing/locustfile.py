@@ -140,7 +140,8 @@ class TestUser(HttpUser):
             registration_data["registration[comments]"] = ""
             registration_data["commit"] = "Register!"
         else:
-            registration_data["method"] = "patch"
+            print("patch entry")
+            registration_data["_method"] = "patch"
             registration_data["registration[status]"] = "pending"
             registration_data["commit"] = "Update Registration"
 
