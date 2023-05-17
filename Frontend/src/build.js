@@ -1,4 +1,5 @@
 const esbuild = require('esbuild');
+const process = require("process");
 esbuild
     .build({
         entryPoints: ['src/index.jsx'],
@@ -14,7 +15,7 @@ esbuild
         ],
         define: {
             'process.env.NODE_ENV': '"production"',
-            'process.env.API_URL': `"http://localhost:3001"`
+            'process.env.API_URL': `"${process.env.API_URL}"`
         },
     })
     .catch(() => process.exit(1));

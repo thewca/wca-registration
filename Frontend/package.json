@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "The Frontend for the WCA Registration service",
   "scripts": {
-    "build": "node src/build.js",
+    "build-dev": "API_URL=\"http://localhost:3001\" node src/build.js",
+    "build-prod": "API_URL=\"https://registration.worldcubeassociation.org\" node src/build.js",
     "watch": "node src/watch.js"
   },
   "repository": {
