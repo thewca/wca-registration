@@ -14,8 +14,7 @@ const context = await esbuild.context({
     }),
   ],
   define: {
-    'process.env.NODE_ENV': '"production"',
-    'process.env.API_URL': '"localhost:3001"',
+    'process.env.API_URL': '"http://localhost:3001"',
   },
 })
 
