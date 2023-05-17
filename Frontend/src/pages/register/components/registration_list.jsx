@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import styles from "./list.module.scss"
-import get_registrations from "../../../api/registration/get/get_registrations";
-import delete_registration from "../../../api/registration/delete/delete_registration";
-import update_registration from "../../../api/registration/patch/update_registration";
+import getRegistrations from "../../../api/registration/get/get_registrations";
+import deleteRegistration from "../../../api/registration/delete/delete_registration";
+import updateRegistration from "../../../api/registration/patch/update_registration";
 
 function StatusDropdown({ status, setStatus }) {
     const options = ["waiting", "accepted"]
@@ -21,11 +21,11 @@ function RegistrationRow( { competitorId, eventIDs, serverStatus, competitionID,
         <td>{eventIDs.join(",")}</td>
         <td><StatusDropdown status={status} setStatus={setStatus}></StatusDropdown></td>
         <td><button onClick={ _=> {
-            update_registration(competitorId, competitionID, status)
+            updateRegistration(competitorId, competitionID, status)
         }
         }> Apply</button></td>
         <td><button onClick={ _ => {
-            delete_registration(competitorId, competitionID);
+            deleteRegistration(competitorId, competitionID);
             setRegistrationList(registrationList.filter((r) => r.competitor_id !== competitorId))
         }
         }> Delete</button></td>
@@ -33,7 +33,7 @@ function RegistrationRow( { competitorId, eventIDs, serverStatus, competitionID,
 }
 
 async function getRegistrationFromServer(competitionID){
-    const data = await get_registrations(competitionID)
+    const data = await getRegistrations(competitionID)
     if(data.error){
         console.log(data)
     }else{

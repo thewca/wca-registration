@@ -1,20 +1,9 @@
-export default async function delete_registration(competitor_id, competition_id){
+import backendFetch from "../../helper/backend_fetch";
+
+export default async function deleteRegistration(competitorID, competitionID){
     const formData = new FormData();
-    formData.append('competitor_id', competitor_id);
-    formData.append('competition_id', competition_id);
+    formData.append('competitor_id', competitorID);
+    formData.append('competition_id', competitionID);
 
-    try {
-        const response = await fetch('http://localhost:3001/register', {
-            method: 'DELETE',
-            body: formData
-        });
-
-        if (response.ok) {
-            return await response.json()
-        } else {
-            return {error: response.statusText, statusCode: response.status}
-        }
-    } catch (error) {
-        return {error: error, statusCode: 500}
-    }
+    return await backendFetch("/register", "DELETE", formData);
 }

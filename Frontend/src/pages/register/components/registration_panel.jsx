@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import styles from "./panel.module.scss"
-import submit_event_registration from "../../../api/registration/post/submit_registration";
+import submitEventRegistration from "../../../api/registration/post/submit_registration";
 
 const EVENTS = [ "3x3", "4x4" ]
 
@@ -40,6 +40,6 @@ export default function RegistrationPanel({ }) {
                    onChange={ e => setCompetitionID(e.target.value)}/>
         </label>
         <EventSelection events={events} setEvents={setEvents}> </EventSelection>
-        <button onClick={_ => submit_event_registration(competitorID, competitionID, events)}> Insert Registration</button>
+        <button onClick={_ => submitEventRegistration(competitorID, competitionID, events)}> Insert Registration</button>
     </div>
 }
