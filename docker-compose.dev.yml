@@ -89,6 +89,7 @@ services:
       - "3002:3000"
     tty:
       true
+    command: bash -c "npm run watch"
     networks:
       - wca-registration
     volumes:

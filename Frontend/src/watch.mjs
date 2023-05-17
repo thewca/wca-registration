@@ -1,6 +1,6 @@
-const esbuild = require('esbuild')
+import * as esbuild from 'esbuild';
+import {ScssModulesPlugin} from "esbuild-scss-modules-plugin";
 
-// Create a context for incremental builds
 const context = await esbuild.context({
   entryPoints: ['src/index.jsx'],
   bundle: true,
@@ -8,7 +8,7 @@ const context = await esbuild.context({
   jsxFactory: 'React.createElement',
   jsxFragment: 'React.Fragment',
   plugins: [
-    require('esbuild-scss-modules-plugin').ScssModulesPlugin({
+    ScssModulesPlugin({
       inject: true,
       minify: true,
     }),
@@ -23,7 +23,8 @@ const context = await esbuild.context({
 await context.watch()
 
 // Enable serve mode
-await context.serve()
+await context.serve({
+  port: 3000,
+  servedir: "."
+})
 
-// Dispose of the context
-context.dispose()
