@@ -45,5 +45,5 @@ jobs:
           npm install
           npm run build-prod
           aws s3 cp dist/bundle.js s3://assets.registration.worldcubeassociation.org/bundle.js
-          aws s3 cp dist/bundles.css s3://assets.registration.worldcubeassociation.org/bundle.css
-          aws cloudfront create-invalidation --distribution-id E27DF3APYZ1XT1 --paths "/bundle.js" "/bundle.css"
+          aws s3 cp dist/bundle.css s3://assets.registration.worldcubeassociation.org/bundle.css
+          aws cloudfront create-invalidation --distribution-id E322K044MBR5FG --paths "/bundle.js" "/bundle.css" --output text
