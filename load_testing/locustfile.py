@@ -7,9 +7,13 @@ import csv
 
 # Initialise global variables
 debug = False # Saves HTML pages accessed if true
-target_comp = "/competitions/WiltshireSummer2023"
 wca_ids = []
 login_only = False # Set to True to prevent virtual users from trying to register
+
+## Comp data
+target_comp = "/competitions/SOSNewmarket2023"
+comp_id = "627375"
+register_with_guests = True
 
 # Read in the list of WCA IDs
 with open("wca_id_list.csv", "r") as id_list:
@@ -27,9 +31,9 @@ class TestUser(HttpUser):
         self.registered = False 
 
         # Pop WCA ID from list of valid WCA ID's
-        wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
+        self.wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
         if debug:
-            print(wca_id)
+            print(self.wca_id)
 
         # Logs the user in
         response = self.client.get("/users/sign_in")
@@ -37,7 +41,7 @@ class TestUser(HttpUser):
 
         response = self.client.post("/users/sign_in", data={
             "authenticity_token": auth_token,
-            "user[login]": wca_id,
+            "user[login]": self.wca_id,
             "user[password]": "wca",
             "user[remember_me]": "0",
             "commit": "Sign in"
@@ -65,15 +69,14 @@ class TestUser(HttpUser):
         # Add event data from registration page
         registration_data = self.add_default_registration_data(response.text, registration_data)
 
-        # Add comment and commit
-        registration_data["registration[comments]"] = ""
-        registration_data["commit"] = "Register!"
+        response = self.client.post(f"{target_comp}/registrations/", data = registration_data)
+        # if self.new_registration:
+        #     response = self.client.post(f"{target_comp}/registrations/", data = registration_data)
+        # else:
+        #     response = self.client.post(f"/registrations/{comp_id}", data = registration_data)
 
-
-        response = self.client.post(f"{target_comp}/registrations", data = registration_data)
-
-        if debug or response.status_code == 422:
-            print("Registration data submitted")
+        if debug or response.status_code != 200:
+            print(f"CODE: {response.status_code} | Registration data submitted for user: {self.wca_id}")
             for key in registration_data:
                 print(f"{key}: {registration_data[key]}")
 
@@ -93,6 +96,7 @@ class TestUser(HttpUser):
                 print("No auth token found.")
 
     def add_default_registration_data(self, html: str, registration_data: dict) -> dict:
+        self.new_registration = False
 
         # Convert html to a BeautifulSoup object
         soup = BeautifulSoup(html, 'html.parser')
@@ -105,7 +109,7 @@ class TestUser(HttpUser):
         # get spans containing the event checkboxes
         event_spans = soup.find_all('span', {'class': 'event-checkbox'})
 
-        # loop through the spans and add the input key/value pairs to registration data
+        # Event-specific data: loop through the spans and add the input key/value pairs to registration data
         for event_span in event_spans:
             inputs = event_span.find_all('input')
             for input_tag in inputs:
@@ -114,8 +118,12 @@ class TestUser(HttpUser):
                 # Special case for the "id" tag, as if the registration is being submitted for the first time it won't have a "value" field.
                 if name.find("id") > -1:
                     try:
+                        # Set the event ID value if it exists
                         value = input_tag['value']
                     except KeyError:
+                        # If the event ID value doesn't exist, we have a new registration
+                        self.new_registration = True
+
                         if debug:
                             print("no value found in tag keys")
                         value = ""
@@ -123,6 +131,18 @@ class TestUser(HttpUser):
                     value = input_tag['value']
 
                 registration_data[name] = value
+
+        # Add default registration data
+        if register_with_guests:
+            registration_data["registration[guests]"] = "0"
+
+        if self.new_registration:
+            registration_data["registration[comments]"] = ""
+            registration_data["commit"] = "Register!"
+        else:
+            registration_data["method"] = "patch"
+            registration_data["registration[status]"] = "pending"
+            registration_data["commit"] = "Update Registration"
 
         # now form_data contains a dict of input names and values
         return registration_data
