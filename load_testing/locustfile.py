@@ -69,12 +69,13 @@ class TestUser(HttpUser):
         registration_data["registration[comments]"] = ""
         registration_data["commit"] = "Register!"
 
-        if debug:
-            print("Registration data to be submitted")
-            for key in registration_data:
-                print(f"{key}: {registration_data[key]}")
 
         response = self.client.post(f"{target_comp}/registrations", data = registration_data)
+
+        if debug or response.status_code == 422:
+            print("Registration data submitted")
+            for key in registration_data:
+                print(f"{key}: {registration_data[key]}")
 
         self.registered = True
 
