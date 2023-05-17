@@ -93,7 +93,7 @@ services:
     networks:
       - wca-registration
     volumes:
-      - ./Frontend:/app
+      - ./Frontend/src:/app/src
 
 volumes:
   gems_volume_handler:
