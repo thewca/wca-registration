@@ -2,11 +2,6 @@
   "name": "wca-registration-frontend",
   "version": "1.0.0",
   "description": "The Frontend for the WCA Registration service",
-  "scripts": {
-    "build-dev": "API_URL=\"http://localhost:3001\" node src/build.js",
-    "build-prod": "API_URL=\"https://registration.worldcubeassociation.org\" node src/build.js",
-    "watch": "node src/watch.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/thewca/wca-registration.git"
@@ -17,10 +12,22 @@
     "url": "https://github.com/thewca/wca-registration/issues"
   },
   "homepage": "https://github.com/thewca/wca-registration/Frontend/README.md",
+  "scripts": {
+    "build-dev": "API_URL=\"http://localhost:3001\" node src/build.js",
+    "build-prod": "API_URL=\"https://registration.worldcubeassociation.org\" node src/build.js",
+    "watch": "node src/watch.js",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix"
+  },
   "dependencies": {
     "esbuild": "^0.17.19",
     "esbuild-scss-modules-plugin": "^1.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "eslint-kit": "^8.5.0",
+    "prettier": "^2.8.8"
   }
 }

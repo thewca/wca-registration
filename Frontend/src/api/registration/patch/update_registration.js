@@ -1,10 +1,14 @@
-import backendFetch from "../../helper/backend_fetch";
+import backendFetch from '../../helper/backend_fetch'
 
-export default async function updateRegistration(competitorID, competitionID, status){
-    const formData = new FormData();
-    formData.append('competitor_id', competitorID);
-    formData.append('competition_id', competitionID);
-    formData.append("status", status);
+export default async function updateRegistration(
+  competitorID,
+  competitionID,
+  status
+) {
+  const formData = new FormData()
+  formData.append('competitor_id', competitorID)
+  formData.append('competition_id', competitionID)
+  formData.append('status', status)
 
-    return await backendFetch("/register", "PATCH", formData);
+  return backendFetch('/register', 'PATCH', formData)
 }
