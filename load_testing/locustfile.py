@@ -12,7 +12,6 @@ login_only = False # Set to True to prevent virtual users from trying to registe
 
 ## Comp data
 target_comp = "/competitions/SOSNewmarket2023"
-comp_id = "627375"
 register_with_guests = True
 
 # Read in the list of WCA IDs
@@ -69,11 +68,16 @@ class TestUser(HttpUser):
         # Add event data from registration page
         registration_data = self.add_default_registration_data(response.text, registration_data)
 
-        response = self.client.post(f"{target_comp}/registrations/", data = registration_data)
-        # if self.new_registration:
-        #     response = self.client.post(f"{target_comp}/registrations/", data = registration_data)
-        # else:
-        #     response = self.client.post(f"/registrations/{comp_id}", data = registration_data)
+        if self.new_registration:
+            response = self.client.post(f"{target_comp}/registrations/", data = registration_data)
+        else:
+            try:
+                response = self.client.post(self.update_registration_url, data = registration_data)
+            except AttributeError:
+                print(f"NO UPDATE URL FOUND. CODE: {response.status_code} | Registration data submitted for user: {self.wca_id}")
+                print(self.forms)
+                for key in registration_data:
+                    print(f"{key}: {registration_data[key]}")
 
         if debug or response.status_code != 200:
             print(f"CODE: {response.status_code} | Registration data submitted for user: {self.wca_id}")
@@ -132,6 +136,16 @@ class TestUser(HttpUser):
 
                 registration_data[name] = value
 
+        # Determine registration URL if editing a registration
+        if not self.new_registration:
+
+            # Find form whose id contains "edit_registration_ using bs4"
+            self.forms = soup.find_all(lambda tag: tag.has_attr('id') and 'edit_registration_' in tag['id'])
+            for form in self.forms:
+                if form.get("id").find("edit_registration_") > -1:
+                    update_reg_form = form
+                    self.update_registration_url = update_reg_form.get("action")
+
         # Add default registration data
         if register_with_guests:
             registration_data["registration[guests]"] = "0"
@@ -140,7 +154,6 @@ class TestUser(HttpUser):
             registration_data["registration[comments]"] = ""
             registration_data["commit"] = "Register!"
         else:
-            print("patch entry")
             registration_data["_method"] = "patch"
             registration_data["registration[status]"] = "pending"
             registration_data["commit"] = "Update Registration"
