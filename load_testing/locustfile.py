@@ -6,9 +6,12 @@ import csv
 
 
 # Initialise global variables
-debug = False # Saves HTML pages accessed if true
+ids_starting_index = 0
+ids_used_per_test = 1000
 wca_ids = []
+debug = False # Saves HTML pages accessed if true
 login_only = False # Set to True to prevent virtual users from trying to register
+process_updated_registrations = False
 
 ## Comp data
 target_comp = "/competitions/SOSNewmarket2023"
@@ -20,6 +23,8 @@ with open("wca_id_list.csv", "r") as id_list:
     for row in reader:
         wca_ids.append(row[0])
 
+wca_ids = wca_ids[ids_starting_index:(ids_starting_index+ids_used_per_test)]
+
 
 class TestUser(HttpUser):
 
@@ -30,7 +35,8 @@ class TestUser(HttpUser):
         self.registered = False 
 
         # Pop WCA ID from list of valid WCA ID's
-        self.wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
+        # self.wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
+        self.wca_id = wca_ids.pop()
         if debug:
             print(self.wca_id)
 
@@ -125,8 +131,9 @@ class TestUser(HttpUser):
                         # Set the event ID value if it exists
                         value = input_tag['value']
                     except KeyError:
-                        # If the event ID value doesn't exist, we have a new registration
-                        self.new_registration = True
+                        # If the event ID value doesn't exist, we have a new registration - but only handle it if we're allowed to updated registrations
+                        if process_updated_registrations:
+                            self.new_registration = True
 
                         if debug:
                             print("no value found in tag keys")
