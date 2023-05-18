@@ -1,4 +1,5 @@
 from locust import HttpUser, task, between
+import greenlet
 import random
 from bs4 import BeautifulSoup
 import time
@@ -7,10 +8,10 @@ import csv
 
 # Initialise global variables
 ids_starting_index = 1300
-ids_used_per_test = 100
+ids_used_per_worker = 5
 wca_ids = []
 debug = False # Saves HTML pages accessed if true
-login_only = False # Set to True to prevent virtual users from trying to register
+login_only = True # Set to True to prevent virtual users from trying to register
 
 ## Comp data
 target_comp = "/competitions/EnergyCubeCiechanow2023/"
@@ -22,8 +23,7 @@ with open("wca_id_list.csv", "r") as id_list:
     for row in reader:
         wca_ids.append(row[0])
 
-wca_ids = wca_ids[ids_starting_index:(ids_starting_index+ids_used_per_test)]
-print(wca_ids)
+
 
 
 class TestUser(HttpUser):
@@ -31,12 +31,26 @@ class TestUser(HttpUser):
     def on_start(self):
         """Logs the user in using a random WCA ID from 'wca_id_list.csv'"""
 
+        print(f"Worker index: {self.environment.runner.worker_index}")
+        print(f"Greenlet: {greenlet.getcurrent().minimal_ident}")
+
+
+        # Available WCA IDs
+        worker_index = self.environment.runner.worker_index
+        starting_index = worker_index * ids_used_per_worker 
+        ending_index = (worker_index + 1) * ids_used_per_worker
+        self.worker_wca_ids = wca_ids[starting_index:ending_index]
+        # print(f"Workers IDs for worker {worker_index}")
+        # print(self.worker_wca_ids)
+        
+
         # Track whether or not the virtual user has registered for a competition
         self.registered = False 
 
         # Pop WCA ID from list of valid WCA ID's
         # self.wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
-        self.wca_id = wca_ids.pop()
+        virtual_user_index = greenlet.getcurrent().minimal_ident 
+        self.wca_id = self.worker_wca_ids.pop(virtual_user_index)
         print(self.wca_id)
         if debug:
             print(self.wca_id)
@@ -80,11 +94,13 @@ class TestUser(HttpUser):
         else:
             try:
                 response = self.client.post(self.update_registration_url, data = registration_data)
-            except AttributeError:
-                print(f"NO UPDATE URL FOUND. CODE: {response.status_code} | Registration data submitted for user: {self.wca_id}")
-                print(self.forms)
-                for key in registration_data:
-                    print(f"{key}: {registration_data[key]}")
+            except:
+                pass
+            # except AttributeError:
+            #     print(f"NO UPDATE URL FOUND. CODE: {response.status_code} | Registration data submitted for user: {self.wca_id}")
+            #     print(self.forms)
+            #     for key in registration_data:
+            #         print(f"{key}: {registration_data[key]}")
 
         if debug or response.status_code != 200:
             print(f"CODE: {response.status_code} | Registration data submitted for user: {self.wca_id}")
