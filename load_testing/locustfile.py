@@ -11,11 +11,10 @@ ids_used_per_test = 1000
 wca_ids = []
 debug = False # Saves HTML pages accessed if true
 login_only = False # Set to True to prevent virtual users from trying to register
-process_updated_registrations = False
 
 ## Comp data
-target_comp = "/competitions/SOSNewmarket2023"
-register_with_guests = True
+target_comp = "/competitions/EnergyCubeCiechanow2023/"
+register_with_guests = False
 
 # Read in the list of WCA IDs
 with open("wca_id_list.csv", "r") as id_list:
@@ -106,7 +105,7 @@ class TestUser(HttpUser):
                 print("No auth token found.")
 
     def add_default_registration_data(self, html: str, registration_data: dict) -> dict:
-        self.new_registration = False
+        self.new_registration = True
 
         # Convert html to a BeautifulSoup object
         soup = BeautifulSoup(html, 'html.parser')
@@ -132,8 +131,7 @@ class TestUser(HttpUser):
                         value = input_tag['value']
                     except KeyError:
                         # If the event ID value doesn't exist, we have a new registration - but only handle it if we're allowed to updated registrations
-                        if process_updated_registrations:
-                            self.new_registration = True
+                        self.new_registration = True
 
                         if debug:
                             print("no value found in tag keys")
