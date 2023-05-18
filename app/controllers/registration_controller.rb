@@ -1,6 +1,6 @@
 require 'securerandom'
-require_relative 'helpers/competition_api'
-require_relative 'helpers/competitor_api'
+require_relative '../helpers/competition_api'
+require_relative '../helpers/competitor_api'
 
 class RegistrationController < ApplicationController
   def create
@@ -110,13 +110,13 @@ class RegistrationController < ApplicationController
 
   def user_exists(competitor_id)
     Rails.cache.fetch(competitor_id,expires_in: 12.hours) do
-      CompetitorAPI.check_competitor(competitor_id)
+      CompetitorApi.check_competitor(competitor_id)
     end
   end
 
   def competition_open(competition_id)
     Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      CompetitionAPI.check_competition(competition_id)
+      CompetitionApi.check_competition(competition_id)
     end
   end
 

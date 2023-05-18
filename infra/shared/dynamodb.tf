@@ -28,3 +28,20 @@ resource "aws_dynamodb_table" "registrations" {
 output "dynamo_registration_table" {
   value = aws_dynamodb_table.registrations.arn
 }
+
+# Add autoscaling
+module "table_autoscaling" {
+  source  = "snowplow-devops/dynamodb-autoscaling/aws"
+  version = "0.2.1"
+  table_name = aws_dynamodb_table.registrations.id
+  read_max_capacity = 100
+  read_min_capacity = 5
+  read_scale_in_cooldown = 30
+  read_scale_out_cooldown = 30
+  read_target_value = 75
+  write_max_capacity = 100
+  write_min_capacity = 5
+  write_scale_in_cooldown = 30
+  write_scale_out_cooldown = 30
+  write_target_value = 85
+}

@@ -105,7 +105,7 @@ resource "aws_launch_configuration" "this" {
 resource "aws_autoscaling_group" "this" {
   name_prefix               = "${var.name_prefix}-"
   min_size                  = 1
-  max_size                  = 2
+  max_size                  = 6
   desired_capacity          = 1
   vpc_zone_identifier       = aws_subnet.private[*].id
   launch_configuration      = aws_launch_configuration.this.name

@@ -3,7 +3,7 @@ require 'uri'
 require 'net/http'
 require 'json'
 
-class CompetitorAPI
+class CompetitorApi
   def self.check_competitor(competitor_id)
     uri = URI("https://www.worldcubeassociation.org/api/v0/users/#{competitor_id}")
     res = Net::HTTP.get_response(uri)

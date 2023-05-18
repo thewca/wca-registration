@@ -198,6 +198,8 @@ resource "aws_ecs_service" "this" {
       desired_count,
       # The target group changes during Blue/Green deployment
       load_balancer,
+      # The Task definition will be set by Code Deploy
+      task_definition
     ]
   }
 }
@@ -207,7 +209,7 @@ resource "aws_appautoscaling_target" "this" {
   resource_id        = "service/${var.shared_resources.ecs_cluster.name}/${aws_ecs_service.this.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   min_capacity       = 1
-  max_capacity       = 2
+  max_capacity       = 10
 }
 
 resource "aws_appautoscaling_policy" "this" {
@@ -219,8 +221,8 @@ resource "aws_appautoscaling_policy" "this" {
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
-      # predefined_metric_type = "ECSServiceAverageCPUUtilization"
-      predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+      # predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
 
     # target_value = 80
