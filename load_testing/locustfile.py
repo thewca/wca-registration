@@ -79,7 +79,6 @@ class TestUser(HttpUser):
             # Process needs to be manually killed in console with Ctrl+C
             time.sleep(1)
 
-        time.sleep(pause_before_registering)
 
         # Navigate to registration page and extract auth token
         response = self.client.get(f"{target_comp}/register")
@@ -89,6 +88,8 @@ class TestUser(HttpUser):
 
         # Add event data from registration page
         registration_data = self.add_default_registration_data(response.text, registration_data)
+
+        time.sleep(pause_before_registering)
 
         if self.new_registration:
             response = self.client.post(f"{target_comp}/registrations/", data = registration_data)
