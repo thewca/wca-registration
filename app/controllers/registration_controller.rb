@@ -1,12 +1,15 @@
 require 'securerandom'
+require_relative 'helpers/competition_api'
+require_relative 'helpers/competitor_api'
+
 class RegistrationController < ApplicationController
   def create
     competitor_id = params[:competitor_id]
     competition_id = params[:competition_id]
     event_ids = params[:event_ids]
 
-    unless validate_request(competitor_id, competition_id)
-      return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
+    unless validate_request(competitor_id, competition_id) and !event_ids.empty?
+      return render json: { status: 'User cannot register for competition' }, status: :forbidden
     end
 
     id = SecureRandom.uuid
@@ -18,9 +21,9 @@ class RegistrationController < ApplicationController
       registration_status: "waiting",
       step: "Event Registration"
     }
-    queue = Aws::SQS::Queue.new($sqs.get_queue_url(queue_name: "registrations.fifo").queue_url)
+    @queue ||= Aws::SQS::Queue.new($sqs.get_queue_url(queue_name: "registrations.fifo").queue_url)
 
-    queue.send_message({
+    @queue.send_message({
      queue_url: $queue,
      message_body: step_data.to_json,
      message_group_id: id,
@@ -105,15 +108,33 @@ class RegistrationController < ApplicationController
 
   REGISTRATION_STATUS = %w[waiting accepted]
 
-  def validate_request(competitor_id, competition_id, status="waiting")
-    # check that competitor ID is in the correct format
-    if competitor_id =~ /^\d{4}[a-zA-Z]{4}\d{2}$/
-      # check that competition ID is in the correct format
-      if competition_id =~ /^[a-zA-Z]+\d{4}$/ and REGISTRATION_STATUS.include? status
-        return true
-      end
+  def user_exists(competitor_id)
+    Rails.cache.fetch(competitor_id,expires_in: 12.hours) do
+      CompetitorAPI.check_competitor(competitor_id)
     end
-    false
+  end
+
+  def competition_open(competition_id)
+    Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+      CompetitionAPI.check_competition(competition_id)
+    end
+  end
+
+  def can_user_register?(competitor_id, competition_id)
+    # Check if user exists
+    user_exists(competitor_id) and competition_open(competition_id)
+  end
+
+  def validate_request(competitor_id, competition_id, status="waiting")
+    if competitor_id.present? and competitor_id =~ /^\d{4}[a-zA-Z]{4}\d{2}$/
+      puts 'correct competitor_id'
+      if competition_id =~ /^[a-zA-Z]+\d{4}$/ and REGISTRATION_STATUS.include? status
+        puts 'correct competition id and status'
+        return can_user_register?(competitor_id, competition_id)
+      end
+    else
+      false
+    end
   end
 
 
