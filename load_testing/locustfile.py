@@ -6,8 +6,8 @@ import csv
 
 
 # Initialise global variables
-ids_starting_index = 0
-ids_used_per_test = 1000
+ids_starting_index = 1300
+ids_used_per_test = 100
 wca_ids = []
 debug = False # Saves HTML pages accessed if true
 login_only = False # Set to True to prevent virtual users from trying to register
@@ -23,6 +23,7 @@ with open("wca_id_list.csv", "r") as id_list:
         wca_ids.append(row[0])
 
 wca_ids = wca_ids[ids_starting_index:(ids_starting_index+ids_used_per_test)]
+print(wca_ids)
 
 
 class TestUser(HttpUser):
@@ -36,6 +37,7 @@ class TestUser(HttpUser):
         # Pop WCA ID from list of valid WCA ID's
         # self.wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
         self.wca_id = wca_ids.pop()
+        print(self.wca_id)
         if debug:
             print(self.wca_id)
 
