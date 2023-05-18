@@ -7,14 +7,14 @@ import csv
 
 
 # Initialise global variables
-ids_starting_index = 1300
-ids_used_per_worker = 5
+ids_starting_index = 3000
+ids_used_per_worker = 200
 wca_ids = []
 debug = False # Saves HTML pages accessed if true
 login_only = True # Set to True to prevent virtual users from trying to register
 
 ## Comp data
-target_comp = "/competitions/EnergyCubeCiechanow2023/"
+target_comp = "/competitions/SOSWaterloo2023/"
 register_with_guests = False
 
 # Read in the list of WCA IDs
@@ -103,6 +103,8 @@ class TestUser(HttpUser):
             #         print(f"{key}: {registration_data[key]}")
 
         if debug or response.status_code != 200:
+            print(f"|n*** Worker index: {self.environment.runner.worker_index}")
+            print(f"Greenlet: {greenlet.getcurrent().minimal_ident}")
             print(f"CODE: {response.status_code} | Registration data submitted for user: {self.wca_id}")
             for key in registration_data:
                 print(f"{key}: {registration_data[key]}")
