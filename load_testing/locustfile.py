@@ -23,8 +23,7 @@ with open("wca_id_list.csv", "r") as id_list:
     for row in reader:
         wca_ids.append(row[0])
 
-
-
+wca_ids = wca_ids[ids_starting_index:]
 
 class TestUser(HttpUser):
 
