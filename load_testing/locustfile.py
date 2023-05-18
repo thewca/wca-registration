@@ -7,7 +7,7 @@ import csv
 
 
 # Initialise global variables
-ids_starting_index = 20000
+ids_starting_index = 0
 ids_used_per_worker = 100
 wca_ids = []
 debug = False # Saves HTML pages accessed if true
@@ -15,8 +15,8 @@ login_only = False # Set to True to prevent virtual users from trying to registe
 pause_before_registering = 100.0 # Seconds to pause before registering for a competition - allows for testing POST /register performance in isolation
 
 ## Comp data
-target_comp = "/competitions/SOSWaterloo2023/"
-register_with_guests = False
+target_comp = "/competitions/UtahSummerSideEventsA2023/"
+register_with_guests = True
 
 # Read in the list of WCA IDs
 with open("wca_id_list.csv", "r") as id_list:
