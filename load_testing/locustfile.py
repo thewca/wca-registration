@@ -7,11 +7,12 @@ import csv
 
 
 # Initialise global variables
-ids_starting_index = 8000
+ids_starting_index = 20000
 ids_used_per_worker = 100
 wca_ids = []
 debug = False # Saves HTML pages accessed if true
 login_only = False # Set to True to prevent virtual users from trying to register
+pause_before_registering = 100.0 # Seconds to pause before registering for a competition - allows for testing POST /register performance in isolation
 
 ## Comp data
 target_comp = "/competitions/SOSWaterloo2023/"
@@ -50,7 +51,6 @@ class TestUser(HttpUser):
         # self.wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
         virtual_user_index = greenlet.getcurrent().minimal_ident 
         self.wca_id = self.worker_wca_ids.pop(virtual_user_index)
-        print(self.wca_id)
         if debug:
             print(self.wca_id)
 
@@ -78,6 +78,8 @@ class TestUser(HttpUser):
             # Sleep the worker if user is already registered - could just return, but that will tank CPU performance as it will keep trying to run this task
             # Process needs to be manually killed in console with Ctrl+C
             time.sleep(1)
+
+        time.sleep(pause_before_registering)
 
         # Navigate to registration page and extract auth token
         response = self.client.get(f"{target_comp}/register")

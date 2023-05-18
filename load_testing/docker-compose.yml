@@ -7,7 +7,7 @@ services:
      - "8089:8089"
     volumes:
       - ./:/mnt/locust
-    command: -f /mnt/locust/locustfile.py --master -H http://master:8089 --headless -u 100 -r 10 --expect-workers=2 --run-time 30 --host=https://staging.worldcubeassociation.org
+    command: -f /mnt/locust/locustfile.py --master -H http://master:8089 --headless -u 1000 -r 20 --expect-workers=2 --run-time 30 --host=https://staging.worldcubeassociation.org
   
   worker:
     image: wca-locust
