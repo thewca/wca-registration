@@ -7,11 +7,11 @@ import csv
 
 
 # Initialise global variables
-ids_starting_index = 3000
-ids_used_per_worker = 200
+ids_starting_index = 8000
+ids_used_per_worker = 100
 wca_ids = []
 debug = False # Saves HTML pages accessed if true
-login_only = True # Set to True to prevent virtual users from trying to register
+login_only = False # Set to True to prevent virtual users from trying to register
 
 ## Comp data
 target_comp = "/competitions/SOSWaterloo2023/"
@@ -30,8 +30,8 @@ class TestUser(HttpUser):
     def on_start(self):
         """Logs the user in using a random WCA ID from 'wca_id_list.csv'"""
 
-        print(f"Worker index: {self.environment.runner.worker_index}")
-        print(f"Greenlet: {greenlet.getcurrent().minimal_ident}")
+        # print(f"Worker index: {self.environment.runner.worker_index}")
+        # print(f"Greenlet: {greenlet.getcurrent().minimal_ident}")
 
 
         # Available WCA IDs
@@ -101,7 +101,7 @@ class TestUser(HttpUser):
             #     for key in registration_data:
             #         print(f"{key}: {registration_data[key]}")
 
-        if debug or response.status_code != 200:
+        if debug or response.status_code == 422:
             print(f"|n*** Worker index: {self.environment.runner.worker_index}")
             print(f"Greenlet: {greenlet.getcurrent().minimal_ident}")
             print(f"CODE: {response.status_code} | Registration data submitted for user: {self.wca_id}")
