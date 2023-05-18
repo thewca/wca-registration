@@ -3,19 +3,7 @@ import deleteRegistration from '../../api/registration/delete/delete_registratio
 import getRegistrations from '../../api/registration/get/get_registrations'
 import updateRegistration from '../../api/registration/patch/update_registration'
 import styles from './list.module.scss'
-
-function StatusDropdown({ status, setStatus }) {
-  const options = ['waiting', 'accepted']
-  return (
-    <select onChange={(e) => setStatus(e.target.value)} value={status}>
-      {options.map((opt) => (
-        <option key={opt}>
-          {opt}
-        </option>
-      ))}
-    </select>
-  )
-}
+import StatusDropdown from './StatusDropdown'
 
 function RegistrationRow({
   competitorId,
@@ -53,7 +41,6 @@ function RegistrationRow({
             )
           }}
         >
-          {' '}
           Delete
         </button>
       </td>
