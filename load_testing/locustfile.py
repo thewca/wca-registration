@@ -7,10 +7,10 @@ import csv
 
 
 # Initialise global variables
-ids_starting_index = 0
-ids_used_per_worker = 100
+ids_starting_index = 0 # Prevents duplicate registrations. In sequential tests in the same competition, so the set of WCA IDs used in previous test can be skipped over
+ids_used_per_worker = 100 # Used to apportion a range of wca_ids to each worker to prevent duplicate registrations
 wca_ids = []
-debug = False # Saves HTML pages accessed if true
+debug = False # Enables detailed print statements, and saving of HTML pages accessed
 login_only = False # Set to True to prevent virtual users from trying to register
 pause_before_registering = 100.0 # Seconds to pause before registering for a competition - allows for testing POST /register performance in isolation
 
@@ -29,27 +29,23 @@ wca_ids = wca_ids[ids_starting_index:]
 class TestUser(HttpUser):
 
     def on_start(self):
-        """Logs the user in using a random WCA ID from 'wca_id_list.csv'"""
+        """Assigns the virtual user a unique/non-duplicate wca ID and logs them in using it"""
 
-        # print(f"Worker index: {self.environment.runner.worker_index}")
-        # print(f"Greenlet: {greenlet.getcurrent().minimal_ident}")
+        if debug:
+            print(f"Worker index: {self.environment.runner.worker_index}")
+            print(f"Greenlet: {greenlet.getcurrent().minimal_ident}")
 
-
-        # Available WCA IDs
+        # Determine the available WCA IDs for current worker
         worker_index = self.environment.runner.worker_index
         starting_index = worker_index * ids_used_per_worker 
         ending_index = (worker_index + 1) * ids_used_per_worker
         self.worker_wca_ids = wca_ids[starting_index:ending_index]
-        # print(f"Workers IDs for worker {worker_index}")
-        # print(self.worker_wca_ids)
         
-
         # Track whether or not the virtual user has registered for a competition
         self.registered = False 
 
-        # Pop WCA ID from list of valid WCA ID's
-        # self.wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
-        virtual_user_index = greenlet.getcurrent().minimal_ident 
+        # Assign a unique/non-repeated WCA ID to the virtual user
+        virtual_user_index = greenlet.getcurrent().minimal_ident # Essentially gives the "virtual user number" inside the worker process
         self.wca_id = self.worker_wca_ids.pop(virtual_user_index)
         if debug:
             print(self.wca_id)
@@ -74,6 +70,8 @@ class TestUser(HttpUser):
 
     @task
     def register_for_comp(self):
+        """Access the registration page for the given competition and creates a new registration for that competition."""
+
         while self.registered or login_only:
             # Sleep the worker if user is already registered - could just return, but that will tank CPU performance as it will keep trying to run this task
             # Process needs to be manually killed in console with Ctrl+C
@@ -91,6 +89,8 @@ class TestUser(HttpUser):
 
         time.sleep(pause_before_registering)
 
+        # This code includes the capability to POST updated registrations - however, it produced errors and so is disabled/commented out. 
+        # It can be debugged and re-enabled if needed.
         if self.new_registration:
             response = self.client.post(f"{target_comp}/registrations/", data = registration_data)
         else:
@@ -104,8 +104,9 @@ class TestUser(HttpUser):
             #     for key in registration_data:
             #         print(f"{key}: {registration_data[key]}")
 
-        if debug or response.status_code == 422:
-            print(f"|n*** Worker index: {self.environment.runner.worker_index}")
+        # 422 and 403 are the codes indicating a malformed registration request for the monolith and microservice respectively
+        if debug or response.status_code == 422 or response.status_code == 403: 
+            print(f"\n*** Worker index: {self.environment.runner.worker_index}")
             print(f"Greenlet: {greenlet.getcurrent().minimal_ident}")
             print(f"CODE: {response.status_code} | Registration data submitted for user: {self.wca_id}")
             for key in registration_data:
@@ -114,6 +115,8 @@ class TestUser(HttpUser):
         self.registered = True
 
     def extract_auth_token(self, html):
+        """Extracts auth tokens from forms"""
+
         # Convert html to a BeautifulSoup object
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -127,17 +130,19 @@ class TestUser(HttpUser):
                 print("No auth token found.")
 
     def add_default_registration_data(self, html: str, registration_data: dict) -> dict:
+        """Reads the form for default data (eg, competition event ID's) and includes it in the registration payload"""
+
         self.new_registration = True
 
         # Convert html to a BeautifulSoup object
         soup = BeautifulSoup(html, 'html.parser')
 
         if debug:
-            # prettify the soup object and write it to a file
+            # Prettify the soup object and write it to a file
             with open("register_soup.html", "w") as f:
                 f.write(soup.prettify())
 
-        # get spans containing the event checkboxes
+        # Get spans containing the event checkboxes
         event_spans = soup.find_all('span', {'class': 'event-checkbox'})
 
         # Event-specific data: loop through the spans and add the input key/value pairs to registration data

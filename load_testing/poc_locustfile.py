@@ -4,7 +4,7 @@ import random
 import csv
 import time
 
-competition_id = "HessenOpen2023"
+competition_id = "HessenOpen2023" # Can be any competition_id from WCA website (wca.org/competitions/{competition_id})
 
 
 # Read in the list of WCA IDs
@@ -14,27 +14,23 @@ with open("wca_id_list.csv", "r") as id_list:
     for row in reader:
         wca_ids.append(row[0])
 
+# Global test options
+one_registration_per_user = False
+use_demand_shape = True
+
 class TestUser(HttpUser):
     def on_start(self):
         self.endpoint = "//register"
         self.registered = False
-        
 
     @task
     def submit_registration(self):
+        """Submits a registration to the /register endpoint using multipart form data."""
+
         self.wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
-        # while self.registered:
-        #     time.sleep(1)
 
-        # registration_data = {
-        #         "competitor_id":self.wca_id,
-        #         "competition_id":competition_id,
-        #         "event_ids":["3x3", "4x4"]
-        #         }
-
-        # headers = {
-        #     "Content-Type":"application/json"
-        #         }
+        while self.registered and one_registration_per_user:
+            time.sleep(1)
 
         boundary = "---------------------------123456789012345678901234567890"
 
@@ -82,30 +78,34 @@ class StagesShape(LoadTestShape):
         stop_at_end -- Can be set to stop once all stages have run.
     """
 
-    stages = [
-        {"duration": 60, "users": 6, "spawn_rate": 1},
-        {"duration": 120, "users": 13, "spawn_rate": 1},
-        {"duration": 180, "users": 20, "spawn_rate": 1},
-        {"duration": 240, "users": 26, "spawn_rate": 1},
-        {"duration": 300, "users": 33, "spawn_rate": 1},
-        {"duration": 360, "users": 40, "spawn_rate": 1},
-        {"duration": 420, "users": 46, "spawn_rate": 1},
-        {"duration": 480, "users": 53, "spawn_rate": 1},
-        {"duration": 540, "users": 60, "spawn_rate": 1},
-        {"duration": 600, "users": 66, "spawn_rate": 1},
-        {"duration": 660, "users": 73, "spawn_rate": 1},
-        {"duration": 720, "users": 80, "spawn_rate": 1},
-        {"duration": 780, "users": 86, "spawn_rate": 1},
-        {"duration": 840, "users": 93, "spawn_rate": 1},
-        {"duration": 900, "users": 100, "spawn_rate": 1},
-    ]
+    if use_demand_shape:
 
-    def tick(self):
-        run_time = self.get_run_time()
+        # Currently specifying this manually is ok - but if we want to edit it a lot, or have more stages, creating a function will be the right way to go.
+        stages = [ 
+            {"duration": 60, "users": 6, "spawn_rate": 1},
+            {"duration": 120, "users": 13, "spawn_rate": 1},
+            {"duration": 180, "users": 20, "spawn_rate": 1},
+            {"duration": 240, "users": 26, "spawn_rate": 1},
+            {"duration": 300, "users": 33, "spawn_rate": 1},
+            {"duration": 360, "users": 40, "spawn_rate": 1},
+            {"duration": 420, "users": 46, "spawn_rate": 1},
+            {"duration": 480, "users": 53, "spawn_rate": 1},
+            {"duration": 540, "users": 60, "spawn_rate": 1},
+            {"duration": 600, "users": 66, "spawn_rate": 1},
+            {"duration": 660, "users": 73, "spawn_rate": 1},
+            {"duration": 720, "users": 80, "spawn_rate": 1},
+            {"duration": 780, "users": 86, "spawn_rate": 1},
+            {"duration": 840, "users": 93, "spawn_rate": 1},
+            {"duration": 900, "users": 100, "spawn_rate": 1},
+            {"duration": 11000, "users": 100, "spawn_rate": 1}, # Final stage just lets us run at max demand for a while before quitting
+        ]
 
-        for stage in self.stages:
-            if run_time < stage["duration"]:
-                tick_data = (stage["users"], stage["spawn_rate"])
-                return tick_data
+        def tick(self):
+            run_time = self.get_run_time()
 
-        return None
+            for stage in self.stages:
+                if run_time < stage["duration"]:
+                    tick_data = (stage["users"], stage["spawn_rate"])
+                    return tick_data
+
+            return None
