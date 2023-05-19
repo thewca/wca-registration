@@ -8,6 +8,8 @@ This implementation doesn't deviate much from the documentation. Specifically:
 
 When testing on staging, the following URL should be specified as "host" in the Web UI: https://staging.worldcubeassociation.org
 
+When testing the POC, the host is: https://registration.worldcubeassociation.org
+
 When monitoring server performance under load, there are a few options:
 - NewRelic dashboard
 - AWS Dashboard
@@ -88,3 +90,7 @@ Solution 2: Run it from a server
 - Figure out how to run locust cli only
 
 Solution 3: Run across multiple machines / cores
+
+# Notes
+
+

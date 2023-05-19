@@ -1,13 +1,23 @@
 from locust import HttpUser, task, between
+import random
+import csv
 import time
 
 competition_id = "HessenOpen2023"
+
+
+# Read in the list of WCA IDs
+wca_ids = []
+with open("wca_id_list.csv", "r") as id_list:
+    reader = csv.reader(id_list)
+    for row in reader:
+        wca_ids.append(row[0])
 
 class TestUser(HttpUser):
     def on_start(self):
         self.endpoint = "//register"
         self.registered = False
-        self.wca_id = "2021SMIT02"
+        self.wca_id = wca_ids.pop(random.randint(0, len(wca_ids)))
         
 
     @task
