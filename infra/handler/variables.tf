@@ -46,6 +46,9 @@ variable "shared_resources" {
       id: string,
       name: string
     }),
+    lb: object({
+      arn_suffix: string
+    })
     capacity_provider: object({
       name: string
     }),
@@ -61,7 +64,8 @@ variable "shared_resources" {
     }),
     main_target_group: object({
       name: string,
-      arn: string
+      arn: string,
+      arn_suffix: string
     }),
     secondary_target_group: object({
       name: string,

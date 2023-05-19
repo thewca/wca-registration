@@ -150,7 +150,7 @@ resource "aws_ecs_service" "this" {
   # container image, so we want use data.aws_ecs_task_definition to
   # always point to the active task definition
   task_definition                    = data.aws_ecs_task_definition.this.arn
-  desired_count                      = 1
+  desired_count                      = 2
   scheduling_strategy                = "REPLICA"
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 50
@@ -221,12 +221,13 @@ resource "aws_appautoscaling_policy" "this" {
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+      predefined_metric_type = "ALBRequestCountPerTarget"
       # predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+      resource_label = "${var.shared_resources.lb.arn_suffix}/${var.shared_resources.main_target_group.arn_suffix}"
     }
 
     # target_value = 80
-    target_value = 65
+    target_value = 200
   }
 
   depends_on = [aws_appautoscaling_target.this]

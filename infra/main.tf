@@ -42,3 +42,6 @@ module "worker" {
   depends_on = [module.shared_resources]
 }
 
+module "frontend" {
+  source = "./Frontend"
+}
