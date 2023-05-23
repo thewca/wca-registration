@@ -19,6 +19,10 @@ locals {
     {
       name = "VAULT_ADDR"
       value = var.vault_address
+    },
+    {
+      name = "TASK_ROLE"
+      value = aws_iam_role.task_role.name
     }
   ]
 }
@@ -100,15 +104,15 @@ resource "aws_ecs_task_definition" "this" {
   execution_role_arn = aws_iam_role.task_execution_role.arn
   task_role_arn      = aws_iam_role.task_role.arn
 
-  cpu = "1024"
-  memory = "800"
+  cpu = "512"
+  memory = "512"
 
   container_definitions = jsonencode([
     {
       name              = "handler"
       image             = "${aws_ecr_repository.this.repository_url}:latest"
-      cpu    = 1024
-      memory = 800
+      cpu    = 512
+      memory = 512
       portMappings = [
         {
           # The hostPort is automatically set for awsvpc network mode,
