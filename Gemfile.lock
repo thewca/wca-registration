@@ -129,6 +129,8 @@ GEM
     net-smtp (0.3.3)
       net-protocol
     nio4r (2.5.9)
+    nokogiri (1.14.3-aarch64-linux)
+      racc (~> 1.4)
     nokogiri (1.14.3-x86_64-linux)
       racc (~> 1.4)
     puma (5.6.5)
@@ -169,17 +171,24 @@ GEM
     redis (4.8.1)
     reline (0.3.3)
       io-console (~> 0.5)
+    sqlite3 (1.6.2-aarch64-linux)
     sqlite3 (1.6.2-x86_64-linux)
     thor (1.2.1)
     timeout (0.3.2)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
+    vault (0.17.0)
+      aws-sigv4
+    vault-rails (0.8.0)
+      activesupport (>= 5.0)
+      vault (~> 0.17)
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     zeitwerk (2.6.8)
 
 PLATFORMS
+  aarch64-linux
   x86_64-linux
 
 DEPENDENCIES
@@ -196,6 +205,7 @@ DEPENDENCIES
   redis (~> 4.0)
   sqlite3 (~> 1.4)
   tzinfo-data
+  vault-rails
 
 RUBY VERSION
    ruby 3.2.2p53

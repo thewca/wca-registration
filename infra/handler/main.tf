@@ -15,6 +15,10 @@ locals {
     {
       name = "AWS_REGION"
       value = var.region
+    },
+    {
+      name = "VAULT_ADDR"
+      value = var.vault_address
     }
   ]
 }
