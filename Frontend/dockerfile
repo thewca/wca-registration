@@ -1,0 +1,12 @@
+# Set the base image to the official Node.js image
+FROM node:18 as build
+
+# Create a working directory for the app
+WORKDIR /app
+
+# Copy the package.json and package-lock.json files to the working directory
+COPY package*.json ./
+COPY index.html ./
+
+# Install dependencies using npm
+RUN npm install
