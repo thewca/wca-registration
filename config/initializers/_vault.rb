@@ -52,13 +52,13 @@ end
 def read_secret(secret_name)
   Vault.with_retries(Vault::HTTPConnectionError, Vault::HTTPError) do |attempt, e|
     if e
-      log "Received exception #{e} from Vault - attempt #{attempt}"
+      puts "Received exception #{e} from Vault - attempt #{attempt}"
     end
     secret = Vault.logical.read("secret/data/wca-registration/#{secret_name}")
     if secret.present?
       secret.data[:data][:value]
     else # TODO should we hard error out here?
-      log "Tried to read #{secret_name}, but doesn´t exist"
+      puts "Tried to read #{secret_name}, but doesn´t exist"
     end
   end
 end
