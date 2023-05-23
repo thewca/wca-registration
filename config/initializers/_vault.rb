@@ -22,7 +22,6 @@ Vault.configure do |vault|
 
   # The token to authenticate with Vault, for prod auth is done via AWS
   if Rails.env.production?
-    # Export VAULT_ADDR to ENV then
     # Get the pkcs7 value from AWS
     signature = `curl http://169.254.169.254/latest/dynamic/instance-identity/pkcs7`
     iam_role = `curl http://169.254.169.254/latest/meta-data/iam/security-credentials/`

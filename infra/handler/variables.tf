@@ -4,6 +4,12 @@ variable "env" {
   default     = "prod"
 }
 
+variable "vault_address" {
+  type = string
+  description = "The Address that vault is running at"
+  default = "http://35.85.244.104:8200"
+}
+
 variable "name_prefix" {
   type        = string
   description = "Prefix for naming resources"
