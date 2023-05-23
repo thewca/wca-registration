@@ -24,10 +24,7 @@ Vault.configure do |vault|
   if Rails.env.production?
     # Assume the correct role
     # this is needed because otherwise we will assume the role of the underlying instance instead
-    role_credentials = Aws::AssumeRoleCredentials.new(
-      role_arn: ENV["TASK_ARN"],
-      role_session_name: "vault-session"
-    )
+    role_credentials = Aws::ECSCredentials.new(retries: 3)
 
     vault_token = Vault.auth.aws_iam(ENV["TASK_ROLE"], role_credentials, nil, "https://sts.#{ENV["AWS_REGION"]}.amazonaws.com")
     vault.token = vault_token
