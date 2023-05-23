@@ -24,6 +24,7 @@ services:
       - wca-registration
     depends_on:
       - localstack
+      - wca_vault
 
   wca_vault:
     image: hashicorp/vault
