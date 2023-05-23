@@ -7,3 +7,6 @@ infra
 storage/*
 docker-compose.dev.yml
 dockerfile.dev
+dockerfile.handler
+dockerfile.worker
+Frontend

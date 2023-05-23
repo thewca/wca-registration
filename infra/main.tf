@@ -43,5 +43,5 @@ module "worker" {
 }
 
 module "frontend" {
-  source = "./Frontend"
+  source = "./frontend"
 }

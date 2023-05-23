@@ -15,6 +15,10 @@ locals {
     {
       name = "AWS_REGION"
       value = var.region
+    },
+    {
+      name = "VAULT_ADDR"
+      value = var.vault_address
     }
   ]
 }
@@ -222,12 +226,11 @@ resource "aws_appautoscaling_policy" "this" {
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
       predefined_metric_type = "ALBRequestCountPerTarget"
-      # predefined_metric_type = "ECSServiceAverageMemoryUtilization"
       resource_label = "${var.shared_resources.lb.arn_suffix}/${var.shared_resources.main_target_group.arn_suffix}"
+
     }
 
-    # target_value = 80
-    target_value = 200
+    target_value = 1000
   }
 
   depends_on = [aws_appautoscaling_target.this]
