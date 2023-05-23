@@ -22,7 +22,14 @@ Vault.configure do |vault|
 
   # The token to authenticate with Vault, for prod auth is done via AWS
   if Rails.env.production?
-    vault_token = Vault.auth.aws_iam(ENV["TASK_ROLE"], Aws::InstanceProfileCredentials.new, nil, "https://sts.#{ENV["AWS_REGION"]}.amazonaws.com")
+    # Assume the correct role
+    # this is needed because otherwise we will assume the role of the underlying instance instead
+    role_credentials = Aws::AssumeRoleCredentials.new(
+      role_arn: ENV["TASK_ARN"],
+      role_session_name: "vault-session"
+    )
+
+    vault_token = Vault.auth.aws_iam(ENV["TASK_ROLE"], role_credentials, nil, "https://sts.#{ENV["AWS_REGION"]}.amazonaws.com")
     vault.token = vault_token
   else
     vault.token = ENV["VAULT_DEV_ROOT_TOKEN_ID"]
