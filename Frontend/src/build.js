@@ -1,11 +1,7 @@
 const esbuild = require('esbuild')
 const process = require('process')
-const fs = require('fs')
 const { sassPlugin, postcssModules } = require('esbuild-sass-plugin')
 const statsPlugin = require('./statsplugin')
-
-// Clear old bundle
-fs.writeFile('dist/bundle.css', '', () => {})
 
 esbuild
   .build({

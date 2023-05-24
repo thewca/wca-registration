@@ -1,10 +1,6 @@
 import * as esbuild from 'esbuild';
 import { sassPlugin, postcssModules } from 'esbuild-sass-plugin'
 import statsPlugin from './statsplugin.js'
-import fs from 'fs';
-
-// Clear old bundle
-fs.writeFile('dist/bundle.css', '', () => {})
 
 const context = await esbuild.context({
   entryPoints: ['src/index.jsx'],
