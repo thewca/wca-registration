@@ -4,6 +4,7 @@ const statsPlugin = () => ({
   name: 'stats',
   setup(build) {
     build.onStart(() => {
+      // eslint-disable-next-line no-console
       console.time('build time')
     })
     build.onEnd((result) => {
@@ -28,6 +29,7 @@ const statsPlugin = () => ({
       } else {
         console.error(result)
       }
+      // eslint-disable-next-line no-console
       console.timeEnd('build time')
     })
   },

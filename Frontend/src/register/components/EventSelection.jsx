@@ -1,32 +1,40 @@
-import React from 'react'
+import React, { useState } from 'react'
 import CubingIcon from './CubingIcon'
-import styles from './panel.module.scss'
+import './eventselection.scss'
 
-function toggleElementFromArray(arr, element) {
-  const index = arr.indexOf(element)
-  if (index !== -1) {
-    arr.splice(index, 1)
-  } else {
-    arr.push(element)
+// TODO move this to the WCA component library
+
+export default function EventSelection({ handleEventSelection, events }) {
+  const [selectedEvents, setSelectedEvents] = useState([])
+
+  const handleEventToggle = (event) => {
+    if (selectedEvents.includes(event)) {
+      const new_events = selectedEvents.filter(
+        (selectedEvent) => selectedEvent !== event
+      )
+      setSelectedEvents(new_events)
+      handleEventSelection(new_events)
+    } else {
+      const new_events = [...selectedEvents, event]
+      setSelectedEvents(new_events)
+      handleEventSelection(new_events)
+    }
   }
-  return arr
-}
-
-const EVENTS = ['333', '444']
-
-export default function EventSelection({ events, setEvents }) {
   return (
-    <div className={styles.events}>
-      {EVENTS.map((wca_event) => (
-        <label key={wca_event}>
-          <CubingIcon event={wca_event} />
+    <div className="event-selection-container">
+      {events.map((wca_event) => (
+        <label key={wca_event} className="event-label">
+          <CubingIcon
+            event={wca_event}
+            selected={selectedEvents.includes(wca_event)}
+            size="2x"
+          />
           <input
+            className="event-checkbox"
             type="checkbox"
             value="0"
             name={`event-${wca_event}`}
-            onChange={(_) =>
-              setEvents(toggleElementFromArray(events, wca_event))
-            }
+            onChange={(_) => handleEventToggle(wca_event)}
           />
         </label>
       ))}

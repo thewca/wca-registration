@@ -49,7 +49,7 @@ function RegistrationRow({
 }
 
 export default function RegistrationList() {
-  const [competitionID, setCompetitionID] = useState('HessenOpen2023')
+  const [competitionID, setCompetitionID] = useState('BudapestSummer2023')
   const [registrationList, setRegistrationList] = useState([])
   return (
     <div className={styles.list}>

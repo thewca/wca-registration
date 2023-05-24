@@ -3,11 +3,16 @@ import submitEventRegistration from '../../api/registration/post/submit_registra
 import EventSelection from './EventSelection'
 import styles from './panel.module.scss'
 
+const EVENTS = ['222', '333', '444', '555', '666', '777']
+
 export default function RegistrationPanel() {
   const [competitorID, setCompetitorID] = useState('2012ICKL01')
-  const [competitionID, setCompetitionID] = useState('HessenOpen2023')
-  const [events, setEvents] = useState([])
+  const [competitionID, setCompetitionID] = useState('BudapestSummer2023')
+  const [selectedEvents, setSelectedEvents] = useState([])
 
+  const handleEventSelection = (selectedEvents) => {
+    setSelectedEvents(selectedEvents)
+  }
   return (
     <div className={styles.panel}>
       <label>
@@ -28,10 +33,13 @@ export default function RegistrationPanel() {
           onChange={(e) => setCompetitionID(e.target.value)}
         />
       </label>
-      <EventSelection events={events} setEvents={setEvents} />
+      <EventSelection
+        handleEventSelection={handleEventSelection}
+        events={EVENTS}
+      />
       <button
         onClick={(_) =>
-          submitEventRegistration(competitorID, competitionID, events)
+          submitEventRegistration(competitorID, competitionID, selectedEvents)
         }
       >
         Insert Registration
