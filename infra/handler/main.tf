@@ -23,10 +23,6 @@ locals {
     {
       name = "TASK_ROLE"
       value = aws_iam_role.task_role.name
-    },
-    {
-      name = "TASK_ARN"
-      value = aws_iam_role.task_role.arn
     }
   ]
 }
