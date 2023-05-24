@@ -1,4 +1,5 @@
 import React from 'react'
+import CubingIcon from './CubingIcon'
 import styles from './panel.module.scss'
 
 function toggleElementFromArray(arr, element) {
@@ -11,14 +12,14 @@ function toggleElementFromArray(arr, element) {
   return arr
 }
 
-const EVENTS = ['3x3', '4x4']
+const EVENTS = ['333', '444']
 
 export default function EventSelection({ events, setEvents }) {
   return (
     <div className={styles.events}>
       {EVENTS.map((wca_event) => (
         <label key={wca_event}>
-          {wca_event}
+          <CubingIcon event={wca_event} />
           <input
             type="checkbox"
             value="0"
