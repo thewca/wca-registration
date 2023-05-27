@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
+import { EventSelector } from 'wca-components'
 import submitEventRegistration from '../../api/registration/post/submit_registration'
-import EventSelection from './EventSelection'
 import styles from './panel.module.scss'
 
 const EVENTS = ['222', '333', '444', '555', '666', '777']
@@ -33,7 +33,7 @@ export default function RegistrationPanel() {
           onChange={(e) => setCompetitionID(e.target.value)}
         />
       </label>
-      <EventSelection
+      <EventSelector
         handleEventSelection={handleEventSelection}
         events={EVENTS}
       />
