@@ -1,0 +1,47 @@
+name: Deployment to Staging
+
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Trigger deployment on comment
+        id: trigger-deployment
+        uses: shanegenschaw/pull-request-comment-trigger@v2.1.0
+        with:
+          trigger: '@deploy staging'
+          reaction: rocket
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        if: steps.trigger-deployment.outputs.triggered == 'true'
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.CI_CD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CI_CD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+        if: steps.trigger-deployment.outputs.triggered == 'true'
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        if: steps.trigger-deployment.outputs.triggered == 'true'
+      - name: Deploy if triggered
+        if: steps.trigger-deployment.outputs.triggered == 'true'
+        env:
+          CLUSTER_NAME: wca-registration-staging
+        run: |
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/wca-registration-handler:staging -f dockerfile.handler .
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/wca-registration-worker:staging -f dockerfile.worker .
+          docker push ${{ steps.login-ecr.outputs.registry }}/wca-registration-handler:staging
+          docker push ${{ steps.login-ecr.outputs.registry }}/wca-registration-worker:staging
+          aws ecs run-task --cluster ${{ env.CLUSTER_NAME }} --launch-type FARGATE --task-definition ${{ env.ECR_REPOSITORY }}:staging
+          aws ecs run-task --cluster ${{ env.CLUSTER_NAME }} --launch-type FARGATE --task-definition ${{ env.ECR_REPOSITORY }}-worker:staging
