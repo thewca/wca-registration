@@ -31,11 +31,11 @@ Vault.configure do |vault|
 
   # The token to authenticate with Vault, for prod auth is done via AWS
   if Rails.env.production?
-    # Get the pkcs7 value from AWS
-    signature = `curl http://169.254.169.254/latest/dynamic/instance-identity/pkcs7`
-    iam_role = `curl http://169.254.169.254/latest/meta-data/iam/security-credentials/`
-    vault_token = Vault.auth.aws_iam(iam_role, signature, nil)
-    vault.token = vault_token
+    # Assume the correct role
+    # this is needed because otherwise we will assume the role of the underlying instance instead
+    role_credentials = Aws::ECSCredentials.new(retries: 3)
+
+    Vault.auth.aws_iam(ENV["TASK_ROLE"], role_credentials, nil, "https://sts.#{ENV["AWS_REGION"]}.amazonaws.com")
   else
     vault.token = ENV["VAULT_DEV_ROOT_TOKEN_ID"]
   end
@@ -60,13 +60,13 @@ end
 def read_secret(secret_name)
   Vault.with_retries(Vault::HTTPConnectionError, Vault::HTTPError) do |attempt, e|
     if e
-      log "Received exception #{e} from Vault - attempt #{attempt}"
+      puts "Received exception #{e} from Vault - attempt #{attempt}"
     end
     secret = Vault.logical.read("secret/data/#{@vault_application}/#{secret_name}")
     if secret.present?
       secret.data[:data][:value]
     else # TODO should we hard error out here?
-      log "Tried to read #{secret_name}, but doesn´t exist"
+      puts "Tried to read #{secret_name}, but doesn´t exist"
     end
   end
 end
