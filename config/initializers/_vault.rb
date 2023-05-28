@@ -24,7 +24,7 @@ Vault.configure do |vault|
     @vault_application = "wca-registration-development"
   end
 
-  vault.application = "wca-registration"
+  vault.application = @vault_application
 
   # The address of the Vault server, also read as ENV["VAULT_ADDR"]
   vault.address = ENV.fetch("VAULT_ADDR")
