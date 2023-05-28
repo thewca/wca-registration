@@ -23,6 +23,10 @@ locals {
     {
       name = "TASK_ROLE"
       value = aws_iam_role.task_role.name
+    },
+    {
+      name = "ENVIRONMENT"
+      value = "production"
     }
   ]
 }

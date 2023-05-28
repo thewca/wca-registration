@@ -15,6 +15,10 @@ locals {
     {
       name = "QUEUE_URL",
       value = var.shared_resources.queue.url
+    },
+    {
+      name = "ENVIRONMENT"
+      value = "production"
     }
   ]
 }
@@ -101,7 +105,7 @@ resource "aws_ecs_task_definition" "this" {
 
   container_definitions = jsonencode([
     {
-      name              = "handler"
+      name              = "worker"
       image             = "${aws_ecr_repository.this.repository_url}:latest"
       cpu    = 256
       memory = 256
