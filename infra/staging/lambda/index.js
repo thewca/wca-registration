@@ -1,5 +1,6 @@
-const AWS = require('aws-sdk');
-const ecs = new AWS.ECS();
+const { ECSClient, ListTasksCommand, DescribeTasksCommand, StopTaskCommand } = require("@aws-sdk/client-ecs");
+
+const ecs = new ECSClient();
 
 exports.handler = async (event, context) => {
     try {
@@ -10,7 +11,8 @@ exports.handler = async (event, context) => {
             desiredStatus: 'RUNNING'
         };
 
-        const tasks = await ecs.listTasks(listTasksParams).promise();
+        const listTasksCommand = new ListTasksCommand(listTasksParams);
+        const tasks = await ecs.send(listTasksCommand);
 
         for (const taskArn of tasks.taskArns) {
             const describeTaskParams = {
@@ -18,7 +20,8 @@ exports.handler = async (event, context) => {
                 tasks: [taskArn]
             };
 
-            const taskDetails = await ecs.describeTasks(describeTaskParams).promise();
+            const describeTaskCommand = new DescribeTasksCommand(describeTaskParams);
+            const taskDetails = await ecs.send(describeTaskCommand);
             const task = taskDetails.tasks[0];
 
             if (isTaskOlderThanOneHour(task)) {
@@ -27,7 +30,8 @@ exports.handler = async (event, context) => {
                     task: taskArn
                 };
 
-                await ecs.stopTask(stopTaskParams).promise();
+                const stopTaskCommand = new StopTaskCommand(stopTaskParams);
+                await ecs.send(stopTaskCommand);
                 console.log(`Terminated task: ${taskArn}`);
             }
         }
