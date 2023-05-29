@@ -14,7 +14,7 @@ jobs:
         id: trigger-deployment
         uses: shanegenschaw/pull-request-comment-trigger@v2.1.0
         with:
-          trigger: '@deploy staging'
+          trigger: '@thewca-bot deploy staging'
           reaction: rocket
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
