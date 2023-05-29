@@ -41,8 +41,10 @@ jobs:
           CLUSTER_NAME: wca-registration-staging
           TASK_DEFINITION: arn:aws:ecs:us-west-2:285938427530:task-definition/wca-registration-staging
         run: |
-          docker build -t ${{ steps.login-ecr.outputs.registry }}/wca-registration-handler:staging -f dockerfile.handler .
-          docker build -t ${{ steps.login-ecr.outputs.registry }}/wca-registration-worker:staging -f dockerfile.worker .
+          docker build -f dockerfile.handler -t wca-registration-handler .
+          docker build -f dockerfile.worker -t wca-registration-worker .
+          docker tag wca-registration-handler:latest ${{ steps.login-ecr.outputs.registry }}/wca-registration-handler:staging
+          docker tag wca-registration-worker:latest ${{ steps.login-ecr.outputs.registry }}/wca-registration-worker:staging
           docker push ${{ steps.login-ecr.outputs.registry }}/wca-registration-handler:staging
           docker push ${{ steps.login-ecr.outputs.registry }}/wca-registration-worker:staging
           aws ecs run-task --cluster ${{ env.CLUSTER_NAME }} --launch-type FARGATE --task-definition ${{ env.TASK_DEFINITION }}
