@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import deleteRegistration from '../../api/registration/delete/delete_registration'
-import getRegistrations from '../../api/registration/get/get_registrations'
-import updateRegistration from '../../api/registration/patch/update_registration'
+import deleteRegistration from '../../../api/registration/delete/delete_registration'
+import getRegistrations from '../../../api/registration/get/get_registrations'
+import updateRegistration from '../../../api/registration/patch/update_registration'
+import StatusDropdown from '../../register/components/StatusDropdown'
 import styles from './list.module.scss'
-import StatusDropdown from './StatusDropdown'
 
 function RegistrationRow({
   competitorId,
@@ -49,7 +49,7 @@ function RegistrationRow({
 }
 
 export default function RegistrationList() {
-  const [competitionID, setCompetitionID] = useState('HessenOpen2023')
+  const [competitionID, setCompetitionID] = useState('BudapestSummer2023')
   const [registrationList, setRegistrationList] = useState([])
   return (
     <div className={styles.list}>
