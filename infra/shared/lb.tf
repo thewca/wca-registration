@@ -154,3 +154,7 @@ output "https_listener" {
 output "http_listener" {
   value = aws_lb_listener.http
 }
+
+output "lb" {
+  value = aws_lb.this
+}
