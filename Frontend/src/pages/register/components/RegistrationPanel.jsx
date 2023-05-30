@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
 import { EventSelector } from '@thewca/wca-components'
-import submitEventRegistration from '../../api/registration/post/submit_registration'
+import React, { useState } from 'react'
+import submitEventRegistration from '../../../api/registration/post/submit_registration'
 import styles from './panel.module.scss'
 
 const EVENTS = ['222', '333', '444', '555', '666', '777']
