@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { EventSelector } from 'wca-components'
+import { EventSelector } from '@thewca/wca-components'
 import submitEventRegistration from '../../api/registration/post/submit_registration'
 import styles from './panel.module.scss'
 
@@ -36,6 +36,8 @@ export default function RegistrationPanel() {
       <EventSelector
         handleEventSelection={handleEventSelection}
         events={EVENTS}
+        initialSelected={[]}
+        size={'2x'}
       />
       <button
         onClick={(_) =>
