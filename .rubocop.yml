@@ -219,3 +219,9 @@ Style/OpenStructUse:
 
 Style/HashSyntax:
   EnforcedShorthandSyntax: never
+
+# These AWS Clients are set in the initializer
+Style/GlobalVars:
+  AllowedVariables:
+    - $sqs
+    - $dynamodb

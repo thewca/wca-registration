@@ -3,8 +3,8 @@ import '@thewca/wca-components/dist/index.esm.css'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Link, RouterProvider } from 'react-router-dom'
-import Registrations from './pages/registrations'
 import Register from './pages/register'
+import Registrations from './pages/registrations'
 
 const router = createBrowserRouter([
   {

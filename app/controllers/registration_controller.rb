@@ -23,10 +23,11 @@ class RegistrationController < ApplicationController
       registration_status: 'waiting',
       step: 'Event Registration',
     }
-    @queue ||= Aws::SQS::Queue.new($sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url)
+    queue_url = $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
+    @queue ||= Aws::SQS::Queue.new(queue_url)
 
     @queue.send_message({
-                          queue_url: $queue,
+                          queue_url: queue_url,
                           message_body: step_data.to_json,
                           message_group_id: id,
                           message_deduplication_id: id,
@@ -66,6 +67,7 @@ class RegistrationController < ApplicationController
                             })
       render json: { status: 'ok' }
     rescue Aws::DynamoDB::Errors::ServiceError => e
+      puts e # TODO: Expose this as a metric
       render json: { status: 'Failed to update registration data' }, status: :internal_server_error
     end
   end
@@ -95,6 +97,7 @@ class RegistrationController < ApplicationController
       render json: { status: 'ok' }
     rescue Aws::DynamoDB::Errors::ServiceError => e
       # Render an error response
+      puts e # TODO: Expose this as a metric
       render json: { status: "Error deleting item from DynamoDB: #{e.message}" },
              status: :internal_server_error
     end
