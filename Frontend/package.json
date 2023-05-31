@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@thewca/wca-components": "^0.1.1",
+    "@wca/helpers": "^1.1.4",
     "esbuild": "^0.17.19",
     "esbuild-sass-plugin": "^2.9.0",
     "postcss": "^8.4.23",

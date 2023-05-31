@@ -1,9 +1,11 @@
+import { EventId } from '@wca/helpers'
 import backendFetch from '../../helper/backend_fetch'
+import { SubmitRegistrationBody } from '../../types'
 
 export default async function submitEventRegistration(
   competitorId: string,
   competitionId: string,
-  events: WCAEvent[]
+  events: EventId[]
 ) {
   const body: SubmitRegistrationBody = {
     competitor_id: competitorId,

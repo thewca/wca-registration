@@ -1,4 +1,5 @@
 import backendFetch from '../../helper/backend_fetch'
+import { DeleteRegistrationBody } from '../../types'
 
 export default async function deleteRegistration(
   competitorID: string,

@@ -1,3 +1,10 @@
+import {
+  DeleteRegistrationBody,
+  GetRegistrationBody,
+  SubmitRegistrationBody,
+  UpdateRegistrationBody,
+} from '../types'
+
 type Method = 'POST' | 'GET' | 'PATCH' | 'DELETE'
 
 type Body =

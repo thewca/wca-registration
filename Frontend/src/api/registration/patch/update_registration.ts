@@ -1,4 +1,5 @@
 import backendFetch from '../../helper/backend_fetch'
+import { UpdateRegistrationBody } from '../../types'
 
 export default async function updateRegistration(
   competitorID: string,
