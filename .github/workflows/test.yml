@@ -11,5 +11,18 @@ jobs:
       RACK_ENV: test
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Ruby # Only install ruby to get Rubocop
+        uses: ruby/setup-ruby
+        with:
+          ruby-version: '3.2.2'
+      - name: Lint with Rubocop
+        run: |
+          gem install rubocop
+          rubocop
+      - name: Lint with Eslint
+        run: |
+          cd ./Frontend
+          npm install
+          npm run lint
       - name: Start containers
         run: docker compose -f "docker-compose.test.yml" up wca_registration_handler --abort-on-container-exit
