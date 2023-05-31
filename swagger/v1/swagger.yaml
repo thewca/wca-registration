@@ -1,0 +1,23 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/api/v1/registrations":
+    get:
+      summary: List registrations for a given competition_id
+      parameters:
+      - name: competition_id
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '400':
+          description: request and response conform to schema
+servers:
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: www.example.com

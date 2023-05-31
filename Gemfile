@@ -51,7 +51,7 @@ group :development, :test do
   gem 'rswag'
 
   # webmock for mocking responses from other microservices
-  gem 'webmock'
+  gem 'webmock', require: false
 end
 
 group :development do
