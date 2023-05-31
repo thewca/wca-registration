@@ -17,11 +17,11 @@ class RegistrationController < ApplicationController
     id = SecureRandom.uuid
 
     step_data = {
-      competitor_id:,
-      competition_id:,
-      event_ids:,
+      competitor_id: competitor_id,
+      competition_id: competition_id,
+      event_ids: event_ids,
       registration_status: 'waiting',
-      step: 'Event Registration'
+      step: 'Event Registration',
     }
     @queue ||= Aws::SQS::Queue.new($sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url)
 
@@ -29,7 +29,7 @@ class RegistrationController < ApplicationController
                           queue_url: $queue,
                           message_body: step_data.to_json,
                           message_group_id: id,
-                          message_deduplication_id: id
+                          message_deduplication_id: id,
                         })
 
     render json: { status: 'ok', message: 'Started Registration Process' }
@@ -47,22 +47,22 @@ class RegistrationController < ApplicationController
     # Specify the key attributes for the item to be updated
     key = {
       'competitor_id' => competitor_id,
-      'competition_id' => competition_id
+      'competition_id' => competition_id,
     }
 
     # Set the expression for the update operation
     update_expression = 'set registration_status = :s'
     expression_attribute_values = {
-      ':s' => status
+      ':s' => status,
     }
 
     begin
       # Update the item in the table
       $dynamodb.update_item({
                               table_name: 'Registrations',
-                              key:,
-                              update_expression:,
-                              expression_attribute_values:
+                              key: key,
+                              update_expression: update_expression,
+                              expression_attribute_values: expression_attribute_values,
                             })
       render json: { status: 'ok' }
     rescue Aws::DynamoDB::Errors::ServiceError => e
@@ -81,14 +81,14 @@ class RegistrationController < ApplicationController
     # Define the key of the item to delete
     key = {
       'competition_id' => competition_id,
-      'competitor_id' => competitor_id
+      'competitor_id' => competitor_id,
     }
 
     begin
       # Call the delete_item method to delete the item from the table
       $dynamodb.delete_item(
         table_name: 'Registrations',
-        key:
+        key: key,
       )
 
       # Render a success response
@@ -109,47 +109,47 @@ class RegistrationController < ApplicationController
 
   private
 
-  REGISTRATION_STATUS = %w[waiting accepted].freeze
+    REGISTRATION_STATUS = %w[waiting accepted].freeze
 
-  def user_exists(competitor_id)
-    Rails.cache.fetch(competitor_id, expires_in: 12.hours) do
-      CompetitorApi.check_competitor(competitor_id)
-    end
-  end
-
-  def competition_open(competition_id)
-    Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      CompetitionApi.check_competition(competition_id)
-    end
-  end
-
-  def can_user_register?(competitor_id, competition_id)
-    # Check if user exists
-    user_exists(competitor_id) and competition_open(competition_id)
-  end
-
-  def validate_request(competitor_id, competition_id, status = 'waiting')
-    if competitor_id.present? && competitor_id =~ (/^\d{4}[a-zA-Z]{4}\d{2}$/)
-      puts 'correct competitor_id'
-      if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
-        puts 'correct competition id and status'
-        can_user_register?(competitor_id, competition_id)
+    def user_exists(competitor_id)
+      Rails.cache.fetch(competitor_id, expires_in: 12.hours) do
+        CompetitorApi.check_competitor(competitor_id)
       end
-    else
-      false
     end
-  end
 
-  def get_registrations(competition_id)
-    # Query DynamoDB for registrations with the given competition_id
-    resp = $dynamodb.query({
-                             table_name: 'Registrations',
-                             key_condition_expression: '#ci = :cid',
-                             expression_attribute_names: { '#ci' => 'competition_id' },
-                             expression_attribute_values: { ':cid' => competition_id }
-                           })
+    def competition_open(competition_id)
+      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+        CompetitionApi.check_competition(competition_id)
+      end
+    end
 
-    # Return the items from the response
-    resp.items
-  end
+    def can_user_register?(competitor_id, competition_id)
+      # Check if user exists
+      user_exists(competitor_id) and competition_open(competition_id)
+    end
+
+    def validate_request(competitor_id, competition_id, status = 'waiting')
+      if competitor_id.present? && competitor_id =~ (/^\d{4}[a-zA-Z]{4}\d{2}$/)
+        puts 'correct competitor_id'
+        if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
+          puts 'correct competition id and status'
+          can_user_register?(competitor_id, competition_id)
+        end
+      else
+        false
+      end
+    end
+
+    def get_registrations(competition_id)
+      # Query DynamoDB for registrations with the given competition_id
+      resp = $dynamodb.query({
+                               table_name: 'Registrations',
+                               key_condition_expression: '#ci = :cid',
+                               expression_attribute_names: { '#ci' => 'competition_id' },
+                               expression_attribute_values: { ':cid' => competition_id },
+                             })
+
+      # Return the items from the response
+      resp.items
+    end
 end

@@ -26,9 +26,9 @@ Vault.configure do |vault|
     # this is needed because otherwise we will assume the role of the underlying instance instead
     role_credentials = Aws::ECSCredentials.new(retries: 3)
 
-    Vault.auth.aws_iam(ENV['TASK_ROLE'], role_credentials, nil, "https://sts.#{ENV['AWS_REGION']}.amazonaws.com")
+    Vault.auth.aws_iam(ENV.fetch('TASK_ROLE', nil), role_credentials, nil, "https://sts.#{ENV.fetch('AWS_REGION', nil)}.amazonaws.com")
   else
-    vault.token = ENV['VAULT_DEV_ROOT_TOKEN_ID']
+    vault.token = ENV.fetch('VAULT_DEV_ROOT_TOKEN_ID', nil)
   end
 
   # Use SSL verification, also read as ENV["VAULT_SSL_VERIFY"]
@@ -60,7 +60,7 @@ end
 
 def create_secret(secret_name, value)
   Vault.with_retries(Vault::HTTPConnectionError) do
-    Vault.logical.write("secret/data/wca-registration/#{secret_name}", data: { value: })
+    Vault.logical.write("secret/data/wca-registration/#{secret_name}", data: { value: value })
   end
 end
 

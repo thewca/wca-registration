@@ -8,7 +8,7 @@ Rails.application.configure do
 
   # Exclude requests for the /healthcheck/ path from host checking
   Rails.application.config.host_authorization = {
-    exclude: ->(request) { request.path =~ /healthcheck/ }
+    exclude: ->(request) { request.path =~ /healthcheck/ },
   }
 
   # Code is not reloaded between requests.
@@ -77,7 +77,7 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = ::Logger::Formatter.new
+  config.log_formatter = Logger::Formatter.new
 
   # Use a different logger for distributed setups.
   # require "syslog/logger"

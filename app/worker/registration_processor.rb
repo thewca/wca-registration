@@ -17,7 +17,7 @@ class RegistrationProcessor
       competitor_id: message['competitor_id'],
       competition_id: message['competition_id'],
       event_ids: message['event_ids'],
-      registration_status: 'waiting'
+      registration_status: 'waiting',
     }
     save_registration(registration)
   end
@@ -25,7 +25,7 @@ class RegistrationProcessor
   def self.save_registration(registration)
     @dynamodb.put_item({
                          table_name: 'Registrations',
-                         item: registration
+                         item: registration,
                        })
   end
 end
