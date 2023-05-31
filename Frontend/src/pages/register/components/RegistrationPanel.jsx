@@ -37,7 +37,7 @@ export default function RegistrationPanel() {
         handleEventSelection={handleEventSelection}
         events={EVENTS}
         initialSelected={[]}
-        size={'2x'}
+        size="2x"
       />
       <button
         onClick={(_) =>

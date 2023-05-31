@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   get '/healthcheck', to: 'healthcheck#index'
   post '/register', to: 'registration#create'
