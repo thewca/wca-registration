@@ -41,7 +41,7 @@ gem 'kredis'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 # Exposes Metrics
-gem 'prometheus-client'
+gem 'prometheus_exporter'
 
 # vault for secrets management
 gem 'vault-rails'

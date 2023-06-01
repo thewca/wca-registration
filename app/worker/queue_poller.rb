@@ -2,7 +2,11 @@
 
 require 'json'
 require 'aws-sdk-sqs'
+require 'prometheus_exporter/client'
+require 'prometheus_exporter/instrumentation'
+require 'prometheus_exporter/metric'
 require_relative 'registration_processor'
+
 
 class QueuePoller
   # Wait for 1 second so we can start work on 10 messages at at time
@@ -11,6 +15,11 @@ class QueuePoller
   MAX_MESSAGES = 10
 
   def self.perform
+    PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV["PROMETHEUS_EXPORTER"], port:9394)
+    # PrometheusExporter::Instrumentation::Process.start(type: "wca-registration-worker", labels: {process: "1"})
+    registrations_counter = PrometheusExporter::Metric::Counter.new("registrations_counter", "The number of Registrations processed")
+    error_counter = PrometheusExporter::Metric::Counter.new("worker_error_counter", "The number of Errors in the worker")
+
     @sqs ||= if ENV['LOCALSTACK_ENDPOINT']
                Aws::SQS::Client.new(endpoint: ENV['LOCALSTACK_ENDPOINT'])
              else
@@ -27,10 +36,12 @@ class QueuePoller
         body = JSON.parse msg.body
         begin
           RegistrationProcessor.process_message(body)
+          registrations_counter.increment
         rescue StandardError => e
           # unexpected error occurred while processing messages,
           # log it, and skip delete so it can be re-processed later
           puts "Error #{e} when processing message with ID #{msg}"
+          error_counter.increment
           throw :skip_delete
         end
       end
