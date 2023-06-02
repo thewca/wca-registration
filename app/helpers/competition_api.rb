@@ -12,7 +12,7 @@ class CompetitionApi
       body = JSON.parse res.body
       body['registration_open'].present?
     else
-      # The Competition Service is unreachable TODO We should track this as a metric
+      Metrics.registration_competition_api_error_counter.increment
       puts 'network request failed'
       false
     end

@@ -16,9 +16,9 @@ class QueuePoller
 
   def self.perform
     PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV["PROMETHEUS_EXPORTER"], port:9394)
-    PrometheusExporter::Instrumentation::Process.start(type: "wca-registration-worker", labels: {process: "1"})
-    registrations_counter = PrometheusExporter::Metric::Counter.new("registrations_counter", "The number of Registrations processed")
-    error_counter = PrometheusExporter::Metric::Counter.new("worker_error_counter", "The number of Errors in the worker")
+    # PrometheusExporter::Instrumentation::Process.start(type: "wca-registration-worker", labels: {process: "1"})
+    registrations_counter = PrometheusExporter::Client.default.register("counter", "registrations_counter", "The number of Registrations processed")
+    error_counter = PrometheusExporter::Client.default.register("counter", "worker_error_counter", "The number of Errors in the worker")
 
     @sqs ||= if ENV['LOCALSTACK_ENDPOINT']
                Aws::SQS::Client.new(endpoint: ENV['LOCALSTACK_ENDPOINT'])
