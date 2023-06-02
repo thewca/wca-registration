@@ -7,7 +7,6 @@ require 'prometheus_exporter/instrumentation'
 require 'prometheus_exporter/metric'
 require_relative 'registration_processor'
 
-
 class QueuePoller
   # Wait for 1 second so we can start work on 10 messages at at time
   # These numbers can be tweaked after load testing
@@ -15,7 +14,7 @@ class QueuePoller
   MAX_MESSAGES = 10
 
   def self.perform
-    PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV["PROMETHEUS_EXPORTER"], port:9394)
+    PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV.fetch("PROMETHEUS_EXPORTER", nil), port: 9394)
     # PrometheusExporter::Instrumentation::Process.start(type: "wca-registration-worker", labels: {process: "1"})
     registrations_counter = PrometheusExporter::Client.default.register("counter", "registrations_counter", "The number of Registrations processed")
     error_counter = PrometheusExporter::Client.default.register("counter", "worker_error_counter", "The number of Errors in the worker")

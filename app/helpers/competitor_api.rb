@@ -18,7 +18,7 @@ class CompetitorApi
         puts 'network request failed'
         false
       end
-    rescue StandardError => e
+    rescue StandardError => _e
       puts 'The service does not have internet'
       Metrics.registration_competitor_api_error_counter.increment
       false
