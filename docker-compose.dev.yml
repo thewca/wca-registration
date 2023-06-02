@@ -36,7 +36,7 @@ services:
       dockerfile: dockerfile.metrics
     tty: true
     ports:
-      - "9394:9394"
+      - "9090:9090"
     networks:
       - wca-registration
 

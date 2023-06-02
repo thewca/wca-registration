@@ -6,7 +6,7 @@ require 'prometheus_exporter/metric'
 
 require_relative '../../app/helpers/metrics'
 
-PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV.fetch("PROMETHEUS_EXPORTER"), port: 9394)
+PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV.fetch("PROMETHEUS_EXPORTER"), port: 9090)
 PrometheusExporter::Instrumentation::Process.start(type: "wca-registration-handler", labels: { process: "1" })
 
 unless Rails.env.test?
