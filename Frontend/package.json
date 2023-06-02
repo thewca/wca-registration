@@ -13,17 +13,21 @@
   },
   "homepage": "https://github.com/thewca/wca-registration/Frontend/README.md",
   "scripts": {
-    "build-dev": "API_URL=\"http://localhost:3001\" node src/build.js",
-    "build-prod": "API_URL=\"https://registration.worldcubeassociation.org\" node src/build.js",
+    "build-dev": "API_URL=\"http://localhost:3001/api/v1\" node src/build.js",
+    "build-prod": "API_URL=\"https://registration.worldcubeassociation.org/api/v1\" node src/build.js",
     "watch": "node src/watch.mjs",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix"
   },
   "dependencies": {
+    "@thewca/wca-components": "^0.1.1",
     "esbuild": "^0.17.19",
-    "esbuild-scss-modules-plugin": "^1.1.1",
+    "esbuild-sass-plugin": "^2.9.0",
+    "postcss": "^8.4.23",
+    "postcss-modules": "^6.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.11.2"
   },
   "devDependencies": {
     "eslint": "^8.40.0",

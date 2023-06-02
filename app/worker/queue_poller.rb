@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'aws-sdk-sqs'
 require_relative 'registration_processor'
@@ -9,13 +11,13 @@ class QueuePoller
   MAX_MESSAGES = 10
 
   def self.perform
-    if ENV['LOCALSTACK_ENDPOINT']
-      @sqs ||= Aws::SQS::Client.new(endpoint: ENV['LOCALSTACK_ENDPOINT'])
-    else
-      @sqs ||= Aws::SQS::Client.new
-    end
+    @sqs ||= if ENV['LOCALSTACK_ENDPOINT']
+               Aws::SQS::Client.new(endpoint: ENV['LOCALSTACK_ENDPOINT'])
+             else
+               Aws::SQS::Client.new
+             end
 
-    queue = @sqs.get_queue_url(queue_name: "registrations.fifo").queue_url
+    queue = @sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     poller = Aws::SQS::QueuePoller.new(queue)
     poller.poll(wait_time_seconds: WAIT_TIME, max_number_of_messages: MAX_MESSAGES) do |messages|
       messages.each do |msg|

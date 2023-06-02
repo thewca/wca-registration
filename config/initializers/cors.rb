@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Be sure to restart your server when you modify this file.
 
 # Avoid CORS issues when API is called from the frontend app.
@@ -8,22 +10,22 @@
 if Rails.env.development? || Rails.env.test?
   Rails.application.config.middleware.insert_before 0, Rack::Cors do
     allow do
-      origins "*"
+      origins '*'
 
-      resource "*",
+      resource '*',
                headers: :any,
-               methods: [:get, :post, :put, :patch, :delete, :options, :head]
+               methods: %i[get post put patch delete options head]
     end
   end
 
 else
   Rails.application.config.middleware.insert_before 0, Rack::Cors do
     allow do
-      origins "*.worldcubeassociation.org", "http://test.registration.worldcubeassociation.org.s3-website-us-west-2.amazonaws.com"
+      origins '*.worldcubeassociation.org', 'http://test.registration.worldcubeassociation.org.s3-website-us-west-2.amazonaws.com'
 
-      resource "*",
+      resource '*',
                headers: :any,
-               methods: [:get, :post, :put, :patch, :delete, :options, :head]
+               methods: %i[get post put patch delete options head]
     end
   end
 end
