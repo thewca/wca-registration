@@ -20,7 +20,7 @@ const context = await esbuild.context({
     statsPlugin(),
   ],
   define: {
-    'process.env.API_URL': '"http://localhost:3001"',
+    'process.env.API_URL': '"http://localhost:3001/api/v1"',
   },
 })
 
