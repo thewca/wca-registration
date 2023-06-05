@@ -1,35 +1,47 @@
 // External Styles (this is probably not the best way to load this?)
 import '@thewca/wca-components/dist/index.esm.css'
+import 'fomantic-ui-css/semantic.css'
+import './global.scss'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, Link, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Register from './pages/register'
 import Registrations from './pages/registrations'
+import PageHeader from './ui/Header'
+import PageFooter from './ui/Footer'
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: (
-      <div>
-        <Link to="/register"> Register </Link>
-        <Link to="/registrations"> Registrations</Link>
-      </div>
+      <>
+        <PageHeader />
+        <PageFooter />
+      </>
     ),
   },
   {
     path: '/register',
     element: (
-      <div>
-        <Register />
-      </div>
+      <>
+        <PageHeader />
+        <main>
+          <Register />
+        </main>
+        <PageFooter />
+      </>
     ),
   },
   {
     path: '/registrations',
     element: (
-      <div>
-        <Registrations />
-      </div>
+      <>
+        <PageHeader />
+        <main>
+          <Registrations />
+        </main>
+        <PageFooter />
+      </>
     ),
   },
 ])

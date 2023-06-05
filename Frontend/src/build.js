@@ -11,6 +11,10 @@ esbuild
     metafile: true,
     jsxFactory: 'React.createElement',
     jsxFragment: 'React.Fragment',
+    loader: {
+      '.svg': 'file',
+    },
+    publicPath: '/assets',
     plugins: [
       sassPlugin({
         filter: /\.module\.scss$/,
