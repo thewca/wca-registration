@@ -1,7 +1,13 @@
 require 'swagger_helper'
 require_relative '../support/helpers/registration_spec_helper'
 
+# TODO: Edit path to include URL in path intead of added as a parameter
+# TODO: Figure out how to run only tests with certain tags?
+# TODO: Get tests working (currently having an issue with competition_id in stub)
+# TODO: Move "get_competition_details" to a separate file
 # TODO: Once I'm happy with this test file, get it working using the docker-compose.test.yml file
+# TODO: Write more tests for other cases according to airtable
+# TODO: Refactor schema from GET registrations into the GET registration and add a ref to the singular schema in GET registrations
 
 RSpec.describe 'v1 Registrations API', type: :request do
 
@@ -18,13 +24,14 @@ RSpec.describe 'v1 Registrations API', type: :request do
     end
   end
 
-  path '/registrations' do # This could also be /api/v1/registrations/{competition_id}?
+  path '/api/v1/registrations' do # This could also be /api/v1/registrations/{competition_id}?
     get 'List registrations for a given competition_id' do
       parameter name: :competition_id, in: :query, type: :string, required: true
       produces 'application/json'
 
       context 'success responses' do
-        competition_id = 'CubingZANationalChampionship2023'
+        competition_with_registrations = 'CubingZANationalChampionship2023'
+        competition_no_attendees = '1AVG2013'
 
         before do
           competition_details = get_competition_details(competition_id)
@@ -79,36 +86,83 @@ RSpec.describe 'v1 Registrations API', type: :request do
                          :lanes, :hide_name_publicly]
             }
 
-          let!(:competition_id) { competition_id }
+          let!(:competition_id) { competition_with_registrations }
 
           run_test!
-          # TODO: Validate that the response returns the expected data - may not be needed after spec is added
         end
 
-        # response '200', 'User is allowed to access registration data (various scenarios)' do
-        # end
+        response '200', 'Valid competition_id but no registrations for it' do
+          let!(:competition_id) { competition_no_attendees }
 
-        # response '200', 'Valid competition_id but no registrations for it' do
+          run_test! do |response|
+            body = JSON.parse(response.body)
+            expect(body).to eq([])
+          end
+        end
+
+        # TODO: define access scopes in order to implement run this tests
+        # response '200', 'User is allowed to access registration data (various scenarios)' do
+        #   let!(:competition_id) { competition_id }
+
         # end
       end
 
-      # response '400', 'Competition ID parameter mis-spelled' do
-      # end
+      context 'fail responses' do
+        competition_with_registrations = 'CubingZANationalChampionship2023'
 
-      # response '400', 'Competition ID not provided' do
-      # end
+        response '400', 'Competition ID not provided' do
+          let!(:competition_id) { nil }
 
-      # response '401', 'Tampered JWT token rejected' do
-      # end
+          run_test! do |response|
+            body = JSON.parse(response.body)
+            expect(body).to eq({ "error": 'Competition ID not provided' })
+          end
+        end
 
-      # response '404', 'Comeptition ID doesnt exist' do
-      # end
+        response '404', 'Comeptition ID doesnt exist' do
+          let!(:competition_id) { 'InvalidCompID' }
 
-      # response '403', 'User is not allowed to access registration data (various scenarios)' do
-      # end
+          # Convert has to json
+          error_json = { 'error': 'Competition with id InvalidCompId not found' }.to_json
 
-      # response '502', 'Competition service unavailable' do
-      # end
+          stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+            .to_return(status: 404, body: error_json)
+
+          run_test! do |response|
+            body = JSON.parse(response.body)
+            expect(body).to eq(error_json)
+          end
+        end
+
+        response '500', 'Competition service unavailable - 500 error' do
+          let!(:competition_id) { competition_with_registrations }
+
+          stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+            .to_return(status: 500, body: { error:
+              'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' })
+
+          run_test!
+        end
+
+        response '502', 'Competition service unavailable - 502 error' do
+          let!(:competition_id) { competition_with_registrations }
+
+          stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+            .to_return(status: 502, body: { error:
+              'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' })
+
+          run_test!
+        end
+
+        # TODO: define access scopes in order to implement run this tests
+        # response '403', 'User is not allowed to access registration data (various scenarios)' do
+        # end
+      end
+    end
+
+    post 'Create registrations in bulk' do
+      # TODO: Figure out tests for bulk registration creation endpoint
+      # NOTE: This is not currently part of our features
     end
   end
 end
