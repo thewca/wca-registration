@@ -13,6 +13,8 @@ esbuild
     jsxFragment: 'React.Fragment',
     loader: {
       '.svg': 'file',
+      '.woff': 'file',
+      '.woff2': 'file',
     },
     publicPath: '/assets',
     plugins: [
