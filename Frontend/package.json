@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@thewca/wca-components": "^0.1.1",
+    "@wca/helpers": "^1.1.4",
     "esbuild": "^0.17.19",
     "esbuild-sass-plugin": "^2.9.0",
     "postcss": "^8.4.23",
@@ -30,6 +31,7 @@
     "react-router-dom": "^6.11.2"
   },
   "devDependencies": {
+    "@types/node": "^20.2.5",
     "eslint": "^8.40.0",
     "eslint-kit": "^8.5.0",
     "prettier": "^2.8.8"
