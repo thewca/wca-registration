@@ -28,7 +28,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         before do
           competition_details = get_competition_details(competition_id)
-          # puts "#{competition_details['id']}"
 
           # Stub the request to the Competition Service
           stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
@@ -36,7 +35,50 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '200', 'request and response conform to schema' do
-          # TODO: Define response schema
+          schema type: :array,
+            items: {
+              type: :object,
+                properties: {
+                  attendee_id: { type: :string },
+                  competition_id: { type: :string },
+                  user_id: { type: :string },
+                  is_attending: { type: :boolean },
+                  lane_states: {
+                    type: :object
+                  },
+                  lanes: {
+                    type: :array,
+                    items: {
+                      type: :object,
+                      properties: {
+                        lane_name: { type: :string },
+                        lane_state: { type: :string },
+                        completed_steps: {
+                          type: :array
+                        },
+                        lane_details: {
+                          type: :object
+                        },
+                        payment_reference: { type: :string },
+                        payment_amount: { type: :string },
+                        transaction_currency: { type: :string },
+                        discount_percentage: { type: :string },
+                        discount_amount: { type: :string },
+                        last_action: { type: :string },
+                        last_action_datetime: { type: :string, format: :date_time },
+                        last_action_user: { type: :string }
+                      },
+                      required: [:lane_name, :lane_state, :completed_steps, :lane_details,
+                                 :payment_reference, :payment_amount, :transaction_currency,
+                                 :last_action, :last_action_datetime, :last_action_user]
+                    }
+                  },
+                  hide_name_publicly: { type: :boolean }
+                },
+              required: [:attendee_id, :competition_id, :user_id, :is_attending, :lane_states,
+                         :lanes, :hide_name_publicly]
+            }
+
           let!(:competition_id) { competition_id }
 
           run_test!
