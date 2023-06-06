@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 module Helpers
   module Registration
-    def get_competition_details competition_id
-      # Open the json file called 'competition_details.json'
+    # Retrieves the saved JSON response of /api/v0/competitions for the given competition ID
+    def get_competition_details(competition_id)
       File.open("#{Rails.root}/spec/fixtures/competition_details.json", 'r') do |f|
         competition_details = JSON.parse(f.read)
 
-        # Retrieve the competition details
+        # Retrieve the competition details when competition_id matches
         competition_details['competitions'].each do |competition|
-          puts competition if competition['id'] == competition_id
+          competition if competition['id'] == competition_id
         end
       end
     end
