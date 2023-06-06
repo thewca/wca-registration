@@ -16,7 +16,7 @@ esbuild
       '.woff': 'file',
       '.woff2': 'file',
     },
-    publicPath: '/assets',
+    publicPath: '/dist',
     plugins: [
       sassPlugin({
         filter: /\.module\.scss$/,

@@ -4,7 +4,7 @@ import 'fomantic-ui-css/semantic.css'
 import './global.scss'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import Register from './pages/register'
 import Registrations from './pages/registrations'
 import PageHeader from './ui/Header'
@@ -16,33 +16,28 @@ const router = createBrowserRouter([
     element: (
       <>
         <PageHeader />
+        <Outlet />
         <PageFooter />
       </>
     ),
-  },
-  {
-    path: '/register',
-    element: (
-      <>
-        <PageHeader />
-        <main>
-          <Register />
-        </main>
-        <PageFooter />
-      </>
-    ),
-  },
-  {
-    path: '/registrations',
-    element: (
-      <>
-        <PageHeader />
-        <main>
-          <Registrations />
-        </main>
-        <PageFooter />
-      </>
-    ),
+    children: [
+      {
+        path: '/register',
+        element: (
+          <main>
+            <Register />
+          </main>
+        ),
+      },
+      {
+        path: '/registrations',
+        element: (
+          <main>
+            <Registrations />
+          </main>
+        ),
+      },
+    ],
   },
 ])
 
