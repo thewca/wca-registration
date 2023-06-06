@@ -45,3 +45,10 @@ module "worker" {
 module "frontend" {
   source = "./frontend"
 }
+
+module "staging" {
+  source = "./staging"
+
+  registration-handler-ecr-repository = module.handler.ecr_repository_url
+  registration-worker-ecr-repository = module.worker.ecr_repository_url
+}
