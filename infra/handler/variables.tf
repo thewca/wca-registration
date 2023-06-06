@@ -7,7 +7,13 @@ variable "env" {
 variable "vault_address" {
   type = string
   description = "The Address that vault is running at"
-  default = "http://35.85.244.104:8200"
+  default = "http://vault.worldcubeassociation.org:8200"
+}
+
+variable "prometheus_address" {
+  type = string
+  description = "The Address that prometheus is running at"
+  default = "prometheus.worldcubeassociation.org"
 }
 
 variable "name_prefix" {
