@@ -23,6 +23,10 @@ locals {
     {
       name = "ENVIRONMENT"
       value = "staging"
+    },
+    {
+      name = "PROMETHEUS_EXPORTER"
+      value = var.prometheus_address
     }
   ]
 }

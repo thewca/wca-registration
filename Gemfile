@@ -40,6 +40,9 @@ gem 'kredis'
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
+# Exposes Metrics
+gem 'prometheus_exporter'
+
 # vault for secrets management
 gem 'vault-rails'
 

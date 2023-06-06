@@ -13,6 +13,7 @@ services:
       AWS_SECRET_ACCESS_KEY: "fake-access-key"
       VAULT_ADDR: "http://wca_vault:8200"
       VAULT_DEV_ROOT_TOKEN_ID: aDGdUASDGIUASGDKI
+      PROMETHEUS_EXPORTER: "prometheus_exporter"
     volumes:
       - .:/app
       - gems_volume_handler:/usr/local/bundle
@@ -25,6 +26,7 @@ services:
     depends_on:
       - localstack
       - wca_vault
+      - prometheus_exporter
 
   wca_vault:
     image: hashicorp/vault
@@ -32,6 +34,16 @@ services:
       - VAULT_DEV_ROOT_TOKEN_ID=aDGdUASDGIUASGDKI
     ports:
       - "8200:8200"
+    networks:
+      - wca-registration
+
+  prometheus_exporter:
+    build:
+      context: .
+      dockerfile: dockerfile.metrics
+    tty: true
+    ports:
+      - "9090:9090"
     networks:
       - wca-registration
 

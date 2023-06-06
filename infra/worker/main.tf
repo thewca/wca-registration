@@ -19,6 +19,10 @@ locals {
     {
       name = "ENVIRONMENT"
       value = "production"
+    },
+    {
+      name = "PROMETHEUS_EXPORTER"
+      value = var.prometheus_address
     }
   ]
 }
