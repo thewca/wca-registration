@@ -139,7 +139,6 @@ services:
     depends_on:
       - frontend
 
-
 volumes:
   gems_volume_handler:
     driver: local
