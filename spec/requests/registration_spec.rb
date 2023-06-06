@@ -1,27 +1,12 @@
 require 'swagger_helper'
 require_relative '../support/helpers/registration_spec_helper'
 
-# TODO: Get tests working (currently having an issue with competition_id in stub)
-# TODO: Figure out how to run only tests with certain tags?
-# TODO: Move "get_competition_details" to a separate file
 # TODO: Once I'm happy with this test file, get it working using the docker-compose.test.yml file
 # TODO: Write more tests for other cases according to airtable
 # TODO: Refactor schema from GET registrations into the GET registration and add a ref to the singular schema in GET registrations
 
 RSpec.describe 'v1 Registrations API', type: :request do
-
-  # TODO: Move this out to a helper file
-  def get_competition_details competition_id
-    # Open the json file called 'competition_details.json'
-    File.open("#{Rails.root}/spec/fixtures/competition_details.json", 'r') do |f|
-      competition_details = JSON.parse(f.read)
-
-      # Retrieve the competition details
-      competition_details['competitions'].each do |competition|
-        return competition.to_json if competition['id'] == competition_id
-      end
-    end
-  end
+  include Helpers::Registration
 
   path '/api/v1/registrations/{competition_id}' do
     get 'List registrations for a given competition_id' do

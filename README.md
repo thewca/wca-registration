@@ -30,6 +30,9 @@ We use [RSwag](https://github.com/rswag/RSwag) to generate the API docs from the
 - `swagger.yaml` is automatically generated when you run `rake rswag:specs:swaggerize` in the docker container (see "Running the tests" for instructions to run a command in the docker container)
 - With the server running, you can go to localhost:/3001/api-docs to view the swagger-ui
 
+*NOTE:* Using RSwag can make test definitions appear convoluted. For example:
+- You cannot stub requests with WebMock in a `response` block - you have to add a `context` block before the `response` block where the request is stubbed. If you have 4 consecutive tests with 4 different stubbed endpoints, you have to add a `context` block before each test defined in a `response`. It is annoying, but it is the price we pay for the convenience of RSwag
+
 ### Running certain tests only
 
 Tests are grouped by "context" into success/fail groups. Add the `-e` flag to run tests matching search terms. So:

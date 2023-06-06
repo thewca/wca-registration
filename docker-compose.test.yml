@@ -19,7 +19,7 @@ services:
     tty: true
     command: >
       bash -c 'bundle install && yarn install &&
-      bin/rails test'
+      bundle exec rspec'
     networks:
       - wca-registration
     depends_on:
