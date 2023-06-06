@@ -22,6 +22,6 @@ const DROPDOWNS = [
   },
 ]
 
-export default function PageHeader({}) {
+export default function PageHeader() {
   return <Header brandImage={logo} dropdowns={DROPDOWNS} />
 }

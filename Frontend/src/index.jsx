@@ -7,8 +7,8 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import Register from './pages/register'
 import Registrations from './pages/registrations'
-import PageHeader from './ui/Header'
 import PageFooter from './ui/Footer'
+import PageHeader from './ui/Header'
 
 const router = createBrowserRouter([
   {

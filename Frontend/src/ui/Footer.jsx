@@ -15,6 +15,6 @@ const LINKS = [
   },
 ]
 
-export default function PageFooter({}) {
+export default function PageFooter() {
   return <Footer links={LINKS} />
 }
