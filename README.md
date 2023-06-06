@@ -23,7 +23,15 @@ If you want to the test suite once-off, run `docker compose -f "docker-compose.t
 
 ## Tests and API Docs
 
+### RSwag and SwaggerUI
+
 We use [RSwag](https://github.com/rswag/RSwag) to generate the API docs from the structure of our spec (test) files.
 - `/swagger/v1` contains the `swagger.yaml` files which define our API spec.
 - `swagger.yaml` is automatically generated when you run `rake rswag:specs:swaggerize` in the docker container (see "Running the tests" for instructions to run a command in the docker container)
 - With the server running, you can go to localhost:/3001/api-docs to view the swagger-ui
+
+### Running certain tests only
+
+Tests are grouped by "context" into success/fail groups. Add the `-e` flag to run tests matching search terms. So:
+- To run success tests only: `bundle exec rspec -e success`
+- To run failure tests only: `bundle exec rspec -e failure`

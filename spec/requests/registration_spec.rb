@@ -1,9 +1,8 @@
 require 'swagger_helper'
 require_relative '../support/helpers/registration_spec_helper'
 
-# TODO: Edit path to include URL in path intead of added as a parameter
-# TODO: Figure out how to run only tests with certain tags?
 # TODO: Get tests working (currently having an issue with competition_id in stub)
+# TODO: Figure out how to run only tests with certain tags?
 # TODO: Move "get_competition_details" to a separate file
 # TODO: Once I'm happy with this test file, get it working using the docker-compose.test.yml file
 # TODO: Write more tests for other cases according to airtable
@@ -24,15 +23,15 @@ RSpec.describe 'v1 Registrations API', type: :request do
     end
   end
 
-  path '/api/v1/registrations' do # This could also be /api/v1/registrations/{competition_id}?
+  path '/api/v1/registrations/{competition_id}' do
     get 'List registrations for a given competition_id' do
-      parameter name: :competition_id, in: :query, type: :string, required: true
+      parameter name: :competition_id, in: :path, type: :string, required: true
       produces 'application/json'
 
-      context 'success responses' do
-        competition_with_registrations = 'CubingZANationalChampionship2023'
-        competition_no_attendees = '1AVG2013'
+      competition_with_registrations = 'CubingZANationalChampionship2023'
+      competition_no_attendees = '1AVG2013'
 
+      context 'success responses' do
         before do
           competition_details = get_competition_details(competition_id)
 
@@ -108,8 +107,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
       end
 
       context 'fail responses' do
-        competition_with_registrations = 'CubingZANationalChampionship2023'
-
         response '400', 'Competition ID not provided' do
           let!(:competition_id) { nil }
 
@@ -119,39 +116,54 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '404', 'Comeptition ID doesnt exist' do
-          let!(:competition_id) { 'InvalidCompID' }
+        context 'competition id not found by Competition Service' do
+          before do
+            error_json = { error: 'Competition with id InvalidCompId not found' }.to_json
 
-          # Convert has to json
-          error_json = { 'error': 'Competition with id InvalidCompId not found' }.to_json
+            stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+              .to_return(status: 404, body: error_json)
+          end
 
-          stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
-            .to_return(status: 404, body: error_json)
+          response '404', 'Comeptition ID doesnt exist' do
+            let!(:competition_id) { 'InvalidCompID' }
 
-          run_test! do |response|
-            body = JSON.parse(response.body)
-            expect(body).to eq(error_json)
+            run_test! do |response|
+              body = JSON.parse(response.body)
+              expect(body).to eq(error_json)
+            end
           end
         end
 
-        response '500', 'Competition service unavailable - 500 error' do
-          let!(:competition_id) { competition_with_registrations }
+        context 'competition service not available - 500' do
+          before do
+            error_json = { error:
+              'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' }.to_json
 
-          stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
-            .to_return(status: 500, body: { error:
-              'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' })
+            stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+              .to_return(status: 500, body: error_json)
+          end
 
-          run_test!
+          response '500', 'Competition service unavailable - 500 error' do
+            let!(:competition_id) { competition_with_registrations }
+
+            run_test!
+          end
         end
 
-        response '502', 'Competition service unavailable - 502 error' do
-          let!(:competition_id) { competition_with_registrations }
+        context 'competition service not available - 502' do
+          before do
+            error_json =  { error:
+              'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' }.to_json
 
-          stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
-            .to_return(status: 502, body: { error:
-              'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' })
+            stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+              .to_return(status: 502, body: error_json)
+          end
 
-          run_test!
+          response '502', 'Competition service unavailable - 502 error' do
+            let!(:competition_id) { competition_with_registrations }
+
+            run_test!
+          end
         end
 
         # TODO: define access scopes in order to implement run this tests
