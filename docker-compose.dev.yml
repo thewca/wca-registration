@@ -111,8 +111,6 @@ services:
   frontend:
     build:
       context: Frontend
-    ports:
-      - "3002:3000"
     tty:
       true
     command: bash -c "npm run watch"
@@ -120,6 +118,16 @@ services:
       - wca-registration
     volumes:
       - ./Frontend/src:/app/src
+    depends_on:
+      - nginx
+  nginx:
+    image: nginx:latest
+    ports:
+      - "3002:80"
+    networks:
+      - wca-registration
+    volumes:
+      - ./Frontend/frontend_local.conf:/etc/nginx/conf.d/default.conf
 
 
 volumes:

@@ -9,6 +9,12 @@ const context = await esbuild.context({
   jsxFactory: 'React.createElement',
   jsxFragment: 'React.Fragment',
   metafile: true,
+  loader: {
+    '.svg': "file",
+    '.woff': "file",
+    '.woff2': "file"
+  },
+  publicPath: '/dist',
   plugins: [
     sassPlugin({
       filter: /\.module\.scss$/,
