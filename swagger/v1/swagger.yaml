@@ -65,10 +65,8 @@ components:
       - attendee_id
       - competition_id
       - user_id
-      - is_attending
       - lane_states
       - lanes
-      - hide_name_publicly
 paths:
   "/api/v1/registrations/{competition_id}":
     get:
