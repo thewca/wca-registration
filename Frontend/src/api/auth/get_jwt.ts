@@ -1,26 +1,26 @@
-export type SuccessfullResponse = {
+export interface SuccessfulResponse {
   token: string
   error: false
 }
 
-export type ErrorResponse = {
+export interface ErrorResponse {
   error: string
   statusCode: number
 }
 
 export async function getJWT(
   reauthenticate = false
-): Promise<ErrorResponse | SuccessfullResponse> {
+): Promise<ErrorResponse | SuccessfulResponse> {
   // cache the jwt token, if it has expired we just need to reauthenticate
   if (reauthenticate || localStorage.getItem('jwt') === null) {
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore AUTH_URL is injected at build time
       const response = await fetch(`${process.env.AUTH_URL}`)
-      console.log(response)
       const token = response.headers.get('authorization')
       if (response.ok && token !== null) {
         localStorage.setItem('jwt', token)
-        return { token: token, error: false }
+        return { token, error: false }
       }
       return { error: response.statusText, statusCode: response.status }
     } catch ({ name, message }) {
