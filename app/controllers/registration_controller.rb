@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require 'jwt'
 require_relative '../helpers/competition_api'
 require_relative '../helpers/competitor_api'
 
 class RegistrationController < ApplicationController
+  skip_before_action :validate_token, only: [:list]
   def create
     competitor_id = params[:competitor_id]
     competition_id = params[:competition_id]
@@ -13,6 +15,10 @@ class RegistrationController < ApplicationController
     unless validate_request(competitor_id, competition_id) && !event_ids.empty?
       Metrics.registration_validation_errors_counter.increment
       return render json: { status: 'User cannot register for competition' }, status: :forbidden
+    end
+    unless @decoded_token["data"]["wca_id"] == competitor_id
+      Metrics.registration_impersonation_attempt_counter.increment
+      return render json: { status: 'Not Authorized to register User' }, status: :forbidden
     end
 
     id = SecureRandom.uuid
