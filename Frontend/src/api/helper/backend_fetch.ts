@@ -18,21 +18,25 @@ type Body =
 export default async function backendFetch(
   route: string,
   method: Method,
-  body: Body = {}
+  body: Body = {},
+  needsAuthentication = true
 ): Promise<object | ErrorResponse> {
   try {
     let init = {}
-    const tokenRequest = await getJWT()
-    if (tokenRequest.error) {
-      const { error, statusCode } = tokenRequest as ErrorResponse
-      return {
-        error,
-        statusCode,
+    let headers = {}
+    if (needsAuthentication) {
+      const tokenRequest = await getJWT()
+      if (tokenRequest.error) {
+        const { error, statusCode } = tokenRequest as ErrorResponse
+        return {
+          error,
+          statusCode,
+        }
       }
-    }
-    const { token } = tokenRequest as SuccessfulResponse
-    const headers = {
-      Authorization: token,
+      const { token } = tokenRequest as SuccessfulResponse
+      headers = {
+        Authorization: token,
+      }
     }
     if (method !== 'GET') {
       init = {
@@ -42,6 +46,10 @@ export default async function backendFetch(
           'Content-Type': 'application/json',
           ...headers,
         },
+      }
+    } else {
+      init = {
+        headers,
       }
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
