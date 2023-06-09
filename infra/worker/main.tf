@@ -17,7 +17,7 @@ locals {
       value = var.shared_resources.queue.url
     },
     {
-      name = "ENVIRONMENT"
+      name = "CODE_ENVIRONMENT"
       value = "production"
     },
     {

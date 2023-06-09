@@ -25,8 +25,12 @@ locals {
       value = aws_iam_role.task_role.name
     },
     {
-      name = "ENVIRONMENT"
+      name = "CODE_ENVIRONMENT"
       value = "production"
+    },
+    {
+      name = "QUEUE_URL",
+      value = var.shared_resources.queue.url
     },
     {
       name = "PROMETHEUS_EXPORTER"

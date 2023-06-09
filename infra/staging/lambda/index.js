@@ -1,4 +1,4 @@
-const { ECSClient, ListTasksCommand, DescribeTasksCommand, StopTaskCommand } = require("@aws-sdk/client-ecs");
+const { ECSClient, ListTasksCommand, DescribeTasksCommand, StopTaskCommand, UpdateServiceCommand } = require("@aws-sdk/client-ecs");
 
 const ecs = new ECSClient();
 
@@ -33,6 +33,16 @@ exports.handler = async (event, context) => {
                 const stopTaskCommand = new StopTaskCommand(stopTaskParams);
                 await ecs.send(stopTaskCommand);
                 console.log(`Terminated task: ${taskArn}`);
+
+                const updateServiceParams = {
+                    cluster: clusterName,
+                    service: "Staging-Service",
+                    desiredCount: 0
+                };
+
+                const updateServiceCommand = new UpdateServiceCommand(updateServiceParams);
+                await ecs.send(updateServiceCommand);
+                console.log(`Updated service: ${task.serviceArn} to set desired task count to 0`);
             }
         }
 

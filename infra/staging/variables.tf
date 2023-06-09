@@ -49,3 +49,18 @@ variable "registration-worker-ecr-repository" {
   type = string
   description = "The Repository for the Worker"
 }
+
+variable "vpc_id" {
+  type = string
+  description = "The VPC of the service"
+}
+
+variable "private_subnets" {
+  type = any
+  description = "A list of private subnets of the service"
+}
+
+variable "cluster_security_id" {
+  type = string
+  description = "The security group of the cluster"
+}

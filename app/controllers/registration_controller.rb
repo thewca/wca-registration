@@ -24,15 +24,14 @@ class RegistrationController < ApplicationController
       registration_status: 'waiting',
       step: 'Event Registration',
     }
-    queue_url = $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
-    @queue ||= Aws::SQS::Queue.new(queue_url)
+    queue_url = ENV["QUEUE_URL"] || @sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
 
-    @queue.send_message({
-                          queue_url: queue_url,
-                          message_body: step_data.to_json,
-                          message_group_id: id,
-                          message_deduplication_id: id,
-                        })
+    $sqs.send_message({
+                        queue_url: queue_url,
+                        message_body: step_data.to_json,
+                        message_group_id: id,
+                        message_deduplication_id: id,
+                      })
 
     render json: { status: 'ok', message: 'Started Registration Process' }
   end
