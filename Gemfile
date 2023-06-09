@@ -48,7 +48,16 @@ gem 'vault-rails'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem 'debug', platforms: %i[mri mingw x64_mingw]
+  gem "debug", platforms: %i[mri mingw x64_mingw]
+
+  # rspec-rails for creating tests
+  gem 'rspec-rails'
+  # Use rswag for creating rspec tests that also produce swagger spec files
+  gem 'rswag'
+
+  # webmock for mocking responses from other microservices
+  gem 'webmock', require: false
+
   gem 'rubocop', require: false
 end
 
