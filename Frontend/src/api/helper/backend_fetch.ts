@@ -1,6 +1,7 @@
-import { ErrorResponse, getJWT, SuccessfulResponse } from '../auth/get_jwt'
+import { getJWT, SuccessfulResponse } from '../auth/get_jwt'
 import {
   DeleteRegistrationBody,
+  ErrorResponse,
   GetRegistrationBody,
   SubmitRegistrationBody,
   UpdateRegistrationBody,
@@ -14,13 +15,11 @@ type Body =
   | GetRegistrationBody
   | DeleteRegistrationBody
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore we will generate response types automatically from spec soon
 export default async function backendFetch(
   route: string,
   method: Method,
   body: Body = {}
-) {
+): Promise<object | ErrorResponse> {
   try {
     let init = {}
     const tokenRequest = await getJWT()
@@ -56,7 +55,7 @@ export default async function backendFetch(
     const error = await response.json()
     if (error.status === 'Authentication Expired') {
       await getJWT(true)
-      return backendFetch(route, method, body)
+      return await backendFetch(route, method, body)
     }
     return { error: response.status, statusCode: response.status }
   } catch ({ name, message }) {

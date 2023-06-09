@@ -19,3 +19,8 @@ interface DeleteRegistrationBody {
   competitor_id: string
   competition_id: string
 }
+
+interface ErrorResponse {
+  error: string
+  statusCode: number
+}

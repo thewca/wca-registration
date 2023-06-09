@@ -1,11 +1,8 @@
+import { ErrorResponse } from '../types'
+
 export interface SuccessfulResponse {
   token: string
   error: false
-}
-
-export interface ErrorResponse {
-  error: string
-  statusCode: number
 }
 
 export async function getJWT(
