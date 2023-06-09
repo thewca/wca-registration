@@ -11,6 +11,7 @@ class RegistrationController < ApplicationController
     event_ids = params[:event_ids]
 
     unless validate_request(competitor_id, competition_id) && !event_ids.empty?
+      Metrics.registration_validation_errors_counter.increment
       return render json: { status: 'User cannot register for competition' }, status: :forbidden
     end
 
@@ -23,15 +24,14 @@ class RegistrationController < ApplicationController
       registration_status: 'waiting',
       step: 'Event Registration',
     }
-    queue_url = $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
-    @queue ||= Aws::SQS::Queue.new(queue_url)
+    queue_url = ENV["QUEUE_URL"] || @sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
 
-    @queue.send_message({
-                          queue_url: queue_url,
-                          message_body: step_data.to_json,
-                          message_group_id: id,
-                          message_deduplication_id: id,
-                        })
+    $sqs.send_message({
+                        queue_url: queue_url,
+                        message_body: step_data.to_json,
+                        message_group_id: id,
+                        message_deduplication_id: id,
+                      })
 
     render json: { status: 'ok', message: 'Started Registration Process' }
   end
@@ -42,6 +42,7 @@ class RegistrationController < ApplicationController
     status = params[:status]
 
     unless validate_request(competitor_id, competition_id, status)
+      Metrics.registration_validation_errors_counter.increment
       return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
     end
 
@@ -67,7 +68,8 @@ class RegistrationController < ApplicationController
                             })
       render json: { status: 'ok' }
     rescue Aws::DynamoDB::Errors::ServiceError => e
-      puts e # TODO: Expose this as a metric
+      puts e
+      Metrics.registration_dynamodb_errors_counter.increment
       render json: { status: 'Failed to update registration data' }, status: :internal_server_error
     end
   end
@@ -77,6 +79,7 @@ class RegistrationController < ApplicationController
     competition_id = params[:competition_id]
 
     unless validate_request(competitor_id, competition_id)
+      Metrics.registration_validation_errors_counter.increment
       return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
     end
 
@@ -97,7 +100,8 @@ class RegistrationController < ApplicationController
       render json: { status: 'ok' }
     rescue Aws::DynamoDB::Errors::ServiceError => e
       # Render an error response
-      puts e # TODO: Expose this as a metric
+      puts e
+      Metrics.registration_dynamodb_errors_counter.increment
       render json: { status: "Error deleting item from DynamoDB: #{e.message}" },
              status: :internal_server_error
     end
@@ -106,8 +110,14 @@ class RegistrationController < ApplicationController
   def list
     competition_id = params[:competition_id]
     registrations = get_registrations(competition_id)
-
+    # Render a success response
     render json: registrations
+  rescue Aws::DynamoDB::Errors::ServiceError => e
+    # Render an error response
+    puts e
+    Metrics.registration_dynamodb_errors_counter.increment
+    render json: { status: "Error getting registrations" },
+           status: :internal_server_error
   end
 
   private
@@ -133,9 +143,7 @@ class RegistrationController < ApplicationController
 
     def validate_request(competitor_id, competition_id, status = 'waiting')
       if competitor_id.present? && competitor_id =~ (/^\d{4}[a-zA-Z]{4}\d{2}$/)
-        puts 'correct competitor_id'
         if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
-          puts 'correct competition id and status'
           can_user_register?(competitor_id, competition_id)
         end
       else

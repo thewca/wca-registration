@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_log_group" "this" {
-  name = var.name_prefix
+  name = "wca-registration-staging"
 }
 
 locals {
@@ -13,12 +13,20 @@ locals {
       value = var.region
     },
     {
+      name = "VAULT_ADDR"
+      value = var.vault_address
+    },
+    {
       name = "QUEUE_URL",
-      value = var.shared_resources.queue.url
+      value = aws_sqs_queue.this.url
+    },
+    {
+      name = "TASK_ROLE"
+      value = aws_iam_role.task_role.name
     },
     {
       name = "CODE_ENVIRONMENT"
-      value = "production"
+      value = "staging"
     },
     {
       name = "PROMETHEUS_EXPORTER"
@@ -41,6 +49,10 @@ data "aws_iam_policy_document" "task_assume_role_policy" {
 resource "aws_iam_role" "task_execution_role" {
   name               = "${var.name_prefix}-task-execution-role"
   assume_role_policy = data.aws_iam_policy_document.task_assume_role_policy.json
+
+  tags = {
+    Env = "staging"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "task_execution_role_attachment" {
@@ -51,6 +63,10 @@ resource "aws_iam_role_policy_attachment" "task_execution_role_attachment" {
 resource "aws_iam_role" "task_role" {
   name               = "${var.name_prefix}-task-role"
   assume_role_policy = data.aws_iam_policy_document.task_assume_role_policy.json
+
+  tags = {
+    Env = "staging"
+  }
 }
 
 data "aws_iam_policy_document" "task_policy" {
@@ -73,7 +89,7 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:UpdateItem",
       "dynamodb:DeleteItem",
     ]
-    resources = [var.shared_resources.dynamo_registration_table]
+    resources = [aws_dynamodb_table.registrations.arn]
   }
   statement {
     effect = "Allow"
@@ -84,7 +100,7 @@ data "aws_iam_policy_document" "task_policy" {
       "sqs:GetQueueAttributes",
       "sqs:GetQueueUrl"
     ]
-    resources = [var.shared_resources.queue.arn]
+    resources = [aws_sqs_queue.this.arn]
   }
 }
 
@@ -93,33 +109,87 @@ resource "aws_iam_role_policy" "task_policy" {
   policy = data.aws_iam_policy_document.task_policy.json
 }
 
+resource "aws_lb_target_group" "this" {
+  name        = "wca-registration-staging"
+  port        = 3000
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+
+  deregistration_delay = 10
+
+  health_check {
+    interval            = 10
+    path                = "/healthcheck"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = 200
+  }
+  tags = {
+    Name = var.name_prefix
+    Env = "staging"
+  }
+}
+
 resource "aws_ecs_task_definition" "this" {
   family = var.name_prefix
 
   network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
+  requires_compatibilities = ["FARGATE"]
+  runtime_platform {
+    operating_system_family = "LINUX"
+  }
 
   # We configure the roles to allow `aws ecs execute-command` into a task,
   # as in https://aws.amazon.com/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2
   execution_role_arn = aws_iam_role.task_execution_role.arn
   task_role_arn      = aws_iam_role.task_role.arn
 
-  cpu = "256"
-  memory = "256"
+  cpu = "1024"
+  memory = "2048"
 
   container_definitions = jsonencode([
     {
-      name              = "worker"
-      image             = "${aws_ecr_repository.this.repository_url}:latest"
-      cpu    = 256
-      memory = 256
+      name              = "staging-handler"
+      image             = "${var.registration-handler-ecr-repository}:staging"
+      portMappings = [
+        {
+          # The hostPort is automatically set for awsvpc network mode,
+          # see https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PortMapping.html#ECS-Type-PortMapping-hostPort
+          containerPort = 3000
+          protocol      = "tcp"
+        },
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.this.name
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "${var.name_prefix}-handler"
+        }
+      }
+      environment = local.app_environment
+      healthCheck       = {
+        command            = ["CMD-SHELL", "curl -f http://localhost:3000/healthcheck || exit 1"]
+        interval           = 30
+        retries            = 3
+        startPeriod        = 60
+        timeout            = 5
+      }
+    },
+    {
+      name              = "staging-worker"
+      image             = "${var.registration-worker-ecr-repository}:staging"
       portMappings = []
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-group         = aws_cloudwatch_log_group.this.name
           awslogs-region        = var.region
-          awslogs-stream-prefix = var.name_prefix
+          awslogs-stream-prefix = "${var.name_prefix}-worker"
         }
       }
       environment = local.app_environment
@@ -132,96 +202,13 @@ resource "aws_ecs_task_definition" "this" {
       }
     }
   ])
-
   tags = {
     Name = var.name_prefix
+    Env = "staging"
   }
 }
-
 
 
 data "aws_ecs_task_definition" "this" {
   task_definition = aws_ecs_task_definition.this.family
-}
-
-resource "aws_ecs_service" "this" {
-  name    = var.name_prefix
-  cluster = var.shared_resources.ecs_cluster.id
-  # During deployment a new task revision is created with modified
-  # container image, so we want use data.aws_ecs_task_definition to
-  # always point to the active task definition
-  task_definition                    = data.aws_ecs_task_definition.this.arn
-  desired_count                      = 1
-  scheduling_strategy                = "REPLICA"
-  deployment_maximum_percent         = 200
-  deployment_minimum_healthy_percent = 50
-  health_check_grace_period_seconds  = 0
-
-  capacity_provider_strategy {
-    capacity_provider = var.shared_resources.capacity_provider.name
-    weight            = 1
-  }
-
-  enable_execute_command = true
-
-  ordered_placement_strategy {
-    type  = "spread"
-    field = "attribute:ecs.availability-zone"
-  }
-
-  ordered_placement_strategy {
-    type  = "spread"
-    field = "instanceId"
-  }
-
-  network_configuration {
-    security_groups = []
-    subnets         = var.shared_resources.private_subnets
-  }
-
-  deployment_controller {
-    type = "ECS"
-  }
-
-  tags = {
-    Name = var.name_prefix
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # The desired count is modified by Application Auto Scaling
-      desired_count,
-      # The target group changes during Blue/Green deployment
-      load_balancer,
-    ]
-  }
-
-}
-
-resource "aws_appautoscaling_target" "this" {
-  service_namespace  = "ecs"
-  resource_id        = "service/${var.shared_resources.ecs_cluster.name}/${aws_ecs_service.this.name}"
-  scalable_dimension = "ecs:service:DesiredCount"
-  min_capacity       = 1
-  max_capacity       = 5
-}
-
-resource "aws_appautoscaling_policy" "this" {
-  name               = var.name_prefix
-  policy_type        = "TargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.this.resource_id
-  scalable_dimension = aws_appautoscaling_target.this.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.this.service_namespace
-
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
-      # predefined_metric_type = "ECSServiceAverageMemoryUtilization"
-    }
-
-    # target_value = 80
-    target_value = 65
-  }
-
-  depends_on = [aws_appautoscaling_target.this]
 }

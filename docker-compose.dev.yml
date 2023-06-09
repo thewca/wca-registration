@@ -1,6 +1,7 @@
 version: "3.8"
 services:
   wca_registration_handler:
+    container_name: wca_registration_handler
     build:
       context: .
       dockerfile: dockerfile.dev
@@ -13,6 +14,7 @@ services:
       AWS_SECRET_ACCESS_KEY: "fake-access-key"
       VAULT_ADDR: "http://wca_vault:8200"
       VAULT_DEV_ROOT_TOKEN_ID: aDGdUASDGIUASGDKI
+      PROMETHEUS_EXPORTER: "prometheus_exporter"
     volumes:
       - .:/app
       - gems_volume_handler:/usr/local/bundle
@@ -27,8 +29,22 @@ services:
     depends_on:
       - localstack
       - wca_vault
+      - prometheus_exporter
+
+  prometheus_exporter:
+    container_name: prometheus_exporter
+    build:
+      context: .
+      dockerfile: dockerfile.metrics
+    tty: true
+    ports:
+      - "9091:9091"
+    networks:
+      - wca-registration
+
 
   wca_registration_worker:
+    container_name: wca_registration_worker
     build:
       context: .
       dockerfile: dockerfile.dev
@@ -37,6 +53,7 @@ services:
       AWS_REGION: "us-east-1"
       AWS_ACCESS_KEY_ID: "fake-key"
       AWS_SECRET_ACCESS_KEY: "fake-access-key"
+      PROMETHEUS_EXPORTER: "prometheus_exporter"
 
     volumes:
       - .:/app
@@ -71,6 +88,7 @@ services:
       - wca-registration
 
   dynamodb-admin:
+    container_name: dynamodb-admin
     image: aaronshaf/dynamodb-admin
     ports:
       - "8001:8001"
@@ -85,6 +103,7 @@ services:
       - wca-registration
 
   wca_vault:
+    container_name: vault
     image: hashicorp/vault
     environment:
       - VAULT_DEV_ROOT_TOKEN_ID=aDGdUASDGIUASGDKI
@@ -95,10 +114,9 @@ services:
 
   # Frontend
   frontend:
+    container_name: frontend
     build:
       context: Frontend
-    ports:
-      - "3002:3000"
     tty:
       true
     command: bash -c "npm run watch"
@@ -106,7 +124,20 @@ services:
       - wca-registration
     volumes:
       - ./Frontend/src:/app/src
+    depends_on:
+      - nginx
 
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "3002:80"
+    networks:
+      - wca-registration
+    volumes:
+      - ./Frontend/frontend_local.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
 
 volumes:
   gems_volume_handler:

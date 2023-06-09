@@ -338,3 +338,7 @@ resource "aws_cloudwatch_event_target" "ecr_image_push" {
   arn      = aws_codepipeline.this.arn
   role_arn = aws_iam_role.codepipeline_role.arn
 }
+
+output "ecr_repository_url" {
+  value = aws_ecr_repository.this.repository_url
+}

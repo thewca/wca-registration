@@ -25,6 +25,10 @@ resource "aws_ecr_lifecycle_policy" "this" {
   })
 }
 
+output "ecr_repository_url" {
+  value = aws_ecr_repository.this.repository_url
+}
+
 # We deploy the worker using ECS update service because there is no traffic to it
 # for a load balancer based traffic shift deployment
 # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ecs/update-service.html
