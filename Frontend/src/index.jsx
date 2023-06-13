@@ -6,13 +6,14 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import Register from './pages/register'
+import RegistrationAdministration from './pages/registration_administration'
 import Registrations from './pages/registrations'
 import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/:competition_id',
     element: (
       <>
         <PageHeader />
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: '/register',
+        path: '/:competition_id/register',
         element: (
           <main>
             <Register />
@@ -30,10 +31,18 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/registrations',
+        path: '/:competition_id/registrations',
         element: (
           <main>
             <Registrations />
+          </main>
+        ),
+      },
+      {
+        path: '/:competition_id/edit/registrations',
+        element: (
+          <main>
+            <RegistrationAdministration />
           </main>
         ),
       },

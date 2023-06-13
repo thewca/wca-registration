@@ -20,7 +20,7 @@
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix"
   },
   "dependencies": {
-    "@thewca/wca-components": "^0.2.2",
+    "@thewca/wca-components": "^0.3.0",
     "@wca/helpers": "^1.1.4",
     "esbuild": "^0.17.19",
     "esbuild-sass-plugin": "^2.9.0",
