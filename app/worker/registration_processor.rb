@@ -37,13 +37,7 @@ class RegistrationProcessor
 
     def event_registration(competition_id, user_id, event_ids)
       registration = Registrations.find("#{competition_id}-#{user_id}")
-      puts registration
-      # TODO: event_ids when initializing competing Lane
-      competing_lane = LaneFactory.competing_lane
-      competing_lane.step_details = {
-        event_ids: event_ids,
-      }
-      competing_lane.completed_steps = ["Event Registration"]
+      competing_lane = LaneFactory.competing_lane(event_ids)
       if registration.lanes.nil?
         registration.update_attributes(lanes: [competing_lane])
       else
