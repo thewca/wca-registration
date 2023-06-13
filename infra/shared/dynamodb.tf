@@ -25,14 +25,18 @@ resource "aws_dynamodb_table" "registrations" {
   }
   global_secondary_index {
     hash_key        = "competition_id"
-    name            = "competition_id"
+    name            = "registrations_index_competition_id"
     projection_type = "ALL"
+    write_capacity = 5
+    read_capacity = 5
   }
 
   global_secondary_index {
     hash_key        = "user_id"
-    name            = "user_id"
+    name            = "registrations_index_user_id"
     projection_type = "ALL"
+    write_capacity = 5
+    read_capacity = 5
   }
 
   lifecycle {

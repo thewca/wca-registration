@@ -84,8 +84,16 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:Query",
       "dynamodb:UpdateItem",
       "dynamodb:DeleteItem",
+      "dynamodb:DescribeTable",
     ]
-    resources = [var.shared_resources.dynamo_registration_table]
+    resources = [var.shared_resources.dynamo_registration_table, "${var.shared_resources.dynamo_registration_table}/*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:ListTables",
+    ]
+    resources = ["arn:aws:dynamodb:us-west-2:285938427530:table/*"]
   }
   statement {
     effect = "Allow"
