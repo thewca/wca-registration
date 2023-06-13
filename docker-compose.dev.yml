@@ -124,8 +124,6 @@ services:
       - wca-registration
     volumes:
       - ./Frontend/src:/app/src
-    depends_on:
-      - nginx
 
   nginx:
     container_name: nginx

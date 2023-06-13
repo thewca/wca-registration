@@ -32,6 +32,7 @@ class QueuePoller
                Aws::SQS::Client.new
              end
     queue_url = ENV["QUEUE_URL"] || @sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
+    processor = RegistrationProcessor.new
     poller = Aws::SQS::QueuePoller.new(queue_url)
     poller.poll(wait_time_seconds: WAIT_TIME, max_number_of_messages: MAX_MESSAGES) do |messages|
       messages.each do |msg|
@@ -40,7 +41,7 @@ class QueuePoller
         puts "Message body: #{msg.body}"
         body = JSON.parse msg.body
         begin
-          RegistrationProcessor.process_message(body)
+          processor.process_message(body)
           registrations_counter.increment
         rescue StandardError => e
           # unexpected error occurred while processing messages,

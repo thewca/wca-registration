@@ -30,6 +30,7 @@ gem 'redis', '~> 4.0'
 
 # DynamoDB for storing registrations
 gem 'aws-sdk-dynamodb'
+gem 'dynamoid', '3.8.0'
 
 # SQS for adding data into a queue
 gem 'aws-sdk-sqs'
