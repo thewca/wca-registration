@@ -3,7 +3,7 @@ require 'swagger_helper'
 require_relative '../../support/helpers/registration_spec_helper'
 
 RSpec.describe 'v1 Registrations API', type: :request do
-  include Helpers::Registration
+  include Helpers::RegistrationHelper
 
   path '/api/v1/attendees/{attendee_id}' do
     get 'Retrieve attendee registration' do

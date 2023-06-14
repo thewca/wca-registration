@@ -9,7 +9,7 @@ require_relative '../../support/helpers/registration_spec_helper'
 # TODO: See if shared contexts can be put into a helper file once tests are passing
 # TODO: Refactor these into a shared example once they are passing
 RSpec.describe 'v1 Registrations API', type: :request do
-  include Helpers::Registration
+  include Helpers::RegistrationHelper
 
   # TODO: POST registration tests
   # TODO: Validate the different lanes against their schemas

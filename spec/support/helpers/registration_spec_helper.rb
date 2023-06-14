@@ -1,13 +1,28 @@
 # frozen_string_literal: true
 
 module Helpers
-  module Registration
-    RSpec.shared_context 'Registrations' do
+  module RegistrationHelper
+
+    RSpec.shared_context 'registration_data' do
       before do
         basic_registration = get_registration('CubingZANationalChampionship2023-158816')
         required_fields_only = get_registration('CubingZANationalChampionship2023-158817')
         missing_reg_fields = get_registration('')
         no_attendee_id = get_registration('CubingZANationalChampionship2023-158818')
+      end
+    end
+
+    RSpec.shared_context 'Database seed' do 
+      before do
+        # basic_registration = get_registration('CubingZANationalChampionship2023-158816')
+        registration_data = {
+          user_id: '158816',
+          competition_id: 'CubingZANationalChampionship2023',
+          is_attending: true,
+          hide_name_publicly: false,
+        }
+        registration = Registrations.new(registration_data)
+        registration.save
       end
     end
 
@@ -48,7 +63,8 @@ module Helpers
 
         # Retrieve the competition details when competition_id matches
         registrations.each do |registration|
-          registration if registration['attendee_id'] == attendee_id
+          puts registration.class
+          # registration[0] if registration['attendee_id'] == attendee_id
         end
       end
     end
