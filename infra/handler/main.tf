@@ -19,6 +19,22 @@ locals {
     {
       name = "VAULT_ADDR"
       value = var.vault_address
+    },
+    {
+      name = "TASK_ROLE"
+      value = aws_iam_role.task_role.name
+    },
+    {
+      name = "CODE_ENVIRONMENT"
+      value = "production"
+    },
+    {
+      name = "QUEUE_URL",
+      value = var.shared_resources.queue.url
+    },
+    {
+      name = "PROMETHEUS_EXPORTER"
+      value = var.prometheus_address
     }
   ]
 }
@@ -68,8 +84,16 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:Query",
       "dynamodb:UpdateItem",
       "dynamodb:DeleteItem",
+      "dynamodb:DescribeTable",
     ]
-    resources = [var.shared_resources.dynamo_registration_table]
+    resources = [var.shared_resources.dynamo_registration_table, "${var.shared_resources.dynamo_registration_table}/*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:ListTables",
+    ]
+    resources = ["arn:aws:dynamodb:us-west-2:285938427530:table/*"]
   }
   statement {
     effect = "Allow"
@@ -100,15 +124,15 @@ resource "aws_ecs_task_definition" "this" {
   execution_role_arn = aws_iam_role.task_execution_role.arn
   task_role_arn      = aws_iam_role.task_role.arn
 
-  cpu = "1024"
-  memory = "800"
+  cpu = "512"
+  memory = "512"
 
   container_definitions = jsonencode([
     {
       name              = "handler"
       image             = "${aws_ecr_repository.this.repository_url}:latest"
-      cpu    = 1024
-      memory = 800
+      cpu    = 512
+      memory = 512
       portMappings = [
         {
           # The hostPort is automatically set for awsvpc network mode,
@@ -154,7 +178,7 @@ resource "aws_ecs_service" "this" {
   # container image, so we want use data.aws_ecs_task_definition to
   # always point to the active task definition
   task_definition                    = data.aws_ecs_task_definition.this.arn
-  desired_count                      = 1
+  desired_count                      = 2
   scheduling_strategy                = "REPLICA"
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 50
@@ -225,12 +249,12 @@ resource "aws_appautoscaling_policy" "this" {
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
-      # predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+      predefined_metric_type = "ALBRequestCountPerTarget"
+      resource_label = "${var.shared_resources.lb.arn_suffix}/${var.shared_resources.main_target_group.arn_suffix}"
+
     }
 
-    # target_value = 80
-    target_value = 65
+    target_value = 1000
   }
 
   depends_on = [aws_appautoscaling_target.this]

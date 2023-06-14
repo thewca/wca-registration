@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import deleteRegistration from '../../../api/registration/delete/delete_registration'
 import getRegistrations from '../../../api/registration/get/get_registrations'
 import updateRegistration from '../../../api/registration/patch/update_registration'
-import StatusDropdown from '../../register/components/StatusDropdown'
 import styles from './list.module.scss'
+import StatusDropdown from './StatusDropdown'
 
 function RegistrationRow({
   competitorId,

@@ -15,7 +15,16 @@ Vault.configure do |vault|
   # prefixed with this application name. If you change the name of the
   # application, you will need to migrate the encrypted data to the new
   # key namespace. Default: ENV["VAULT_RAILS_APPLICATION"].
-  vault.application = 'wca-registration'
+  env = ENV.fetch("CODE_ENVIRONMENT", "development")
+  if env == "production"
+    @vault_application = "wca-registration"
+  elsif env == "staging"
+    @vault_application = "wca-registration-staging"
+  else
+    @vault_application = "wca-registration-development"
+  end
+
+  vault.application = @vault_application
 
   # The address of the Vault server, also read as ENV["VAULT_ADDR"]
   vault.address = ENV.fetch('VAULT_ADDR')
@@ -48,8 +57,10 @@ end
 # Read a secret from Vault.
 def read_secret(secret_name)
   Vault.with_retries(Vault::HTTPConnectionError, Vault::HTTPError) do |attempt, e|
-    puts "Received exception #{e} from Vault - attempt #{attempt}" if e
-    secret = Vault.logical.read("secret/data/wca-registration/#{secret_name}")
+    if e
+      puts "Received exception #{e} from Vault - attempt #{attempt}"
+    end
+    secret = Vault.logical.read("secret/data/#{@vault_application}/#{secret_name}")
     if secret.present?
       secret.data[:data][:value]
     else # TODO: should we hard error out here?
@@ -60,7 +71,7 @@ end
 
 def create_secret(secret_name, value)
   Vault.with_retries(Vault::HTTPConnectionError) do
-    Vault.logical.write("secret/data/wca-registration/#{secret_name}", data: { value: value })
+    Vault.logical.write("secret/data/#{@vault_application}/#{secret_name}", data: { value: value })
   end
 end
 

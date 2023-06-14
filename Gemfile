@@ -30,6 +30,7 @@ gem 'redis', '~> 4.0'
 
 # DynamoDB for storing registrations
 gem 'aws-sdk-dynamodb'
+gem 'dynamoid', '3.8.0'
 
 # SQS for adding data into a queue
 gem 'aws-sdk-sqs'
@@ -40,12 +41,15 @@ gem 'kredis'
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
+# Exposes Metrics
+gem 'prometheus_exporter'
+
 # vault for secrets management
 gem 'vault-rails'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri mingw x64_mingw ]
+  gem "debug", platforms: %i[mri mingw x64_mingw]
 
   # rspec-rails for creating tests
   gem 'rspec-rails'

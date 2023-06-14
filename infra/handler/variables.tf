@@ -7,7 +7,13 @@ variable "env" {
 variable "vault_address" {
   type = string
   description = "The Address that vault is running at"
-  default = "http://35.85.244.104:8200"
+  default = "http://vault.worldcubeassociation.org:8200"
+}
+
+variable "prometheus_address" {
+  type = string
+  description = "The Address that prometheus is running at"
+  default = "prometheus.worldcubeassociation.org"
 }
 
 variable "name_prefix" {
@@ -52,6 +58,9 @@ variable "shared_resources" {
       id: string,
       name: string
     }),
+    lb: object({
+      arn_suffix: string
+    })
     capacity_provider: object({
       name: string
     }),
@@ -67,7 +76,8 @@ variable "shared_resources" {
     }),
     main_target_group: object({
       name: string,
-      arn: string
+      arn: string,
+      arn_suffix: string
     }),
     secondary_target_group: object({
       name: string,

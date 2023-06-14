@@ -15,6 +15,14 @@ locals {
     {
       name = "QUEUE_URL",
       value = var.shared_resources.queue.url
+    },
+    {
+      name = "CODE_ENVIRONMENT"
+      value = "production"
+    },
+    {
+      name = "PROMETHEUS_EXPORTER"
+      value = var.prometheus_address
     }
   ]
 }
@@ -64,8 +72,16 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:Query",
       "dynamodb:UpdateItem",
       "dynamodb:DeleteItem",
+      "dynamodb:DescribeTable",
     ]
-    resources = [var.shared_resources.dynamo_registration_table]
+    resources = [var.shared_resources.dynamo_registration_table, "${var.shared_resources.dynamo_registration_table}/*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:ListTables",
+    ]
+    resources = ["arn:aws:dynamodb:us-west-2:285938427530:table/*"]
   }
   statement {
     effect = "Allow"
@@ -101,7 +117,7 @@ resource "aws_ecs_task_definition" "this" {
 
   container_definitions = jsonencode([
     {
-      name              = "handler"
+      name              = "worker"
       image             = "${aws_ecr_repository.this.repository_url}:latest"
       cpu    = 256
       memory = 256

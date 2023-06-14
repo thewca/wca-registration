@@ -5,99 +5,122 @@ require_relative '../helpers/competition_api'
 require_relative '../helpers/competitor_api'
 
 class RegistrationController < ApplicationController
+  before_action :ensure_lane_exists, only: [:create]
+
+  def ensure_lane_exists
+    user_id = params[:competitor_id]
+    competition_id = params[:competition_id]
+    @queue_url = ENV["QUEUE_URL"] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
+    # TODO: Cache this call?
+    lane_created = begin
+      Registrations.find("#{competition_id}-#{user_id}")
+      true
+    rescue Dynamoid::Errors::RecordNotFound
+      false
+    end
+    unless lane_created
+      step_data = {
+        user_id: user_id,
+        competition_id: competition_id,
+        step: 'Lane Init',
+      }
+      id = SecureRandom.uuid
+      $sqs.send_message({
+                          queue_url: @queue_url,
+                          message_body: step_data.to_json,
+                          message_group_id: id,
+                          message_deduplication_id: id,
+                        })
+    end
+  end
+
   def create
     competitor_id = params[:competitor_id]
     competition_id = params[:competition_id]
     event_ids = params[:event_ids]
 
     unless validate_request(competitor_id, competition_id) && !event_ids.empty?
+      Metrics.registration_validation_errors_counter.increment
       return render json: { status: 'User cannot register for competition' }, status: :forbidden
     end
 
     id = SecureRandom.uuid
 
     step_data = {
-      competitor_id: competitor_id,
+      user_id: competitor_id,
       competition_id: competition_id,
-      event_ids: event_ids,
-      registration_status: 'waiting',
+      lane_name: 'Competing',
       step: 'Event Registration',
+      step_details: {
+        registration_status: 'waiting',
+        event_ids: event_ids,
+      },
     }
-    queue_url = $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
-    @queue ||= Aws::SQS::Queue.new(queue_url)
 
-    @queue.send_message({
-                          queue_url: queue_url,
-                          message_body: step_data.to_json,
-                          message_group_id: id,
-                          message_deduplication_id: id,
-                        })
+    $sqs.send_message({
+                        queue_url: @queue_url,
+                        message_body: step_data.to_json,
+                        message_group_id: id,
+                        message_deduplication_id: id,
+                      })
 
     render json: { status: 'ok', message: 'Started Registration Process' }
   end
 
   def update
-    competitor_id = params[:competitor_id]
+    user_id = params[:competitor_id]
     competition_id = params[:competition_id]
     status = params[:status]
 
-    unless validate_request(competitor_id, competition_id, status)
+    unless validate_request(user_id, competition_id, status)
+      Metrics.registration_validation_errors_counter.increment
       return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
     end
-
-    # Specify the key attributes for the item to be updated
-    key = {
-      'competitor_id' => competitor_id,
-      'competition_id' => competition_id,
-    }
-
-    # Set the expression for the update operation
-    update_expression = 'set registration_status = :s'
-    expression_attribute_values = {
-      ':s' => status,
-    }
-
     begin
-      # Update the item in the table
-      $dynamodb.update_item({
-                              table_name: 'Registrations',
-                              key: key,
-                              update_expression: update_expression,
-                              expression_attribute_values: expression_attribute_values,
-                            })
+      registration = Registrations.find("#{competition_id}-#{user_id}")
+      updated_lanes = registration.lanes.map { |lane|
+        if lane.name == "Competing"
+          lane.lane_state = status
+        end
+        lane
+      }
+      puts updated_lanes.to_json
+      registration.update_attributes(lanes: updated_lanes)
+      # Render a success response
       render json: { status: 'ok' }
-    rescue Aws::DynamoDB::Errors::ServiceError => e
-      puts e # TODO: Expose this as a metric
-      render json: { status: 'Failed to update registration data' }, status: :internal_server_error
+    rescue StandardError => e
+      # Render an error response
+      puts e
+      Metrics.registration_dynamodb_errors_counter.increment
+      render json: { status: "Error Updating Registration: #{e.message}" },
+             status: :internal_server_error
     end
   end
 
   def delete
-    competitor_id = params[:competitor_id]
+    user_id = params[:competitor_id]
     competition_id = params[:competition_id]
 
-    unless validate_request(competitor_id, competition_id)
+    unless validate_request(user_id, competition_id)
+      Metrics.registration_validation_errors_counter.increment
       return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
     end
-
-    # Define the key of the item to delete
-    key = {
-      'competition_id' => competition_id,
-      'competitor_id' => competitor_id,
-    }
-
     begin
-      # Call the delete_item method to delete the item from the table
-      $dynamodb.delete_item(
-        table_name: 'Registrations',
-        key: key,
-      )
-
+      registration = Registrations.find("#{competition_id}-#{user_id}")
+      updated_lanes = registration.lanes.map { |lane|
+        if lane.name == "Competing"
+          lane.lane_state = "deleted"
+        end
+        lane
+      }
+      puts updated_lanes.to_json
+      registration.update_attributes(lanes: updated_lanes)
       # Render a success response
       render json: { status: 'ok' }
-    rescue Aws::DynamoDB::Errors::ServiceError => e
+    rescue StandardError => e
       # Render an error response
-      puts e # TODO: Expose this as a metric
+      puts e
+      Metrics.registration_dynamodb_errors_counter.increment
       render json: { status: "Error deleting item from DynamoDB: #{e.message}" },
              status: :internal_server_error
     end
@@ -107,7 +130,14 @@ class RegistrationController < ApplicationController
     competition_id = params[:competition_id]
     registrations = get_registrations(competition_id)
 
+    # Render a success response
     render json: registrations
+  rescue StandardError => e
+    # Render an error response
+    puts e
+    Metrics.registration_dynamodb_errors_counter.increment
+    render json: { status: "Error getting registrations" },
+           status: :internal_server_error
   end
 
   private
@@ -133,9 +163,7 @@ class RegistrationController < ApplicationController
 
     def validate_request(competitor_id, competition_id, status = 'waiting')
       if competitor_id.present? && competitor_id =~ (/^\d{4}[a-zA-Z]{4}\d{2}$/)
-        puts 'correct competitor_id'
         if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
-          puts 'correct competition id and status'
           can_user_register?(competitor_id, competition_id)
         end
       else
@@ -144,15 +172,8 @@ class RegistrationController < ApplicationController
     end
 
     def get_registrations(competition_id)
-      # Query DynamoDB for registrations with the given competition_id
-      resp = $dynamodb.query({
-                               table_name: 'Registrations',
-                               key_condition_expression: '#ci = :cid',
-                               expression_attribute_names: { '#ci' => 'competition_id' },
-                               expression_attribute_values: { ':cid' => competition_id },
-                             })
-
-      # Return the items from the response
-      resp.items
+      # Query DynamoDB for registrations with the given competition_id using the Global Secondary Index
+      # TODO make this more beautiful and not break if there are more then one lane
+      Registrations.where(competition_id: competition_id).all.map { |x| { competitor_id: x["user_id"], event_ids: x["lanes"][0].step_details["event_ids"], registration_status: x["lanes"][0].lane_state } }
     end
 end
