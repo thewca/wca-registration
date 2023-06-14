@@ -21,7 +21,6 @@ const router = createBrowserRouter([
         <PageHeader />
         <main>
           <h1 style={{ position: 'absolute', right: '35%' }}>
-            {' '}
             Choose a Test Competition from the Menu
           </h1>
         </main>

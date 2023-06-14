@@ -14,7 +14,7 @@ const DROPDOWNS = [
         title: 'Test Competition 1',
       },
       {
-        path: '/HessenOpen203',
+        path: '/HessenOpen2023',
         icon: 'fish',
         title: 'Test Competition 2',
       },
