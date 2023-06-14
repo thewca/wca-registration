@@ -94,13 +94,13 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         # TODO: Define a registration payload we expect to receive - wait for ORM to be implemented to achieve this.
-        # response '200' 'Validate that registration details received match expected details' do
+        # response '200', 'Validate that registration details received match expected details' do
         # end
 
         # TODO: define access scopes in order to implement run this tests
-        # response '200', 'User is allowed to access registration data (various scenarios)' do
-        #   let!(:competition_id) { competition_id }
-        # end
+        response '200', 'User is allowed to access registration data (various scenarios)' do
+          let!(:competition_id) { competition_id }
+        end
       end
 
       context 'fail responses' do
@@ -142,7 +142,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        # TODO: Refactor to use shared_examples once passing
+  #       # TODO: Refactor to use shared_examples once passing
         context 'competition service not available - 502' do
           include_context '502 response from competition service'
 
@@ -155,11 +155,10 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        # TODO: define access scopes in order to implement run this tests
-        # response '403', 'User is not allowed to access registration data (various scenarios)' do
-        # end
+  #       # TODO: define access scopes in order to implement run this tests
+        response '403', 'User is not allowed to access registration data (various scenarios)' do
+        end
       end
-    end
 
     post 'Create registrations in bulk' do
       # TODO: Figure out tests for bulk registration creation endpoint
@@ -205,16 +204,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
       end
     end
   end
+
   # TODO: POST registration tests
   # TODO: Validate the different lanes against their schemas
   # TODO: Figure out how to validate that webhook responses are receive? (that might be an integration/end-to-end test)
+
   path '/api/v1/registration' do
     post 'Add an attendee registration' do
       parameter name: :registration, in: :body,
                 schema: { '$ref' => '#/components/schemas/registration' }, required: true
 
       # TODO: Figure out how to validate the data written to the database
-      context 'success registration posts'
+      context 'success registration posts' do
         response '202', 'validate schema and response' do
           include_context 'Registrations'
           let(:registration) { basic_registration }
@@ -231,7 +232,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
       end
 
       context 'fail: request validation fails' do
-        request 'fail', 'empty json provided' do
+        response 'fail', 'empty json provided' do
           before do
             registration = {}
           end
@@ -242,7 +243,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         # TODO: Figure out how to parametrize this using shared contexts/examples once it is passing
-        request 'fail', 'not all required fields included' do
+        response 'fail', 'not all required fields included' do
           include_context 'Registrations'
           
           let!(:registration) { no_attendee_id }
@@ -250,17 +251,17 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test!
         end
 
-        request 'fail', 'spelling error on field name' do
+        response 'fail', 'spelling error on field name' do
         # TODO: write
         end
 
-        request 'fail' 'non-permitted fields included' do
+        response 'fail' 'non-permitted fields included' do
         # TODO: write
         end
       end
 
       context 'fail: general elibigibility validation fails' do
-        request 'fail' 'attendee is banned as a competitor' do
+        response 'fail' 'attendee is banned as a competitor' do
           # TODO: write
           # NOTE: We need to figure out what the scope of bans are - do they prevent a user from registering at all, or only certain lanes?
           # Have contacted WDC to confirm
