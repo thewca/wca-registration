@@ -84,8 +84,12 @@ class RegistrationController < ApplicationController
         end
         lane
       }
-      puts updated_lanes.to_json
-      registration.update_attributes(lanes: updated_lanes)
+      if status == "accepted"
+        registration.update_attributes(lanes: updated_lanes, is_attending: true)
+      else
+        registration.update_attributes(lanes: updated_lanes)
+      end
+
       # Render a success response
       render json: { status: 'ok' }
     rescue StandardError => e
@@ -127,6 +131,20 @@ class RegistrationController < ApplicationController
   end
 
   def list
+    competition_id = params[:competition_id]
+    registrations = get_registrations(competition_id, only_attending: true)
+
+    # Render a success response
+    render json: registrations
+  rescue StandardError => e
+    # Render an error response
+    puts e
+    Metrics.registration_dynamodb_errors_counter.increment
+    render json: { status: "Error getting registrations" },
+           status: :internal_server_error
+  end
+
+  def list_admin
     competition_id = params[:competition_id]
     registrations = get_registrations(competition_id)
 
@@ -171,9 +189,14 @@ class RegistrationController < ApplicationController
       end
     end
 
-    def get_registrations(competition_id)
+    def get_registrations(competition_id, only_attending: false)
       # Query DynamoDB for registrations with the given competition_id using the Global Secondary Index
       # TODO make this more beautiful and not break if there are more then one lane
-      Registrations.where(competition_id: competition_id).all.map { |x| { competitor_id: x["user_id"], event_ids: x["lanes"][0].step_details["event_ids"], registration_status: x["lanes"][0].lane_state } }
+      # This also currently breaks if a registration is started but never completed
+      if only_attending
+        Registrations.where(competition_id: competition_id, is_attending: true).all.map { |x| { competitor_id: x["user_id"], event_ids: x["lanes"][0].step_details["event_ids"], registration_status: x["lanes"][0].lane_state } }
+      else
+        Registrations.where(competition_id: competition_id).all.map { |x| { competitor_id: x["user_id"], event_ids: x["lanes"][0].step_details["event_ids"], registration_status: x["lanes"][0].lane_state } }
+      end
     end
 end

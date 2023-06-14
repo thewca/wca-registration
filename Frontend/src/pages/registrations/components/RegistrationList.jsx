@@ -1,60 +1,90 @@
+import { NonInteractiveTable } from '@thewca/wca-components'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import getRegistrations from '../../../api/registration/get/get_registrations'
+import getCompetitionInfo from '../../../api/competition/get/get_competition_info'
+import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
+import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import styles from './list.module.scss'
-// TODO: Fix the import in the library
-import NonInteractiveTable from '@thewca/wca-components/src/components/NonInteractiveTable'
 
 export default function RegistrationList() {
   const { competition_id } = useParams()
   const [registrationList, setRegistrationList] = useState([])
+  const [heldEvents, setHeldEvents] = useState([])
+  const [header, setHeader] = useState([])
+  const [footer, setFooter] = useState([])
   const [loading, setLoading] = useState(true)
-  const held_events = ['333', '444', '555', '777']
-  const header = [
-    { title: 'Name' },
-    { title: 'Citizen of' },
-    ...held_events.map((event_id) => {
-      return { title: event_id, icon: true }
-    }),
-    { title: 'Total' },
-  ]
-  const footer = [
-    '0 first-timers + 3 Returners = 3 People',
-    '2 Countries',
-    '2',
-    '2',
-    '2',
-    '1',
-    '',
-  ]
   useEffect(() => {
-    getRegistrations(competition_id).then((registrations) => {
-      const rows = registrations.map((registration) => {
+    getCompetitionInfo(competition_id).then((competitionInfo) => {
+      setHeldEvents(competitionInfo.event_ids)
+      setHeader([
+        { text: 'Name' },
+        { text: 'Citizen of' },
+        ...competitionInfo.event_ids.map((event_id) => {
+          return { text: event_id, cubingIcon: true }
+        }),
+        { text: 'Total' },
+      ])
+    })
+  }, [competition_id])
+  useEffect(() => {
+    getConfirmedRegistrations(competition_id).then(async (registrations) => {
+      let newcomers = 0
+      let returners = 0
+      let total = 0
+      const countrySet = new Set()
+      // We have to use a Map instead of an object to preserve event order
+      const eventCounts = heldEvents.reduce((counts, eventId) => {
+        counts.set(eventId, 0)
+        return counts
+      }, new Map())
+      const rows = registrations.map(async (registration) => {
+        let profile_link = null
+        const competitorInfo = await getCompetitorInfo(
+          registration.competitor_id
+        )
+        if (competitorInfo.user.wca_id === null) {
+          newcomers++
+        } else {
+          returners++
+          profile_link = `https://www.worldcubeassociation.org/persons/${competitorInfo.user.wca_id}`
+        }
+        countrySet.add(competitorInfo.user.country.iso2)
+        total += registration.event_ids.length
         return [
           {
-            title: registration.competitor_id,
-            link: `https://www.worldcubeassociation.org/persons/${registration.competitor_id}`,
+            text: competitorInfo.user.name,
+            link: profile_link,
           },
           {
-            title: 'United States',
-            flag: 'us',
+            text: competitorInfo.user.country.name,
+            flag: competitorInfo.user.country.iso2,
           },
-          ...held_events.map((event_id) => {
+          ...heldEvents.map((event_id) => {
             if (registration.event_ids.includes(event_id)) {
-              return { title: event_id, icon: true }
-            } else {
-              return ''
+              eventCounts.set(event_id, eventCounts.get(event_id) + 1)
+              return { text: event_id, cubingIcon: true }
             }
+            return ''
           }),
           {
-            title: registration.event_ids.length,
+            text: registration.event_ids.length,
           },
         ]
       })
-      setRegistrationList(rows)
+      setRegistrationList(await Promise.all(rows))
+      setFooter([
+        // Potential grammar issues will be fixed when we introduce I18n
+        `${newcomers} first-timers + ${returners} Returners = ${
+          newcomers + returners
+        } People`,
+        `${countrySet.size} Countries`,
+        ...eventCounts.values(),
+        total,
+        '',
+      ])
       setLoading(false)
     })
-  }, [competition_id])
+  }, [competition_id, heldEvents])
   return (
     <div className={styles.list}>
       <NonInteractiveTable

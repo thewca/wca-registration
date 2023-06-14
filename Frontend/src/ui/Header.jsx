@@ -9,14 +9,14 @@ const DROPDOWNS = [
     title: 'Registration System',
     items: [
       {
-        path: '/register',
-        icon: 'sign in alt',
-        title: 'Register',
+        path: '/BudapestSummer2023',
+        icon: 'frog',
+        title: 'Test Competition 1',
       },
       {
-        path: '/registrations',
-        icon: 'users',
-        title: 'Competitors',
+        path: '/HessenOpen203',
+        icon: 'fish',
+        title: 'Test Competition 2',
       },
     ],
   },

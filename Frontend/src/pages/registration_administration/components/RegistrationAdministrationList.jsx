@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import deleteRegistration from '../../../api/registration/delete/delete_registration'
-import getRegistrations from '../../../api/registration/get/get_registrations'
+import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import updateRegistration from '../../../api/registration/patch/update_registration'
 import styles from './list.module.scss'
 import StatusDropdown from './StatusDropdown'
@@ -48,14 +48,14 @@ function RegistrationRow({
   )
 }
 
-export default function RegistrationList() {
+export default function RegistrationAdministrationList() {
   const [competitionID, setCompetitionID] = useState('BudapestSummer2023')
   const [registrationList, setRegistrationList] = useState([])
   return (
     <div className={styles.list}>
       <button
         onClick={async (_) =>
-          setRegistrationList(await getRegistrations(competitionID))
+          setRegistrationList(await getAllRegistrations(competitionID))
         }
       >
         {' '}

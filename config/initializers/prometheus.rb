@@ -26,5 +26,5 @@ end
 # Create our Metric Counters
 Metrics.registration_dynamodb_errors_counter = PrometheusExporter::Client.default.register("counter", "registration_dynamodb_errors_counter#{@suffix}", "The number of times interacting with dynamodb fails")
 Metrics.registration_competition_api_error_counter = PrometheusExporter::Client.default.register("counter", "registration_competition_api_error_counter#{@suffix}", "The number of times interacting with the competition API failed")
-Metrics.registration_competitor_api_error_counter = PrometheusExporter::Client.default.register("counter", "registration_competitor_api_error_counter#{@suffix}", "The number of times interacting with the competitor API failed")
+Metrics.registration_competitor_api_error_counter = PrometheusExporter::Client.default.register("counter", "registration_competitor_api_error_counter#{@suffix}", "The number of times interacting with the user API failed")
 Metrics.registration_validation_errors_counter = PrometheusExporter::Client.default.register("counter", "registration_validation_errors_counter#{@suffix}", "The number of times validation fails when an attendee tries to register")
