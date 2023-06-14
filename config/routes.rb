@@ -12,5 +12,4 @@ Rails.application.routes.draw do
   delete '/api/v1/register', to: 'registration#delete'
   get '/api/v1/registrations', to: 'registration#list'
   get '/api/v1/registrations/admin', to: 'registration#list_admin'
-  get '/test_data', to: 'test#index'
 end
