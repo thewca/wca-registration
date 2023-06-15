@@ -7,7 +7,6 @@ import styles from './panel.module.scss'
 
 export default function RegistrationPanel() {
   const [competitorID, setCompetitorID] = useState('2012ICKL01')
-  const [competitionID, setCompetitionID] = useState('BudapestSummer2023')
   const [selectedEvents, setSelectedEvents] = useState([])
   const [heldEvents, setHeldEvents] = useState([])
   const { competition_id } = useParams()
@@ -37,7 +36,7 @@ export default function RegistrationPanel() {
         size="2x"
       />
       <button
-        onClick={(_) =>
+        onClick={() =>
           submitEventRegistration(competitorID, competition_id, selectedEvents)
         }
       >
