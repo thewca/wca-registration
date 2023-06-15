@@ -1,101 +1,127 @@
-import React, { useState } from 'react'
-import deleteRegistration from '../../../api/registration/delete/delete_registration'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import updateRegistration from '../../../api/registration/patch/update_registration'
+import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import styles from './list.module.scss'
 import StatusDropdown from './StatusDropdown'
 
+export default function RegistrationAdministrationList() {
+  const { competition_id } = useParams()
+  const [registrations, setRegistrations] = useState([])
+  useEffect(() => {
+    getAllRegistrations(competition_id).then(async (registrations) => {
+      const regList = []
+      for (const registration of registrations) {
+        registration.user = (
+          await getCompetitorInfo(registration.competitor_id)
+        ).user
+        regList.push(registration)
+      }
+      setRegistrations(regList)
+    })
+  }, [competition_id])
+  const partitionRegistrations = (registrations) => {
+    return registrations.reduce(
+      (result, registration) => {
+        switch (registration.registration_status) {
+          case 'waiting':
+            result.waiting.push(registration)
+            break
+          case 'accepted':
+            result.accepted.push(registration)
+            break
+          case 'deleted':
+            result.deleted.push(registration)
+            break
+          default:
+            break
+        }
+        return result
+      },
+      { waiting: [], accepted: [], deleted: [] }
+    )
+  }
+
+  const { waiting, accepted, deleted } = useMemo(
+    () => partitionRegistrations(registrations),
+    [registrations]
+  )
+
+  return (
+    <div className={styles.list}>
+      <h2> Incoming registrations </h2>
+      <RegistrationAdministrationTable registrations={waiting} />
+      <h2> Approved registrations </h2>
+      <RegistrationAdministrationTable registrations={accepted} />
+      <h2> Deleted registrations </h2>
+      <RegistrationAdministrationTable registrations={deleted} />
+    </div>
+  )
+}
+
+function RegistrationAdministrationTable({ registrations }) {
+  return (
+    <table className="table">
+      <thead>
+        <tr>
+          <th> WCA ID</th>
+          <th> Name </th>
+          <th> Citizen of </th>
+          <th> Registered on </th>
+          <th> Number of Events </th>
+          <th> Apply Changes </th>
+        </tr>
+      </thead>
+      <tbody>
+        {registrations.map((registration) => {
+          return (
+            <RegistrationRow
+              key={registration.user.id}
+              competitorId={registration.competitor_id}
+              name={registration.user.name}
+              country={registration.user.country.name}
+              registeredOn={registration.registered_on}
+              numberOfEvents={registration.event_ids.length}
+              initialStatus={registration.registration_status}
+            />
+          )
+        })}
+      </tbody>
+    </table>
+  )
+}
+
 function RegistrationRow({
   competitorId,
-  eventIDs,
-  serverStatus,
-  competitionID,
-  setRegistrationList,
-  registrationList,
+  name,
+  country,
+  registeredOn,
+  numberOfEvents,
+  initialStatus,
 }) {
-  const [status, setStatus] = useState(serverStatus)
-
+  const [status, setStatus] = useState(initialStatus)
+  const { competition_id } = useParams()
   return (
     <tr>
       <td>{competitorId}</td>
-      <td>{eventIDs.join(',')}</td>
+      <td>{name}</td>
+      <td>{country}</td>
+      <td>{new Date(registeredOn).toLocaleDateString()}</td>
+      <td>{numberOfEvents}</td>
       <td>
         <StatusDropdown status={status} setStatus={setStatus} />
       </td>
       <td>
         <button
+          // TODO Update the list automatically
           onClick={(_) => {
-            updateRegistration(competitorId, competitionID, status)
+            updateRegistration(competitorId, competition_id, status)
           }}
         >
-          {' '}
           Apply
         </button>
       </td>
-      <td>
-        <button
-          onClick={(_) => {
-            deleteRegistration(competitorId, competitionID)
-            setRegistrationList(
-              registrationList.filter((r) => r.competitor_id !== competitorId)
-            )
-          }}
-        >
-          Delete
-        </button>
-      </td>
     </tr>
-  )
-}
-
-export default function RegistrationAdministrationList() {
-  const [competitionID, setCompetitionID] = useState('BudapestSummer2023')
-  const [registrationList, setRegistrationList] = useState([])
-  return (
-    <div className={styles.list}>
-      <button
-        onClick={async (_) =>
-          setRegistrationList(await getAllRegistrations(competitionID))
-        }
-      >
-        {' '}
-        List Registrations
-      </button>
-      <label>
-        Competition_id
-        <input
-          type="text"
-          value={competitionID}
-          name="list_competition_id"
-          onChange={(e) => setCompetitionID(e.target.value)}
-        />
-      </label>
-      <table>
-        <thead>
-          <tr>
-            <th> Competitor</th>
-            <th> Events </th>
-            <th> Status </th>
-            <th> Apply Changes </th>
-            <th> Delete </th>
-          </tr>
-        </thead>
-        <tbody>
-          {registrationList.map((registration) => {
-            return (
-              <RegistrationRow
-                key={registration.competitor_id}
-                competitorId={registration.competitor_id}
-                setRegistrationList={setRegistrationList}
-                eventIDs={registration.event_ids}
-                competitionID={competitionID}
-                serverStatus={registration.registration_status}
-                registrationList={registrationList}
-              />
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
   )
 }

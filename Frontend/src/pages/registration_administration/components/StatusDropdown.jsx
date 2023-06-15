@@ -1,7 +1,7 @@
 import React from 'react'
 
+const options = ['waiting', 'accepted', 'deleted']
 export default function StatusDropdown({ status, setStatus }) {
-  const options = ['waiting', 'accepted', 'deleted']
   return (
     <select onChange={(e) => setStatus(e.target.value)} value={status}>
       {options.map((opt) => (
