@@ -31,7 +31,7 @@ export default function RegistrationList() {
       setRegistrations(regList)
       setLoading(false)
     })
-  }, [competition_id, heldEvents])
+  }, [competition_id])
 
   const header = [
     { text: 'Name' },
