@@ -40,51 +40,48 @@ export default function RegistrationList() {
     { text: 'Total' },
   ]
   const footer = useMemo(() => {
-    let newcomers = 0
-    let returners = 0
-    let total = 0
-    const countrySet = new Set()
     // We have to use a Map instead of an object to preserve event order
     const eventCounts = heldEvents.reduce((counts, eventId) => {
       counts.set(eventId, 0)
       return counts
     }, new Map())
-    registrations.forEach((registration) => {
-      if (registration.user.wca_id === null) {
-        newcomers++
-      } else {
-        returners++
-      }
-      countrySet.add(registration.user.country.iso2)
-      total += registration.event_ids.length
-      heldEvents.forEach((event_id) => {
-        if (registration.event_ids.includes(event_id)) {
-          eventCounts.set(event_id, eventCounts.get(event_id) + 1)
+    const { newcomers, totalEvents, countrySet } = registrations.reduce(
+      (info, registration) => {
+        if (registration.user.wca_id === null) {
+          info.newcomers++
         }
-      })
-    })
+        info.countrySet.add(registration.user.country.iso2)
+        info.totalEvents += registration.event_ids.length
+        heldEvents.forEach((event_id) => {
+          if (registration.event_ids.includes(event_id)) {
+            eventCounts.set(event_id, eventCounts.get(event_id) + 1)
+          }
+        })
+        return info
+      },
+      { newcomers: 0, totalEvents: 0, countrySet: new Set() }
+    )
     return [
       // Potential grammar issues will be fixed when we introduce I18n
-      `${newcomers} First-timers + ${returners} Returners = ${
-        newcomers + returners
-      } People`,
+      `${newcomers} First-timers + ${
+        registrations.length - newcomers
+      } Returners = ${registrations.length} People`,
       `${countrySet.size} Countries`,
       ...eventCounts.values(),
-      total,
+      totalEvents,
       '',
     ]
   }, [registrations, heldEvents])
   const registrationList = useMemo(
     () =>
       registrations.map((registration) => {
-        let profile_link = null
-        if (registration.user.wca_id !== null) {
-          profile_link = `https://www.worldcubeassociation.org/persons/${registration.user.wca_id}`
-        }
+        const profileLink = registration.user.wca_id
+          ? `https://www.worldcubeassociation.org/persons/${registration.user.wca_id}`
+          : null
         return [
           {
             text: registration.user.name,
-            link: profile_link,
+            link: profileLink,
           },
           {
             text: registration.user.country.name,

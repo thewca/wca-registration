@@ -6,6 +6,28 @@ import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import styles from './list.module.scss'
 import StatusDropdown from './StatusDropdown'
 
+const partitionRegistrations = (registrations) => {
+  return registrations.reduce(
+    (result, registration) => {
+      switch (registration.registration_status) {
+        case 'waiting':
+          result.waiting.push(registration)
+          break
+        case 'accepted':
+          result.accepted.push(registration)
+          break
+        case 'deleted':
+          result.deleted.push(registration)
+          break
+        default:
+          break
+      }
+      return result
+    },
+    { waiting: [], accepted: [], deleted: [] }
+  )
+}
+
 export default function RegistrationAdministrationList() {
   const { competition_id } = useParams()
   const [registrations, setRegistrations] = useState([])
@@ -21,27 +43,6 @@ export default function RegistrationAdministrationList() {
       setRegistrations(regList)
     })
   }, [competition_id])
-  const partitionRegistrations = (registrations) => {
-    return registrations.reduce(
-      (result, registration) => {
-        switch (registration.registration_status) {
-          case 'waiting':
-            result.waiting.push(registration)
-            break
-          case 'accepted':
-            result.accepted.push(registration)
-            break
-          case 'deleted':
-            result.deleted.push(registration)
-            break
-          default:
-            break
-        }
-        return result
-      },
-      { waiting: [], accepted: [], deleted: [] }
-    )
-  }
 
   const { waiting, accepted, deleted } = useMemo(
     () => partitionRegistrations(registrations),
@@ -65,28 +66,34 @@ function RegistrationAdministrationTable({ registrations }) {
     <table className="table">
       <thead>
         <tr>
-          <th> WCA ID</th>
-          <th> Name </th>
-          <th> Citizen of </th>
-          <th> Registered on </th>
-          <th> Number of Events </th>
-          <th> Apply Changes </th>
+          <th>WCA ID</th>
+          <th>Name</th>
+          <th>Citizen of</th>
+          <th>Registered on</th>
+          <th>Number of Events</th>
+          <th>Apply Changes</th>
         </tr>
       </thead>
       <tbody>
-        {registrations.map((registration) => {
-          return (
-            <RegistrationRow
-              key={registration.user.id}
-              competitorId={registration.competitor_id}
-              name={registration.user.name}
-              country={registration.user.country.name}
-              registeredOn={registration.registered_on}
-              numberOfEvents={registration.event_ids.length}
-              initialStatus={registration.registration_status}
-            />
-          )
-        })}
+        {registrations.length > 0 ? (
+          registrations.map((registration) => {
+            return (
+              <RegistrationRow
+                key={registration.user.id}
+                competitorId={registration.competitor_id}
+                name={registration.user.name}
+                country={registration.user.country.name}
+                registeredOn={registration.registered_on}
+                numberOfEvents={registration.event_ids.length}
+                initialStatus={registration.registration_status}
+              />
+            )
+          })
+        ) : (
+          <tr>
+            <td colSpan={6}>No matching records found</td>
+          </tr>
+        )}
       </tbody>
     </table>
   )
