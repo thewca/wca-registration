@@ -20,21 +20,6 @@ const router = createBrowserRouter([
       <>
         <PageHeader />
         <main>
-          <h1 style={{ position: 'absolute', right: '35%' }}>
-            Choose a Test Competition from the Menu
-          </h1>
-        </main>
-        <PageFooter />
-      </>
-    ),
-  },
-  {
-    path: '/:competition_id',
-    element: (
-      <>
-        <PageHeader />
-        <main>
-          <PageSidebar />
           <Outlet />
         </main>
         <PageFooter />
@@ -42,20 +27,39 @@ const router = createBrowserRouter([
     ),
     children: [
       {
+        path: '',
+        element: (
+          <h1 style={{ position: 'absolute', right: '35%' }}>
+            Choose a Test Competition from the Menu
+          </h1>
+        ),
+      },
+      {
         path: '/:competition_id',
-        element: <HomePage />,
-      },
-      {
-        path: '/:competition_id/register',
-        element: <Register />,
-      },
-      {
-        path: '/:competition_id/registrations',
-        element: <Registrations />,
-      },
-      {
-        path: '/:competition_id/registrations/edit',
-        element: <RegistrationAdministration />,
+        element: (
+          <>
+            <PageSidebar />
+            <Outlet />
+          </>
+        ),
+        children: [
+          {
+            path: '/:competition_id',
+            element: <HomePage />,
+          },
+          {
+            path: '/:competition_id/register',
+            element: <Register />,
+          },
+          {
+            path: '/:competition_id/registrations',
+            element: <Registrations />,
+          },
+          {
+            path: '/:competition_id/registrations/edit',
+            element: <RegistrationAdministration />,
+          },
+        ],
       },
     ],
   },
