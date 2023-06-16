@@ -160,7 +160,7 @@ class RegistrationController < ApplicationController
 
   private
 
-    REGISTRATION_STATUS = %w[waiting accepted].freeze
+    REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
 
     def user_exists(competitor_id)
       Rails.cache.fetch(competitor_id, expires_in: 12.hours) do
@@ -180,7 +180,7 @@ class RegistrationController < ApplicationController
     end
 
     def validate_request(competitor_id, competition_id, status = 'waiting')
-      if competitor_id.present? && competitor_id =~ (/^\d{4}[a-zA-Z]{4}\d{2}$/)
+      if competitor_id.present? && competitor_id.to_s =~ (/\A\d+\z/)
         if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
           can_user_register?(competitor_id, competition_id)
         end

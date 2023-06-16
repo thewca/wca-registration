@@ -8,7 +8,7 @@ import styles from './list.module.scss'
 
 export default function RegistrationList() {
   const { competition_id } = useParams()
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [registrations, setRegistrations] = useState([])
   const [heldEvents, setHeldEvents] = useState([])
 
@@ -29,7 +29,7 @@ export default function RegistrationList() {
         regList.push(registration)
       }
       setRegistrations(regList)
-      setLoading(false)
+      setIsLoading(false)
     })
   }, [competition_id])
 
@@ -106,7 +106,7 @@ export default function RegistrationList() {
         rows={registrationList}
         header={header}
         footer={footer}
-        loading={loading}
+        loading={isLoading}
       />
     </div>
   )
