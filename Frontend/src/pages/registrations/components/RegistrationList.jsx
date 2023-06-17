@@ -69,7 +69,6 @@ export default function RegistrationList() {
       `${countrySet.size} Countries`,
       ...eventCounts.values(),
       totalEvents,
-      '',
     ]
   }, [registrations, heldEvents])
   const registrationList = useMemo(

@@ -38,6 +38,7 @@ class RegistrationController < ApplicationController
     competitor_id = params[:competitor_id]
     competition_id = params[:competition_id]
     event_ids = params[:event_ids]
+    comment = params[:comment] || ""
 
     unless validate_request(competitor_id, competition_id) && !event_ids.empty?
       Metrics.registration_validation_errors_counter.increment
@@ -54,6 +55,7 @@ class RegistrationController < ApplicationController
       step_details: {
         registration_status: 'waiting',
         event_ids: event_ids,
+        comment: comment
       },
     }
 
@@ -71,8 +73,10 @@ class RegistrationController < ApplicationController
     user_id = params[:competitor_id]
     competition_id = params[:competition_id]
     status = params[:status]
+    comment = params[:comment]
+    event_ids = params[:event_ids]
 
-    unless validate_request(user_id, competition_id, status)
+    unless validate_request(user_id, competition_id)
       Metrics.registration_validation_errors_counter.increment
       return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
     end
@@ -80,7 +84,15 @@ class RegistrationController < ApplicationController
       registration = Registrations.find("#{competition_id}-#{user_id}")
       updated_lanes = registration.lanes.map { |lane|
         if lane.name == "Competing"
-          lane.lane_state = status
+          if status.present?
+            lane.lane_state = status
+          end
+          if comment.present?
+            lane.step_details["comment"] = comment
+          end
+          if event_ids.present?
+            lane.step_details["event_ids"] = event_ids
+          end
         end
         lane
       }
@@ -98,6 +110,27 @@ class RegistrationController < ApplicationController
       Metrics.registration_dynamodb_errors_counter.increment
       render json: { status: "Error Updating Registration: #{e.message}" },
              status: :internal_server_error
+    end
+  end
+
+  def entry
+    user_id = params[:user_id]
+    competition_id = params[:competition_id]
+    unless validate_request(user_id, competition_id)
+      Metrics.registration_validation_errors_counter.increment
+      return render json: { status: "Can't get registration, wrong format" }, status: :forbidden
+    end
+    begin
+      registration = Registrations.find("#{competition_id}-#{user_id}")
+      return render json: { registration: {
+        user_id: registration["user_id"],
+        event_ids: registration["lanes"][0].step_details["event_ids"],
+        registration_status: registration["lanes"][0].lane_state,
+        registered_on: registration["created_at"],
+        comment: registration["lanes"][0].step_details["comment"]
+      }, status: 'ok' }
+    rescue Dynamoid::Errors::RecordNotFound
+      return render json: { registration: {} , status: 'ok' }
     end
   end
 
@@ -194,9 +227,16 @@ class RegistrationController < ApplicationController
       # TODO make this more beautiful and not break if there are more then one lane
       # This also currently breaks if a registration is started but never completed
       if only_attending
-        Registrations.where(competition_id: competition_id, is_attending: true).all.map { |x| { competitor_id: x["user_id"], event_ids: x["lanes"][0].step_details["event_ids"] } }
+        Registrations.where(competition_id: competition_id, is_attending: true).all.map do |x| { competitor_id: x["user_id"],
+                                                                                                 event_ids: x["lanes"][0].step_details["event_ids"] }
+        end
       else
-        Registrations.where(competition_id: competition_id).all.map { |x| { competitor_id: x["user_id"], event_ids: x["lanes"][0].step_details["event_ids"], registration_status: x["lanes"][0].lane_state, registered_on: x["created_at"] } }
+        Registrations.where(competition_id: competition_id).all.map do |x| { competitor_id: x["user_id"],
+                                                                             event_ids: x["lanes"][0].step_details["event_ids"],
+                                                                             registration_status: x["lanes"][0].lane_state,
+                                                                             registered_on: x["created_at"],
+                                                                             comment: x["lanes"][0].step_details["comment"] }
+        end
       end
     end
 end

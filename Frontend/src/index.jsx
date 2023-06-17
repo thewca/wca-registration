@@ -5,13 +5,14 @@ import '@thewca/wca-components/dist/index.esm.css'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
+import HomePage from './pages/home'
 import Register from './pages/register'
 import RegistrationAdministration from './pages/registration_administration'
 import Registrations from './pages/registrations'
+import TestLogin from './pages/test/login'
 import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 import PageSidebar from './ui/Sidebar'
-import HomePage from './pages/home'
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,11 @@ const router = createBrowserRouter([
       </>
     ),
     children: [
+      {
+        // Test Route to simulate different users
+        path: '/login/:login_id',
+        element: <TestLogin />,
+      },
       {
         path: '',
         element: (
@@ -54,6 +60,10 @@ const router = createBrowserRouter([
           {
             path: '/:competition_id/registrations',
             element: <Registrations />,
+          },
+          {
+            path: '/:competition_id/:user_id/edit',
+            element: <RegistrationAdministration />,
           },
           {
             path: '/:competition_id/registrations/edit',

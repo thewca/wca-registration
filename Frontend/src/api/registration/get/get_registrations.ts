@@ -1,5 +1,5 @@
-import backendFetch from '../../helper/backend_fetch'
 import { EventId } from '@wca/helpers'
+import backendFetch from '../../helper/backend_fetch'
 
 type RegistrationStatus = 'waiting' | 'accepted' | 'deleted'
 
@@ -13,6 +13,7 @@ interface RegistrationAdmin {
   event_ids: EventId[]
   registration_status: RegistrationStatus
   registered_on: string
+  comment: string
 }
 
 export async function getConfirmedRegistrations(
@@ -26,6 +27,16 @@ export async function getAllRegistrations(
 ): Promise<RegistrationAdmin[]> {
   return backendFetch(
     `/registrations/admin?competition_id=${competitionID}`,
+    'GET'
+  )
+}
+
+export async function getSingleRegistration(
+  userId: string,
+  competitionId: string
+): Promise<{ registration: RegistrationAdmin }> {
+  return backendFetch(
+    `/register?user_id=${userId}&competition_id=${competitionId}`,
     'GET'
   )
 }

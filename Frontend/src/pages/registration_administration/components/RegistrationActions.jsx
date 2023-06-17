@@ -2,7 +2,7 @@ import { UiIcon } from '@thewca/wca-components'
 import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Message } from 'semantic-ui-react'
-import updateRegistration from '../../../api/registration/patch/update_registration'
+import { updateRegistrationStatus } from '../../../api/registration/patch/update_registration'
 import styles from './actions.module.scss'
 
 export default function RegistrationActions({ selected, refresh }) {
@@ -22,7 +22,7 @@ export default function RegistrationActions({ selected, refresh }) {
     const responses = []
     for (const attendee of attendees) {
       // Should we have a bulk route here? That would make all the changes fail even if there is only one issue
-      const response = await updateRegistration(
+      const response = await updateRegistrationStatus(
         attendee,
         competition_id,
         status

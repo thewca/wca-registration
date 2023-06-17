@@ -3,16 +3,16 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Message, TextArea } from 'semantic-ui-react'
 import getCompetitionInfo from '../../../api/competition/get/get_competition_info'
-import submitEventRegistration from '../../../api/registration/post/submit_registration'
+import { updateRegistrationEvents } from '../../../api/registration/patch/update_registration'
 import LoadingMessage from '../../shared/loadingMessage'
 import styles from './panel.module.scss'
 
-export default function RegistrationPanel() {
-  const [selectedEvents, setSelectedEvents] = useState([])
+export default function RegistrationEditPanel({ registration }) {
+  const [selectedEvents, setSelectedEvents] = useState(registration.event_ids)
   const [message, setMessage] = useState({})
+  const [comment, setComment] = useState(registration.comment)
   const [heldEvents, setHeldEvents] = useState([])
   const [islLoading, setIsLoading] = useState(true)
-  const [comment, setComment] = useState('')
   const { competition_id } = useParams()
   useEffect(() => {
     getCompetitionInfo(competition_id).then((competitionInfo) => {
@@ -43,38 +43,41 @@ export default function RegistrationPanel() {
       <EventSelector
         handleEventSelection={handleEventSelection}
         events={heldEvents}
-        initialSelected={[]}
+        initialSelected={registration.event_ids}
         size="2x"
       />
-      <TextArea onChange={(_, data) => setComment(data.value)}> </TextArea>
+      <TextArea
+        onChange={(_, data) => setComment(data.value)}
+        value={comment}
+      />
       <Button
         onClick={async () => {
           setMessage({
-            text: 'Registration is being processed',
+            text: 'Registration is being updated',
             type: 'basic',
           })
-          const response = await submitEventRegistration(
+          const response = await updateRegistrationEvents(
             localStorage.getItem('user_id'),
             competition_id,
-            comment,
-            selectedEvents
+            selectedEvents,
+            comment
           )
           if (response.error) {
             // TODO move this when I make a more general success/error component
             setMessage({
-              text: 'Registration failed with error: ' + response.error,
+              text: 'Registration update failed with error: ' + response.error,
               type: 'negative',
             })
           } else {
             setMessage({
-              text: 'Registration succeeded',
+              text: 'Registration update succeeded',
               type: 'positive',
             })
           }
         }}
         positive
       >
-        Register
+        Update Registration
       </Button>
     </div>
   )

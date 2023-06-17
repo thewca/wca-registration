@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   end
 
   get '/healthcheck', to: 'healthcheck#index'
+  get '/api/v1/register', to: 'registration#entry'
   post '/api/v1/register', to: 'registration#create'
   patch '/api/v1/register', to: 'registration#update'
   delete '/api/v1/register', to: 'registration#delete'

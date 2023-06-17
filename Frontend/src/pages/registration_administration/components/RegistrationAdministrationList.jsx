@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import getCompetitorInfo from '../../../api/user/get/get_user_info'
+import LoadingMessage from '../../shared/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
 
@@ -62,7 +63,9 @@ export default function RegistrationAdministrationList() {
   )
 
   return isLoading ? (
-    <div className={styles.list}>Loading, please wait...</div>
+    <div className={styles.list}>
+      <LoadingMessage />
+    </div>
   ) : (
     <>
       <div className={styles.list}>
@@ -170,6 +173,7 @@ function RegistrationAdministrationTable({ registrations, add, remove }) {
           <Table.HeaderCell>Citizen of</Table.HeaderCell>
           <Table.HeaderCell>Registered on</Table.HeaderCell>
           <Table.HeaderCell>Number of Events</Table.HeaderCell>
+          <Table.HeaderCell>Comment</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -230,6 +234,7 @@ function RegistrationAdministrationTable({ registrations, add, remove }) {
                   />
                 </Table.Cell>
                 <Table.Cell>{registration.event_ids.length}</Table.Cell>
+                <Table.Cell>{registration.comment}</Table.Cell>
               </Table.Row>
             )
           })
