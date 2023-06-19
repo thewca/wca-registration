@@ -13,11 +13,11 @@ class RegistrationController < ApplicationController
     @queue_url = ENV["QUEUE_URL"] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     # TODO: Cache this call?
     lane_created = begin
-                     Registrations.find("#{competition_id}-#{user_id}")
-                     true
-                   rescue Dynamoid::Errors::RecordNotFound
-                     false
-                   end
+      Registrations.find("#{competition_id}-#{user_id}")
+      true
+    rescue Dynamoid::Errors::RecordNotFound
+      false
+    end
     unless lane_created
       step_data = {
         user_id: user_id,
@@ -142,38 +142,38 @@ class RegistrationController < ApplicationController
 
   private
 
-  REGISTRATION_STATUS = %w[waiting accepted].freeze
+    REGISTRATION_STATUS = %w[waiting accepted].freeze
 
-  def user_exists(competitor_id)
-    Rails.cache.fetch(competitor_id, expires_in: 12.hours) do
-      CompetitorApi.check_competitor(competitor_id)
-    end
-  end
-
-  def competition_open(competition_id)
-    Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      CompetitionApi.check_competition(competition_id)
-    end
-  end
-
-  def can_user_register?(competitor_id, competition_id)
-    # Check if user exists
-    user_exists(competitor_id) and competition_open(competition_id)
-  end
-
-  def validate_request(competitor_id, competition_id, status = 'waiting')
-    if competitor_id.present? && competitor_id =~ (/^\d{4}[a-zA-Z]{4}\d{2}$/)
-      if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
-        can_user_register?(competitor_id, competition_id)
+    def user_exists(competitor_id)
+      Rails.cache.fetch(competitor_id, expires_in: 12.hours) do
+        CompetitorApi.check_competitor(competitor_id)
       end
-    else
-      false
     end
-  end
 
-  def get_registrations(competition_id)
-    # Query DynamoDB for registrations with the given competition_id using the Global Secondary Index
-    # TODO make this more beautiful and not break if there are more then one lane
-    Registrations.where(competition_id: competition_id).all.map { |x| { competitor_id: x["user_id"], event_ids: x["lanes"][0].step_details["event_ids"], registration_status: x["lanes"][0].lane_state } }
-  end
+    def competition_open(competition_id)
+      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+        CompetitionApi.check_competition(competition_id)
+      end
+    end
+
+    def can_user_register?(competitor_id, competition_id)
+      # Check if user exists
+      user_exists(competitor_id) and competition_open(competition_id)
+    end
+
+    def validate_request(competitor_id, competition_id, status = 'waiting')
+      if competitor_id.present? && competitor_id =~ (/^\d{4}[a-zA-Z]{4}\d{2}$/)
+        if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
+          can_user_register?(competitor_id, competition_id)
+        end
+      else
+        false
+      end
+    end
+
+    def get_registrations(competition_id)
+      # Query DynamoDB for registrations with the given competition_id using the Global Secondary Index
+      # TODO make this more beautiful and not break if there are more then one lane
+      Registrations.where(competition_id: competition_id).all.map { |x| { competitor_id: x["user_id"], event_ids: x["lanes"][0].step_details["event_ids"], registration_status: x["lanes"][0].lane_state } }
+    end
 end
