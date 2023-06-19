@@ -27,6 +27,8 @@ gem 'bootsnap', require: false
 # Use Redis adapter to run Action Cable in production
 gem 'hiredis'
 gem 'redis', '~> 4.0'
+# So Redis can share connections
+gem 'connection_pool'
 
 # DynamoDB for storing registrations
 gem 'aws-sdk-dynamodb'

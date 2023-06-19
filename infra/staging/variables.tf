@@ -64,3 +64,8 @@ variable "cluster_security_id" {
   type = string
   description = "The security group of the cluster"
 }
+
+variable "elasticache_subnet_group_name" {
+  type = string
+  description = "The subnet group for the cache clusters"
+}

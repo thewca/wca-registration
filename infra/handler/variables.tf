@@ -82,6 +82,9 @@ variable "shared_resources" {
     secondary_target_group: object({
       name: string,
       arn: string
+    }),
+    aws_elasticache_cluster: object({
+      cache_nodes: any
     })
   })
 }
