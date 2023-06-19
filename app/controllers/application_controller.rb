@@ -1,4 +1,17 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::API
+  around_action :performance_profile if Rails.env == 'development'
+
+  def performance_profile(&)
+    if params[:profile] && (result = RubyProf.profile(&))
+
+      out = StringIO.new
+      RubyProf::GraphHtmlPrinter.new(result).print out, min_percent: 0
+      response.set_header("Content-Type", "text/html")
+      response.body = out.string
+    else
+      yield
+    end
+  end
 end

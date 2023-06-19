@@ -239,6 +239,7 @@ GEM
       unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.29.0)
       parser (>= 3.2.1.0)
+    ruby-prof (1.6.3)
     ruby-progressbar (1.13.0)
     sqlite3 (1.6.3-aarch64-linux)
     sqlite3 (1.6.3-x86_64-linux)
@@ -283,6 +284,7 @@ DEPENDENCIES
   rspec-rails
   rswag
   rubocop
+  ruby-prof
   sqlite3 (~> 1.4)
   tzinfo-data
   vault-rails
