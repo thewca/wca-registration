@@ -146,6 +146,8 @@ services:
       - '6379:6379'
     volumes:
       - cache:/data
+    networks:
+      - wca-registration
 
 volumes:
   gems_volume_handler:
