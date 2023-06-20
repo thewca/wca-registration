@@ -76,10 +76,6 @@ class RegistrationController < ApplicationController
     comment = params[:comment]
     event_ids = params[:event_ids]
 
-    unless validate_request(user_id, competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
-    end
     begin
       registration = Registrations.find("#{competition_id}-#{user_id}")
       updated_lanes = registration.lanes.map { |lane|
@@ -96,14 +92,23 @@ class RegistrationController < ApplicationController
         end
         lane
       }
-      if status == "accepted"
-        registration.update_attributes(lanes: updated_lanes, is_attending: true)
+      if status.present?
+        if status == "accepted"
+          updated_registration = registration.update_attributes!(lanes: updated_lanes, is_attending: true)
+        else
+          updated_registration = registration.update_attributes!(lanes: updated_lanes, is_attending: false)
+        end
       else
-        registration.update_attributes(lanes: updated_lanes)
+        updated_registration = registration.update_attributes!(lanes: updated_lanes)
       end
-
       # Render a success response
-      render json: { status: 'ok' }
+      render json: { status: 'ok', registration: {
+        user_id: updated_registration["user_id"],
+        event_ids: updated_registration["lanes"][0].step_details["event_ids"],
+        registration_status: updated_registration["lanes"][0].lane_state,
+        registered_on: updated_registration["created_at"],
+        comment: updated_registration["lanes"][0].step_details["comment"]
+      }  }
     rescue StandardError => e
       # Render an error response
       puts e

@@ -8,8 +8,10 @@ import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import HomePage from './pages/home'
 import Register from './pages/register'
 import RegistrationAdministration from './pages/registration_administration'
+import RegistrationEdit from './pages/registration_edit'
 import Registrations from './pages/registrations'
 import TestLogin from './pages/test/login'
+import FlashMessage from './ui/flashMessage'
 import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 import PageSidebar from './ui/Sidebar'
@@ -20,6 +22,7 @@ const router = createBrowserRouter([
     element: (
       <>
         <PageHeader />
+        <FlashMessage />
         <main>
           <Outlet />
         </main>
@@ -63,7 +66,7 @@ const router = createBrowserRouter([
           },
           {
             path: '/:competition_id/:user_id/edit',
-            element: <RegistrationAdministration />,
+            element: <RegistrationEdit />,
           },
           {
             path: '/:competition_id/registrations/edit',

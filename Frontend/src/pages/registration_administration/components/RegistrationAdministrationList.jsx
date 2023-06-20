@@ -1,10 +1,10 @@
 import { FlagIcon } from '@thewca/wca-components'
 import React, { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import getCompetitorInfo from '../../../api/user/get/get_user_info'
-import LoadingMessage from '../../shared/loadingMessage'
+import LoadingMessage from '../../../ui/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
 
@@ -88,6 +88,7 @@ export default function RegistrationAdministrationList() {
               deleted: selected.deleted,
             })
           }
+          competition_id={competition_id}
         />
         <h2> Approved registrations </h2>
         <RegistrationAdministrationTable
@@ -108,6 +109,7 @@ export default function RegistrationAdministrationList() {
               deleted: selected.deleted,
             })
           }
+          competition_id={competition_id}
         />
         <h2> Deleted registrations </h2>
         <RegistrationAdministrationTable
@@ -128,6 +130,7 @@ export default function RegistrationAdministrationList() {
               waiting: selected.deleted,
             })
           }
+          competition_id={competition_id}
         />
       </div>
       <RegistrationActions
@@ -142,7 +145,12 @@ export default function RegistrationAdministrationList() {
   )
 }
 
-function RegistrationAdministrationTable({ registrations, add, remove }) {
+function RegistrationAdministrationTable({
+  registrations,
+  add,
+  remove,
+  competition_id,
+}) {
   const [checkedBoxes, setCheckedBoxes] = useState([])
   return (
     <Table textAlign="left">
@@ -202,7 +210,11 @@ function RegistrationAdministrationTable({ registrations, add, remove }) {
                     checked={checkedBoxes.includes(registration.user.id)}
                   />
                 </Table.Cell>
-                <Table.Cell>Edit</Table.Cell>
+                <Table.Cell>
+                  <Link to={`/${competition_id}/${registration.user.id}/edit`}>
+                    Edit
+                  </Link>
+                </Table.Cell>
                 <Table.Cell>
                   {registration.competitor_id ? (
                     <a
