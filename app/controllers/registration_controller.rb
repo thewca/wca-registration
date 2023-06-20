@@ -5,13 +5,29 @@ require_relative '../helpers/competition_api'
 require_relative '../helpers/competitor_api'
 
 class RegistrationController < ApplicationController
+  prepend_before_action :validate_create_request, only: [:create]
   before_action :ensure_lane_exists, only: [:create]
+
+  # For a user to register they need to
+  # 1) Have a complete Profile
+  # 2) Be not banned
+  # 3) Register for a competition that is open
+  def validate_create_request
+    required_params = registration_params
+    @competitor_id = required_params[:competitor_id]
+    @competition_id = required_params[:competition_id]
+    @event_ids = required_params[:event_ids]
+
+    unless validate_request(@competitor_id, @competition_id) && !@event_ids.empty?
+      Metrics.registration_validation_errors_counter.increment
+      return render json: { status: 'User cannot register for competition' }, status: :forbidden
+    end
+  end
 
   def ensure_lane_exists
     user_id = params[:competitor_id]
     competition_id = params[:competition_id]
     @queue_url = ENV["QUEUE_URL"] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
-    # TODO: Cache this call?
     lane_created = begin
       Registrations.find("#{competition_id}-#{user_id}")
       true
@@ -35,25 +51,16 @@ class RegistrationController < ApplicationController
   end
 
   def create
-    competitor_id = params[:competitor_id]
-    competition_id = params[:competition_id]
-    event_ids = params[:event_ids]
-
-    unless validate_request(competitor_id, competition_id) && !event_ids.empty?
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { status: 'User cannot register for competition' }, status: :forbidden
-    end
-
     id = SecureRandom.uuid
 
     step_data = {
-      user_id: competitor_id,
-      competition_id: competition_id,
+      user_id: @competitor_id,
+      competition_id: @competition_id,
       lane_name: 'Competing',
       step: 'Event Registration',
       step_details: {
         registration_status: 'waiting',
-        event_ids: event_ids,
+        event_ids: @event_ids,
       },
     }
 
@@ -162,13 +169,15 @@ class RegistrationController < ApplicationController
     end
 
     def validate_request(competitor_id, competition_id, status = 'waiting')
-      if competitor_id.present? && competitor_id =~ (/^\d{4}[a-zA-Z]{4}\d{2}$/)
-        if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
-          can_user_register?(competitor_id, competition_id)
-        end
+      if competitor_id =~ (/^\d{4}[a-zA-Z]{4}\d{2}$/) && competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
+        can_user_register?(competitor_id, competition_id)
       else
         false
       end
+    end
+
+    def registration_params
+      params.require(:user_id, :competition_id, :event_ids)
     end
 
     def get_registrations(competition_id)
