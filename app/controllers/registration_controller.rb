@@ -2,25 +2,85 @@
 
 require 'securerandom'
 require_relative '../helpers/competition_api'
-require_relative '../helpers/competitor_api'
+require_relative '../helpers/user_api'
 
 class RegistrationController < ApplicationController
   prepend_before_action :validate_create_request, only: [:create]
+  prepend_before_action :validate_update_request, only: [:update]
   before_action :ensure_lane_exists, only: [:create]
 
   # For a user to register they need to
   # 1) Have a complete Profile
   # 2) Be not banned
   # 3) Register for a competition that is open
+  # 4) Register for events that are actually held at the competition
+
   def validate_create_request
     required_params = registration_params
-    @competitor_id = required_params[:competitor_id]
+    @user_id = required_params[:user_id]
     @competition_id = required_params[:competition_id]
     @event_ids = required_params[:event_ids]
+    status = ""
+    cannot_register_reasons = ""
 
-    unless validate_request(@competitor_id, @competition_id) && !@event_ids.empty?
+    unless UserApi::profile_complete?(@user_id)
+      status = :forbidden
+      cannot_register_reasons = 'User cannot register for competition: Your profile is not complete'
+    end
+
+    if UserApi::is_banned?(@user_id)
+      status = :forbidden
+      cannot_register_reasons = 'User cannot register for competition: You are banned from competing'
+    end
+
+    unless CompetitionApi::is_open?(@competition_id)
+      status = :forbidden
+      cannot_register_reasons = 'User cannot register for competition: The Competition is not open'
+    end
+
+    if @event_ids.empty? || !CompetitionApi::events_held?(@event_ids, @competition_id)
+      status = :bad_request
+      cannot_register_reasons = 'User cannot register for competition: Invalid events specified'
+    end
+
+    unless cannot_register_reasons.empty?
       Metrics.registration_validation_errors_counter.increment
-      return render json: { status: 'User cannot register for competition' }, status: :forbidden
+      return render json: { status: cannot_register_reasons }, status: status
+    end
+  end
+
+  # For a user to update they need to
+  # 1) Be already Registered to the competition
+  # 2) Registration is open(?)
+  # 3) Register for events that are actually held at the competition
+
+  def validate_update_request
+    required_params = update_params
+    @user_id = required_params[:user_id]
+    @competition_id = required_params[:competition_id]
+    @event_ids = params[:event_ids]
+    status = ""
+    cannot_update_reasons = ""
+
+    begin
+      @registration = Registrations.find("#{competition_id}-#{user_id}")
+    rescue Dynamoid::Errors::RecordNotFound
+      cannot_update_reasons = "User cannot update: Not registered"
+    end
+
+    unless CompetitionApi::is_open?(@competition_id)
+      status = :forbidden
+      cannot_update_reasons = 'User cannot update for competition: The Competition is not open'
+    end
+
+    if @event_ids.empty? || !CompetitionApi::events_held?(@event_ids, @competition_id)
+      status = :bad_request
+      cannot_update_reasons = 'User cannot register for competition: Invalid events specified'
+    end
+
+    unless cannot_update_reasons.empty?
+      Metrics.registration_validation_errors_counter.increment
+      return render json: { status: cannot_update_reasons }, status: status
     end
   end
 
@@ -54,7 +114,7 @@ class RegistrationController < ApplicationController
     id = SecureRandom.uuid
 
     step_data = {
-      user_id: @competitor_id,
+      user_id: @user_id,
       competition_id: @competition_id,
       lane_name: 'Competing',
       step: 'Event Registration',
@@ -75,23 +135,15 @@ class RegistrationController < ApplicationController
   end
 
   def update
-    user_id = params[:competitor_id]
-    competition_id = params[:competition_id]
     status = params[:status]
 
-    unless validate_request(user_id, competition_id, status)
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
-    end
     begin
-      registration = Registrations.find("#{competition_id}-#{user_id}")
-      updated_lanes = registration.lanes.map { |lane|
+      updated_lanes = @registration.lanes.map { |lane|
         if lane.name == "Competing"
           lane.lane_state = status
         end
         lane
       }
-      puts updated_lanes.to_json
       registration.update_attributes(lanes: updated_lanes)
       # Render a success response
       render json: { status: 'ok' }
@@ -100,35 +152,6 @@ class RegistrationController < ApplicationController
       puts e
       Metrics.registration_dynamodb_errors_counter.increment
       render json: { status: "Error Updating Registration: #{e.message}" },
-             status: :internal_server_error
-    end
-  end
-
-  def delete
-    user_id = params[:competitor_id]
-    competition_id = params[:competition_id]
-
-    unless validate_request(user_id, competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
-    end
-    begin
-      registration = Registrations.find("#{competition_id}-#{user_id}")
-      updated_lanes = registration.lanes.map { |lane|
-        if lane.name == "Competing"
-          lane.lane_state = "deleted"
-        end
-        lane
-      }
-      puts updated_lanes.to_json
-      registration.update_attributes(lanes: updated_lanes)
-      # Render a success response
-      render json: { status: 'ok' }
-    rescue StandardError => e
-      # Render an error response
-      puts e
-      Metrics.registration_dynamodb_errors_counter.increment
-      render json: { status: "Error deleting item from DynamoDB: #{e.message}" },
              status: :internal_server_error
     end
   end
@@ -151,33 +174,12 @@ class RegistrationController < ApplicationController
 
     REGISTRATION_STATUS = %w[waiting accepted].freeze
 
-    def user_exists(competitor_id)
-      Rails.cache.fetch(competitor_id, expires_in: 12.hours) do
-        CompetitorApi.check_competitor(competitor_id)
-      end
-    end
-
-    def competition_open(competition_id)
-      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        CompetitionApi.check_competition(competition_id)
-      end
-    end
-
-    def can_user_register?(competitor_id, competition_id)
-      # Check if user exists
-      user_exists(competitor_id) and competition_open(competition_id)
-    end
-
-    def validate_request(competitor_id, competition_id, status = 'waiting')
-      if competitor_id =~ (/^\d{4}[a-zA-Z]{4}\d{2}$/) && competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
-        can_user_register?(competitor_id, competition_id)
-      else
-        false
-      end
-    end
-
     def registration_params
-      params.require(:user_id, :competition_id, :event_ids)
+      params.require([:user_id, :competition_id, :event_ids])
+    end
+
+    def update_params
+      params.require([:user_id, :competition_id])
     end
 
     def get_registrations(competition_id)
