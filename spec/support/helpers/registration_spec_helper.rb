@@ -13,5 +13,16 @@ module Helpers
         end
       end
     end
+
+    def get_registration(attendee_id)
+      File.open("#{Rails.root}/spec/fixtures/registrations.json", 'r') do |f|
+        registrations = JSON.parse(f.read)
+
+        # Retrieve the competition details when competition_id matches
+        registrations.each do |registration|
+          registration if registration['attendee_id'] == attendee_id
+        end
+      end
+    end
   end
 end
