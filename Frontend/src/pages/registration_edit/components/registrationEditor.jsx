@@ -69,7 +69,7 @@ export default function RegistrationEditor({ user_id, competition_id }) {
             name="checkboxRadioGroup"
             value="accepted"
             checked={status === 'accepted'}
-            onChange={(e, data) => setStatus(data.value)}
+            onChange={(_, data) => setStatus(data.value)}
           />
           <br />
           <Checkbox
@@ -78,7 +78,7 @@ export default function RegistrationEditor({ user_id, competition_id }) {
             name="checkboxRadioGroup"
             value="waiting"
             checked={status === 'waiting'}
-            onChange={(e, data) => setStatus(data.value)}
+            onChange={(_, data) => setStatus(data.value)}
           />
           <br />
           <Checkbox
@@ -87,19 +87,17 @@ export default function RegistrationEditor({ user_id, competition_id }) {
             name="checkboxRadioGroup"
             value="deleted"
             checked={status === 'deleted'}
-            onChange={(e, data) => setStatus(data.value)}
+            onChange={(_, data) => setStatus(data.value)}
           />
           <br />
           <Button
             onClick={() => {
               setMessage('Updating Registration', 'basic')
-              updateRegistration(
-                user_id,
-                competition_id,
+              updateRegistration(user_id, competition_id, {
                 status,
-                selectedEvents,
-                comment
-              ).then((response) => {
+                eventIds: selectedEvents,
+                comment,
+              }).then((response) => {
                 if (response.error) {
                   setMessage(
                     'Updating Registration failed with error: ' +

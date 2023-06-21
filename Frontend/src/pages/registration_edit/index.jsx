@@ -1,6 +1,6 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
-import RegistrationEditor from './components/registration_editor'
+import RegistrationEditor from './components/registrationEditor'
 import styles from './index.module.scss'
 
 export default function RegistrationEdit() {
