@@ -88,6 +88,7 @@ GEM
       msgpack (~> 1.2)
     builder (3.2.4)
     concurrent-ruby (1.2.2)
+    connection_pool (2.4.1)
     crack (0.4.5)
       rexml
     crass (1.0.6)
@@ -271,6 +272,7 @@ DEPENDENCIES
   aws-sdk-dynamodb
   aws-sdk-sqs
   bootsnap
+  connection_pool
   debug
   dynamoid (= 3.8.0)
   hiredis
