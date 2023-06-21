@@ -1,5 +1,5 @@
 import { FlagIcon } from '@thewca/wca-components'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useReducer, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
@@ -7,6 +7,63 @@ import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import LoadingMessage from '../../../ui/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
+
+const reducer = (state, action) => {
+  const { type, attendee } = action
+  switch (type) {
+    case 'add-waiting':
+      return {
+        waiting: [...state.waiting, attendee],
+        accepted: state.accepted,
+        deleted: state.deleted,
+      }
+    case 'remove-waiting':
+      return {
+        waiting: state.waiting.filter(
+          (selectedAttendee) => selectedAttendee !== attendee
+        ),
+        accepted: state.accepted,
+        deleted: state.deleted,
+      }
+    case 'add-accepted':
+      return {
+        accepted: [...state.accepted, attendee],
+        waiting: state.waiting,
+        deleted: state.deleted,
+      }
+    case 'remove-accepted':
+      return {
+        accepted: state.accepted.filter(
+          (selectedAttendee) => selectedAttendee !== attendee
+        ),
+        waiting: state.waiting,
+        deleted: state.deleted,
+      }
+    case 'add-deleted':
+      return {
+        deleted: [...state.deleted, attendee],
+        accepted: state.accepted,
+        waiting: state.deleted,
+      }
+    case 'remove-deleted':
+      return {
+        deleted: state.deleted.filter(
+          (selectedAttendee) => selectedAttendee !== attendee
+        ),
+        accepted: state.accepted,
+        waiting: state.deleted,
+      }
+    case 'clear-selected': {
+      return {
+        waiting: [],
+        accepted: [],
+        deleted: [],
+      }
+    }
+    default:
+      throw new Error('Unknown action.')
+  }
+}
 
 const partitionRegistrations = (registrations) => {
   return registrations.reduce(
@@ -34,7 +91,7 @@ export default function RegistrationAdministrationList() {
   const { competition_id } = useParams()
   const [registrations, setRegistrations] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [selected, setSelected] = useState({
+  const [selected, dispatch] = useReducer(reducer, {
     waiting: [],
     accepted: [],
     deleted: [],
@@ -72,73 +129,32 @@ export default function RegistrationAdministrationList() {
         <h2> Incoming registrations </h2>
         <RegistrationAdministrationTable
           registrations={waiting}
-          add={(attendee) =>
-            setSelected({
-              waiting: [...selected.waiting, attendee],
-              accepted: selected.accepted,
-              deleted: selected.deleted,
-            })
-          }
-          remove={(attendee) =>
-            setSelected({
-              waiting: selected.waiting.filter(
-                (selectedAttendee) => selectedAttendee !== attendee
-              ),
-              accepted: selected.accepted,
-              deleted: selected.deleted,
-            })
-          }
+          add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
+          remove={(attendee) => dispatch({ type: 'remove-waiting', attendee })}
           competition_id={competition_id}
         />
         <h2> Approved registrations </h2>
         <RegistrationAdministrationTable
           registrations={accepted}
-          add={(attendee) =>
-            setSelected({
-              accepted: [...selected.accepted, attendee],
-              waiting: selected.waiting,
-              deleted: selected.deleted,
-            })
-          }
-          remove={(attendee) =>
-            setSelected({
-              accepted: selected.accepted.filter(
-                (selectedAttendee) => selectedAttendee !== attendee
-              ),
-              waiting: selected.waiting,
-              deleted: selected.deleted,
-            })
-          }
+          add={(attendee) => dispatch({ type: 'add-accepted', attendee })}
+          remove={(attendee) => dispatch({ type: 'remove-accepted', attendee })}
           competition_id={competition_id}
         />
         <h2> Deleted registrations </h2>
         <RegistrationAdministrationTable
           registrations={deleted}
-          add={(attendee) =>
-            setSelected({
-              deleted: [...selected.deleted, attendee],
-              accepted: selected.accepted,
-              waiting: selected.deleted,
-            })
-          }
-          remove={(attendee) =>
-            setSelected({
-              deleted: selected.deleted.filter(
-                (selectedAttendee) => selectedAttendee !== attendee
-              ),
-              accepted: selected.accepted,
-              waiting: selected.deleted,
-            })
-          }
+          add={(attendee) => dispatch({ type: 'add-deleted', attendee })}
+          remove={(attendee) => dispatch({ type: 'remove-deleted', attendee })}
           competition_id={competition_id}
         />
       </div>
       <RegistrationActions
         selected={selected}
         refresh={() =>
-          fetchData(competition_id).then((registrations) =>
+          fetchData(competition_id).then((registrations) => {
             setRegistrations(registrations)
-          )
+            dispatch({ type: 'clear-selected' })
+          })
         }
       />
     </>
