@@ -43,73 +43,68 @@ export default function RegistrationActions({ selected, refresh }) {
     }
     refresh()
   }
-  return anySelected ? (
-    <Button.Group className={styles.actions}>
-      <Button>
-        <UiIcon name="download" /> Export to CSV
-      </Button>
-      <Button>
-        <a
-          href={`mailto:?bcc=${[
-            ...selected.waiting,
-            ...selected.accepted,
-            ...selected.deleted,
-          ]
-            .map((user) => user + '@worldcubeassociation.org')
-            .join(',')}`}
-          id="email-selected"
-          target="_blank"
-          className="btn btn-info selected-registrations-actions"
-        >
-          <UiIcon name="envelope" /> Email
-        </a>
-      </Button>
-      {anyApprovable ? (
-        <Button
-          positive
-          onClick={() =>
-            changeStatus(
-              [...selected.waiting, ...selected.accepted, ...selected.deleted],
-              'accepted'
-            )
-          }
-        >
-          <UiIcon name="check" /> Approve
+
+  return (
+    anySelected && (
+      <Button.Group className={styles.actions}>
+        <Button>
+          <UiIcon name="download" /> Export to CSV
         </Button>
-      ) : (
-        ''
-      )}
-      {anyRejectable ? (
-        <Button
-          onClick={() =>
-            changeStatus(
-              [...selected.waiting, ...selected.accepted, ...selected.deleted],
-              'waiting'
-            )
-          }
-        >
-          <UiIcon name="times" /> Reject
+        <Button>
+          <a
+            href={`mailto:?bcc=${[
+              ...selected.waiting,
+              ...selected.accepted,
+              ...selected.deleted,
+            ]
+              .map((user) => user + '@worldcubeassociation.org')
+              .join(',')}`}
+            id="email-selected"
+            target="_blank"
+            className="btn btn-info selected-registrations-actions"
+          >
+            <UiIcon name="envelope" /> Email
+          </a>
         </Button>
-      ) : (
-        ''
-      )}
-      {anyDeletable ? (
-        <Button
-          negative
-          onClick={() =>
-            changeStatus(
-              [...selected.waiting, ...selected.accepted, ...selected.deleted],
-              'deleted'
-            )
-          }
-        >
-          <UiIcon name="trash" /> Delete
-        </Button>
-      ) : (
-        ''
-      )}
-    </Button.Group>
-  ) : (
-    ''
+        {anyApprovable && (
+          <Button
+            positive
+            onClick={() =>
+              changeStatus(
+                [...selected.waiting, ...selected.deleted],
+                'accepted'
+              )
+            }
+          >
+            <UiIcon name="check" /> Approve
+          </Button>
+        )}
+        {anyRejectable && (
+          <Button
+            onClick={() =>
+              changeStatus(
+                [...selected.accepted, ...selected.deleted],
+                'waiting'
+              )
+            }
+          >
+            <UiIcon name="times" /> Reject
+          </Button>
+        )}
+        {anyDeletable && (
+          <Button
+            negative
+            onClick={() =>
+              changeStatus(
+                [...selected.waiting, ...selected.accepted],
+                'deleted'
+              )
+            }
+          >
+            <UiIcon name="trash" /> Delete
+          </Button>
+        )}
+      </Button.Group>
+    )
   )
 }
