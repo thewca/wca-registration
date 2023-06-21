@@ -22,11 +22,9 @@ export default function RegistrationActions({ selected, refresh }) {
     const responses = []
     for (const attendee of attendees) {
       // Should we have a bulk route here? That would make all the changes fail even if there is only one issue
-      const response = await updateRegistration(
-        attendee,
-        competition_id,
-        status
-      )
+      const response = await updateRegistration(attendee, competition_id, {
+        status,
+      })
       responses.push(response)
     }
     if (responses.some((response) => response.error)) {

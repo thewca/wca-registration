@@ -47,22 +47,22 @@ export default function Register() {
                 negative
                 onClick={() => {
                   setMessage('Registration is being deleted', 'basic')
-                  updateRegistration(user_id, competition_id, 'deleted').then(
-                    (response) => {
-                      if (response.error) {
-                        setMessage(
-                          'Deleted Registration failed: ' + response.error,
-                          'negative'
-                        )
-                      } else {
-                        setRegistration(response.registration)
-                        setMessage(
-                          'Successfully deleted Registration',
-                          'positive'
-                        )
-                      }
+                  updateRegistration(user_id, competition_id, {
+                    status: 'deleted',
+                  }).then((response) => {
+                    if (response.error) {
+                      setMessage(
+                        'Deleted Registration failed: ' + response.error,
+                        'negative'
+                      )
+                    } else {
+                      setRegistration(response.registration)
+                      setMessage(
+                        'Successfully deleted Registration',
+                        'positive'
+                      )
                     }
-                  )
+                  })
                 }}
               >
                 Delete Registration

@@ -42,13 +42,10 @@ export default function RegistrationEditPanel({ registration }) {
       <Button
         onClick={() => {
           setMessage('Registration is being updated', 'basic')
-          updateRegistration(
-            localStorage.getItem('user_id'),
-            competition_id,
-            registration.registration_status,
-            selectedEvents,
-            comment
-          ).then((response) => {
+          updateRegistration(localStorage.getItem('user_id'), competition_id, {
+            eventIds: selectedEvents,
+            comment,
+          }).then((response) => {
             if (response.error) {
               setMessage(
                 'Registration update failed with error: ' + response.error,
