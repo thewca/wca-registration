@@ -67,7 +67,6 @@ RSpec.configure do |config|
                        :lanes, :hide_name_publicly],
           },
         },
-
       },
       paths: {},
       servers: [

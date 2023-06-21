@@ -65,17 +65,15 @@ components:
       - attendee_id
       - competition_id
       - user_id
-      - is_attending
       - lane_states
       - lanes
-      - hide_name_publicly
 paths:
-  "/registrations/":
+  "/api/v1/registrations/{competition_id}":
     get:
       summary: List registrations for a given competition_id
       parameters:
       - name: competition_id
-        in: query
+        in: path
         required: true
         schema:
           type: string
@@ -96,6 +94,22 @@ paths:
           description: Competition service unavailable - 500 error
         '502':
           description: Competition service unavailable - 502 error
+  "/api/v1/registration/{attendee-id}":
+    get:
+      summary: Retrieve attendee registration
+      parameters:
+      - name: competition_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: retrieve registration information
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/registration"
 servers:
 - url: https://{defaultHost}
   variables:
