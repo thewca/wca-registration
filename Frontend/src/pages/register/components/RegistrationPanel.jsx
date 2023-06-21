@@ -13,9 +13,6 @@ export default function RegistrationPanel() {
   const { competition_id } = useParams()
   const { isLoading, heldEvents } = useHeldEvents(competition_id)
   const [comment, setComment] = useState('')
-  const handleEventSelection = (selectedEvents) => {
-    setSelectedEvents(selectedEvents)
-  }
   return isLoading ? (
     <div className={styles.panel}>
       <LoadingMessage />
@@ -23,7 +20,9 @@ export default function RegistrationPanel() {
   ) : (
     <div className={styles.panel}>
       <EventSelector
-        handleEventSelection={handleEventSelection}
+        handleEventSelection={(selectedEvents) =>
+          setSelectedEvents(selectedEvents)
+        }
         events={heldEvents}
         initialSelected={[]}
         size="2x"
