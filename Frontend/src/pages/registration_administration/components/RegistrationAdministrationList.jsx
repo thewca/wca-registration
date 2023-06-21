@@ -132,6 +132,7 @@ export default function RegistrationAdministrationList() {
           add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
           remove={(attendee) => dispatch({ type: 'remove-waiting', attendee })}
           competition_id={competition_id}
+          selected={selected.waiting}
         />
         <h2> Approved registrations </h2>
         <RegistrationAdministrationTable
@@ -139,6 +140,7 @@ export default function RegistrationAdministrationList() {
           add={(attendee) => dispatch({ type: 'add-accepted', attendee })}
           remove={(attendee) => dispatch({ type: 'remove-accepted', attendee })}
           competition_id={competition_id}
+          selected={selected.accepted}
         />
         <h2> Deleted registrations </h2>
         <RegistrationAdministrationTable
@@ -146,6 +148,7 @@ export default function RegistrationAdministrationList() {
           add={(attendee) => dispatch({ type: 'add-deleted', attendee })}
           remove={(attendee) => dispatch({ type: 'remove-deleted', attendee })}
           competition_id={competition_id}
+          selected={selected.deleted}
         />
       </div>
       <RegistrationActions
@@ -166,8 +169,8 @@ function RegistrationAdministrationTable({
   add,
   remove,
   competition_id,
+  selected,
 }) {
-  const [checkedBoxes, setCheckedBoxes] = useState([])
   return (
     <Table textAlign="left">
       <Table.Header>
@@ -176,17 +179,14 @@ function RegistrationAdministrationTable({
             <Checkbox
               onChange={(_, data) => {
                 if (data.checked) {
-                  setCheckedBoxes(
-                    registrations.map((registration) => {
-                      add(registration.user.id)
-                      return registration.user.id
-                    })
-                  )
+                  registrations.map((registration) => {
+                    add(registration.user.id)
+                    return registration.user.id
+                  })
                 } else {
                   registrations.forEach((registration) =>
                     remove(registration.user.id)
                   )
-                  setCheckedBoxes([])
                 }
               }}
             />
@@ -206,24 +206,18 @@ function RegistrationAdministrationTable({
             return (
               <Table.Row
                 key={registration.user.id}
-                active={checkedBoxes.includes(registration.user.id)}
+                active={selected.includes(registration.user.id)}
               >
                 <Table.Cell>
                   <Checkbox
                     onChange={(_, data) => {
                       if (data.checked) {
                         add(registration.user.id)
-                        setCheckedBoxes([...checkedBoxes, registration.user.id])
                       } else {
                         remove(registration.user.id)
-                        setCheckedBoxes(
-                          checkedBoxes.filter(
-                            (box) => registration.user.id !== box
-                          )
-                        )
                       }
                     }}
-                    checked={checkedBoxes.includes(registration.user.id)}
+                    checked={selected.includes(registration.user.id)}
                   />
                 </Table.Cell>
                 <Table.Cell>
