@@ -55,7 +55,7 @@ class RegistrationController < ApplicationController
       step_details: {
         registration_status: 'waiting',
         event_ids: event_ids,
-        comment: comment
+        comment: comment,
       },
     }
 
@@ -107,7 +107,7 @@ class RegistrationController < ApplicationController
         event_ids: updated_registration["lanes"][0].step_details["event_ids"],
         registration_status: updated_registration["lanes"][0].lane_state,
         registered_on: updated_registration["created_at"],
-        comment: updated_registration["lanes"][0].step_details["comment"]
+        comment: updated_registration["lanes"][0].step_details["comment"],
       }  }
     rescue StandardError => e
       # Render an error response
@@ -132,7 +132,7 @@ class RegistrationController < ApplicationController
         event_ids: registration["lanes"][0].step_details["event_ids"],
         registration_status: registration["lanes"][0].lane_state,
         registered_on: registration["created_at"],
-        comment: registration["lanes"][0].step_details["comment"]
+        comment: registration["lanes"][0].step_details["comment"],
       }, status: 'ok' }
     rescue Dynamoid::Errors::RecordNotFound
       return render json: { registration: {} , status: 'ok' }

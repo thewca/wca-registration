@@ -12,18 +12,21 @@ export default function PageSidebar() {
           iconName: 'list ul',
           path: `/${competition_id}/registrations/edit`,
           active: false,
+          reactRoute: true,
         },
         {
           title: 'Register',
           iconName: 'sign in alt',
           path: `/${competition_id}/register`,
           active: false,
+          reactRoute: true,
         },
         {
           title: 'Competitors',
           iconName: 'users',
           path: `/${competition_id}/registrations`,
           active: false,
+          reactRoute: true,
         },
       ]}
     />

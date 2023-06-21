@@ -1,11 +1,11 @@
 import { NonInteractiveTable } from '@thewca/wca-components'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import getCompetitionInfo from '../../../api/competition/get/get_competition_info'
 import { useHeldEvents } from '../../../api/helper/hooks'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
 import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import styles from './list.module.scss'
+import LoadingMessage from '../../../ui/loadingMessage'
 
 export default function RegistrationList() {
   const { competition_id } = useParams()
@@ -96,12 +96,15 @@ export default function RegistrationList() {
   )
   return (
     <div className={styles.list}>
-      <NonInteractiveTable
-        rows={registrationList}
-        header={header}
-        footer={footer}
-        loading={isLoading || eventsLoading}
-      />
+      {isLoading ? (
+        <LoadingMessage />
+      ) : (
+        <NonInteractiveTable
+          rows={registrationList}
+          header={header}
+          footer={footer}
+        />
+      )}
     </div>
   )
 }
