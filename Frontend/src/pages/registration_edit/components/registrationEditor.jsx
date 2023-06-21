@@ -1,27 +1,21 @@
 import { EventSelector } from '@thewca/wca-components'
 import React, { useEffect, useState } from 'react'
 import { Button, Checkbox, TextArea } from 'semantic-ui-react'
-import getCompetitionInfo from '../../../api/competition/get/get_competition_info'
+import { useCompetitorInfo, useHeldEvents } from '../../../api/helper/hooks'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
-import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/loadingMessage'
 import styles from './editor.module.scss'
 
 export default function RegistrationEditor({ user_id, competition_id }) {
-  const [competitorInfo, setCompetitorInfo] = useState({})
-  const [heldEvents, setHeldEvents] = useState([])
+  const { eventsLoading, heldEvents } = useHeldEvents(competition_id)
+  const { infoLoading, competitorInfo } = useCompetitorInfo(user_id)
   const [registration, setRegistration] = useState({})
   const [comment, setComment] = useState('')
   const [status, setStatus] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
 
-  useEffect(() => {
-    getCompetitorInfo(user_id).then((competitorInfo) =>
-      setCompetitorInfo(competitorInfo)
-    )
-  }, [user_id])
   useEffect(() => {
     getSingleRegistration(user_id, competition_id).then((response) => {
       const registration = response.registration
@@ -32,17 +26,9 @@ export default function RegistrationEditor({ user_id, competition_id }) {
     })
   }, [user_id, competition_id])
 
-  useEffect(() => {
-    getCompetitionInfo(competition_id).then((competitionInfo) => {
-      setHeldEvents(competitionInfo.event_ids)
-    })
-  }, [competition_id])
-
   return (
     <div className={styles.editor}>
-      {!registration.registration_status ||
-      !competitorInfo.user ||
-      heldEvents.length === 0 ? (
+      {!registration.registration_status || infoLoading || eventsLoading ? (
         <LoadingMessage />
       ) : (
         <div>

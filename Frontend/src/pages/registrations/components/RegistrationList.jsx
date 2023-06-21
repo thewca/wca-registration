@@ -2,6 +2,7 @@ import { NonInteractiveTable } from '@thewca/wca-components'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import getCompetitionInfo from '../../../api/competition/get/get_competition_info'
+import { useHeldEvents } from '../../../api/helper/hooks'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
 import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import styles from './list.module.scss'
@@ -10,14 +11,8 @@ export default function RegistrationList() {
   const { competition_id } = useParams()
   const [isLoading, setIsLoading] = useState(true)
   const [registrations, setRegistrations] = useState([])
-  const [heldEvents, setHeldEvents] = useState([])
-
   // Fetch data
-  useEffect(() => {
-    getCompetitionInfo(competition_id).then((competitionInfo) => {
-      setHeldEvents(competitionInfo.event_ids)
-    })
-  }, [competition_id])
+  const { eventsLoading, heldEvents } = useHeldEvents(competition_id)
 
   useEffect(() => {
     getConfirmedRegistrations(competition_id).then(async (registrations) => {
@@ -105,7 +100,7 @@ export default function RegistrationList() {
         rows={registrationList}
         header={header}
         footer={footer}
-        loading={isLoading}
+        loading={isLoading || eventsLoading}
       />
     </div>
   )

@@ -1,6 +1,6 @@
 import externalServiceFetch from '../../helper/external_service_fetch'
 
-interface CompetitorInfo {
+export interface CompetitorInfo {
   user: {
     id: string
     wca_id: string
