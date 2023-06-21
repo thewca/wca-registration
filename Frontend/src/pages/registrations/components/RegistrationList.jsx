@@ -12,7 +12,7 @@ export default function RegistrationList() {
   const [isLoading, setIsLoading] = useState(true)
   const [registrations, setRegistrations] = useState([])
   // Fetch data
-  const { eventsLoading, heldEvents } = useHeldEvents(competition_id)
+  const { isLoading: eventsLoading, heldEvents } = useHeldEvents(competition_id)
 
   useEffect(() => {
     getConfirmedRegistrations(competition_id).then(async (registrations) => {
@@ -96,7 +96,7 @@ export default function RegistrationList() {
   )
   return (
     <div className={styles.list}>
-      {isLoading ? (
+      {isLoading || eventsLoading ? (
         <LoadingMessage />
       ) : (
         <NonInteractiveTable

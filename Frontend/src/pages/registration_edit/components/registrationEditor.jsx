@@ -9,8 +9,8 @@ import LoadingMessage from '../../../ui/loadingMessage'
 import styles from './editor.module.scss'
 
 export default function RegistrationEditor({ user_id, competition_id }) {
-  const { eventsLoading, heldEvents } = useHeldEvents(competition_id)
-  const { infoLoading, competitorInfo } = useCompetitorInfo(user_id)
+  const { isLoading: eventsLoading, heldEvents } = useHeldEvents(competition_id)
+  const { isLoading: infoLoading, competitorInfo } = useCompetitorInfo(user_id)
   const [registration, setRegistration] = useState({})
   const [comment, setComment] = useState('')
   const [status, setStatus] = useState('')
