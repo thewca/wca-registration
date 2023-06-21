@@ -9,15 +9,21 @@ export default function FlashMessage() {
   const [type, setType] = useState('')
 
   useEffect(() => {
-    Bus.addListener('flash', ({ message, type }) => {
+    const listener = ({ message, type }) => {
       setVisible(true)
       setMessage(message)
       setType(type)
       setTimeout(() => {
         setVisible(false)
+        setMessage('')
+        setType('')
       }, 4000)
-    })
-  })
+    }
+    Bus.addListener('flash', listener)
+    return () => {
+      Bus.removeListener('flash', listener)
+    }
+  }, [])
   return (
     <Message
       visible={visible}
