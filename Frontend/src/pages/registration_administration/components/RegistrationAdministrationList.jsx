@@ -8,8 +8,18 @@ import LoadingMessage from '../../../ui/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
 
+// Currently it is at the developer's discretion to make sure
+// an attendee is added to the right list.
+// One Solution would be to keep the registrations state as
+// the source of truth and partition as needed
 const reducer = (state, action) => {
   const { type, attendee } = action
+  // Make sure no one adds an attendee twice
+  if (
+    [...state.waiting, ...state.accepted, ...state.deleted].includes(attendee)
+  ) {
+    return state
+  }
   switch (type) {
     case 'add-waiting':
       return {
@@ -178,16 +188,11 @@ function RegistrationAdministrationTable({
           <Table.HeaderCell>
             <Checkbox
               onChange={(_, data) => {
-                if (data.checked) {
-                  registrations.map((registration) => {
-                    add(registration.user.id)
-                    return registration.user.id
-                  })
-                } else {
-                  registrations.forEach((registration) =>
-                    remove(registration.user.id)
-                  )
-                }
+                registrations.forEach((registration) =>
+                  data.checked
+                    ? add(registration.user.id)
+                    : remove(registration.user.id)
+                )
               }}
             />
           </Table.HeaderCell>

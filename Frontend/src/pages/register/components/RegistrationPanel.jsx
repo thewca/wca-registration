@@ -20,9 +20,7 @@ export default function RegistrationPanel() {
   ) : (
     <div className={styles.panel}>
       <EventSelector
-        handleEventSelection={(selectedEvents) =>
-          setSelectedEvents(selectedEvents)
-        }
+        handleEventSelection={setSelectedEvents}
         events={heldEvents}
         initialSelected={[]}
         size="2x"

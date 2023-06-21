@@ -20,9 +20,7 @@ export default function RegistrationEditPanel({ registration }) {
   ) : (
     <div className={styles.panel}>
       <EventSelector
-        handleEventSelection={(selectedEvents) =>
-          setSelectedEvents(selectedEvents)
-        }
+        handleEventSelection={setSelectedEvents}
         events={heldEvents}
         initialSelected={registration.event_ids}
         size="2x"
