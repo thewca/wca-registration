@@ -16,7 +16,9 @@ export async function getJWT(
     try {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore AUTH_URL is injected at build time
-      const response = await fetch(`${process.env.AUTH_URL}`)
+      const response = await fetch(
+        `${process.env.AUTH_URL}?user_id=${localStorage.getItem('user_id')}`
+      )
       if (response.ok) {
         const token = response.headers.get('authorization')
         if (token !== null) {

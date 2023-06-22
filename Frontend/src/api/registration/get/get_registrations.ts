@@ -5,12 +5,12 @@ import { ErrorResponse } from '../../types'
 type RegistrationStatus = 'waiting' | 'accepted' | 'deleted'
 
 interface Registration {
-  competitor_id: string
+  user_id: string
   event_ids: EventId[]
 }
 
 interface RegistrationAdmin {
-  competitor_id: string
+  user_id: string
   event_ids: EventId[]
   registration_status: RegistrationStatus
   registered_on: string

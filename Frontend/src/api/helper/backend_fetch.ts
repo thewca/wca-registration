@@ -18,13 +18,15 @@ type Body =
 export default async function backendFetch(
   route: string,
   method: Method,
-  body: Body = {},
-  needsAuthentication = true
-): Promise<object | ErrorResponse> {
+  options: {
+    body?: Body
+    needsAuthentication: boolean
+  }
+): Promise<never | ErrorResponse> {
   try {
     let init = {}
     let headers = {}
-    if (needsAuthentication) {
+    if (options.needsAuthentication) {
       const tokenRequest = await getJWT()
       if (tokenRequest.error) {
         const { error, statusCode } = tokenRequest as ErrorResponse
@@ -41,7 +43,7 @@ export default async function backendFetch(
     if (method !== 'GET') {
       init = {
         method,
-        body: JSON.stringify(body),
+        body: JSON.stringify(options.body),
         headers: {
           'Content-Type': 'application/json',
           ...headers,
@@ -63,9 +65,9 @@ export default async function backendFetch(
     const error = await response.json()
     if (error.status === 'Authentication Expired') {
       await getJWT(true)
-      return await backendFetch(route, method, body)
+      return await backendFetch(route, method, options)
     }
-    return { error: response.status, statusCode: response.status }
+    return { error: error.status, statusCode: response.status }
   } catch ({ name, message }) {
     return { error: `Error ${name}: ${message}`, statusCode: 500 }
   }

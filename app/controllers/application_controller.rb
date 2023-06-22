@@ -18,6 +18,7 @@ class ApplicationController < ActionController::API
     rescue JWT::ExpiredSignature
       render json: { status: 'Authentication Expired' }, status: :forbidden
     end
+  end
 
   def performance_profile(&)
     if params[:profile] && (result = RubyProf.profile(&))
