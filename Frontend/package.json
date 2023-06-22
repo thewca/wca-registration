@@ -14,7 +14,7 @@
   "homepage": "https://github.com/thewca/wca-registration/Frontend/README.md",
   "scripts": {
     "build-dev": "API_URL=\"http://localhost:3001/api/v1\" AUTH_URL=\"http://localhost:3001/jwt\" node src/build.js",
-    "build-prod": "API_URL=\"https://registration.worldcubeassociation.org/api/v1\" AUTH_URL=\"/api/v0/auth/jwt\" node src/build.js",
+    "build-prod": "API_URL=\"https://registration.worldcubeassociation.org/api/v1\" AUTH_URL=\"https://registration.worldcubeassociation.org/jwt\" node src/build.js",
     "watch": "node src/watch.mjs",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix"

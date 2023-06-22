@@ -2,6 +2,6 @@
 
 module JWTOptions
   class << self
-    attr_accessor :secret, :algorithm
+    attr_accessor :secret, :algorithm, :expiry
   end
 end

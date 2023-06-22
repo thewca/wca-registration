@@ -79,9 +79,9 @@ end
 def init
   create_secret('SECRET_KEY_BASE',
                 'a003fdc6f113ff7d295596a02192c7116a76724ba6d3071043eefdd16f05971be0dc58f244e67728757b2fb55ae7a41e1eb97c1fe247ddaeb6caa97cea32120c')
-  # Make sure this development secret is
+  # Make sure this development secret is the same across this and the monolith
   create_secret('JWT_SECRET',
-                '1ee0f7e7439ae477bb423e672e118704e1ed43eeeb4ac796c7a9ca3e0e7a431097e1eb976ce827cc94e7728e75cb2e91a0f3c7d8e6b1a3f7e9d5')
+                'jwt-test-secret')
 end
 
 init unless Rails.env.production?
