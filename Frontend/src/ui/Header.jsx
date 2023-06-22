@@ -9,14 +9,47 @@ const DROPDOWNS = [
     title: 'Registration System',
     items: [
       {
-        path: '/register',
-        icon: 'sign in alt',
-        title: 'Register',
+        path: '/BudapestSummer2023',
+        icon: 'frog',
+        title: 'Test Competition 1',
+        reactRoute: true,
       },
       {
-        path: '/registrations',
-        icon: 'users',
-        title: 'Competitors',
+        path: '/HessenOpen2023',
+        icon: 'fish',
+        title: 'Test Competition 2',
+        reactRoute: true,
+      },
+    ],
+  },
+  {
+    active: true,
+    icon: 'sign list ul',
+    title: 'Choose Test User',
+    items: [
+      {
+        path: '/login/6427',
+        icon: 'cat',
+        title: 'Test Competitor 1',
+        reactRoute: true,
+      },
+      {
+        path: '/login/2',
+        icon: 'horse',
+        title: 'Test Competitor 2',
+        reactRoute: true,
+      },
+      {
+        path: '/login/1',
+        icon: 'dog',
+        title: 'Test Organizer 1',
+        reactRoute: true,
+      },
+      {
+        path: '/login/15073',
+        icon: 'otter',
+        title: 'Test Admin 1',
+        reactRoute: true,
       },
     ],
   },

@@ -4,13 +4,16 @@ import { EventId } from '@wca/helpers'
 interface SubmitRegistrationBody {
   competitor_id: string
   competition_id: string
+  comment: string
   event_ids: EventId[]
 }
 
 interface UpdateRegistrationBody {
   competitor_id: string
   competition_id: string
-  status: string
+  status?: string
+  event_ids?: EventId[]
+  comment?: string
 }
 
 type GetRegistrationBody = Record<string, never>
