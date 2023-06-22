@@ -1,51 +1,53 @@
 import { EventSelector } from '@thewca/wca-components'
 import React, { useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { Button, TextArea } from 'semantic-ui-react'
+import { useHeldEvents } from '../../../api/helper/hooks'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
+import { setMessage } from '../../../ui/events/messages'
+import LoadingMessage from '../../../ui/loadingMessage'
 import styles from './panel.module.scss'
 
-const EVENTS = ['222', '333', '444', '555', '666', '777']
-
 export default function RegistrationPanel() {
-  const [competitorID, setCompetitorID] = useState('2012ICKL01')
-  const [competitionID, setCompetitionID] = useState('BudapestSummer2023')
   const [selectedEvents, setSelectedEvents] = useState([])
-
-  const handleEventSelection = (selectedEvents) => {
-    setSelectedEvents(selectedEvents)
-  }
-  return (
+  const { competition_id } = useParams()
+  const { isLoading, heldEvents } = useHeldEvents(competition_id)
+  const [comment, setComment] = useState('')
+  return isLoading ? (
     <div className={styles.panel}>
-      <label>
-        Competitor_id
-        <input
-          type="text"
-          value={competitorID}
-          name="competitor_id"
-          onChange={(e) => setCompetitorID(e.target.value)}
-        />
-      </label>
-      <label>
-        Competition_id
-        <input
-          type="text"
-          value={competitionID}
-          name="competition_id"
-          onChange={(e) => setCompetitionID(e.target.value)}
-        />
-      </label>
+      <LoadingMessage />
+    </div>
+  ) : (
+    <div className={styles.panel}>
       <EventSelector
-        handleEventSelection={handleEventSelection}
-        events={EVENTS}
+        handleEventSelection={setSelectedEvents}
+        events={heldEvents}
         initialSelected={[]}
         size="2x"
       />
-      <button
-        onClick={(_) =>
-          submitEventRegistration(competitorID, competitionID, selectedEvents)
-        }
+      <TextArea onChange={(_, data) => setComment(data.value)}> </TextArea>
+      <Button
+        onClick={async () => {
+          setMessage('Registration is being processed', 'basic')
+          const response = await submitEventRegistration(
+            localStorage.getItem('user_id'),
+            competition_id,
+            comment,
+            selectedEvents
+          )
+          if (response.error) {
+            setMessage(
+              'Registration failed with error: ' + response.error,
+              'negative'
+            )
+          } else {
+            setMessage('Registration succeeded', 'positive')
+          }
+        }}
+        positive
       >
-        Insert Registration
-      </button>
+        Register
+      </Button>
     </div>
   )
 }

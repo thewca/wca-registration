@@ -17,16 +17,24 @@ locals {
       value = var.vault_address
     },
     {
+      name = "QUEUE_URL",
+      value = aws_sqs_queue.this.url
+    },
+    {
       name = "TASK_ROLE"
       value = aws_iam_role.task_role.name
     },
     {
-      name = "ENVIRONMENT"
+      name = "CODE_ENVIRONMENT"
       value = "staging"
     },
     {
       name = "PROMETHEUS_EXPORTER"
       value = var.prometheus_address
+    },
+    {
+      name = "REDIS_URL"
+      value = "redis://${aws_elasticache_cluster.this.cache_nodes.0.address}:${aws_elasticache_cluster.this.cache_nodes.0.port}"
     }
   ]
 }
@@ -84,8 +92,16 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:Query",
       "dynamodb:UpdateItem",
       "dynamodb:DeleteItem",
+      "dynamodb:DescribeTable",
     ]
-    resources = [aws_dynamodb_table.registrations.arn]
+    resources = [aws_dynamodb_table.registrations.arn,"${aws_dynamodb_table.registrations.arn}/*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:ListTables",
+    ]
+    resources = ["arn:aws:dynamodb:us-west-2:285938427530:table/*"]
   }
   statement {
     effect = "Allow"
@@ -103,6 +119,31 @@ data "aws_iam_policy_document" "task_policy" {
 resource "aws_iam_role_policy" "task_policy" {
   role   = aws_iam_role.task_role.name
   policy = data.aws_iam_policy_document.task_policy.json
+}
+
+resource "aws_lb_target_group" "this" {
+  name        = "wca-registration-staging"
+  port        = 3000
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+
+  deregistration_delay = 10
+
+  health_check {
+    interval            = 10
+    path                = "/healthcheck"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = 200
+  }
+  tags = {
+    Name = var.name_prefix
+    Env = "staging"
+  }
 }
 
 resource "aws_ecs_task_definition" "this" {

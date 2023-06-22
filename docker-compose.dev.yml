@@ -15,6 +15,7 @@ services:
       VAULT_ADDR: "http://wca_vault:8200"
       VAULT_DEV_ROOT_TOKEN_ID: aDGdUASDGIUASGDKI
       PROMETHEUS_EXPORTER: "prometheus_exporter"
+      REDIS_URL: "redis://redis:6379"
     volumes:
       - .:/app
       - gems_volume_handler:/usr/local/bundle
@@ -30,6 +31,7 @@ services:
       - localstack
       - wca_vault
       - prometheus_exporter
+      - redis
 
   prometheus_exporter:
     container_name: prometheus_exporter
@@ -137,10 +139,22 @@ services:
     depends_on:
       - frontend
 
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data
+    networks:
+      - wca-registration
+
 volumes:
   gems_volume_handler:
     driver: local
   gems_volume_worker:
+    driver: local
+  cache:
     driver: local
 
 

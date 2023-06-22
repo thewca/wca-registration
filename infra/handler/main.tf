@@ -25,12 +25,20 @@ locals {
       value = aws_iam_role.task_role.name
     },
     {
-      name = "ENVIRONMENT"
+      name = "CODE_ENVIRONMENT"
       value = "production"
+    },
+    {
+      name = "QUEUE_URL",
+      value = var.shared_resources.queue.url
     },
     {
       name = "PROMETHEUS_EXPORTER"
       value = var.prometheus_address
+    },
+    {
+      name = "REDIS_URL"
+      value = "redis://${var.shared_resources.aws_elasticache_cluster.cache_nodes.0.address}:${var.shared_resources.aws_elasticache_cluster.cache_nodes.0.port}"
     }
   ]
 }
@@ -80,8 +88,16 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:Query",
       "dynamodb:UpdateItem",
       "dynamodb:DeleteItem",
+      "dynamodb:DescribeTable",
     ]
-    resources = [var.shared_resources.dynamo_registration_table]
+    resources = [var.shared_resources.dynamo_registration_table, "${var.shared_resources.dynamo_registration_table}/*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:ListTables",
+    ]
+    resources = ["arn:aws:dynamodb:us-west-2:285938427530:table/*"]
   }
   statement {
     effect = "Allow"

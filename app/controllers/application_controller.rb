@@ -2,6 +2,7 @@
 
 class ApplicationController < ActionController::API
   before_action :validate_token
+  around_action :performance_profile if Rails.env == 'development'
 
   def validate_token
     auth_header = request.headers["Authorization"]
@@ -16,6 +17,17 @@ class ApplicationController < ActionController::API
       render json: { status: 'Invalid token' }, status: :forbidden
     rescue JWT::ExpiredSignature
       render json: { status: 'Authentication Expired' }, status: :forbidden
+    end
+
+  def performance_profile(&)
+    if params[:profile] && (result = RubyProf.profile(&))
+
+      out = StringIO.new
+      RubyProf::GraphHtmlPrinter.new(result).print out, min_percent: 0
+      response.set_header("Content-Type", "text/html")
+      response.body = out.string
+    else
+      yield
     end
   end
 end

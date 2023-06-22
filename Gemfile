@@ -30,9 +30,12 @@ gem 'bootsnap', require: false
 # Use Redis adapter to run Action Cable in production
 gem 'hiredis'
 gem 'redis', '~> 4.0'
+# So Redis can share connections
+gem 'connection_pool'
 
 # DynamoDB for storing registrations
 gem 'aws-sdk-dynamodb'
+gem 'dynamoid', '3.8.0'
 
 # SQS for adding data into a queue
 gem 'aws-sdk-sqs'
@@ -51,11 +54,21 @@ gem 'vault-rails'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem 'debug', platforms: %i[mri mingw x64_mingw]
+  gem "debug", platforms: %i[mri mingw x64_mingw]
+
+  # rspec-rails for creating tests
+  gem 'rspec-rails'
+  # Use rswag for creating rspec tests that also produce swagger spec files
+  gem 'rswag'
+
+  # webmock for mocking responses from other microservices
+  gem 'webmock', require: false
+
   gem 'rubocop', require: false
 end
 
 group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
+  gem "ruby-prof"
 end
