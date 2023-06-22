@@ -16,6 +16,7 @@ const reducer = (state, action) => {
   const { type, attendee } = action
   // Make sure no one adds an attendee twice
   if (
+    type.startsWith('add') &&
     [...state.waiting, ...state.accepted, ...state.deleted].includes(attendee)
   ) {
     return state
