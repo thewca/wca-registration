@@ -108,7 +108,7 @@ class RegistrationController < ApplicationController
         registration_status: updated_registration["lanes"][0].lane_state,
         registered_on: updated_registration["created_at"],
         comment: updated_registration["lanes"][0].step_details["comment"],
-      }  }
+      } }
     rescue StandardError => e
       # Render an error response
       puts e
@@ -127,7 +127,7 @@ class RegistrationController < ApplicationController
     end
     begin
       registration = Registrations.find("#{competition_id}-#{user_id}")
-      return render json: { registration: {
+      render json: { registration: {
         user_id: registration["user_id"],
         event_ids: registration["lanes"][0].step_details["event_ids"],
         registration_status: registration["lanes"][0].lane_state,
@@ -135,7 +135,7 @@ class RegistrationController < ApplicationController
         comment: registration["lanes"][0].step_details["comment"],
       }, status: 'ok' }
     rescue Dynamoid::Errors::RecordNotFound
-      return render json: { registration: {} , status: 'ok' }
+      render json: { registration: {}, status: 'ok' }
     end
   end
 
@@ -232,15 +232,17 @@ class RegistrationController < ApplicationController
       # TODO make this more beautiful and not break if there are more then one lane
       # This also currently breaks if a registration is started but never completed
       if only_attending
-        Registrations.where(competition_id: competition_id, is_attending: true).all.map do |x| { competitor_id: x["user_id"],
-                                                                                                 event_ids: x["lanes"][0].step_details["event_ids"] }
+        Registrations.where(competition_id: competition_id, is_attending: true).all.map do |x|
+          { competitor_id: x["user_id"],
+            event_ids: x["lanes"][0].step_details["event_ids"] }
         end
       else
-        Registrations.where(competition_id: competition_id).all.map do |x| { competitor_id: x["user_id"],
-                                                                             event_ids: x["lanes"][0].step_details["event_ids"],
-                                                                             registration_status: x["lanes"][0].lane_state,
-                                                                             registered_on: x["created_at"],
-                                                                             comment: x["lanes"][0].step_details["comment"] }
+        Registrations.where(competition_id: competition_id).all.map do |x|
+          { competitor_id: x["user_id"],
+            event_ids: x["lanes"][0].step_details["event_ids"],
+            registration_status: x["lanes"][0].lane_state,
+            registered_on: x["created_at"],
+            comment: x["lanes"][0].step_details["comment"] }
         end
       end
     end
