@@ -15,6 +15,10 @@ type Body =
   | GetRegistrationBody
   | DeleteRegistrationBody
 
+// See application_controller.rb
+// const INVALID_TOKEN_STATUS_CODE = -1 currently unused, but might be useful later
+const EXPIRED_TOKEN_STATUS_CODE = -2
+
 export default async function backendFetch(
   route: string,
   method: Method,
@@ -57,17 +61,16 @@ export default async function backendFetch(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore This is injected at build time
     const response = await fetch(`${process.env.API_URL}/${route}`, init)
-
-    if (response.ok) {
-      return await response.json()
-    }
     // We always return a json error message on error
-    const error = await response.json()
-    if (error.status === 'Authentication Expired') {
+    const body = await response.json()
+    if (response.ok) {
+      return body
+    }
+    if (body.status === EXPIRED_TOKEN_STATUS_CODE) {
       await getJWT(true)
       return await backendFetch(route, method, options)
     }
-    return { error: error.status, statusCode: response.status }
+    return { error: body.message, statusCode: body.status }
   } catch ({ name, message }) {
     return { error: `Error ${name}: ${message}`, statusCode: 500 }
   }
