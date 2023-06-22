@@ -4,8 +4,8 @@ import { useParams } from 'react-router-dom'
 import { useHeldEvents } from '../../../api/helper/hooks'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
 import getCompetitorInfo from '../../../api/user/get/get_user_info'
-import styles from './list.module.scss'
 import LoadingMessage from '../../../ui/loadingMessage'
+import styles from './list.module.scss'
 
 export default function RegistrationList() {
   const { competition_id } = useParams()
