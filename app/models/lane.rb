@@ -1,17 +1,21 @@
 # frozen_string_literal: true
 
 class Lane
-  attr_accessor :name, :lane_state, :completed_steps, :step_details
+  attr_accessor :lane_name, :lane_state, :completed_steps, :lane_details
 
   def initialize(args)
-    @name = args["name"]
+    @lane_name = args["lane_name"]
     @lane_state = args["lane_state"] || "waiting"
     @completed_steps = args["completed_steps"] || []
-    @step_details = args["step_details"] || {}
+    @lane_details = args["lane_details"] || {}
   end
 
   def dynamoid_dump
     self.to_json
+  end
+
+  def ==(other)
+    @lane_name == other.lane_name && @lane_state == other.lane_state && @completed_steps == other.completed_steps && @lane_details == other.lane_details
   end
 
   def self.dynamoid_load(serialized_str)

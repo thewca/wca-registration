@@ -50,7 +50,7 @@ class RegistrationController < ApplicationController
     step_data = {
       user_id: competitor_id,
       competition_id: competition_id,
-      lane_name: 'Competing',
+      lane_name: 'competing',
       step: 'Event Registration',
       step_details: {
         registration_status: 'waiting',
@@ -79,15 +79,15 @@ class RegistrationController < ApplicationController
     begin
       registration = Registrations.find("#{competition_id}-#{user_id}")
       updated_lanes = registration.lanes.map { |lane|
-        if lane.name == "Competing"
+        if lane.lane_name == "competing"
           if status.present?
             lane.lane_state = status
           end
           if comment.present?
-            lane.step_details["comment"] = comment
+            lane.lane_details["comment"] = comment
           end
           if event_ids.present?
-            lane.step_details["event_ids"] = event_ids
+            lane.lane_details["event_details"] = event_ids.map { |event_id| { event_id: event_id } }
           end
         end
         lane
@@ -104,10 +104,10 @@ class RegistrationController < ApplicationController
       # Render a success response
       render json: { status: 'ok', registration: {
         user_id: updated_registration["user_id"],
-        event_ids: updated_registration["lanes"][0].step_details["event_ids"],
+        event_ids: updated_registration["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] },
         registration_status: updated_registration["lanes"][0].lane_state,
         registered_on: updated_registration["created_at"],
-        comment: updated_registration["lanes"][0].step_details["comment"],
+        comment: updated_registration["lanes"][0].lane_details["comment"],
       } }
     rescue StandardError => e
       # Render an error response
@@ -129,10 +129,10 @@ class RegistrationController < ApplicationController
       registration = Registrations.find("#{competition_id}-#{user_id}")
       render json: { registration: {
         user_id: registration["user_id"],
-        event_ids: registration["lanes"][0].step_details["event_ids"],
+        event_ids: registration["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] },
         registration_status: registration["lanes"][0].lane_state,
         registered_on: registration["created_at"],
-        comment: registration["lanes"][0].step_details["comment"],
+        comment: registration["lanes"][0].lane_details["comment"],
       }, status: 'ok' }
     rescue Dynamoid::Errors::RecordNotFound
       render json: { registration: {}, status: 'ok' }
@@ -150,7 +150,7 @@ class RegistrationController < ApplicationController
     begin
       registration = Registrations.find("#{competition_id}-#{user_id}")
       updated_lanes = registration.lanes.map { |lane|
-        if lane.name == "Competing"
+        if lane.lane_name == "competing"
           lane.lane_state = "deleted"
         end
         lane
@@ -234,15 +234,15 @@ class RegistrationController < ApplicationController
       if only_attending
         Registrations.where(competition_id: competition_id, is_attending: true).all.map do |x|
           { competitor_id: x["user_id"],
-            event_ids: x["lanes"][0].step_details["event_ids"] }
+            event_ids: x["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] } }
         end
       else
         Registrations.where(competition_id: competition_id).all.map do |x|
           { competitor_id: x["user_id"],
-            event_ids: x["lanes"][0].step_details["event_ids"],
+            event_ids: x["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] },
             registration_status: x["lanes"][0].lane_state,
             registered_on: x["created_at"],
-            comment: x["lanes"][0].step_details["comment"] }
+            comment: x["lanes"][0].lane_details["comment"] }
         end
       end
     end
