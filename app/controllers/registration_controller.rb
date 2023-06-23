@@ -113,15 +113,22 @@ class RegistrationController < ApplicationController
 
   def list
     competition_id = params[:competition_id]
+    competition_exists = CompetitionApi.competition_exists?(competition_id)
     registrations = get_registrations(competition_id, only_attending: true)
-
+    if competition_exists[:error]
+      # Even if the competition service is down, we still return the registrations if they exists
+      if registrations.count != 0 && competition_exists[:error] == COMPETITION_API_5XX
+        return render json: registrations
+      end
+      return render json: { error: competition_exists[:error] }, status: competition_exists[:status]
+    end
     # Render a success response
     render json: registrations
   rescue StandardError => e
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
-    render json: { status: "Error getting registrations" },
+    render json: { status: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
 
@@ -135,7 +142,7 @@ class RegistrationController < ApplicationController
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
-    render json: { status: "Error getting registrations" },
+    render json: { status: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
 
@@ -173,12 +180,12 @@ class RegistrationController < ApplicationController
     def get_registrations(competition_id, only_attending: false)
       if only_attending
         Registration.where(competition_id: competition_id, is_attending: true).all.map do |x|
-          { competitor_id: x["user_id"],
+          { user_id: x["user_id"],
             event_ids: x.event_ids }
         end
       else
         Registration.where(competition_id: competition_id).all.map do |x|
-          { competitor_id: x["user_id"],
+          { user_id: x["user_id"],
             event_ids: x.event_ids,
             registration_status: x.competing_status,
             registered_on: x["created_at"],
