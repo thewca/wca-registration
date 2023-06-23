@@ -19,7 +19,7 @@ end
 
 RSpec.describe 'testing DynamoID reads', type: :request do
   include Helpers::RegistrationHelper
-  inlude_context 'Database seed'
+  include_context 'Database seed'
 
   it 'returns registration by attendee_id as defined in the schema' do
     # TODO - get this from 'registration_data' context - not sure why it isn't working currently

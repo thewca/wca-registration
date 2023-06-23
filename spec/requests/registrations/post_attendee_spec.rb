@@ -12,14 +12,14 @@ RSpec.describe 'v1 Registrations API', type: :request do
       # TODO: Figure out how to validate the data written to the database
       context 'success registration posts' do
         response '202', 'validate schema and response' do
-          include_context 'Registrations'
+          include_context 'registration_data'
           let(:registration) { basic_registration }
 
           run_test!
         end
 
         response '202', 'only required fields included' do
-          include_context 'Registrations'
+          include_context 'registration_data'
           let(:registration) { required_fields_only }
 
           run_test!

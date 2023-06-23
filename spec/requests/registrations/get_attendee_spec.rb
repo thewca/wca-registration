@@ -22,7 +22,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '200', 'check that registration returned matches expected registration' do
-          include_context 'Registrations' 
+          include_context 'registration_data' 
 
           let!(:attendee_id) { existing_attendee }
 
