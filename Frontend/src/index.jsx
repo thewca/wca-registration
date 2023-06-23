@@ -1,14 +1,20 @@
 // External Styles (this is probably not the best way to load this?)
-import '@thewca/wca-components/dist/index.esm.css'
 import 'fomantic-ui-css/semantic.css'
 import './global.scss'
+import '@thewca/wca-components/dist/index.esm.css'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
+import HomePage from './pages/home'
 import Register from './pages/register'
+import RegistrationAdministration from './pages/registration_administration'
+import RegistrationEdit from './pages/registration_edit'
 import Registrations from './pages/registrations'
+import TestLogin from './pages/test/login'
+import FlashMessage from './ui/flashMessage'
 import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
+import PageSidebar from './ui/Sidebar'
 
 const router = createBrowserRouter([
   {
@@ -16,26 +22,57 @@ const router = createBrowserRouter([
     element: (
       <>
         <PageHeader />
-        <Outlet />
+        <FlashMessage />
+        <main>
+          <Outlet />
+        </main>
         <PageFooter />
       </>
     ),
     children: [
       {
-        path: '/register',
+        // Test Route to simulate different users
+        path: '/login/:login_id',
+        element: <TestLogin />,
+      },
+      {
+        path: '',
         element: (
-          <main>
-            <Register />
-          </main>
+          <h1 style={{ position: 'absolute', right: '35%' }}>
+            Choose a Test Competition from the Menu
+          </h1>
         ),
       },
       {
-        path: '/registrations',
+        path: '/:competition_id',
         element: (
-          <main>
-            <Registrations />
-          </main>
+          <>
+            <PageSidebar />
+            <Outlet />
+          </>
         ),
+        children: [
+          {
+            path: '/:competition_id',
+            element: <HomePage />,
+          },
+          {
+            path: '/:competition_id/register',
+            element: <Register />,
+          },
+          {
+            path: '/:competition_id/registrations',
+            element: <Registrations />,
+          },
+          {
+            path: '/:competition_id/:user_id/edit',
+            element: <RegistrationEdit />,
+          },
+          {
+            path: '/:competition_id/registrations/edit',
+            element: <RegistrationAdministration />,
+          },
+        ],
       },
     ],
   },

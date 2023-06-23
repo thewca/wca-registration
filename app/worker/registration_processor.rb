@@ -24,20 +24,25 @@ class RegistrationProcessor
     if message['step'] == 'Lane Init'
       lane_init(message['competition_id'], message['user_id'])
     elsif message['step'] == 'Event Registration'
-      event_registration(message['competition_id'], message['user_id'], message['step_details']['event_ids'])
+      event_registration(message['competition_id'],
+                         message['user_id'],
+                         message['step_details']['event_ids'],
+                         message['step_details']['comment'])
     end
   end
 
   private
 
     def lane_init(competition_id, user_id)
-      empty_registration = Registrations.new(attendee_id: "#{competition_id}-#{user_id}", competition_id: competition_id, user_id: user_id)
+      empty_registration = Registrations.new(attendee_id: "#{competition_id}-#{user_id}",
+                                             competition_id: competition_id,
+                                             user_id: user_id)
       empty_registration.save!
     end
 
-    def event_registration(competition_id, user_id, event_ids)
+    def event_registration(competition_id, user_id, event_ids, comment)
       registration = Registrations.find("#{competition_id}-#{user_id}")
-      competing_lane = LaneFactory.competing_lane(event_ids)
+      competing_lane = LaneFactory.competing_lane(event_ids, comment)
       if registration.lanes.nil?
         registration.update_attributes(lanes: [competing_lane])
       else

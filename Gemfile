@@ -27,6 +27,8 @@ gem 'bootsnap', require: false
 # Use Redis adapter to run Action Cable in production
 gem 'hiredis'
 gem 'redis', '~> 4.0'
+# So Redis can share connections
+gem 'connection_pool'
 
 # DynamoDB for storing registrations
 gem 'aws-sdk-dynamodb'
@@ -65,4 +67,5 @@ end
 group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
+  gem "ruby-prof"
 end

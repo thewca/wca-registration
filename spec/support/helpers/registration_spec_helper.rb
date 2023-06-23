@@ -1,7 +1,15 @@
 # frozen_string_literal: true
 
 module Helpers
-  module Registration
+  module RegistrationHelper
+    RSpec.shared_context 'Database seed' do
+      before do
+        basic_registration = get_registration('CubingZANationalChampionship2023-158816')
+        registration = Registrations.new(basic_registration)
+        registration.save
+      end
+    end
+
     # Retrieves the saved JSON response of /api/v0/competitions for the given competition ID
     def get_competition_details(competition_id)
       File.open("#{Rails.root}/spec/fixtures/competition_details.json", 'r') do |f|
@@ -18,11 +26,53 @@ module Helpers
       File.open("#{Rails.root}/spec/fixtures/registrations.json", 'r') do |f|
         registrations = JSON.parse(f.read)
 
-        # Retrieve the competition details when competition_id matches
-        registrations.each do |registration|
-          registration if registration['attendee_id'] == attendee_id
+        # Retrieve the competition details when attendee_id matches
+        registration = registrations.find { |r| r["attendee_id"] == attendee_id }
+        registration["lanes"] = registration["lanes"].map { |lane| Lane.new(lane) }
+        registration
+      end
+    end
+
+    def registration_equal(registration_model, registration_hash)
+      unchecked_attributes = [:created_at, :updated_at]
+
+      registration_model.attributes.each do |k, v|
+        unless unchecked_attributes.include?(k)
+          hash_value = registration_hash[k.to_s]
+
+          if v.is_a?(Hash) && hash_value.is_a?(Hash)
+            return false unless nested_hash_equal?(v, hash_value)
+          elsif v.is_a?(Array) && hash_value.is_a?(Array)
+            return false unless lanes_equal(v, hash_value)
+          elsif hash_value != v
+            puts "#{hash_value} does not equal #{v}"
+            return false
+          end
         end
       end
+
+      true
+    end
+
+    def lanes_equal(lanes1, lanes2)
+      lanes1.each_with_index do |el, i|
+        unless el == lanes2[i]
+          return false
+        end
+      end
+      true
+    end
+
+    def nested_hash_equal?(hash1, hash2)
+      hash1.each do |k, v|
+        if v.is_a?(Hash) && hash2[k].is_a?(Hash)
+          return false unless nested_hash_equal?(v, hash2[k])
+        elsif hash2[k.to_s] != v
+          puts "#{hash2[k.to_s]} does not equal to #{v}"
+          return false
+        end
+      end
+      true
     end
   end
 end
