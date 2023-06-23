@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 raise "Tests should be run in 'test' environment only" if Rails.env != 'test' && Rails.env != 'development'
 
 module DynamoidReset

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'swagger_helper'
 require_relative '../../support/helpers/registration_spec_helper'
 
@@ -34,7 +36,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         #   before do
         #     registration = {}
         #   end
-        #   
+        #
         #   let!(:registration) { registration }
 
         #   run_test!
@@ -43,7 +45,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # TODO: Figure out how to parametrize this using shared contexts/examples once it is passing
         # response 'fail', 'not all required fields included' do
         #   include_context 'Registrations'
-        #   
+        #
         #   let!(:registration) { no_attendee_id }
 
         #   run_test!

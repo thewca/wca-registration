@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 require 'swagger_helper'
 require_relative '../../support/helpers/registration_spec_helper'
@@ -22,7 +23,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '200', 'check that registration returned matches expected registration' do
-          include_context 'registration_data' 
+          include_context 'registration_data'
 
           let!(:attendee_id) { existing_attendee }
 

@@ -2,7 +2,6 @@
 
 module Helpers
   module RegistrationHelper
-
     RSpec.shared_context 'registration_data' do
       before do
         @basic_registration = get_registration('CubingZANationalChampionship2023-158816')
@@ -22,7 +21,7 @@ module Helpers
         @payloads = [@with_is_attending, @with_hide_name_publicly, @with_all_optional_fields]
       end
     end
-    
+
     RSpec.shared_context 'Database seed' do
       before do
         basic_registration = get_registration('CubingZANationalChampionship2023-158816')
@@ -43,7 +42,7 @@ module Helpers
 
     RSpec.shared_context '502 response from competition service' do
       before do
-        error_json =  { error: 'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' }.to_json
+        error_json = { error: 'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' }.to_json
 
         stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
           .to_return(status: 502, body: error_json)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'swagger_helper'
 require_relative 'get_registrations_spec'
 require_relative 'get_attendee_spec'

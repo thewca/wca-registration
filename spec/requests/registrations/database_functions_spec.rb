@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'swagger_helper'
 require_relative '../../support/helpers/registration_spec_helper'
 

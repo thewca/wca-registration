@@ -2,7 +2,6 @@
 
 require 'dynamoid'
 
-
 Dynamoid.configure do |config|
   config.region = ENV.fetch("AWS_REGION", 'us-west-2')
   config.namespace = nil
