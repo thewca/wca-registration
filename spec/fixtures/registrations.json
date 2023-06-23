@@ -1,15 +1,15 @@
 [
-  { 
+  {
     "attendee_id":"CubingZANationalChampionship2023-158816",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158816",
-    "is_attending":"True",
+    "is_attending":true,
     "lane_states":{
-      "competitor":"accepted"
+      "competing":"accepted"
     },
     "lanes":[{
-      "lane_name":"competitor",
-      "lane_state":"Accepted",
+      "lane_name":"competing",
+      "lane_state":"accepted",
       "completed_steps":[1,2,3],
       "lane_details":{
         "event_details":[
@@ -36,20 +36,20 @@
       "last_action":"created",
       "last_action_datetime":"2023-01-01T00:00:00Z",
       "last_action_user":"158816"
-      }
+    }
     ],
-    "hide_name_publicly":"False"
+    "hide_name_publicly": false
   },
-  { 
+  {
     "attendee_id":"CubingZANationalChampionship2023-158817",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158817",
     "lane_states":{
-      "competitor":"accepted"
+      "competing":"accepted"
     },
     "lanes":[{
-      "lane_name":"competitor",
-      "lane_state":"Accepted",
+      "lane_name":"competing",
+      "lane_state":"accepted",
       "completed_steps":[1,2,3],
       "lane_details":{
         "event_details":[
@@ -76,10 +76,10 @@
       "last_action":"created",
       "last_action_datetime":"2023-01-01T00:00:00Z",
       "last_action_user":"158816"
-      }
-    ],
+    }
+    ]
   },
-  { 
+  {
     "attendee_id":"CubingZANationalChampionship2023-158818",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158817",
@@ -87,8 +87,8 @@
       "competitor":"accepted"
     },
     "lanes":[{
-      "lane_name":"competitor",
-      "lane_state":"Accepted",
+      "lane_name":"competing",
+      "lane_state":"accepted",
       "completed_steps":[1,2,3],
       "lane_details":{
         "event_details":[
@@ -115,7 +115,7 @@
       "last_action":"created",
       "last_action_datetime":"2023-01-01T00:00:00Z",
       "last_action_user":"158816"
-      }
-    ],
+    }
+    ]
   }
 ]
