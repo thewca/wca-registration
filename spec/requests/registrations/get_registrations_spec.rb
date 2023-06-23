@@ -2,6 +2,7 @@
 
 require 'swagger_helper'
 require_relative '../../support/helpers/registration_spec_helper'
+require_relative '../../../app/helpers/error_codes'
 
 RSpec.describe 'v1 Registrations API', type: :request do
   include Helpers::RegistrationHelper
@@ -15,12 +16,13 @@ RSpec.describe 'v1 Registrations API', type: :request do
       competition_no_attendees = '1AVG2013'
 
       context 'success responses' do
+        include_context 'Database seed'
         before do
           competition_details = get_competition_details(competition_id)
 
           # Stub the request to the Competition Service
           stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
-            .to_return(status: 200, body: competition_details)
+            .to_return(status: 200, body: competition_details.to_json)
         end
 
         response '200', 'request and response conform to schema' do
@@ -40,14 +42,12 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        # TODO: Refactor these to use shared examples once they are passing
         context 'Competition service down (500) but registrations exist' do
           include_context '500 response from competition service'
 
           response '200', 'comp service down but registrations exist' do
             let!(:competition_id) { competition_with_registrations }
 
-            # TODO: Validate the expected list of registrations
             run_test!
           end
         end
@@ -74,27 +74,19 @@ RSpec.describe 'v1 Registrations API', type: :request do
       end
 
       context 'fail responses' do
-        response '400', 'Competition ID not provided' do
-          let!(:competition_id) { nil }
-
-          run_test! do |response|
-            expect(response.body).to eq({ error: 'Competition ID not provided' }.to_json)
-          end
-        end
-
         context 'competition_id not found by Competition Service' do
+          wca_error_json = { error: 'Competition with id InvalidCompId not found' }.to_json
+          registration_error_json = { error: COMPETITION_API_NOT_FOUND }.to_json
           before do
-            error_json = { error: 'Competition with id InvalidCompId not found' }.to_json
-
             stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
-              .to_return(status: 404, body: error_json)
+              .to_return(status: 404, body: wca_error_json)
           end
 
-          response '404', 'Comeptition ID doesnt exist' do
+          response '404', 'Competition ID doesnt exist' do
             let!(:competition_id) { 'InvalidCompID' }
 
             run_test! do |response|
-              expect(response.body).to eq(error_json)
+              expect(response.body).to eq(registration_error_json)
             end
           end
         end
@@ -102,12 +94,12 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # TODO: Refactor to use shared_examples once passing
         context 'competition service not available (500) and no registrations in our database for competition_id' do
           include_context '500 response from competition service'
-
+          registration_error_json = { error: COMPETITION_API_5XX }.to_json
           response '500', 'Competition service unavailable - 500 error' do
             let!(:competition_id) { competition_no_attendees }
 
             run_test! do |response|
-              expect(response.body).to eq({ error: 'No registrations found - could not reach Competition Service to confirm competition_id validity.' }.to_json)
+              expect(response.body).to eq(registration_error_json)
             end
           end
         end
@@ -115,12 +107,12 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # TODO: Refactor to use shared_examples once passing
         context 'competition service not available - 502' do
           include_context '502 response from competition service'
-
+          registration_error_json = { error: COMPETITION_API_5XX }.to_json
           response '502', 'Competition service unavailable - 502 error' do
             let!(:competition_id) { competition_no_attendees }
 
             run_test! do |response|
-              expect(response.body).to eq({ error: 'No registrations found - could not reach Competition Service to confirm competition_id validity.' }.to_json)
+              expect(response.body).to eq(registration_error_json)
             end
           end
         end

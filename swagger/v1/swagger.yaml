@@ -8,66 +8,37 @@ components:
     registration:
       type: object
       properties:
-        attendee_id:
-          type: string
-        competition_id:
-          type: string
         user_id:
           type: string
-        is_attending:
-          type: boolean
-        lane_states:
-          type: object
-        lanes:
+        event_ids:
           type: array
           items:
-            type: object
-            properties:
-              lane_name:
-                type: string
-              lane_state:
-                type: string
-              completed_steps:
-                type: array
-              lane_details:
-                type: object
-              payment_reference:
-                type: string
-              payment_amount:
-                type: string
-              transaction_currency:
-                type: string
-              discount_percentage:
-                type: string
-              discount_amount:
-                type: string
-              last_action:
-                type: string
-              last_action_datetime:
-                type: string
-                format: date_time
-              last_action_user:
-                type: string
-            required:
-            - lane_name
-            - lane_state
-            - completed_steps
-            - lane_details
-            - payment_reference
-            - payment_amount
-            - transaction_currency
-            - last_action
-            - last_action_datetime
-            - last_action_user
-        hide_name_publicly:
-          type: boolean
+            type: string
+        registration_status:
+          type: string
       required:
-      - attendee_id
-      - competition_id
       - user_id
-      - lane_states
-      - lanes
+      - event_ids
+      - registration_status
 paths:
+  "/api/v1/attendees/{attendee_id}":
+    get:
+      summary: Retrieve attendee registration
+      parameters:
+      - name: attendee_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: check that registration returned matches expected registration
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/registration"
+        '404':
+          description: attendee_id doesnt exist
   "/api/v1/registrations/{competition_id}":
     get:
       summary: List registrations for a given competition_id
@@ -79,7 +50,8 @@ paths:
           type: string
       responses:
         '200':
-          description: Valid competition_id but no registrations for it
+          description: Competitions Service is down but we have registrations for
+            the competition_id in our database
           content:
             application/json:
               schema:
@@ -94,22 +66,6 @@ paths:
           description: Competition service unavailable - 500 error
         '502':
           description: Competition service unavailable - 502 error
-  "/api/v1/registration/{attendee-id}":
-    get:
-      summary: Retrieve attendee registration
-      parameters:
-      - name: competition_id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: retrieve registration information
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/registration"
 servers:
 - url: https://{defaultHost}
   variables:

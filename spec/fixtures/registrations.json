@@ -118,7 +118,7 @@
       }
     ]
   },
-  { 
+  {
     "attendee_id":"CubingZANationalChampionship2023-158819",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158817",
@@ -157,10 +157,10 @@
       }
     ]
   },
-  { 
+  {
     "attendee_id":"CubingZANationalChampionship2023-158820",
     "competition_id":"CubingZANationalChampionship2023",
-    "hide_name_publicly":"False"
+    "hide_name_publicly":false,
     "user_id":"158817",
     "lane_states":{
       "competitor":"accepted"
@@ -197,12 +197,12 @@
       }
     ]
   },
-  { 
+  {
     "attendee_id":"CubingZANationalChampionship2023-158821",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158817",
-    "hide_name_publicly":"False",
-    "is_attending":"True",
+    "hide_name_publicly":false,
+    "is_attending":true,
     "lane_states":{
       "competitor":"accepted"
     },
@@ -237,5 +237,5 @@
       "last_action_user":"158816"
       }
     ]
-  },
+  }
 ]
