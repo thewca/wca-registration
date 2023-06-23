@@ -36,7 +36,7 @@ RSpec.shared_context '502 response from competition service' do
 end
 
 RSpec.describe 'v1 Registrations API', type: :request do
-  include Helpers::Registration
+  include Helpers::RegistrationHelper
 
   path '/api/v1/registrations/{competition_id}' do
     get 'List registrations for a given competition_id' do
