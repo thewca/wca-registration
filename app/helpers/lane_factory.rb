@@ -6,8 +6,8 @@ class LaneFactory
     competing_lane.name = "Competing"
     if event_ids != {}
       competing_lane.completed_steps = ["Event Registration"]
-      competing_lane.step_details = {
-        event_ids: event_ids,
+      competing_lane.lane_details = {
+        event_details: event_ids.map { |event| { event_id: event_ids } },
       }
     end
     competing_lane
