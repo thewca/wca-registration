@@ -108,7 +108,7 @@ class RegistrationController < ApplicationController
     begin
       registration = Registrations.find("#{competition_id}-#{user_id}")
       updated_lanes = registration.lanes.map { |lane|
-        if lane.name == "Competing"
+        if lane.lane_name == "Competing"
           lane.lane_state = "deleted"
         end
         lane
@@ -174,6 +174,6 @@ class RegistrationController < ApplicationController
     def get_registrations(competition_id)
       # Query DynamoDB for registrations with the given competition_id using the Global Secondary Index
       # TODO make this more beautiful and not break if there are more then one lane
-      Registrations.where(competition_id: competition_id).all.map { |x| { competitor_id: x["user_id"], event_ids: x["lanes"][0].step_details["event_ids"], registration_status: x["lanes"][0].lane_state } }
+      Registrations.where(competition_id: competition_id).all.map { |x| { competitor_id: x["user_id"], event_ids: x["lanes"][0].lane_details["event_details"].map { |event| event.event_id }, registration_status: x["lanes"][0].lane_state } }
     end
 end
