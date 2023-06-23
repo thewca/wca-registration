@@ -11,18 +11,21 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
       # TODO: Figure out how to validate the data written to the database
       context 'success registration posts' do
-        response '202', 'validate schema and response' do
-          include_context 'registration_data'
-          let(:registration) { basic_registration }
-
-          run_test!
-        end
-
         response '202', 'only required fields included' do
           include_context 'registration_data'
           let(:registration) { required_fields_only }
 
           run_test!
+        end
+
+        response '202', 'various optional fields' do
+          include_context 'various optional fields'
+
+          @payloads.each do |payload|
+            let(:registration) { payload }
+
+            run_test!
+          end
         end
       end
 
@@ -31,7 +34,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         #   before do
         #     registration = {}
         #   end
-        #     
+        #   
         #   let!(:registration) { registration }
 
         #   run_test!
@@ -65,12 +68,9 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # request 'fail' 'attendee has incomplete profile' do
         #   # TODO: write
         # end
-
       end
 
       context 'fail: competition elibigibility validation fails' do
-          # pass
-        
         # request 'fail' 'user does not pass qualification' do
         #   # TODO: write
         # end

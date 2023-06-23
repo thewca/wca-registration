@@ -27,6 +27,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           let!(:attendee_id) { existing_attendee }
 
           run_test! do |response|
+            # TODO: This should use a custom-written comparison script
             expect(response.body).to eq(basic_registration)
           end
         end
