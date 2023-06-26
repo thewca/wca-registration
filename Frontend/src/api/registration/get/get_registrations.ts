@@ -28,11 +28,9 @@ export async function getConfirmedRegistrations(
 export async function getAllRegistrations(
   competitionID: string
 ): Promise<RegistrationAdmin[] | ErrorResponse> {
-  return backendFetch(
-    `/registrations/${competitionID}/admin`,
-    'GET',
-    { needsAuthentication: true }
-  )
+  return backendFetch(`/registrations/${competitionID}/admin`, 'GET', {
+    needsAuthentication: true,
+  })
 }
 
 export async function getSingleRegistration(
