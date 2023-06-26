@@ -3,9 +3,14 @@ import RegistrationAdministrationList from './components/RegistrationAdministrat
 import styles from './index.module.scss'
 
 export default function RegistrationAdministration() {
+  const loggedIn = localStorage.getItem('user_id') !== null
   return (
     <div className={styles.container}>
-      <RegistrationAdministrationList />
+      {loggedIn ? (
+        <RegistrationAdministrationList />
+      ) : (
+        <span>Please log in first to use this feature</span>
+      )}
     </div>
   )
 }

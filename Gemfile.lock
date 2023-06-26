@@ -118,6 +118,7 @@ GEM
     json (2.6.3)
     json-schema (3.0.0)
       addressable (>= 2.8)
+    jwt (2.7.0)
     kredis (1.4.0)
       activemodel (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -276,6 +277,7 @@ DEPENDENCIES
   dynamoid (= 3.8.0)
   hiredis
   jbuilder
+  jwt
   kredis
   prometheus_exporter
   puma (~> 5.0)
