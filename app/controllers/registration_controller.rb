@@ -158,7 +158,7 @@ class RegistrationController < ApplicationController
 
     def competition_open(competition_id)
       Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        CompetitionApi.check_competition(competition_id)
+        CompetitionApi.competition_exists?(competition_id)
       end
     end
 

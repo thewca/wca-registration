@@ -111,9 +111,7 @@ export default function RegistrationAdministrationList() {
     const registrations = await getAllRegistrations(competition_id)
     const regList = []
     for (const registration of registrations) {
-      registration.user = (
-        await getCompetitorInfo(registration.competitor_id)
-      ).user
+      registration.user = (await getCompetitorInfo(registration.user_id)).user
       regList.push(registration)
     }
     return regList
@@ -232,7 +230,7 @@ function RegistrationAdministrationTable({
                   </Link>
                 </Table.Cell>
                 <Table.Cell>
-                  {registration.competitor_id ? (
+                  {registration.user.wca_id ? (
                     <a
                       href={`https://www.worldcubeassociation.org/persons/${registration.user.wca_id}`}
                     >

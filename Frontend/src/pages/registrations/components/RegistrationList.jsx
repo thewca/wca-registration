@@ -18,9 +18,7 @@ export default function RegistrationList() {
     getConfirmedRegistrations(competition_id).then(async (registrations) => {
       const regList = []
       for (const registration of registrations) {
-        registration.user = (
-          await getCompetitorInfo(registration.competitor_id)
-        ).user
+        registration.user = (await getCompetitorInfo(registration.user_id)).user
         regList.push(registration)
       }
       setRegistrations(regList)

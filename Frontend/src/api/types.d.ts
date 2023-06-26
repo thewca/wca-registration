@@ -17,8 +17,3 @@ interface UpdateRegistrationBody {
 }
 
 type GetRegistrationBody = Record<string, never>
-
-interface DeleteRegistrationBody {
-  competitor_id: string
-  competition_id: string
-}

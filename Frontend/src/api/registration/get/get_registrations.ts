@@ -4,12 +4,12 @@ import backendFetch from '../../helper/backend_fetch'
 type RegistrationStatus = 'waiting' | 'accepted' | 'deleted'
 
 interface Registration {
-  competitor_id: string
+  user_id: string
   event_ids: EventId[]
 }
 
 interface RegistrationAdmin {
-  competitor_id: string
+  user_id: string
   event_ids: EventId[]
   registration_status: RegistrationStatus
   registered_on: string
@@ -19,16 +19,13 @@ interface RegistrationAdmin {
 export async function getConfirmedRegistrations(
   competitionID: string
 ): Promise<Registration[]> {
-  return backendFetch(`/registrations?competition_id=${competitionID}`, 'GET')
+  return backendFetch(`/registrations/${competitionID}`, 'GET')
 }
 
 export async function getAllRegistrations(
   competitionID: string
 ): Promise<RegistrationAdmin[]> {
-  return backendFetch(
-    `/registrations/admin?competition_id=${competitionID}`,
-    'GET'
-  )
+  return backendFetch(`/registrations/${competitionID}/admin`, 'GET')
 }
 
 export async function getSingleRegistration(
