@@ -1,2 +1,4 @@
+# frozen_string_literal: true
+
 COMPETITION_API_NOT_FOUND = -1000
 COMPETITION_API_5XX = -1001

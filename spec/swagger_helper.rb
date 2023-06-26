@@ -34,7 +34,7 @@ RSpec.configure do |config|
                 items: {
                   type: :string,
                 },
-              }
+              },
             },
             required: [:user_id, :event_ids],
           },
