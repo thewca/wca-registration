@@ -239,12 +239,12 @@ class RegistrationController < ApplicationController
       # This also currently breaks if a registration is started but never completed
       if only_attending
         Registrations.where(competition_id: competition_id, is_attending: true).all.map do |x|
-          { competitor_id: x["user_id"],
+          { user_id: x["user_id"],
             event_ids: x["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] } }
         end
       else
         Registrations.where(competition_id: competition_id).all.map do |x|
-          { competitor_id: x["user_id"],
+          { user_id: x["user_id"],
             event_ids: x["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] },
             registration_status: x["lanes"][0].lane_state,
             registered_on: x["created_at"],
