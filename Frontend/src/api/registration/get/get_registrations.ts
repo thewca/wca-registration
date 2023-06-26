@@ -20,7 +20,7 @@ interface RegistrationAdmin {
 export async function getConfirmedRegistrations(
   competitionID: string
 ): Promise<Registration[] | ErrorResponse> {
-  return backendFetch(`/registrations?competition_id=${competitionID}`, 'GET', {
+  return backendFetch(`/registrations/${competitionID}`, 'GET', {
     needsAuthentication: false,
   })
 }
@@ -28,11 +28,9 @@ export async function getConfirmedRegistrations(
 export async function getAllRegistrations(
   competitionID: string
 ): Promise<RegistrationAdmin[] | ErrorResponse> {
-  return backendFetch(
-    `/registrations/admin?competition_id=${competitionID}`,
-    'GET',
-    { needsAuthentication: true }
-  )
+  return backendFetch(`/registrations/${competitionID}/admin`, 'GET', {
+    needsAuthentication: true,
+  })
 }
 
 export async function getSingleRegistration(

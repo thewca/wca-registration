@@ -230,7 +230,7 @@ function RegistrationAdministrationTable({
                   </Link>
                 </Table.Cell>
                 <Table.Cell>
-                  {registration.user_id ? (
+                  {registration.user.wca_id ? (
                     <a
                       href={`https://www.worldcubeassociation.org/persons/${registration.user.wca_id}`}
                     >

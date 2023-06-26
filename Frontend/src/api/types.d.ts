@@ -18,11 +18,6 @@ interface UpdateRegistrationBody {
 
 type GetRegistrationBody = Record<string, never>
 
-interface DeleteRegistrationBody {
-  user_id: string
-  competition_id: string
-}
-
 interface ErrorResponse {
   error: string
   statusCode: number

@@ -119,15 +119,22 @@ class RegistrationController < ApplicationController
 
   def list
     competition_id = params[:competition_id]
+    competition_exists = CompetitionApi.competition_exists?(competition_id)
     registrations = get_registrations(competition_id, only_attending: true)
-
+    if competition_exists[:error]
+      # Even if the competition service is down, we still return the registrations if they exists
+      if registrations.count != 0 && competition_exists[:error] == COMPETITION_API_5XX
+        return render json: registrations
+      end
+      return render json: { error: competition_exists[:error] }, status: competition_exists[:status]
+    end
     # Render a success response
     render json: registrations
   rescue StandardError => e
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
-    render json: { status: "Error getting registrations" },
+    render json: { status: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
 
@@ -141,7 +148,7 @@ class RegistrationController < ApplicationController
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
-    render json: { status: "Error getting registrations" },
+    render json: { status: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
 
@@ -157,7 +164,7 @@ class RegistrationController < ApplicationController
 
     def competition_open(competition_id)
       Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        CompetitionApi.check_competition(competition_id)
+        CompetitionApi.competition_exists?(competition_id)
       end
     end
 

@@ -2,11 +2,50 @@
 
 module Helpers
   module RegistrationHelper
+    RSpec.shared_context 'registration_data' do
+      before do
+        @basic_registration = get_registration('CubingZANationalChampionship2023-158816')
+        @required_fields_only = get_registration('CubingZANationalChampionship2023-158817')
+        @missing_reg_fields = get_registration('')
+        @no_attendee_id = get_registration('CubingZANationalChampionship2023-158818')
+
+        @with_is_attending = get_registration('CubingZANationalChampionship2023-158819')
+        @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820')
+        @with_all_optional_fields = get_registration('CubingZANationalChampionship2023-158821')
+      end
+    end
+
+    RSpec.shared_context 'various optional fields' do
+      include_context 'registration_data'
+      before do
+        @payloads = [@with_is_attending, @with_hide_name_publicly, @with_all_optional_fields]
+      end
+    end
+
     RSpec.shared_context 'Database seed' do
       before do
         basic_registration = get_registration('CubingZANationalChampionship2023-158816')
         registration = Registration.new(basic_registration)
         registration.save
+      end
+    end
+
+    RSpec.shared_context '500 response from competition service' do
+      before do
+        error_json = { error:
+                         'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' }.to_json
+
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+          .to_return(status: 500, body: error_json)
+      end
+    end
+
+    RSpec.shared_context '502 response from competition service' do
+      before do
+        error_json = { error: 'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' }.to_json
+
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+          .to_return(status: 502, body: error_json)
       end
     end
 
