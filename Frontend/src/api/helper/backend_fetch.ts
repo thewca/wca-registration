@@ -1,5 +1,7 @@
+import { getJWT, SuccessfulResponse } from '../auth/get_jwt'
 import {
   DeleteRegistrationBody,
+  ErrorResponse,
   GetRegistrationBody,
   SubmitRegistrationBody,
   UpdateRegistrationBody,
@@ -13,29 +15,63 @@ type Body =
   | GetRegistrationBody
   | DeleteRegistrationBody
 
+// See application_controller.rb
+// const INVALID_TOKEN_STATUS_CODE = -1 currently unused, but might be useful later
+const EXPIRED_TOKEN_STATUS_CODE = -2
+
 export default async function backendFetch(
   route: string,
   method: Method,
-  body: Body = {}
-) {
+  options: {
+    body?: Body
+    needsAuthentication: boolean
+  }
+): Promise<never | ErrorResponse> {
   try {
     let init = {}
+    let headers = {}
+    if (options.needsAuthentication) {
+      const tokenRequest = await getJWT()
+      if (tokenRequest.error) {
+        const { error, statusCode } = tokenRequest as ErrorResponse
+        return {
+          error,
+          statusCode,
+        }
+      }
+      const { token } = tokenRequest as SuccessfulResponse
+      headers = {
+        Authorization: token,
+      }
+    }
     if (method !== 'GET') {
       init = {
         method,
-        body: JSON.stringify(body),
+        body: JSON.stringify(options.body),
         headers: {
           'Content-Type': 'application/json',
+          ...headers,
         },
       }
+    } else {
+      init = {
+        headers,
+      }
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore This is injected at build time
     const response = await fetch(`${process.env.API_URL}/${route}`, init)
-
+    // We always return a json error message on error
+    const body = await response.json()
     if (response.ok) {
-      return await response.json()
+      return body
     }
-    return { error: response.statusText, statusCode: response.status }
-  } catch (error) {
-    return { error, statusCode: 500 }
+    if (body.status === EXPIRED_TOKEN_STATUS_CODE) {
+      await getJWT(true)
+      return await backendFetch(route, method, options)
+    }
+    return { error: body.message, statusCode: body.status }
+  } catch ({ name, message }) {
+    return { error: `Error ${name}: ${message}`, statusCode: 500 }
   }
 }

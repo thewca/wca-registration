@@ -12,12 +12,15 @@ export async function updateRegistration(
   }
 ) {
   const body: UpdateRegistrationBody = {
-    competitor_id: competitorID,
+    user_id: competitorID,
     competition_id: competitionID,
     event_ids: options.eventIds,
     comment: options.comment,
     status: options.status,
   }
 
-  return backendFetch('/register', 'PATCH', body)
+  return backendFetch('/register', 'PATCH', {
+    body,
+    needsAuthentication: true,
+  })
 }

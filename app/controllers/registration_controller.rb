@@ -1,16 +1,18 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require 'jwt'
 require_relative '../helpers/competition_api'
 require_relative '../helpers/competitor_api'
 
 class RegistrationController < ApplicationController
+  skip_before_action :validate_token, only: [:list]
   before_action :ensure_lane_exists, only: [:create]
 
   # We don't know which lane the user is going to complete first, this ensures that an entry in the DB exists
   # regardless of which lane the uses chooses to start with
   def ensure_lane_exists
-    user_id = params[:competitor_id]
+    user_id = params[:user_id]
     competition_id = params[:competition_id]
     @queue_url = ENV["QUEUE_URL"] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     # TODO: Cache this call? We could keep a list of already created keys
@@ -37,20 +39,24 @@ class RegistrationController < ApplicationController
   end
 
   def create
-    competitor_id = params[:competitor_id]
+    user_id = params[:user_id]
     competition_id = params[:competition_id]
     event_ids = params[:event_ids]
     comment = params[:comment] || ""
 
-    unless validate_request(competitor_id, competition_id) && !event_ids.empty?
+    unless validate_request(user_id, competition_id) && !event_ids.empty?
       Metrics.registration_validation_errors_counter.increment
       return render json: { status: 'User cannot register for competition' }, status: :forbidden
+    end
+    unless @decoded_token["data"]["user_id"] == user_id
+      Metrics.registration_impersonation_attempt_counter.increment
+      return render json: { status: 'Not Authorized to register User' }, status: :forbidden
     end
 
     id = SecureRandom.uuid
 
     step_data = {
-      user_id: competitor_id,
+      user_id: user_id,
       competition_id: competition_id,
       lane_name: 'competing',
       step: 'Event Registration',
@@ -72,7 +78,7 @@ class RegistrationController < ApplicationController
   end
 
   def update
-    user_id = params[:competitor_id]
+    user_id = params[:user_id]
     competition_id = params[:competition_id]
     status = params[:status]
     comment = params[:comment]
@@ -150,9 +156,9 @@ class RegistrationController < ApplicationController
 
     REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
 
-    def user_exists(competitor_id)
-      Rails.cache.fetch(competitor_id, expires_in: 12.hours) do
-        CompetitorApi.check_competitor(competitor_id)
+    def user_exists(user_id)
+      Rails.cache.fetch(user_id, expires_in: 12.hours) do
+        CompetitorApi.check_competitor(user_id)
       end
     end
 
@@ -162,15 +168,15 @@ class RegistrationController < ApplicationController
       end
     end
 
-    def can_user_register?(competitor_id, competition_id)
+    def can_user_register?(user_id, competition_id)
       # Check if user exists
-      user_exists(competitor_id) and competition_open(competition_id)
+      user_exists(user_id) and competition_open(competition_id)
     end
 
-    def validate_request(competitor_id, competition_id, status = 'waiting')
-      if competitor_id.present? && competitor_id.to_s =~ (/\A\d+\z/)
+    def validate_request(user_id, competition_id, status = 'waiting')
+      if user_id.present? && user_id.to_s =~ (/\A\d+\z/)
         if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
-          can_user_register?(competitor_id, competition_id)
+          can_user_register?(user_id, competition_id)
         end
       else
         false

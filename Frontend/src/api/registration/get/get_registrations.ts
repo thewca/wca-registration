@@ -1,5 +1,6 @@
 import { EventId } from '@wca/helpers'
 import backendFetch from '../../helper/backend_fetch'
+import { ErrorResponse } from '../../types'
 
 type RegistrationStatus = 'waiting' | 'accepted' | 'deleted'
 
@@ -18,22 +19,29 @@ interface RegistrationAdmin {
 
 export async function getConfirmedRegistrations(
   competitionID: string
-): Promise<Registration[]> {
-  return backendFetch(`/registrations/${competitionID}`, 'GET')
+): Promise<Registration[] | ErrorResponse> {
+  return backendFetch(`/registrations/${competitionID}`, 'GET', {
+    needsAuthentication: false,
+  })
 }
 
 export async function getAllRegistrations(
   competitionID: string
-): Promise<RegistrationAdmin[]> {
-  return backendFetch(`/registrations/${competitionID}/admin`, 'GET')
+): Promise<RegistrationAdmin[] | ErrorResponse> {
+  return backendFetch(
+    `/registrations/${competitionID}/admin`,
+    'GET',
+    { needsAuthentication: true }
+  )
 }
 
 export async function getSingleRegistration(
   userId: string,
   competitionId: string
-): Promise<{ registration: RegistrationAdmin }> {
+): Promise<{ registration: RegistrationAdmin } | ErrorResponse> {
   return backendFetch(
     `/register?user_id=${userId}&competition_id=${competitionId}`,
-    'GET'
+    'GET',
+    { needsAuthentication: true }
   )
 }

@@ -7,6 +7,12 @@ Rails.application.routes.draw do
   end
 
   get '/healthcheck', to: 'healthcheck#index'
+  # auth route for testing
+  # Uncomment this ones we integrate with the monolith
+  # unless Rails.env.production?
+  #   get '/jwt', to: 'jwt_dev#index'
+  # end
+  get '/jwt', to: 'jwt_dev#index'
   get '/api/v1/register', to: 'registration#entry'
   post '/api/v1/register', to: 'registration#create'
   patch '/api/v1/register', to: 'registration#update'
