@@ -32,32 +32,15 @@ RSpec.describe 'v1 Registrations API', type: :request do
       end
 
       context 'fail: request validation fails' do
-        # response 'fail', 'empty json provided' do
-        #   before do
-        #     registration = {}
-        #   end
-        #
-        #   let!(:registration) { registration }
+        response '400', 'bad request - required fields not found' do
+          include_context 'bad request payloads'
 
-        #   run_test!
-        # end
+          @payloads.each do |payload|
+            let(:registration) { payload }
 
-        # TODO: Figure out how to parametrize this using shared contexts/examples once it is passing
-        # response 'fail', 'not all required fields included' do
-        #   include_context 'Registrations'
-        #
-        #   let!(:registration) { no_attendee_id }
-
-        #   run_test!
-        # end
-
-        # response 'fail', 'spelling error on field name' do
-        # # TODO: write
-        # end
-
-        # response 'fail', 'non-permitted fields included' do
-        # # TODO: write
-        # end
+            run_test!
+          end
+        end
       end
 
       context 'fail: general elibigibility validation fails' do
