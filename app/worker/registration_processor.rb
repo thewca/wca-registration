@@ -16,7 +16,7 @@ class RegistrationProcessor
       end
     end
     # We have to require the model after we initialized dynamoid
-    require_relative '../models/registrations'
+    require_relative '../models/registration'
   end
 
   def process_message(message)
@@ -34,14 +34,14 @@ class RegistrationProcessor
   private
 
     def lane_init(competition_id, user_id)
-      empty_registration = Registrations.new(attendee_id: "#{competition_id}-#{user_id}",
-                                             competition_id: competition_id,
-                                             user_id: user_id)
+      empty_registration = Registration.new(attendee_id: "#{competition_id}-#{user_id}",
+                                            competition_id: competition_id,
+                                            user_id: user_id)
       empty_registration.save!
     end
 
     def event_registration(competition_id, user_id, event_ids, comment)
-      registration = Registrations.find("#{competition_id}-#{user_id}")
+      registration = Registration.find("#{competition_id}-#{user_id}")
       competing_lane = LaneFactory.competing_lane(event_ids, comment)
       if registration.lanes.nil?
         registration.update_attributes(lanes: [competing_lane])

@@ -9,10 +9,10 @@ RSpec.describe 'testing DynamoID writes', type: :request do
   it 'creates a registration object from a given hash' do
     basic_registration = get_registration('CubingZANationalChampionship2023-158816')
 
-    registration = Registrations.new(basic_registration)
+    registration = Registration.new(basic_registration)
     registration.save
 
-    expect(Registrations.count).to eq(1)
+    expect(Registration.count).to eq(1)
   end
 end
 
@@ -22,7 +22,7 @@ RSpec.describe 'testing DynamoID reads', type: :request do
 
   it 'returns registration by attendee_id as defined in the schema' do
     basic_registration = get_registration('CubingZANationalChampionship2023-158816')
-    registration_from_database = Registrations.find('CubingZANationalChampionship2023-158816')
+    registration_from_database = Registration.find('CubingZANationalChampionship2023-158816')
 
     expect(registration_equal(registration_from_database, basic_registration)).to eq(true)
   end

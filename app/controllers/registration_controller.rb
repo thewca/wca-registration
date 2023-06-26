@@ -9,13 +9,15 @@ class RegistrationController < ApplicationController
   skip_before_action :validate_token, only: [:list]
   before_action :ensure_lane_exists, only: [:create]
 
+  # We don't know which lane the user is going to complete first, this ensures that an entry in the DB exists
+  # regardless of which lane the uses chooses to start with
   def ensure_lane_exists
     user_id = params[:user_id]
     competition_id = params[:competition_id]
     @queue_url = ENV["QUEUE_URL"] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
-    # TODO: Cache this call?
+    # TODO: Cache this call? We could keep a list of already created keys
     lane_created = begin
-      Registrations.find("#{competition_id}-#{user_id}")
+      Registration.find("#{competition_id}-#{user_id}")
       true
     rescue Dynamoid::Errors::RecordNotFound
       false
@@ -83,40 +85,16 @@ class RegistrationController < ApplicationController
     event_ids = params[:event_ids]
 
     begin
-      registration = Registrations.find("#{competition_id}-#{user_id}")
-      updated_lanes = registration.lanes.map { |lane|
-        if lane.lane_name == "competing"
-          if status.present?
-            lane.lane_state = status
-          end
-          if comment.present?
-            lane.lane_details["comment"] = comment
-          end
-          if event_ids.present?
-            lane.lane_details["event_details"] = event_ids.map { |event_id| { event_id: event_id } }
-          end
-        end
-        lane
-      }
-      if status.present?
-        if status == "accepted"
-          updated_registration = registration.update_attributes!(lanes: updated_lanes, is_attending: true)
-        else
-          updated_registration = registration.update_attributes!(lanes: updated_lanes, is_attending: false)
-        end
-      else
-        updated_registration = registration.update_attributes!(lanes: updated_lanes)
-      end
-      # Render a success response
+      registration = Registration.find("#{competition_id}-#{user_id}")
+      updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids })
       render json: { status: 'ok', registration: {
         user_id: updated_registration["user_id"],
-        event_ids: updated_registration["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] },
-        registration_status: updated_registration["lanes"][0].lane_state,
+        event_ids: updated_registration.event_ids,
+        registration_status: updated_registration.competing_status,
         registered_on: updated_registration["created_at"],
-        comment: updated_registration["lanes"][0].lane_details["comment"],
+        comment: updated_registration.competing_comment,
       } }
     rescue StandardError => e
-      # Render an error response
       puts e
       Metrics.registration_dynamodb_errors_counter.increment
       render json: { status: "Error Updating Registration: #{e.message}" },
@@ -132,45 +110,10 @@ class RegistrationController < ApplicationController
       return render json: { status: "Can't get registration, wrong format" }, status: :forbidden
     end
     begin
-      registration = Registrations.find("#{competition_id}-#{user_id}")
-      render json: { registration: {
-        user_id: registration["user_id"],
-        event_ids: registration["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] },
-        registration_status: registration["lanes"][0].lane_state,
-        registered_on: registration["created_at"],
-        comment: registration["lanes"][0].lane_details["comment"],
-      }, status: 'ok' }
+      registration = get_single_registration(user_id, competition_id)
+      render json: { registration: registration, status: 'ok' }
     rescue Dynamoid::Errors::RecordNotFound
       render json: { registration: {}, status: 'ok' }
-    end
-  end
-
-  def delete
-    user_id = params[:user_id]
-    competition_id = params[:competition_id]
-
-    unless validate_request(user_id, competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
-    end
-    begin
-      registration = Registrations.find("#{competition_id}-#{user_id}")
-      updated_lanes = registration.lanes.map { |lane|
-        if lane.lane_name == "competing"
-          lane.lane_state = "deleted"
-        end
-        lane
-      }
-      puts updated_lanes.to_json
-      registration.update_attributes(lanes: updated_lanes)
-      # Render a success response
-      render json: { status: 'ok' }
-    rescue StandardError => e
-      # Render an error response
-      puts e
-      Metrics.registration_dynamodb_errors_counter.increment
-      render json: { status: "Error deleting item from DynamoDB: #{e.message}" },
-             status: :internal_server_error
     end
   end
 
@@ -234,22 +177,30 @@ class RegistrationController < ApplicationController
     end
 
     def get_registrations(competition_id, only_attending: false)
-      # Query DynamoDB for registrations with the given competition_id using the Global Secondary Index
-      # TODO make this more beautiful and not break if there are more then one lane
-      # This also currently breaks if a registration is started but never completed
       if only_attending
-        Registrations.where(competition_id: competition_id, is_attending: true).all.map do |x|
+        Registration.where(competition_id: competition_id, is_attending: true).all.map do |x|
           { user_id: x["user_id"],
-            event_ids: x["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] } }
+            event_ids: x.event_ids }
         end
       else
-        Registrations.where(competition_id: competition_id).all.map do |x|
+        Registration.where(competition_id: competition_id).all.map do |x|
           { user_id: x["user_id"],
-            event_ids: x["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] },
-            registration_status: x["lanes"][0].lane_state,
+            event_ids: x.event_ids,
+            registration_status: x.competing_status,
             registered_on: x["created_at"],
-            comment: x["lanes"][0].lane_details["comment"] }
+            comment: x.competing_comment }
         end
       end
+    end
+
+    def get_single_registration(user_id, competition_id)
+      registration = Registration.find("#{competition_id}-#{user_id}")
+      {
+        user_id: registration["user_id"],
+        event_ids: registration.event_ids,
+        registration_status: registration.competing_status,
+        registered_on: registration["created_at"],
+        comment: registration.competing_comment,
+      }
     end
 end

@@ -5,7 +5,7 @@ module Helpers
     RSpec.shared_context 'Database seed' do
       before do
         basic_registration = get_registration('CubingZANationalChampionship2023-158816')
-        registration = Registrations.new(basic_registration)
+        registration = Registration.new(basic_registration)
         registration.save
       end
     end
