@@ -7,6 +7,7 @@ module Helpers
         @basic_registration = get_registration('CubingZANationalChampionship2023-158816')
         @required_fields_only = get_registration('CubingZANationalChampionship2023-158817')
         @missing_reg_fields = get_registration('')
+        @empty_json = get_registration('')
         @no_attendee_id = get_registration('CubingZANationalChampionship2023-158818')
 
         @with_is_attending = get_registration('CubingZANationalChampionship2023-158819')
