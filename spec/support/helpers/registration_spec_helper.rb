@@ -4,16 +4,20 @@ module Helpers
   module RegistrationHelper
     RSpec.shared_context 'registration_data' do
       before do
+        # General
         @basic_registration = get_registration('CubingZANationalChampionship2023-158816')
         @required_fields_only = get_registration('CubingZANationalChampionship2023-158817')
-        @missing_reg_fields = get_registration('CubingZANationalChampionship2023-158821')
-        @empty_json = get_registration('')
-        @missing_lane = get_registration('CubingZANationalChampionship2023-158822')
         @no_attendee_id = get_registration('CubingZANationalChampionship2023-158818')
 
+        # For 'various optional fields'
         @with_is_attending = get_registration('CubingZANationalChampionship2023-158819')
         @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820')
         @with_all_optional_fields = @basic_registration
+
+        # For 'bad request payloads'
+        @missing_reg_fields = get_registration('CubingZANationalChampionship2023-158821')
+        @empty_json = get_registration('')
+        @missing_lane = get_registration('CubingZANationalChampionship2023-158822')
       end
     end
 

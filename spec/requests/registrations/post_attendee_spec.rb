@@ -13,33 +13,30 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
       # TODO: Figure out how to validate the data written to the database
       context 'success registration posts' do
+        include_context 'registration_data'
+
         response '202', 'only required fields included' do
-          include_context 'registration_data'
+          # include_context 'registration_data' # NOTE: Commented out because I'm only partially sure include_context in a shared context works
           let(:registration) { required_fields_only }
 
           run_test!
         end
 
         response '202', 'various optional fields' do
-          include_context 'various optional fields'
-
-          @payloads.each do |payload|
-            let(:registration) { payload }
-
-            run_test!
-          end
+          # include_context 'registration_data' NOTE: Commented out because I'm only partially sure include_context in a shared context works
+          it_behaves_like 'optional field tests', @with_is_attending
+          it_behaves_like 'optional field tests', @with_hide_name_publicly
+          it_behaves_like 'optional field tests', @with_all_optional_fields
         end
       end
 
       context 'fail: request validation fails' do
+        include_context 'registration_data'
+
         response '400', 'bad request - required fields not found' do
-          include_context 'bad request payloads'
-
-          @payloads.each do |payload|
-            let(:registration) { payload }
-
-            run_test!
-          end
+          it_behaves_like 'payload error tests', @missing_reg_fields
+          it_behaves_like 'payload error tests', @empty_json
+          it_behaves_like 'payload error tests', @missing_lane
         end
       end
 
