@@ -24,47 +24,22 @@ RSpec.configure do |config|
       components: {
         schemas: {
           registration: {
-
             type: :object,
             properties: {
-              attendee_id: { type: :string },
-              competition_id: { type: :string },
-              user_id: { type: :string },
-              is_attending: { type: :boolean },
-              lane_states: {
-                type: :object,
+              user_id: {
+                type: :string,
               },
-              lanes: {
+              event_ids: {
                 type: :array,
                 items: {
-                  type: :object,
-                  properties: {
-                    lane_name: { type: :string },
-                    lane_state: { type: :string },
-                    completed_steps: {
-                      type: :array,
-                    },
-                    lane_details: {
-                      type: :object,
-                    },
-                    payment_reference: { type: :string },
-                    payment_amount: { type: :string },
-                    transaction_currency: { type: :string },
-                    discount_percentage: { type: :string },
-                    discount_amount: { type: :string },
-                    last_action: { type: :string },
-                    last_action_datetime: { type: :string, format: :date_time },
-                    last_action_user: { type: :string },
-                  },
-                  required: [:lane_name, :lane_state, :completed_steps, :lane_details,
-                             :payment_reference, :payment_amount, :transaction_currency,
-                             :last_action, :last_action_datetime, :last_action_user],
+                  type: :string,
                 },
               },
-              hide_name_publicly: { type: :boolean },
+              registration_status: {
+                type: :string,
+              },
             },
-            required: [:attendee_id, :competition_id, :user_id, :is_attending, :lane_states,
-                       :lanes, :hide_name_publicly],
+            required: [:user_id, :event_ids, :registration_status],
           },
         },
       },
