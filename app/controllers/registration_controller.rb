@@ -3,11 +3,54 @@
 require 'securerandom'
 require 'jwt'
 require_relative '../helpers/competition_api'
-require_relative '../helpers/competitor_api'
+require_relative '../helpers/user_api'
+require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
   skip_before_action :validate_token, only: [:list]
+  before_action :validate_create_request, only: [:create]
   before_action :ensure_lane_exists, only: [:create]
+
+  # For a user to register they need to
+  # 1) Need to actually be the user that they are trying to register
+  # 2) Be Eligible to Compete (complete profile + not banned)
+  # 3) Register for a competition that is open
+  # 4) Register for events that are actually held at the competition
+  # We need to do this in this order, so we don't leak user attributes
+
+  def validate_create_request
+    required_params = registration_params
+    @user_id = required_params[:user_id]
+    @competition_id = required_params[:competition_id]
+    @event_ids = required_params[:event_ids]
+    status = ""
+    cannot_register_reasons = ""
+
+    unless @decoded_token["data"]["user_id"] == @user_id
+      Metrics.registration_impersonation_attempt_counter.increment
+      return render json: { error: USER_IMPERSONATION }, status: :forbidden
+    end
+
+    unless UserApi::can_compete?(@user_id)
+      status = :forbidden
+      cannot_register_reasons = UserApi::cannot_compete_reasons(@user_id)
+    end
+    # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
+    unless CompetitionApi::competition_exists?(@competition_id)
+      status = :forbidden
+      cannot_register_reasons = COMPETITION_CLOSED
+    end
+
+    if @event_ids.empty? || !CompetitionApi::events_held?(@event_ids, @competition_id)
+      status = :bad_request
+      cannot_register_reasons = COMPETITION_INVALID_EVENTS
+    end
+
+    unless cannot_register_reasons.empty?
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: cannot_register_reasons }, status: status
+    end
+  end
 
   # We don't know which lane the user is going to complete first, this ensures that an entry in the DB exists
   # regardless of which lane the uses chooses to start with
@@ -39,19 +82,7 @@ class RegistrationController < ApplicationController
   end
 
   def create
-    user_id = params[:user_id]
-    competition_id = params[:competition_id]
-    event_ids = params[:event_ids]
     comment = params[:comment] || ""
-
-    unless validate_request(user_id, competition_id) && !event_ids.empty?
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { status: 'User cannot register for competition' }, status: :forbidden
-    end
-    unless @decoded_token["data"]["user_id"] == user_id
-      Metrics.registration_impersonation_attempt_counter.increment
-      return render json: { status: 'Not Authorized to register User' }, status: :forbidden
-    end
 
     id = SecureRandom.uuid
 
@@ -156,9 +187,13 @@ class RegistrationController < ApplicationController
 
     REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
 
+    def registration_params
+      params.require([:user_id, :competition_id, :event_ids])
+    end
+
     def user_exists(user_id)
       Rails.cache.fetch(user_id, expires_in: 12.hours) do
-        CompetitorApi.check_competitor(user_id)
+        UserApi.check_competitor(user_id)
       end
     end
 

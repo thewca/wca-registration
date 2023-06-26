@@ -15,7 +15,7 @@ class CompetitionApi
       { error: false, competition_info: body }
     when Net::HTTPNotFound
       Metrics.registration_competition_api_error_counter.increment
-      { error: COMPETITION_API_NOT_FOUND, status: 404 }
+      { error: COMPETITION_NOT_FOUND, status: 404 }
     else
       Metrics.registration_competition_api_error_counter.increment
       { error: COMPETITION_API_5XX, status: res.code }
@@ -26,5 +26,12 @@ class CompetitionApi
     Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
       self.fetch_competition(competition_id)
     end
+  end
+
+  def self.events_held?(event_ids, competition_id)
+    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+      self.fetch_competition(competition_id)
+    end
+    competition_info["event_ids"].to_set.superset?(event_ids.to_set)
   end
 end

@@ -22,3 +22,8 @@ interface ErrorResponse {
   error: string
   statusCode: number
 }
+
+export interface UserType {
+  id: string
+  authToken?: string
+}
