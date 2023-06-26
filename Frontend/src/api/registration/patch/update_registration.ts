@@ -1,15 +1,22 @@
+import { EventId } from '@wca/helpers'
 import backendFetch from '../../helper/backend_fetch'
 import { UpdateRegistrationBody } from '../../types'
 
-export default async function updateRegistration(
+export async function updateRegistration(
   competitorID: string,
   competitionID: string,
-  status: string
+  options: {
+    status?: string
+    eventIds?: EventId[]
+    comment?: string
+  }
 ) {
   const body: UpdateRegistrationBody = {
     competitor_id: competitorID,
     competition_id: competitionID,
-    status,
+    event_ids: options.eventIds,
+    comment: options.comment,
+    status: options.status,
   }
 
   return backendFetch('/register', 'PATCH', body)

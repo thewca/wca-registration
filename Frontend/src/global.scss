@@ -60,4 +60,16 @@
       color: black;
     }
   }
+  a, a:hover {
+    text-decoration: none;
+  }
+  a:hover {
+    color: #c63a00;
+  }
+  a {
+    color: #e64503;
+  }
+  a {
+    background-color: transparent;
+  }
 }

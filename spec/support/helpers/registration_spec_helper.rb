@@ -11,7 +11,7 @@ module Helpers
 
         @with_is_attending = get_registration('CubingZANationalChampionship2023-158819')
         @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820')
-        @with_all_optional_fields = get_registration('CubingZANationalChampionship2023-158821')
+        @with_all_optional_fields = @basic_registration
       end
     end
 
