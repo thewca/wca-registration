@@ -239,7 +239,6 @@ class RegistrationController < ApplicationController
     def get_registrations(competition_id, only_attending: false)
       # Query DynamoDB for registrations with the given competition_id using the Global Secondary Index
       # TODO make this more beautiful and not break if there are more then one lane
-<<<<<<< HEAD
       # This also currently breaks if a registration is started but never completed
       if only_attending
         Registrations.where(competition_id: competition_id, is_attending: true).all.map do |x|
@@ -255,8 +254,5 @@ class RegistrationController < ApplicationController
             comment: x["lanes"][0].lane_details["comment"] }
         end
       end
-=======
-      Registrations.where(competition_id: competition_id).all.map { |x| { user_id: x["user_id"], event_ids: x["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] }, registration_status: x["lanes"][0].lane_state } }
->>>>>>> 10e9760958ad6e70beeb8f4c1c8cbc8dc072d709
     end
 end
