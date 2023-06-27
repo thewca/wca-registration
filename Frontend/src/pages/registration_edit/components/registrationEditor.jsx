@@ -6,7 +6,7 @@ import useHeldEvents from '../../../api/helper/hooks/use_held_events'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
-import LoadingMessage from '../../../ui/loadingMessage'
+import LoadingMessage from '../../../ui/Messages/loadingMessage'
 import styles from './editor.module.scss'
 
 export default function RegistrationEditor({ user_id, competition_id }) {

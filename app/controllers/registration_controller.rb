@@ -19,10 +19,7 @@ class RegistrationController < ApplicationController
   # We need to do this in this order, so we don't leak user attributes
 
   def validate_create_request
-    required_params = registration_params
-    @user_id = required_params[:user_id]
-    @competition_id = required_params[:competition_id]
-    @event_ids = required_params[:event_ids]
+    @user_id, @competition_id, @event_ids = registration_params
     status = ""
     cannot_register_reasons = ""
 
@@ -31,9 +28,10 @@ class RegistrationController < ApplicationController
       return render json: { error: USER_IMPERSONATION }, status: :forbidden
     end
 
-    unless UserApi::can_compete?(@user_id)
+    can_compete, reasons = UserApi::can_compete?(@user_id)
+    unless can_compete
       status = :forbidden
-      cannot_register_reasons = UserApi::cannot_compete_reasons(@user_id)
+      cannot_register_reasons = reasons
     end
     # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
     unless CompetitionApi::competition_exists?(@competition_id)
@@ -55,20 +53,18 @@ class RegistrationController < ApplicationController
   # We don't know which lane the user is going to complete first, this ensures that an entry in the DB exists
   # regardless of which lane the uses chooses to start with
   def ensure_lane_exists
-    user_id = params[:user_id]
-    competition_id = params[:competition_id]
     @queue_url = ENV["QUEUE_URL"] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     # TODO: Cache this call? We could keep a list of already created keys
     lane_created = begin
-      Registration.find("#{competition_id}-#{user_id}")
+      Registration.find("#{@competition_id}-#{@user_id}")
       true
     rescue Dynamoid::Errors::RecordNotFound
       false
     end
     unless lane_created
       step_data = {
-        user_id: user_id,
-        competition_id: competition_id,
+        user_id: @user_id,
+        competition_id: @competition_id,
         step: 'Lane Init',
       }
       id = SecureRandom.uuid
@@ -87,13 +83,13 @@ class RegistrationController < ApplicationController
     id = SecureRandom.uuid
 
     step_data = {
-      user_id: user_id,
-      competition_id: competition_id,
+      user_id: @user_id,
+      competition_id: @competition_id,
       lane_name: 'competing',
       step: 'Event Registration',
       step_details: {
         registration_status: 'waiting',
-        event_ids: event_ids,
+        event_ids: @event_ids,
         comment: comment,
       },
     }
@@ -136,10 +132,6 @@ class RegistrationController < ApplicationController
   def entry
     user_id = params[:user_id]
     competition_id = params[:competition_id]
-    unless validate_request(user_id, competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { status: "Can't get registration, wrong format" }, status: :forbidden
-    end
     begin
       registration = get_single_registration(user_id, competition_id)
       render json: { registration: registration, status: 'ok' }
@@ -189,33 +181,6 @@ class RegistrationController < ApplicationController
 
     def registration_params
       params.require([:user_id, :competition_id, :event_ids])
-    end
-
-    def user_exists(user_id)
-      Rails.cache.fetch(user_id, expires_in: 12.hours) do
-        UserApi.check_competitor(user_id)
-      end
-    end
-
-    def competition_open(competition_id)
-      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        CompetitionApi.competition_exists?(competition_id)
-      end
-    end
-
-    def can_user_register?(user_id, competition_id)
-      # Check if user exists
-      user_exists(user_id) and competition_open(competition_id)
-    end
-
-    def validate_request(user_id, competition_id, status = 'waiting')
-      if user_id.present? && user_id.to_s =~ (/\A\d+\z/)
-        if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
-          can_user_register?(user_id, competition_id)
-        end
-      else
-        false
-      end
     end
 
     def get_registrations(competition_id, only_attending: false)

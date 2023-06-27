@@ -37,20 +37,12 @@ class UserApi
     permissions = Rails.cache.fetch("#{user_id}-permissions", expires_in: 5.minutes) do
       self.get_permissions(user_id)
     end
-    permissions.can_attend_competitions == "*"
+    return permissions[:can_attend_competitions][:scope] == "*", permissions[:can_attend_competitions][:reasons]
   end
-
-  def self.cannot_compete_reasons(user_id)
-    permissions = Rails.cache.fetch("#{user_id}-permissions", expires_in: 5.minutes) do
-      self.get_permissions(user_id)
-    end
-    permissions.reasons
-  end
-
   def self.can_administer?(user_id, competition_id)
     permissions = Rails.cache.fetch("#{user_id}-permissions", expires_in: 5.minutes) do
       self.get_permissions(user_id)
     end
-    permissions.can_organize_competitions == "*" || permissions.can_organize_competitions.include?(competition_id)
+    permissions[:can_attend_competitions][:scope] == "*" || permissions[:can_attend_competitions][:scope].include?(competition_id)
   end
 end

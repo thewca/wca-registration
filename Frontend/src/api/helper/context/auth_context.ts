@@ -1,9 +1,8 @@
 import { createContext } from 'react'
-import { UserType } from '../../types'
 
 interface AuthContext {
-  user: UserType | null
-  setUser: (user: UserType | null) => void
+  user: string | null
+  setUser: (user: string | null) => void
 }
 
 export const AuthContext = createContext<AuthContext>({

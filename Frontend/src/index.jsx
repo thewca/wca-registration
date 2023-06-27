@@ -11,7 +11,9 @@ import RegistrationAdministration from './pages/registration_administration'
 import RegistrationEdit from './pages/registration_edit'
 import Registrations from './pages/registrations'
 import TestLogin from './pages/test/login'
-import FlashMessage from './ui/flashMessage'
+import TestLogout from './pages/test/logout'
+import App from './ui/App'
+import FlashMessage from './ui/Messages/flashMessage'
 import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 import PageSidebar from './ui/Sidebar'
@@ -20,20 +22,25 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: (
-      <>
+      <App>
         <PageHeader />
         <FlashMessage />
         <main>
           <Outlet />
         </main>
         <PageFooter />
-      </>
+      </App>
     ),
     children: [
       {
         // Test Route to simulate different users
         path: '/login/:login_id',
         element: <TestLogin />,
+      },
+      {
+        // Test Route to simulate different users
+        path: '/logout',
+        element: <TestLogout />,
       },
       {
         path: '',

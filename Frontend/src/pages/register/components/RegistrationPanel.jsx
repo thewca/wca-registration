@@ -1,16 +1,18 @@
 import { EventSelector } from '@thewca/wca-components'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, TextArea } from 'semantic-ui-react'
+import { AuthContext } from '../../../api/helper/context/auth_context'
 import useHeldEvents from '../../../api/helper/hooks/use_held_events'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
 import { setMessage } from '../../../ui/events/messages'
-import LoadingMessage from '../../../ui/loadingMessage'
+import LoadingMessage from '../../../ui/Messages/loadingMessage'
 import styles from './panel.module.scss'
 
 export default function RegistrationPanel() {
   const [selectedEvents, setSelectedEvents] = useState([])
   const { competition_id } = useParams()
+  const { user } = useContext(AuthContext)
   const { isLoading, heldEvents } = useHeldEvents(competition_id)
   const [comment, setComment] = useState('')
   return isLoading ? (
@@ -30,7 +32,7 @@ export default function RegistrationPanel() {
         onClick={async () => {
           setMessage('Registration is being processed', 'basic')
           const response = await submitEventRegistration(
-            localStorage.getItem('user_id'),
+            user,
             competition_id,
             comment,
             selectedEvents

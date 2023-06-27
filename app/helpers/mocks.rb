@@ -3,31 +3,19 @@
 # This needs to come from the user service*, but currently no route exists that gives this info
 def permissions_mock(user_id)
   case user_id
-  when 1 # Test Organizer
+  when "1" # Test Organizer
     return {
       can_attend_competitions: {
         scope: "*",
       },
       can_organize_competitions: {
-        scope: %w[BudapestSummer2023 HessenOpen2023],
+        scope: %w[BudapestSummer2023],
       },
       can_administer_competitions: {
-        scope: [],
+        scope: %w[BudapestSummer2023],
       }
     }
-  when 2 # Test Competitor 2
-    return {
-      can_attend_competitions: {
-        scope: "*",
-      },
-      can_organize_competitions: {
-        scope: [],
-      },
-      can_administer_competitions: {
-        scope: [],
-      }
-    }
-  when 6427 # Test Competitor 1
+  when "2" # Test Competitor 2
     return {
       can_attend_competitions: {
         scope: "*",
@@ -39,7 +27,19 @@ def permissions_mock(user_id)
         scope: [],
       }
     }
-  when 15073 # Test Admin
+  when "6427" # Test Competitor 1
+    return {
+      can_attend_competitions: {
+        scope: "*",
+      },
+      can_organize_competitions: {
+        scope: [],
+      },
+      can_administer_competitions: {
+        scope: [],
+      }
+    }
+  when "15073" # Test Admin
     return {
       can_attend_competitions: {
         scope: "*",
@@ -51,7 +51,7 @@ def permissions_mock(user_id)
         scope: "*",
       }
     }
-  when 209943 # Test banned User
+  when "209943" # Test banned User
     return {
       can_attend_competitions: {
         scope: [],
@@ -64,7 +64,7 @@ def permissions_mock(user_id)
         scope: [],
       }
     }
-  when 999999 # Test incomplete User
+  when "999999" # Test incomplete User
     return {
       can_attend_competitions: {
         scope: [],

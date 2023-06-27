@@ -42,13 +42,25 @@ const DROPDOWNS = [
       {
         path: '/login/1',
         icon: 'dog',
-        title: 'Test Organizer 1',
+        title: 'Organizer of Test Competition 1',
         reactRoute: true,
       },
       {
         path: '/login/15073',
         icon: 'otter',
-        title: 'Test Admin 1',
+        title: 'Test Admin',
+        reactRoute: true,
+      },
+      {
+        path: '/login/209943',
+        icon: 'skull',
+        title: 'Test Banned User',
+        reactRoute: true,
+      },
+      {
+        path: '/login/999999',
+        icon: 'baby',
+        title: 'Test Incomplete User',
         reactRoute: true,
       },
     ],
