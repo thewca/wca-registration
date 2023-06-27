@@ -19,6 +19,33 @@ interface UpdateRegistrationBody {
 type GetRegistrationBody = Record<string, never>
 
 interface ErrorResponse {
-  error: string
+  error: string | number
   statusCode: number
+}
+
+// This needs to be moved to WCA-helpers
+interface CompetitionInfo {
+  id: string
+  name: string
+  registration_open: string
+  registration_close: string
+  announced_at: string
+  start_date: string
+  end_date: string
+  competitor_limit?: number
+  cancelled_at?: string
+  url: string
+  website: string
+  short_name: string
+  city: string
+  venue_address: string
+  venue_details: string
+  latitude_degrees: number
+  longitude_degrees: number
+  country_iso2: string
+  event_ids: EventId[]
+  // TODO: create a User Type
+  delegates: object[]
+  organizers: object[]
+  class: string
 }

@@ -8,8 +8,12 @@ require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
   skip_before_action :validate_token, only: [:list]
+  # The order of the validations is important to not leak any non public info via the API
+  # That's why we should always validate a request first, before taking any other before action
+  # before_actions are triggered in the order they are defined
   before_action :validate_create_request, only: [:create]
   before_action :ensure_lane_exists, only: [:create]
+  before_action :validate_entry_request, only: [:entry]
 
   # For a user to register they need to
   # 1) Need to actually be the user that they are trying to register
@@ -129,11 +133,38 @@ class RegistrationController < ApplicationController
     end
   end
 
+  # If the User is banned or has an incomplete profile, return a 403
+  # To not leak information, verify that the user is themself first
+  def validate_entry_request
+    @user_id, @competition_id = entry_params
+
+    unless @decoded_token["data"]["user_id"] == @user_id
+      Metrics.registration_impersonation_attempt_counter.increment
+      return render json: { error: USER_IMPERSONATION }, status: :forbidden
+    end
+
+    cannot_register_reasons = ""
+    status = ""
+    can_compete, reasons = UserApi::can_compete?(@user_id)
+    unless can_compete
+      status = :forbidden
+      cannot_register_reasons = reasons
+    end
+    # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
+    unless CompetitionApi::competition_exists?(@competition_id)
+      status = :forbidden
+      cannot_register_reasons = COMPETITION_CLOSED
+    end
+
+    unless cannot_register_reasons == ""
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: cannot_register_reasons }, status: status
+    end
+  end
+
   def entry
-    user_id = params[:user_id]
-    competition_id = params[:competition_id]
     begin
-      registration = get_single_registration(user_id, competition_id)
+      registration = get_single_registration(@user_id, @competition_id)
       render json: { registration: registration, status: 'ok' }
     rescue Dynamoid::Errors::RecordNotFound
       render json: { registration: {}, status: 'ok' }
@@ -181,6 +212,10 @@ class RegistrationController < ApplicationController
 
     def registration_params
       params.require([:user_id, :competition_id, :event_ids])
+    end
+
+    def entry_params
+      params.require([:user_id, :competition_id])
     end
 
     def get_registrations(competition_id, only_attending: false)

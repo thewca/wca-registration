@@ -5,6 +5,7 @@ import {
   SubmitRegistrationBody,
   UpdateRegistrationBody,
 } from '../types'
+import { EXPIRED_TOKEN_STATUS_CODE } from './error_codes'
 
 type Method = 'POST' | 'GET' | 'PATCH' | 'DELETE'
 
@@ -12,10 +13,6 @@ type Body =
   | SubmitRegistrationBody
   | UpdateRegistrationBody
   | GetRegistrationBody
-
-// See application_controller.rb
-// const INVALID_TOKEN_STATUS_CODE = -1 currently unused, but might be useful later
-const EXPIRED_TOKEN_STATUS_CODE = -2
 
 export default async function backendFetch(
   route: string,
