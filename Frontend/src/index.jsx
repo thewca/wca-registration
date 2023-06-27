@@ -13,9 +13,9 @@ import Registrations from './pages/registrations'
 import TestLogin from './pages/test/login'
 import TestLogout from './pages/test/logout'
 import App from './ui/App'
-import FlashMessage from './ui/Messages/flashMessage'
 import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
+import FlashMessage from './ui/Messages/flashMessage'
 import PageSidebar from './ui/Sidebar'
 
 const router = createBrowserRouter([

@@ -1,6 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button } from 'semantic-ui-react'
+import {
+  CAN_ATTEND_COMPETITIONS,
+  canAttendCompetitions,
+} from '../../api/auth/get_permissions'
 import { AuthContext } from '../../api/helper/context/auth_context'
 import {
   USER_IS_BANNED,
@@ -10,6 +14,7 @@ import { getSingleRegistration } from '../../api/registration/get/get_registrati
 import { updateRegistration } from '../../api/registration/patch/update_registration'
 import { setMessage } from '../../ui/events/messages'
 import LoadingMessage from '../../ui/Messages/loadingMessage'
+import PermissionMessage from '../../ui/Messages/permissionMessage'
 import RegistrationEditPanel from './components/RegistrationEditPanel'
 import RegistrationPanel from './components/RegistrationPanel'
 import styles from './index.module.scss'
@@ -20,7 +25,6 @@ export default function Register() {
   const { user } = useContext(AuthContext)
   const loggedIn = user !== null
   const [isLoading, setIsLoading] = useState(true)
-  const [canRegister, setCanRegister] = useState(false)
   const [registration, setRegistration] = useState({})
   useEffect(() => {
     getSingleRegistration(user, competition_id).then((response) => {
@@ -34,12 +38,10 @@ export default function Register() {
         } else {
           setMessage('Error Loading your registration: ' + response.error)
         }
-        setCanRegister(false)
         setIsLoading(false)
       } else {
         setRegistration(response.registration)
         setIsLoading(false)
-        setCanRegister(true)
       }
     })
   }, [competition_id, user])
@@ -55,7 +57,7 @@ export default function Register() {
       ) : (
         <>
           <h2>Hi, {user}</h2>
-          {canRegister ? (
+          {canAttendCompetitions(user) ? (
             !registration.registration_status ? (
               <>
                 <h3> You can register for {competition_id}</h3>
@@ -93,7 +95,7 @@ export default function Register() {
               </>
             )
           ) : (
-            <h3>You cannot register for this competition</h3>
+            <PermissionMessage permissionLevel={CAN_ATTEND_COMPETITIONS} />
           )}
         </>
       )}

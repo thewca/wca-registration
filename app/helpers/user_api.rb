@@ -12,7 +12,7 @@ class UserApi
       res = Net::HTTP.get_response(uri)
       if res.is_a?(Net::HTTPSuccess)
         body = JSON.parse res.body
-        return body["user"]
+        body["user"]
       else
         # The Competitor Service is unreachable
         Metrics.registration_competitor_api_error_counter.increment
@@ -37,8 +37,9 @@ class UserApi
     permissions = Rails.cache.fetch("#{user_id}-permissions", expires_in: 5.minutes) do
       self.get_permissions(user_id)
     end
-    return permissions[:can_attend_competitions][:scope] == "*", permissions[:can_attend_competitions][:reasons]
+    [permissions[:can_attend_competitions][:scope] == "*", permissions[:can_attend_competitions][:reasons]]
   end
+
   def self.can_administer?(user_id, competition_id)
     permissions = Rails.cache.fetch("#{user_id}-permissions", expires_in: 5.minutes) do
       self.get_permissions(user_id)

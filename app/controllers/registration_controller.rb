@@ -14,6 +14,7 @@ class RegistrationController < ApplicationController
   before_action :validate_create_request, only: [:create]
   before_action :ensure_lane_exists, only: [:create]
   before_action :validate_entry_request, only: [:entry]
+  before_action :validate_list_admin, only: [:list_admin]
 
   # For a user to register they need to
   # 1) Need to actually be the user that they are trying to register
@@ -27,23 +28,23 @@ class RegistrationController < ApplicationController
     status = ""
     cannot_register_reasons = ""
 
-    unless @decoded_token["data"]["user_id"] == @user_id
+    unless @current_user == @user_id
       Metrics.registration_impersonation_attempt_counter.increment
       return render json: { error: USER_IMPERSONATION }, status: :forbidden
     end
 
-    can_compete, reasons = UserApi::can_compete?(@user_id)
+    can_compete, reasons = UserApi.can_compete?(@user_id)
     unless can_compete
       status = :forbidden
       cannot_register_reasons = reasons
     end
     # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
-    unless CompetitionApi::competition_exists?(@competition_id)
+    unless CompetitionApi.competition_exists?(@competition_id)
       status = :forbidden
       cannot_register_reasons = COMPETITION_CLOSED
     end
 
-    if @event_ids.empty? || !CompetitionApi::events_held?(@event_ids, @competition_id)
+    if @event_ids.empty? || !CompetitionApi.events_held?(@event_ids, @competition_id)
       status = :bad_request
       cannot_register_reasons = COMPETITION_INVALID_EVENTS
     end
@@ -108,15 +109,23 @@ class RegistrationController < ApplicationController
     render json: { status: 'ok', message: 'Started Registration Process' }
   end
 
+  # You can either update your own registration or one for a competition you administer
+  def validate_update_request
+    @user_id, @competition_id = update_params
+
+    unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: USER_INSUFFICIENT_PERMISSIONS }, status: :forbidden
+    end
+  end
+
   def update
-    user_id = params[:user_id]
-    competition_id = params[:competition_id]
     status = params[:status]
     comment = params[:comment]
     event_ids = params[:event_ids]
 
     begin
-      registration = Registration.find("#{competition_id}-#{user_id}")
+      registration = Registration.find("#{@competition_id}-#{@user_id}")
       updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids })
       render json: { status: 'ok', registration: {
         user_id: updated_registration["user_id"],
@@ -133,46 +142,25 @@ class RegistrationController < ApplicationController
     end
   end
 
-  # If the User is banned or has an incomplete profile, return a 403
-  # To not leak information, verify that the user is themself first
+  # You can either view your own registration or one for a competition you administer
   def validate_entry_request
     @user_id, @competition_id = entry_params
 
-    unless @decoded_token["data"]["user_id"] == @user_id
-      Metrics.registration_impersonation_attempt_counter.increment
-      return render json: { error: USER_IMPERSONATION }, status: :forbidden
-    end
-
-    cannot_register_reasons = ""
-    status = ""
-    can_compete, reasons = UserApi::can_compete?(@user_id)
-    unless can_compete
-      status = :forbidden
-      cannot_register_reasons = reasons
-    end
-    # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
-    unless CompetitionApi::competition_exists?(@competition_id)
-      status = :forbidden
-      cannot_register_reasons = COMPETITION_CLOSED
-    end
-
-    unless cannot_register_reasons == ""
+    unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: cannot_register_reasons }, status: status
+      render json: { error: USER_INSUFFICIENT_PERMISSIONS }, status: :forbidden
     end
   end
 
   def entry
-    begin
-      registration = get_single_registration(@user_id, @competition_id)
-      render json: { registration: registration, status: 'ok' }
-    rescue Dynamoid::Errors::RecordNotFound
-      render json: { registration: {}, status: 'ok' }
-    end
+    registration = get_single_registration(@user_id, @competition_id)
+    render json: { registration: registration, status: 'ok' }
+  rescue Dynamoid::Errors::RecordNotFound
+    render json: { registration: {}, status: 'ok' }
   end
 
   def list
-    competition_id = params[:competition_id]
+    competition_id = list_params
     competition_exists = CompetitionApi.competition_exists?(competition_id)
     registrations = get_registrations(competition_id, only_attending: true)
     if competition_exists[:error]
@@ -192,9 +180,18 @@ class RegistrationController < ApplicationController
            status: :internal_server_error
   end
 
+  # To list Registrations in the admin view you need to be able to administer the competition
+  def validate_list_admin
+    @competition_id = list_params
+
+    unless UserApi.can_administer?(@current_user, @competition_id)
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: USER_INSUFFICIENT_PERMISSIONS }, status: 403
+    end
+  end
+
   def list_admin
-    competition_id = params[:competition_id]
-    registrations = get_registrations(competition_id)
+    registrations = get_registrations(@competition_id)
 
     # Render a success response
     render json: registrations
@@ -216,6 +213,14 @@ class RegistrationController < ApplicationController
 
     def entry_params
       params.require([:user_id, :competition_id])
+    end
+
+    def update_params
+      params.require([:user_id, :competition_id])
+    end
+
+    def list_params
+      params.require(:competition_id)
     end
 
     def get_registrations(competition_id, only_attending: false)

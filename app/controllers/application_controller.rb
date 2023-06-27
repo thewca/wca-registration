@@ -11,8 +11,9 @@ class ApplicationController < ActionController::API
     end
     token = request.headers["Authorization"].split[1]
     begin
-      @decoded_token = (JWT.decode token, JwtOptions.secret, true, { algorithm: JwtOptions.algorithm })[0]
-    rescue JWT::VerificationError, JWT::InvalidJtiError, JWT::DecodeError
+      decoded_token = (JWT.decode token, JwtOptions.secret, true, { algorithm: JwtOptions.algorithm })[0]
+      @current_user = decoded_token["data"]["user_id"]
+    rescue JWT::VerificationError, JWT::InvalidJtiError
       Metrics.jwt_verification_error_counter.increment
       render json: { error: INVALID_TOKEN_STATUS_CODE }, status: :forbidden
     rescue JWT::ExpiredSignature

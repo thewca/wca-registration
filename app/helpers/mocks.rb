@@ -4,7 +4,7 @@
 def permissions_mock(user_id)
   case user_id
   when "1" # Test Organizer
-    return {
+    {
       can_attend_competitions: {
         scope: "*",
       },
@@ -13,10 +13,10 @@ def permissions_mock(user_id)
       },
       can_administer_competitions: {
         scope: %w[BudapestSummer2023],
-      }
+      },
     }
-  when "2" # Test Competitor 2
-    return {
+  when "2", "6427" # Test Competitors
+    {
       can_attend_competitions: {
         scope: "*",
       },
@@ -25,22 +25,10 @@ def permissions_mock(user_id)
       },
       can_administer_competitions: {
         scope: [],
-      }
-    }
-  when "6427" # Test Competitor 1
-    return {
-      can_attend_competitions: {
-        scope: "*",
       },
-      can_organize_competitions: {
-        scope: [],
-      },
-      can_administer_competitions: {
-        scope: [],
-      }
     }
   when "15073" # Test Admin
-    return {
+    {
       can_attend_competitions: {
         scope: "*",
       },
@@ -49,36 +37,36 @@ def permissions_mock(user_id)
       },
       can_administer_competitions: {
         scope: "*",
-      }
+      },
     }
   when "209943" # Test banned User
-    return {
+    {
       can_attend_competitions: {
         scope: [],
-        reasons: USER_IS_BANNED
+        reasons: USER_IS_BANNED,
       },
       can_organize_competitions: {
         scope: [],
       },
       can_administer_competitions: {
         scope: [],
-      }
+      },
     }
   when "999999" # Test incomplete User
-    return {
+    {
       can_attend_competitions: {
         scope: [],
-        reasons: USER_PROFILE_INCOMPLETE
+        reasons: USER_PROFILE_INCOMPLETE,
       },
       can_organize_competitions: {
         scope: [],
       },
       can_administer_competitions: {
         scope: [],
-      }
+      },
     }
   else
-    return {
+    {
       can_attend_competitions: {
         scope: [],
       },
@@ -87,7 +75,7 @@ def permissions_mock(user_id)
       },
       can_administer_competitions: {
         scope: [],
-      }
+      },
     }
   end
 end
