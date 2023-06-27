@@ -6,7 +6,7 @@ require_relative '../../support/helpers/registration_spec_helper'
 RSpec.describe 'v1 Registrations API', type: :request do
   include Helpers::RegistrationHelper
 
-  path '/api/v1/attendee' do
+  path '/api/v1/register' do
     post 'Add an attendee registration' do
       parameter name: :registration, in: :body,
                 schema: { '$ref' => '#/components/schemas/registration' }, required: true

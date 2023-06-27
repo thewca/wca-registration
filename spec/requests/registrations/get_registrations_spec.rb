@@ -16,7 +16,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
       competition_no_attendees = '1AVG2013'
 
       context 'success responses' do
-        include_context 'Database seed'
+        include_context 'database seed'
         before do
           competition_details = get_competition_details(competition_id)
 

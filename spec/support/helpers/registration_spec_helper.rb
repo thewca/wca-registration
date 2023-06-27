@@ -21,6 +21,13 @@ module Helpers
       end
     end
 
+    RSpec.shared_context 'PATCH payloads' do
+      before do
+        @cancellation = get_patch("816-cancel-full-registration")
+        @double_cancellation = get_patch("823-cancel-full-registration")
+      end
+    end
+
     # NOTE: Remove this once post_attendee_spec.rb tests are passing
     # RSpec.shared_context 'various optional fields' do
     #   include_context 'registration_data'
@@ -37,10 +44,16 @@ module Helpers
     #   end
     # end
 
-    RSpec.shared_context 'Database seed' do
+    RSpec.shared_context 'database seed' do
       before do
+        # Create a "normal" registration entry
         basic_registration = get_registration('CubingZANationalChampionship2023-158816')
         registration = Registrations.new(basic_registration)
+        registration.save
+
+        # Create a registration that is already cancelled
+        cancelled_registration = get_registration('CubingZANationalChampionship2023-158823')
+        registration = Registrations.new(cancelled_registration)
         registration.save
       end
     end
@@ -84,6 +97,16 @@ module Helpers
         registration = registrations.find { |r| r["attendee_id"] == attendee_id }
         registration["lanes"] = registration["lanes"].map { |lane| Lane.new(lane) }
         registration
+      end
+    end
+
+    def get_patch(patch_name)
+      File.open("#{Rails.root}/spec/fixtures/patches.json", 'r') do |f|
+        patches = JSON.parse(f.read)
+
+        # Retrieve the competition details when attendee_id matches
+        patch = patches[patch_name]
+        patch
       end
     end
 

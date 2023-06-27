@@ -1,6 +1,12 @@
 {
-  "cancel-full-registration": {
+  "816-cancel-full-registration": {
     "attendee_id":"CubingZANationalChampionship2023-158816",
+    "lane_states":{
+      "competing":"cancelled"
+    }
+  },
+  "823-cancel-full-registration": {
+    "attendee_id":"CubingZANationalChampionship2023-158823",
     "lane_states":{
       "competing":"cancelled"
     }

@@ -18,7 +18,7 @@ end
 
 RSpec.describe 'testing DynamoID reads', type: :request do
   include Helpers::RegistrationHelper
-  include_context 'Database seed'
+  include_context 'database seed'
 
   it 'returns registration by attendee_id as defined in the schema' do
     basic_registration = get_registration('CubingZANationalChampionship2023-158816')

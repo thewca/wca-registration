@@ -5,24 +5,19 @@ require 'swagger_helper'
 RSpec.describe 'v1 Registrations API', type: :request do
   include Helpers::RegistrationHelper
 
-  path '/api/v1/attendee' do
+  path '/api/v1/register' do
     patch 'update an attendee registration' do
-      parameters name: :update, in: :body, required: true
+      parameter name: :update, in: :body, required: true
+      produces 'application/json'
 
-      context 'registration cancellations' do
-        response '200', 'cancel non-cancelled registration' do
-          # Set up an existing registration in the database
-          include_context 'Database seed'
+      context 'SUCCESS: registration cancellations' do
+        include_context 'PATCH payloads'
+        include_context 'database seed'
 
-        expect Registrations.find("")
-          # let(:update) { update }
-
-          # run_test! do |response|
-          #   body = JSON.parse(response.body)
-          #   expect(body).to eq([])
-
+        response '202', 'cancel non-cancelled registration' do
+          it_behaves_like 'cancel registration successfully', @cancellation
+          it_behaves_like 'cancel registration successfully', @double_cancellation
         end
-
       end
     end
   end
