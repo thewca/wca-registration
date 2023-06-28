@@ -1,11 +1,12 @@
 import { EventSelector } from '@thewca/wca-components'
 import React, { useEffect, useState } from 'react'
 import { Button, Checkbox, TextArea } from 'semantic-ui-react'
-import { useCompetitorInfo, useHeldEvents } from '../../../api/helper/hooks'
+import { useHeldEvents } from '../../../api/helper/hooks/use_competition_info'
+import useCompetitorInfo from '../../../api/helper/hooks/use_competitor_info'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
-import LoadingMessage from '../../../ui/loadingMessage'
+import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
 
 export default function RegistrationEditor({ user_id, competition_id }) {

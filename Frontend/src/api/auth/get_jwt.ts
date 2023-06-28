@@ -1,3 +1,4 @@
+import { JWT_KEY, USER_KEY } from '../../ui/App'
 import { ErrorResponse } from '../types'
 
 export interface SuccessfulResponse {
@@ -5,24 +6,25 @@ export interface SuccessfulResponse {
   error: false
 }
 
-const JWT_STORAGE_KEY = 'jwt'
-
 export async function getJWT(
   reauthenticate = false
 ): Promise<ErrorResponse | SuccessfulResponse> {
-  // cache the jwt token, if it has expired we just need to reauthenticate
-  const cachedToken = localStorage.getItem(JWT_STORAGE_KEY)
+  // the jwt token is cached in local storage, if it has expired, we need to reauthenticate
+  const cachedToken = localStorage.getItem(JWT_KEY)
+  const user = localStorage.getItem(USER_KEY)
+  if (user === null) {
+    return { error: 'User is not Logged in', statusCode: 401 }
+  }
+
   if (reauthenticate || cachedToken === null) {
     try {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore AUTH_URL is injected at build time
-      const response = await fetch(
-        `${process.env.AUTH_URL}?user_id=${localStorage.getItem('user_id')}`
-      )
+      const response = await fetch(`${process.env.AUTH_URL}?user_id=${user}`)
       if (response.ok) {
         const token = response.headers.get('authorization')
         if (token !== null) {
-          localStorage.setItem(JWT_STORAGE_KEY, token)
+          localStorage.setItem(JWT_KEY, token)
           return { token, error: false }
         }
         // This should not happen, but I am throwing an error here regardless

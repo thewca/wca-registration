@@ -76,7 +76,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
       context 'fail responses' do
         context 'competition_id not found by Competition Service' do
           wca_error_json = { error: 'Competition with id InvalidCompId not found' }.to_json
-          registration_error_json = { error: COMPETITION_API_NOT_FOUND }.to_json
+          registration_error_json = { error: COMPETITION_NOT_FOUND }.to_json
           before do
             stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
               .to_return(status: 404, body: wca_error_json)
