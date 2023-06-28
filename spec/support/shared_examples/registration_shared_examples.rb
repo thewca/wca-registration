@@ -1,17 +1,17 @@
 RSpec.shared_examples 'optional field tests' do |payload|
-  let(:registration) { payload }
+  let!(:registration) { payload }
 
   run_test!
 end
 
 RSpec.shared_examples 'payload error tests' do |payload|
-  let(:registration) { payload }
+  let!(:registration) { payload }
 
   run_test!
 end
 
-RSpec.shared_examples 'cancel registration successfully' do |payload|
-  let(:update) { payload }
+RSpec.shared_examples 'cancel registration successfully' do |payload, competition_id, user_id|
+  let!(:update) { payload }
   cancelled = "cancelled"
 
   run_test! do |response|

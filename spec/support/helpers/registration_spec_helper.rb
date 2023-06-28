@@ -23,6 +23,12 @@ module Helpers
 
     RSpec.shared_context 'PATCH payloads' do
       before do
+        # URL parameters
+        @competiton_id = "CubingZANationalChampionship2023"
+        @user_id_816 = "158816"
+        @user_id_823 = "158823"
+
+        # Payloads
         @cancellation = get_patch("816-cancel-full-registration")
         @double_cancellation = get_patch("823-cancel-full-registration")
         @cancel_wrong_lane = get_patch('823-cancel-wrong-lane')
