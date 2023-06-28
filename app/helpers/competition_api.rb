@@ -15,10 +15,10 @@ class CompetitionApi
       { error: false, competition_info: body }
     when Net::HTTPNotFound
       Metrics.registration_competition_api_error_counter.increment
-      { error: COMPETITION_NOT_FOUND, status: 404 }
+      { error: ErrorCodes::COMPETITION_NOT_FOUND, status: 404 }
     else
       Metrics.registration_competition_api_error_counter.increment
-      { error: COMPETITION_API_5XX, status: res.code }
+      { error: ErrorCodes::COMPETITION_API_5XX, status: res.code }
     end
   end
 
