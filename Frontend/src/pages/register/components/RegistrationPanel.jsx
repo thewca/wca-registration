@@ -3,27 +3,22 @@ import React, { useContext, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, TextArea } from 'semantic-ui-react'
 import { AuthContext } from '../../../api/helper/context/auth_context'
-import { useHeldEvents } from '../../../api/helper/hooks/use_competition_info'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
 import { setMessage } from '../../../ui/events/messages'
-import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './panel.module.scss'
+import { CompetitionContext } from '../../../api/helper/context/competition_context'
 
 export default function RegistrationPanel() {
   const [selectedEvents, setSelectedEvents] = useState([])
   const { competition_id } = useParams()
   const { user } = useContext(AuthContext)
-  const { isLoading, heldEvents } = useHeldEvents(competition_id)
+  const { competitionInfo } = useContext(CompetitionContext)
   const [comment, setComment] = useState('')
-  return isLoading ? (
-    <div className={styles.panel}>
-      <LoadingMessage />
-    </div>
-  ) : (
+  return (
     <div className={styles.panel}>
       <EventSelector
         handleEventSelection={setSelectedEvents}
-        events={heldEvents}
+        events={competitionInfo.event_ids}
         initialSelected={[]}
         size="2x"
       />

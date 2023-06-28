@@ -13,6 +13,7 @@ import Registrations from './pages/registrations'
 import TestLogin from './pages/test/login'
 import TestLogout from './pages/test/logout'
 import App from './ui/App'
+import Competition from './ui/Competition'
 import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 import FlashMessage from './ui/messages/flashMessage'
@@ -53,10 +54,10 @@ const router = createBrowserRouter([
       {
         path: '/:competition_id',
         element: (
-          <>
+          <Competition>
             <PageSidebar />
             <Outlet />
-          </>
+          </Competition>
         ),
         children: [
           {

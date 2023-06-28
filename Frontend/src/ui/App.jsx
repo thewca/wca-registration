@@ -1,6 +1,9 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import React, { useCallback, useState } from 'react'
 import { AuthContext } from '../api/helper/context/auth_context'
 
+const queryClient = new QueryClient()
 export const USER_KEY = 'user'
 export const JWT_KEY = 'jwt'
 export default function App({ children }) {
@@ -11,8 +14,11 @@ export default function App({ children }) {
     setUserState(user)
   }, [])
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
-      {children}
-    </AuthContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <AuthContext.Provider value={{ user, setUser }}>
+        {children}
+      </AuthContext.Provider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   )
 }

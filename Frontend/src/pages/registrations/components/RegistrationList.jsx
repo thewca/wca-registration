@@ -1,7 +1,7 @@
 import { NonInteractiveTable } from '@thewca/wca-components'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useHeldEvents } from '../../../api/helper/hooks/use_competition_info'
+import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
 import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
@@ -12,7 +12,7 @@ export default function RegistrationList() {
   const [isLoading, setIsLoading] = useState(true)
   const [registrations, setRegistrations] = useState([])
   // Fetch data
-  const { isLoading: eventsLoading, heldEvents } = useHeldEvents(competition_id)
+  const { competitionInfo } = useContext(CompetitionContext)
 
   useEffect(() => {
     getConfirmedRegistrations(competition_id).then(async (registrations) => {
@@ -29,12 +29,15 @@ export default function RegistrationList() {
   const header = [
     { text: 'Name' },
     { text: 'Citizen of' },
-    ...heldEvents.map((event_id) => ({ text: event_id, cubingIcon: true })),
+    ...competitionInfo.event_ids.map((event_id) => ({
+      text: event_id,
+      cubingIcon: true,
+    })),
     { text: 'Total' },
   ]
   const footer = useMemo(() => {
     // We have to use a Map instead of an object to preserve event order
-    const eventCounts = heldEvents.reduce((counts, eventId) => {
+    const eventCounts = competitionInfo.event_ids.reduce((counts, eventId) => {
       counts.set(eventId, 0)
       return counts
     }, new Map())
@@ -45,7 +48,7 @@ export default function RegistrationList() {
         }
         info.countrySet.add(registration.user.country.iso2)
         info.totalEvents += registration.event_ids.length
-        heldEvents.forEach((event_id) => {
+        competitionInfo.event_ids.forEach((event_id) => {
           if (registration.event_ids.includes(event_id)) {
             eventCounts.set(event_id, eventCounts.get(event_id) + 1)
           }
@@ -63,7 +66,7 @@ export default function RegistrationList() {
       ...eventCounts.values(),
       totalEvents,
     ]
-  }, [registrations, heldEvents])
+  }, [registrations, competitionInfo.event_ids])
   const registrationList = useMemo(
     () =>
       registrations.map((registration) => {
@@ -79,7 +82,7 @@ export default function RegistrationList() {
             text: registration.user.country.name,
             flag: registration.user.country.iso2,
           },
-          ...heldEvents.map((event_id) => {
+          ...competitionInfo.event_ids.map((event_id) => {
             if (registration.event_ids.includes(event_id)) {
               return { text: event_id, cubingIcon: true }
             }
@@ -90,11 +93,11 @@ export default function RegistrationList() {
           },
         ]
       }),
-    [registrations, heldEvents]
+    [registrations, competitionInfo.event_ids]
   )
   return (
     <div className={styles.list}>
-      {isLoading || eventsLoading ? (
+      {isLoading ? (
         <LoadingMessage />
       ) : (
         <NonInteractiveTable
