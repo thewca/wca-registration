@@ -5,7 +5,7 @@ require_relative '../../support/helpers/registration_spec_helper'
 require_relative '../../../app/helpers/error_codes'
 
 RSpec.describe 'v1 Registrations API', type: :request do
-  include Helpers::RegistrationHelper
+  includr Helpers::RegistrationHelper
 
   path '/api/v1/registrations/{competition_id}' do
     get 'List registrations for a given competition_id' do

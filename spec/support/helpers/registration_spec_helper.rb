@@ -25,6 +25,7 @@ module Helpers
       before do
         @cancellation = get_patch("816-cancel-full-registration")
         @double_cancellation = get_patch("823-cancel-full-registration")
+        @cancel_wrong_lane = get_patch('823-cancel-wrong-lane')
       end
     end
 

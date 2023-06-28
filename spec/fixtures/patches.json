@@ -10,5 +10,11 @@
     "lane_states":{
       "competing":"cancelled"
     }
+  },
+  "823-cancel-wrong-lane": {
+    "attendee_id":"CubingZANationalChampionship2023-158823",
+    "lane_states":{
+      "staffing":"cancelled"
+    }
   }
 }
