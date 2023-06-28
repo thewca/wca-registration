@@ -5,7 +5,7 @@ import { Button, TextArea } from 'semantic-ui-react'
 import { useHeldEvents } from '../../../api/helper/hooks/use_competition_info'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
-import LoadingMessage from '../../../ui/./messages/loadingMessage'
+import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './panel.module.scss'
 
 export default function RegistrationEditPanel({ registration }) {

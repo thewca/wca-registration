@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import getCompetitorInfo from '../../../api/user/get/get_user_info'
-import LoadingMessage from '../../../ui/./messages/loadingMessage'
+import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
 
