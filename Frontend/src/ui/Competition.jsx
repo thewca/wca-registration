@@ -11,9 +11,10 @@ export default function Competition({ children }) {
     queryFn: () => getCompetitionInfo(competition_id),
   })
   const [competitionInfo, setCompetitionInfo] = useState({})
-  // There is a weird error here that this is undefined when you reload on lower pages
   useEffect(() => {
-    setCompetitionInfo(data)
+    if (data) {
+      setCompetitionInfo(data)
+    }
   }, [data])
   return (
     <CompetitionContext.Provider value={{ competitionInfo }}>
