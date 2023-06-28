@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 # System Errors
-INVALID_TOKEN_STATUS_CODE = -1
-EXPIRED_TOKEN_STATUS_CODE = -2
+INVALID_TOKEN = -1
+EXPIRED_TOKEN = -2
 MISSING_AUTHENTICATION = -3
 
 # Competition Errors

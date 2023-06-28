@@ -1,12 +1,12 @@
+import { useQuery } from '@tanstack/react-query'
 import { FlagIcon } from '@thewca/wca-components'
-import React, { useEffect, useMemo, useReducer, useState } from 'react'
+import React, { useMemo, useReducer } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
-import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
-import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
+import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 
 // Currently it is at the developer's discretion to make sure
 // an attendee is added to the right list.
@@ -100,33 +100,30 @@ const partitionRegistrations = (registrations) => {
 
 export default function RegistrationAdministrationList() {
   const { competition_id } = useParams()
-  const [registrations, setRegistrations] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const {
+    isLoading,
+    data: registrations,
+    refetch,
+  } = useQuery({
+    queryKey: ['registrations-admin', competition_id],
+    queryFn: () => getAllRegistrations(competition_id),
+  })
   const [selected, dispatch] = useReducer(reducer, {
     waiting: [],
     accepted: [],
     deleted: [],
   })
-  const fetchData = async (competition_id) => {
-    const registrations = await getAllRegistrations(competition_id)
-    const regList = []
-    for (const registration of registrations) {
-      registration.user = (await getCompetitorInfo(registration.user_id)).user
-      regList.push(registration)
-    }
-    return regList
-  }
-  useEffect(() => {
-    fetchData(competition_id).then((registrations) => {
-      setRegistrations(registrations)
-      setIsLoading(false)
-    })
-  }, [competition_id])
 
-  const { waiting, accepted, deleted } = useMemo(
-    () => partitionRegistrations(registrations),
-    [registrations]
-  )
+  const { waiting, accepted, deleted } = useMemo(() => {
+    if (registrations) {
+      return partitionRegistrations(registrations)
+    }
+    return {
+      waiting: [],
+      accepted: [],
+      deleted: [],
+    }
+  }, [registrations])
 
   return isLoading ? (
     <div className={styles.list}>
@@ -162,12 +159,10 @@ export default function RegistrationAdministrationList() {
       </div>
       <RegistrationActions
         selected={selected}
-        refresh={() =>
-          fetchData(competition_id).then((registrations) => {
-            setRegistrations(registrations)
-            dispatch({ type: 'clear-selected' })
-          })
-        }
+        refresh={async () => {
+          await refetch()
+          dispatch({ type: 'clear-selected' })
+        }}
       />
     </>
   )

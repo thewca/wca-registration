@@ -1,30 +1,21 @@
 import { NonInteractiveTable } from '@thewca/wca-components'
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
-import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
+import { useQuery } from '@tanstack/react-query'
 
 export default function RegistrationList() {
   const { competition_id } = useParams()
-  const [isLoading, setIsLoading] = useState(true)
-  const [registrations, setRegistrations] = useState([])
   // Fetch data
   const { competitionInfo } = useContext(CompetitionContext)
 
-  useEffect(() => {
-    getConfirmedRegistrations(competition_id).then(async (registrations) => {
-      const regList = []
-      for (const registration of registrations) {
-        registration.user = (await getCompetitorInfo(registration.user_id)).user
-        regList.push(registration)
-      }
-      setRegistrations(regList)
-      setIsLoading(false)
-    })
-  }, [competition_id])
+  const { isLoading, data: registrations } = useQuery({
+    queryKey: ['registrations', competition_id],
+    queryFn: () => getConfirmedRegistrations(competition_id),
+  })
 
   const header = [
     { text: 'Name' },
@@ -36,40 +27,46 @@ export default function RegistrationList() {
     { text: 'Total' },
   ]
   const footer = useMemo(() => {
-    // We have to use a Map instead of an object to preserve event order
-    const eventCounts = competitionInfo.event_ids.reduce((counts, eventId) => {
-      counts.set(eventId, 0)
-      return counts
-    }, new Map())
-    const { newcomers, totalEvents, countrySet } = registrations.reduce(
-      (info, registration) => {
-        if (registration.user.wca_id === null) {
-          info.newcomers++
-        }
-        info.countrySet.add(registration.user.country.iso2)
-        info.totalEvents += registration.event_ids.length
-        competitionInfo.event_ids.forEach((event_id) => {
-          if (registration.event_ids.includes(event_id)) {
-            eventCounts.set(event_id, eventCounts.get(event_id) + 1)
+    if (registrations) {
+      // We have to use a Map instead of an object to preserve event order
+      const eventCounts = competitionInfo.event_ids.reduce(
+        (counts, eventId) => {
+          counts.set(eventId, 0)
+          return counts
+        },
+        new Map()
+      )
+      const { newcomers, totalEvents, countrySet } = registrations.reduce(
+        (info, registration) => {
+          if (registration.user.wca_id === null) {
+            info.newcomers++
           }
-        })
-        return info
-      },
-      { newcomers: 0, totalEvents: 0, countrySet: new Set() }
-    )
-    return [
-      // Potential grammar issues will be fixed when we introduce I18n
-      `${newcomers} First-timers + ${
-        registrations.length - newcomers
-      } Returners = ${registrations.length} People`,
-      `${countrySet.size} Countries`,
-      ...eventCounts.values(),
-      totalEvents,
-    ]
+          info.countrySet.add(registration.user.country.iso2)
+          info.totalEvents += registration.event_ids.length
+          competitionInfo.event_ids.forEach((event_id) => {
+            if (registration.event_ids.includes(event_id)) {
+              eventCounts.set(event_id, eventCounts.get(event_id) + 1)
+            }
+          })
+          return info
+        },
+        { newcomers: 0, totalEvents: 0, countrySet: new Set() }
+      )
+      return [
+        // Potential grammar issues will be fixed when we introduce I18n
+        `${newcomers} First-timers + ${
+          registrations.length - newcomers
+        } Returners = ${registrations.length} People`,
+        `${countrySet.size} Countries`,
+        ...eventCounts.values(),
+        totalEvents,
+      ]
+    }
+    return []
   }, [registrations, competitionInfo.event_ids])
-  const registrationList = useMemo(
-    () =>
-      registrations.map((registration) => {
+  const registrationList = useMemo(() => {
+    if (registrations) {
+      return registrations.map((registration) => {
         const profileLink = registration.user.wca_id
           ? `https://www.worldcubeassociation.org/persons/${registration.user.wca_id}`
           : null
@@ -92,9 +89,10 @@ export default function RegistrationList() {
             text: registration.event_ids.length,
           },
         ]
-      }),
-    [registrations, competitionInfo.event_ids]
-  )
+      })
+    }
+    return []
+  }, [registrations, competitionInfo.event_ids])
   return (
     <div className={styles.list}>
       {isLoading ? (

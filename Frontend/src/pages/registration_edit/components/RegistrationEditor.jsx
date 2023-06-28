@@ -1,35 +1,43 @@
 import { EventSelector } from '@thewca/wca-components'
 import React, { useContext, useEffect, useState } from 'react'
 import { Button, Checkbox, TextArea } from 'semantic-ui-react'
-import useCompetitorInfo from '../../../api/helper/hooks/use_competitor_info'
+import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
-import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import { useQuery } from '@tanstack/react-query'
+import getCompetitorInfo from '../../../api/user/get/get_user_info'
 
 export default function RegistrationEditor({ user_id, competition_id }) {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { isLoading: infoLoading, competitorInfo } = useCompetitorInfo(user_id)
-  const [registration, setRegistration] = useState({})
   const [comment, setComment] = useState('')
   const [status, setStatus] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
+  const [registration, setRegistration] = useState({})
+  const { data: serverRegistration } = useQuery({
+    queryKey: [competition_id, user_id],
+    queryFn: () => getSingleRegistration(user_id, competition_id),
+  })
+  const { isLoading, data: competitorInfo } = useQuery({
+    queryKey: ['info', user_id],
+    queryFn: () => getCompetitorInfo(user_id),
+    enabled: Boolean(serverRegistration),
+  })
 
   useEffect(() => {
-    getSingleRegistration(user_id, competition_id).then((response) => {
-      const registration = response.registration
-      setRegistration(registration)
-      setComment(registration.comment)
-      setStatus(registration.registration_status)
-      setSelectedEvents(registration.event_ids)
-    })
-  }, [user_id, competition_id])
+    if (serverRegistration) {
+      setRegistration(serverRegistration.registration)
+      setComment(serverRegistration.registration.comment)
+      setStatus(serverRegistration.registration.registration_status)
+      setSelectedEvents(serverRegistration.registration.event_ids)
+    }
+  }, [serverRegistration])
 
   return (
     <div className={styles.editor}>
-      {!registration.registration_status || infoLoading ? (
+      {!registration.registration_status || isLoading ? (
         <LoadingMessage />
       ) : (
         <div>

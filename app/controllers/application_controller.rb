@@ -15,9 +15,9 @@ class ApplicationController < ActionController::API
       @current_user = decoded_token["data"]["user_id"]
     rescue JWT::VerificationError, JWT::InvalidJtiError
       Metrics.jwt_verification_error_counter.increment
-      render json: { error: INVALID_TOKEN_STATUS_CODE }, status: :forbidden
+      render json: { error: INVALID_TOKEN }, status: :forbidden
     rescue JWT::ExpiredSignature
-      render json: { error: EXPIRED_TOKEN_STATUS_CODE }, status: :forbidden
+      render json: { error: EXPIRED_TOKEN }, status: :forbidden
     end
   end
 
