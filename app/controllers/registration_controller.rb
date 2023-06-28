@@ -31,7 +31,7 @@ class RegistrationController < ApplicationController
 
     unless @current_user == @user_id
       Metrics.registration_impersonation_attempt_counter.increment
-      return render json: { error: USER_IMPERSONATION }, status: :forbidden
+      return render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :forbidden
     end
 
     can_compete, reasons = UserApi.can_compete?(@user_id)
@@ -42,12 +42,12 @@ class RegistrationController < ApplicationController
     # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
     unless CompetitionApi.competition_exists?(@competition_id)
       status = :forbidden
-      cannot_register_reasons = COMPETITION_CLOSED
+      cannot_register_reasons = ErrorCodes::COMPETITION_CLOSED
     end
 
     if @event_ids.empty? || !CompetitionApi.events_held?(@event_ids, @competition_id)
       status = :bad_request
-      cannot_register_reasons = COMPETITION_INVALID_EVENTS
+      cannot_register_reasons = ErrorCodes::COMPETITION_INVALID_EVENTS
     end
 
     unless cannot_register_reasons.empty?
@@ -116,7 +116,7 @@ class RegistrationController < ApplicationController
 
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: USER_INSUFFICIENT_PERMISSIONS }, status: :forbidden
+      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :forbidden
     end
   end
 
@@ -149,7 +149,7 @@ class RegistrationController < ApplicationController
 
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: USER_INSUFFICIENT_PERMISSIONS }, status: :forbidden
+      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :forbidden
     end
   end
 
@@ -187,7 +187,7 @@ class RegistrationController < ApplicationController
 
     unless UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: USER_INSUFFICIENT_PERMISSIONS }, status: 403
+      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: 403
     end
   end
 
