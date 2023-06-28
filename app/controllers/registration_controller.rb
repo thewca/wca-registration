@@ -166,7 +166,7 @@ class RegistrationController < ApplicationController
     registrations = get_registrations(competition_id, only_attending: true)
     if competition_exists[:error]
       # Even if the competition service is down, we still return the registrations if they exists
-      if registrations.count != 0 && competition_exists[:error] == COMPETITION_API_5XX
+      if registrations.count != 0 && competition_exists[:error] == ErrorCodes::COMPETITION_API_5XX
         return render json: registrations
       end
       return render json: { error: competition_exists[:error] }, status: competition_exists[:status]
