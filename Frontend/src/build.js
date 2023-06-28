@@ -16,7 +16,7 @@ esbuild
       '.woff': 'file',
       '.woff2': 'file',
     },
-    publicPath: 'https://d1qizdh27al0a7.cloudfront.net/dist',
+    publicPath: process.env.ASSET_PATH,
     plugins: [
       sassPlugin({
         filter: /\.module\.scss$/,
