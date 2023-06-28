@@ -1,10 +1,10 @@
 import { NonInteractiveTable } from '@thewca/wca-components'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useHeldEvents } from '../../../api/helper/hooks/use_held_events'
+import { useHeldEvents } from '../../../api/helper/hooks/use_competition_info'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
 import getCompetitorInfo from '../../../api/user/get/get_user_info'
-import LoadingMessage from '../../../ui/Messages/loadingMessage'
+import LoadingMessage from '../../../ui/./messages/loadingMessage'
 import styles from './list.module.scss'
 
 export default function RegistrationList() {

@@ -2,10 +2,10 @@ import { EventSelector } from '@thewca/wca-components'
 import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, TextArea } from 'semantic-ui-react'
-import { useHeldEvents } from '../../../api/helper/hooks/use_held_events'
+import { useHeldEvents } from '../../../api/helper/hooks/use_competition_info'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
-import LoadingMessage from '../../../ui/Messages/loadingMessage'
+import LoadingMessage from '../../../ui/./messages/loadingMessage'
 import styles from './panel.module.scss'
 
 export default function RegistrationEditPanel({ registration }) {
@@ -32,7 +32,7 @@ export default function RegistrationEditPanel({ registration }) {
       <Button
         onClick={() => {
           setMessage('Registration is being updated', 'basic')
-          updateRegistration(localStorage.getItem('user_id'), competition_id, {
+          updateRegistration(registration.user_id, competition_id, {
             eventIds: selectedEvents,
             comment,
           }).then((response) => {

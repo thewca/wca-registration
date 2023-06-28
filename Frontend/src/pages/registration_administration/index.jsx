@@ -5,7 +5,7 @@ import {
   canAdminCompetition,
 } from '../../api/auth/get_permissions'
 import { AuthContext } from '../../api/helper/context/auth_context'
-import PermissionMessage from '../../ui/Messages/permissionMessage'
+import PermissionMessage from '../../ui/./messages/permissionMessage'
 import RegistrationAdministrationList from './components/RegistrationAdministrationList'
 import styles from './index.module.scss'
 

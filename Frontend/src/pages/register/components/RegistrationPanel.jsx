@@ -3,10 +3,10 @@ import React, { useContext, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, TextArea } from 'semantic-ui-react'
 import { AuthContext } from '../../../api/helper/context/auth_context'
-import { useHeldEvents } from '../../../api/helper/hooks/use_held_events'
+import { useHeldEvents } from '../../../api/helper/hooks/use_competition_info'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
 import { setMessage } from '../../../ui/events/messages'
-import LoadingMessage from '../../../ui/Messages/loadingMessage'
+import LoadingMessage from '../../../ui/./messages/loadingMessage'
 import styles from './panel.module.scss'
 
 export default function RegistrationPanel() {

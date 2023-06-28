@@ -5,8 +5,8 @@ import {
   canAdminCompetition,
 } from '../../api/auth/get_permissions'
 import { AuthContext } from '../../api/helper/context/auth_context'
-import PermissionMessage from '../../ui/Messages/permissionMessage'
-import RegistrationEditor from './components/registrationEditor'
+import PermissionMessage from '../../ui/messages/permissionMessage'
+import RegistrationEditor from './components/RegistrationEditor'
 import styles from './index.module.scss'
 
 export default function RegistrationEdit() {

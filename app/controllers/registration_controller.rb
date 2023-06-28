@@ -15,6 +15,7 @@ class RegistrationController < ApplicationController
   before_action :ensure_lane_exists, only: [:create]
   before_action :validate_entry_request, only: [:entry]
   before_action :validate_list_admin, only: [:list_admin]
+  before_action :validate_update_request, only: [:update]
 
   # For a user to register they need to
   # 1) Need to actually be the user that they are trying to register
@@ -137,7 +138,7 @@ class RegistrationController < ApplicationController
     rescue StandardError => e
       puts e
       Metrics.registration_dynamodb_errors_counter.increment
-      render json: { status: "Error Updating Registration: #{e.message}" },
+      render json: { error: "Error Updating Registration: #{e.message}" },
              status: :internal_server_error
     end
   end
@@ -176,7 +177,7 @@ class RegistrationController < ApplicationController
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
-    render json: { status: "Error getting registrations #{e}" },
+    render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
 
@@ -199,7 +200,7 @@ class RegistrationController < ApplicationController
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
-    render json: { status: "Error getting registrations #{e}" },
+    render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
 
