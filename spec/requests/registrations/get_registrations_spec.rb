@@ -76,7 +76,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
       context 'fail responses' do
         context 'competition_id not found by Competition Service' do
           wca_error_json = { error: 'Competition with id InvalidCompId not found' }.to_json
-          registration_error_json = { error: COMPETITION_NOT_FOUND }.to_json
+          registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
           before do
             stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
               .to_return(status: 404, body: wca_error_json)
@@ -94,7 +94,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # TODO: Refactor to use shared_examples once passing
         context 'competition service not available (500) and no registrations in our database for competition_id' do
           include_context '500 response from competition service'
-          registration_error_json = { error: COMPETITION_API_5XX }.to_json
+          registration_error_json = { error: ErrorCodes::COMPETITION_API_5XX }.to_json
           response '500', 'Competition service unavailable - 500 error' do
             let!(:competition_id) { competition_no_attendees }
 
@@ -107,7 +107,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # TODO: Refactor to use shared_examples once passing
         context 'competition service not available - 502' do
           include_context '502 response from competition service'
-          registration_error_json = { error: COMPETITION_API_5XX }.to_json
+          registration_error_json = { error: ErrorCodes::COMPETITION_API_5XX }.to_json
           response '502', 'Competition service unavailable - 502 error' do
             let!(:competition_id) { competition_no_attendees }
 
