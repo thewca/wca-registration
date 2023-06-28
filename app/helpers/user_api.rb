@@ -28,7 +28,7 @@ class UserApi
 
   # TODO: The real permission route will live in the user service
   def self.get_permissions(user_id)
-    permissions_mock(user_id)
+    Mocks.permissions_mock(user_id)
   end
 
   def self.can_compete?(user_id)
