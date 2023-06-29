@@ -1,6 +1,5 @@
 import { NonInteractiveTable } from '@thewca/wca-components'
-import React, { useContext, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useContext, useMemo } from 'react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
@@ -8,13 +7,12 @@ import styles from './list.module.scss'
 import { useQuery } from '@tanstack/react-query'
 
 export default function RegistrationList() {
-  const { competition_id } = useParams()
   // Fetch data
   const { competitionInfo } = useContext(CompetitionContext)
 
   const { isLoading, data: registrations } = useQuery({
-    queryKey: ['registrations', competition_id],
-    queryFn: () => getConfirmedRegistrations(competition_id),
+    queryKey: ['registrations', competitionInfo.id],
+    queryFn: () => getConfirmedRegistrations(competitionInfo.id),
   })
 
   const header = [

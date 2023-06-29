@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { FlagIcon } from '@thewca/wca-components'
-import React, { useMemo, useReducer } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import React, { useContext, useMemo, useReducer } from 'react'
+import { Link } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
+import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
-import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 
 // Currently it is at the developer's discretion to make sure
 // an attendee is added to the right list.
@@ -99,14 +100,14 @@ const partitionRegistrations = (registrations) => {
 }
 
 export default function RegistrationAdministrationList() {
-  const { competition_id } = useParams()
+  const { competitionInfo } = useContext(CompetitionContext)
   const {
     isLoading,
     data: registrations,
     refetch,
   } = useQuery({
-    queryKey: ['registrations-admin', competition_id],
-    queryFn: () => getAllRegistrations(competition_id),
+    queryKey: ['registrations-admin', competitionInfo.id],
+    queryFn: () => getAllRegistrations(competitionInfo.id),
   })
   const [selected, dispatch] = useReducer(reducer, {
     waiting: [],
@@ -137,7 +138,7 @@ export default function RegistrationAdministrationList() {
           registrations={waiting}
           add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
           remove={(attendee) => dispatch({ type: 'remove-waiting', attendee })}
-          competition_id={competition_id}
+          competition_id={competitionInfo.id}
           selected={selected.waiting}
         />
         <h2> Approved registrations </h2>
@@ -145,7 +146,7 @@ export default function RegistrationAdministrationList() {
           registrations={accepted}
           add={(attendee) => dispatch({ type: 'add-accepted', attendee })}
           remove={(attendee) => dispatch({ type: 'remove-accepted', attendee })}
-          competition_id={competition_id}
+          competition_id={competitionInfo.id}
           selected={selected.accepted}
         />
         <h2> Deleted registrations </h2>
@@ -153,7 +154,7 @@ export default function RegistrationAdministrationList() {
           registrations={deleted}
           add={(attendee) => dispatch({ type: 'add-deleted', attendee })}
           remove={(attendee) => dispatch({ type: 'remove-deleted', attendee })}
-          competition_id={competition_id}
+          competition_id={competitionInfo.id}
           selected={selected.deleted}
         />
       </div>

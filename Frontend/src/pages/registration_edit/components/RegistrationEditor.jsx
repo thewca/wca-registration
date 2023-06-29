@@ -9,21 +9,22 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
 import { useQuery } from '@tanstack/react-query'
 import getCompetitorInfo from '../../../api/user/get/get_user_info'
+import { AuthContext } from '../../../api/helper/context/auth_context'
 
-export default function RegistrationEditor({ user_id, competition_id }) {
+export default function RegistrationEditor() {
+  const { user } = useContext(AuthContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const [comment, setComment] = useState('')
   const [status, setStatus] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
   const { data: serverRegistration } = useQuery({
-    queryKey: [competition_id, user_id],
-    queryFn: () => getSingleRegistration(user_id, competition_id),
+    queryKey: [competitionInfo.id, user],
+    queryFn: () => getSingleRegistration(user, competitionInfo.id),
   })
   const { isLoading, data: competitorInfo } = useQuery({
-    queryKey: ['info', user_id],
-    queryFn: () => getCompetitorInfo(user_id),
-    enabled: Boolean(serverRegistration),
+    queryKey: ['info', user],
+    queryFn: () => getCompetitorInfo(user),
   })
 
   useEffect(() => {

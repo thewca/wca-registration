@@ -10,7 +10,7 @@ interface Registration {
   event_ids: EventId[]
 }
 
-interface RegistrationAdmin {
+export interface RegistrationAdmin {
   user_id: string
   event_ids: EventId[]
   registration_status: RegistrationStatus
