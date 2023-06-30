@@ -5,6 +5,7 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
 import styles from './actions.module.scss'
+import { useMutation } from '@tanstack/react-query'
 
 export default function RegistrationActions({ selected, refresh }) {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -18,30 +19,31 @@ export default function RegistrationActions({ selected, refresh }) {
     selected.accepted.length > 0 || selected.deleted.length > 0
   const anyDeletable =
     selected.waiting.length > 0 || selected.accepted.length > 0
-  const changeStatus = async (attendees, status) => {
-    const responses = []
-    for (const attendee of attendees) {
-      // Should we have a bulk route here? That would make all the changes fail even if there is only one issue
-      const response = await updateRegistration(attendee, competitionInfo.id, {
-        status,
-      })
-      responses.push(response)
-    }
-    if (responses.some((response) => response.error)) {
+  const { mutate: updateRegistrationMutation } = useMutation({
+    mutationFn: updateRegistration,
+    onError: (data) => {
       setMessage(
-        'Something went wrong when saving registration changes: ' +
-          responses.reduce((msg, response) => {
-            if (response.error) {
-              return msg + '\n' + response.error
-            }
-            return msg
-          }, ''),
+        'Registration update failed with error: ' + data.error,
         'negative'
       )
-    } else {
-      setMessage('Successfully saved registration changes', 'positive')
-    }
-    refresh()
+    },
+  })
+  const changeStatus = async (attendees, status) => {
+    attendees.forEach((attendee) => {
+      updateRegistrationMutation(
+        {
+          user_id: attendee,
+          competition_id: competitionInfo.id,
+          status,
+        },
+        {
+          onSuccess: () => {
+            setMessage('Successfully saved registration changes', 'positive')
+            refresh()
+          },
+        }
+      )
+    })
   }
 
   return (
