@@ -1,0 +1,89 @@
+.competition-info{
+  flex-shrink: 0;
+}
+.open{
+  color: #007E0D;
+}
+.header{
+  display: flex;
+  border-radius: 39px;
+  background: #EBEBEB;
+  width: 1398px;
+  height: 446px;
+  padding: 30px;
+}
+.announcement{
+  background-color: rgba(255, 92, 0, 0.3);
+  padding: 18px;
+  border-radius: 18px;
+  width: 898px;
+  height: 97px;
+  flex-shrink: 0;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+.location{
+  color: #000;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin-bottom: 22px;
+}
+.date{
+  color: #000;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin-bottom: 26px;
+}
+.competition-name{
+  width: 533px;
+  height: 50px;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin-bottom: 15px;
+}
+.register-button{
+  background-color: #D55125 !important;
+  color: white !important;
+  margin: 10px !important;
+  width: 244px !important;
+  font-size: 32px !important;
+  border-radius: 12px !important;
+}
+.fee{
+  font-size: 24px;
+}
+.image{
+  width: 363px;
+  height: 363px;
+  border-radius: 26px;
+  border: 7px solid #000;
+  background: #6C6B6B !important;
+  margin-left: 70px;
+}
+.event-list{
+  padding: 30px;
+  font-size: 24px;
+  .event-header{
+    margin-right: 10px;
+  }
+  div{
+    margin-top: 23px;
+  }
+}
+.event{
+  margin-left: 10px;
+}
+.info-left{
+  display: block;
+}
+.info-right{
+  display: block;
+}

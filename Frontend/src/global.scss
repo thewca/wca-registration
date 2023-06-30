@@ -5,6 +5,10 @@
   flex-direction: column;
   main {
     flex: 1;
+    width: 1440px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
   }
 
   .icon {

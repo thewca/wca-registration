@@ -55,7 +55,7 @@ const router = createBrowserRouter([
         path: '/:competition_id',
         element: (
           <Competition>
-            <PageSidebar />
+            {/*<PageTopBar />*/}
             <Outlet />
           </Competition>
         ),
