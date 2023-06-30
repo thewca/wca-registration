@@ -115,16 +115,10 @@ export default function RegistrationAdministrationList() {
     deleted: [],
   })
 
-  const { waiting, accepted, deleted } = useMemo(() => {
-    if (registrations) {
-      return partitionRegistrations(registrations)
-    }
-    return {
-      waiting: [],
-      accepted: [],
-      deleted: [],
-    }
-  }, [registrations])
+  const { waiting, accepted, deleted } = useMemo(
+    () => partitionRegistrations(registrations ?? []),
+    [registrations]
+  )
 
   return isLoading ? (
     <div className={styles.list}>

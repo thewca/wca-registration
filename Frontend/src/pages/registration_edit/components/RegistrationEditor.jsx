@@ -1,15 +1,15 @@
+import { useQuery } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import React, { useContext, useEffect, useState } from 'react'
 import { Button, Checkbox, TextArea } from 'semantic-ui-react'
+import { AuthContext } from '../../../api/helper/context/auth_context'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
+import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
-import { useQuery } from '@tanstack/react-query'
-import getCompetitorInfo from '../../../api/user/get/get_user_info'
-import { AuthContext } from '../../../api/helper/context/auth_context'
 
 export default function RegistrationEditor() {
   const { user } = useContext(AuthContext)
@@ -89,7 +89,7 @@ export default function RegistrationEditor() {
           <Button
             onClick={() => {
               setMessage('Updating Registration', 'basic')
-              updateRegistration(user_id, competition_id, {
+              updateRegistration(user, competitionInfo.id, {
                 status,
                 eventIds: selectedEvents,
                 comment,

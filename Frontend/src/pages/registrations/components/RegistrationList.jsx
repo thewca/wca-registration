@@ -1,10 +1,10 @@
+import { useQuery } from '@tanstack/react-query'
 import { NonInteractiveTable } from '@thewca/wca-components'
 import React, { useContext, useMemo } from 'react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
-import { useQuery } from '@tanstack/react-query'
 
 export default function RegistrationList() {
   // Fetch data
@@ -62,9 +62,9 @@ export default function RegistrationList() {
     }
     return []
   }, [registrations, competitionInfo.event_ids])
-  const registrationList = useMemo(() => {
-    if (registrations) {
-      return registrations.map((registration) => {
+  const registrationList = useMemo(
+    () =>
+      registrations?.map((registration) => {
         const profileLink = registration.user.wca_id
           ? `https://www.worldcubeassociation.org/persons/${registration.user.wca_id}`
           : null
@@ -87,10 +87,9 @@ export default function RegistrationList() {
             text: registration.event_ids.length,
           },
         ]
-      })
-    }
-    return []
-  }, [registrations, competitionInfo.event_ids])
+      }) ?? [],
+    [registrations, competitionInfo.event_ids]
+  )
   return (
     <div className={styles.list}>
       {isLoading ? (

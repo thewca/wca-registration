@@ -8,10 +8,10 @@ import { setMessage } from '../../../ui/events/messages'
 import styles from './panel.module.scss'
 
 export default function RegistrationPanel() {
-  const [selectedEvents, setSelectedEvents] = useState([])
   const { user } = useContext(AuthContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const [comment, setComment] = useState('')
+  const [selectedEvents, setSelectedEvents] = useState([])
   return (
     <div className={styles.panel}>
       <EventSelector
