@@ -18,11 +18,6 @@ interface UpdateRegistrationBody {
 
 type GetRegistrationBody = Record<string, never>
 
-interface ErrorResponse {
-  error: string | number
-  statusCode: number
-}
-
 // This needs to be moved to WCA-helpers
 interface CompetitionInfo {
   id: string

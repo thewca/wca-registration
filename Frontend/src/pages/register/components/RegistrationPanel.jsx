@@ -1,29 +1,22 @@
 import { EventSelector } from '@thewca/wca-components'
 import React, { useContext, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { Button, TextArea } from 'semantic-ui-react'
 import { AuthContext } from '../../../api/helper/context/auth_context'
-import { useHeldEvents } from '../../../api/helper/hooks/use_competition_info'
+import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
 import { setMessage } from '../../../ui/events/messages'
-import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './panel.module.scss'
 
 export default function RegistrationPanel() {
-  const [selectedEvents, setSelectedEvents] = useState([])
-  const { competition_id } = useParams()
   const { user } = useContext(AuthContext)
-  const { isLoading, heldEvents } = useHeldEvents(competition_id)
+  const { competitionInfo } = useContext(CompetitionContext)
   const [comment, setComment] = useState('')
-  return isLoading ? (
-    <div className={styles.panel}>
-      <LoadingMessage />
-    </div>
-  ) : (
+  const [selectedEvents, setSelectedEvents] = useState([])
+  return (
     <div className={styles.panel}>
       <EventSelector
         handleEventSelection={setSelectedEvents}
-        events={heldEvents}
+        events={competitionInfo.event_ids}
         initialSelected={[]}
         size="2x"
       />
@@ -33,7 +26,7 @@ export default function RegistrationPanel() {
           setMessage('Registration is being processed', 'basic')
           const response = await submitEventRegistration(
             user,
-            competition_id,
+            competitionInfo.id,
             comment,
             selectedEvents
           )

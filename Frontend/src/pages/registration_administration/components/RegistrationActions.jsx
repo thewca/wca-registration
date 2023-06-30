@@ -1,13 +1,13 @@
 import { UiIcon } from '@thewca/wca-components'
-import React from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useContext } from 'react'
 import { Button } from 'semantic-ui-react'
+import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
 import styles from './actions.module.scss'
 
 export default function RegistrationActions({ selected, refresh }) {
-  const { competition_id } = useParams()
+  const { competitionInfo } = useContext(CompetitionContext)
   const anySelected =
     selected.waiting.length > 0 ||
     selected.accepted.length > 0 ||
@@ -22,7 +22,7 @@ export default function RegistrationActions({ selected, refresh }) {
     const responses = []
     for (const attendee of attendees) {
       // Should we have a bulk route here? That would make all the changes fail even if there is only one issue
-      const response = await updateRegistration(attendee, competition_id, {
+      const response = await updateRegistration(attendee, competitionInfo.id, {
         status,
       })
       responses.push(response)
