@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import React, { useContext, useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { Button, Checkbox, TextArea } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
@@ -9,7 +10,6 @@ import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
-import { useParams } from 'react-router-dom'
 
 export default function RegistrationEditor() {
   const { user_id } = useParams()

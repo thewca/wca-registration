@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { UiIcon } from '@thewca/wca-components'
 import React, { useContext } from 'react'
 import { Button } from 'semantic-ui-react'
@@ -5,7 +6,6 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
 import styles from './actions.module.scss'
-import { useMutation } from '@tanstack/react-query'
 
 export default function RegistrationActions({ selected, refresh }) {
   const { competitionInfo } = useContext(CompetitionContext)

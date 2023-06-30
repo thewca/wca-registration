@@ -1,15 +1,15 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import React, { useContext, useEffect, useState } from 'react'
 import { Button, TextArea } from 'semantic-ui-react'
 import { AuthContext } from '../../../api/helper/context/auth_context'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
-import submitEventRegistration from '../../../api/registration/post/submit_registration'
-import { setMessage } from '../../../ui/events/messages'
-import styles from './panel.module.scss'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
+import submitEventRegistration from '../../../api/registration/post/submit_registration'
+import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
+import styles from './panel.module.scss'
 
 export default function RegistrationPanel() {
   const { user } = useContext(AuthContext)
