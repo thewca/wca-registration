@@ -40,6 +40,7 @@ else
 
       resource '/jwt',
                headers: :any,
+               expose: %i[Authorization],
                methods: %i[get post put patch delete options head]
     end
   end
