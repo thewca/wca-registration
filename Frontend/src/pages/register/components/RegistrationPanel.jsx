@@ -6,7 +6,7 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
 import { setMessage } from '../../../ui/events/messages'
 import styles from './panel.module.scss'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
@@ -17,6 +17,7 @@ export default function RegistrationPanel() {
   const [comment, setComment] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
+  const queryClient = useQueryClient()
   const { data: registrationRequest, isLoading } = useQuery({
     queryKey: ['registration', user, competitionInfo.id],
     queryFn: () => getSingleRegistration(user, competitionInfo.id),
@@ -39,8 +40,9 @@ export default function RegistrationPanel() {
         'negative'
       )
     },
-    onSuccess: (_) => {
+    onSuccess: (data) => {
       setMessage('Registration update succeeded', 'positive')
+      queryClient.setQueryData(['registration', competitionInfo.id, user], data)
     },
   })
   const { mutate: createRegistrationMutation } = useMutation({
@@ -49,6 +51,8 @@ export default function RegistrationPanel() {
       setMessage('Registration failed with error: ' + data.error, 'negative')
     },
     onSuccess: (_) => {
+      // We can't update the registration yet, because there might be more steps needed
+      // And the Registration might still be processing
       setMessage('Registration submitted successfully', 'positive')
     },
   })
