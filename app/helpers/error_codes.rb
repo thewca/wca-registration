@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 module ErrorCodes
   # System Errors
   INVALID_TOKEN = -1
