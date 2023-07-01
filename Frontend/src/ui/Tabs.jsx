@@ -54,6 +54,18 @@ export default function PageTabs() {
         ),
         render: () => {},
       },
+      {
+        menuItem: (
+          <Menu.Item
+            key="tab-register"
+            onClick={() => navigate(`/${competitionInfo.id}/register`)}
+          >
+            <UiIcon name="sign in alt" />
+            Register
+          </Menu.Item>
+        ),
+        render: () => {},
+      },
     ]
   }, [competitionInfo.id, navigate, user])
   return (
