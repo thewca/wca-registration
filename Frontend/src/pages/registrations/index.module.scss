@@ -1,6 +1,9 @@
 .container {
-    display: flex;
-    align-content: center;
-    align-items: center;
-    flex-direction: column;
+    width: 1440px;
+}
+.list-header{
+    font-size: 32px;
+    margin-bottom: 32px;
+    margin-top: 32px;
+    padding: 10px;
 }

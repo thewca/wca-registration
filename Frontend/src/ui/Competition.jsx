@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Button, Image } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import { CompetitionContext } from '../api/helper/context/competition_context'
@@ -10,6 +10,7 @@ import LoadingMessage from './messages/loadingMessage'
 
 export default function Competition({ children }) {
   const { competition_id } = useParams()
+  const navigate = useNavigate()
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
     queryFn: () => getCompetitionInfo(competition_id),
@@ -42,7 +43,12 @@ export default function Competition({ children }) {
                   *Insert Potential organizer announcement or memo for users to
                   view before hitting register*
                 </div>
-                <Button className={styles.registerButton}>Register</Button>
+                <Button
+                  className={styles.registerButton}
+                  onClick={() => navigate(`/${competitionInfo.id}/register`)}
+                >
+                  Register
+                </Button>
                 <span className={styles.fee}>Registration Fee of $$$</span>
               </div>
               <div className={styles.infoRight}>

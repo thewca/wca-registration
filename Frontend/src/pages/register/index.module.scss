@@ -1,6 +1,26 @@
 .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    width: 1440px;
+}
+.registration-header{
+    margin-top: 10px;
+}
+.requirements{
+    margin-top: 10px;
+    .requirements-header{
+        font-size: 32px;
+        text-align: center;
+        margin-top: 30px;
+        font-weight: 700;
+    }
+    .requirementText{
+        margin-top: 30px;
+        font-weight: 500;
+        font-size: 24px;
+        background: #DDD;
+        border-radius: 28px;
+        margin-left: 12.5%;
+        padding: 30px;
+        width: 75%;
+        line-height: 3em;
+    }
 }

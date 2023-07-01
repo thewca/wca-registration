@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import React, { useContext } from 'react'
-import { Button } from 'semantic-ui-react'
+import { Button, Popup } from 'semantic-ui-react'
 import {
   CAN_ATTEND_COMPETITIONS,
   canAttendCompetitions,
@@ -15,6 +15,7 @@ import PermissionMessage from '../../ui/messages/permissionMessage'
 import RegistrationEditPanel from './components/RegistrationEditPanel'
 import RegistrationPanel from './components/RegistrationPanel'
 import styles from './index.module.scss'
+import { UiIcon } from '@thewca/wca-components'
 
 export default function Register() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -31,11 +32,62 @@ export default function Register() {
     </div>
   ) : (
     <div className={styles.container}>
+      <div className={styles.requirements}>
+        <div className={styles.requirementsHeader}>
+          Registration Requirements
+        </div>
+        <div className={styles.requirementText}>
+          <Popup
+            content="You need a WCA Account to register"
+            trigger={
+              <span>
+                WCA Account Required <UiIcon name="circle info" />
+              </span>
+            }
+          />
+          <br />
+          <Popup
+            content="Once the competitor Limit has been reached you will be put onto the waiting list"
+            trigger={
+              <span>
+                {competitionInfo.competitor_limit} Competitor Limit{' '}
+                <UiIcon name="circle info" />
+              </span>
+            }
+          />
+          <br />
+          <Popup
+            content="You will get a full refund before this date"
+            trigger={
+              <span>
+                Full Refund before{' '}
+                {new Date(
+                  competitionInfo.registration_close
+                ).toLocaleDateString()}
+                <UiIcon name="circle info" />
+              </span>
+            }
+          />
+          <br />
+          <Popup
+            content="You can edit your registration until this date"
+            trigger={
+              <span>
+                Edit Registration until{' '}
+                {new Date(
+                  competitionInfo.registration_close
+                ).toLocaleDateString()}
+                <UiIcon name="circle info" />
+              </span>
+            }
+          />
+        </div>
+      </div>
       {!loggedIn ? (
         <h2>You have to log in to Register for a Competition</h2>
       ) : (
         <>
-          <h2>Hi, {user}</h2>
+          <div className={styles.registrationHeader}>Hi, {user}</div>
           {canAttendCompetitions(user) ? (
             !registrationRequest.registration.registration_status ? (
               <>

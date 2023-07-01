@@ -17,7 +17,7 @@ import Competition from './ui/Competition'
 import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 import FlashMessage from './ui/messages/flashMessage'
-import PageSidebar from './ui/Sidebar'
+import PageTabs from './ui/Tabs'
 
 const router = createBrowserRouter([
   {
@@ -55,7 +55,7 @@ const router = createBrowserRouter([
         path: '/:competition_id',
         element: (
           <Competition>
-            {/*<PageTopBar />*/}
+            <PageTabs />
             <Outlet />
           </Competition>
         ),

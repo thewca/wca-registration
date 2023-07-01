@@ -121,13 +121,13 @@ export default function RegistrationAdministrationList() {
   )
 
   return isLoading ? (
-    <div className={styles.list}>
+    <div className={styles.listContainer}>
       <LoadingMessage />
     </div>
   ) : (
     <>
-      <div className={styles.list}>
-        <h2> Incoming registrations </h2>
+      <div className={styles.listContainer}>
+        <div className={styles.listHeader}> Incoming registrations </div>
         <RegistrationAdministrationTable
           registrations={waiting}
           add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
@@ -135,7 +135,7 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.waiting}
         />
-        <h2> Approved registrations </h2>
+        <div className={styles.listHeader}> Approved registrations </div>
         <RegistrationAdministrationTable
           registrations={accepted}
           add={(attendee) => dispatch({ type: 'add-accepted', attendee })}
@@ -143,7 +143,7 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.accepted}
         />
-        <h2> Deleted registrations </h2>
+        <div className={styles.listHeader}> Deleted registrations </div>
         <RegistrationAdministrationTable
           registrations={deleted}
           add={(attendee) => dispatch({ type: 'add-deleted', attendee })}
@@ -171,7 +171,7 @@ function RegistrationAdministrationTable({
   selected,
 }) {
   return (
-    <Table textAlign="left">
+    <Table textAlign="left" className={styles.list}>
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>

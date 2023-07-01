@@ -1,0 +1,67 @@
+import { UiIcon } from '@thewca/wca-components'
+import React, { useContext, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Menu, Tab } from 'semantic-ui-react'
+import { canAdminCompetition } from '../api/auth/get_permissions'
+import { AuthContext } from '../api/helper/context/auth_context'
+import { CompetitionContext } from '../api/helper/context/competition_context'
+
+export default function PageTabs() {
+  const { competitionInfo } = useContext(CompetitionContext)
+  const { user } = useContext(AuthContext)
+  const navigate = useNavigate()
+  const panes = useMemo(() => {
+    const adminPanes = []
+    if (canAdminCompetition(user, competitionInfo.id)) {
+      adminPanes.push({
+        menuItem: (
+          <Menu.Item
+            key="tab-registration"
+            onClick={() =>
+              navigate(`/${competitionInfo.id}/registrations/edit`)
+            }
+          >
+            <UiIcon name="list ul" />
+            Registrations
+          </Menu.Item>
+        ),
+        render: () => {},
+      })
+    }
+    return [
+      {
+        menuItem: (
+          <Menu.Item
+            key="tab-info"
+            onClick={() => navigate(`/${competitionInfo.id}`)}
+          >
+            <UiIcon name="info" />
+            General Info
+          </Menu.Item>
+        ),
+        render: () => {},
+      },
+      ...adminPanes,
+      {
+        menuItem: (
+          <Menu.Item
+            key="tab-Competitors"
+            onClick={() => navigate(`/${competitionInfo.id}/registrations`)}
+          >
+            <UiIcon name="users" />
+            Competitors
+          </Menu.Item>
+        ),
+        render: () => {},
+      },
+    ]
+  }, [competitionInfo.id, navigate, user])
+  return (
+    <Tab
+      panes={panes}
+      renderActiveOnly={true}
+      menu={{ secondary: true, pointing: true }}
+      defaultActiveIndex={0} //TODO figure out how to set this correctly based on the route
+    />
+  )
+}
