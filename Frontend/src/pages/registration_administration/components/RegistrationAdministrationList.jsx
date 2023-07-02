@@ -108,6 +108,10 @@ export default function RegistrationAdministrationList() {
   } = useQuery({
     queryKey: ['registrations-admin', competitionInfo.id],
     queryFn: () => getAllRegistrations(competitionInfo.id),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+    refetchOnMount: 'always',
   })
   const [selected, dispatch] = useReducer(reducer, {
     waiting: [],

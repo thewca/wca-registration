@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import React, { useContext, useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { Button, Checkbox, TextArea } from 'semantic-ui-react'
-import { AuthContext } from '../../../api/helper/context/auth_context'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
@@ -12,21 +12,41 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
 
 export default function RegistrationEditor() {
-  const { user } = useContext(AuthContext)
+  const { user_id } = useParams()
   const { competitionInfo } = useContext(CompetitionContext)
   const [comment, setComment] = useState('')
   const [status, setStatus] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
+  const queryClient = useQueryClient()
   const { data: serverRegistration } = useQuery({
-    queryKey: [competitionInfo.id, user],
-    queryFn: () => getSingleRegistration(user, competitionInfo.id),
+    queryKey: ['registration', competitionInfo.id, user_id],
+    queryFn: () => getSingleRegistration(user_id, competitionInfo.id),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+    refetchOnMount: 'always',
   })
   const { isLoading, data: competitorInfo } = useQuery({
-    queryKey: ['info', user],
-    queryFn: () => getCompetitorInfo(user),
+    queryKey: ['info', user_id],
+    queryFn: () => getCompetitorInfo(user_id),
   })
-
+  const { mutate: updateRegistrationMutation } = useMutation({
+    mutationFn: updateRegistration,
+    onError: (data) => {
+      setMessage(
+        'Registration update failed with error: ' + data.error,
+        'negative'
+      )
+    },
+    onSuccess: (data) => {
+      setMessage('Registration update succeeded', 'positive')
+      queryClient.setQueryData(
+        ['registration', competitionInfo.id, user_id],
+        data
+      )
+    },
+  })
   useEffect(() => {
     if (serverRegistration) {
       setRegistration(serverRegistration.registration)
@@ -89,21 +109,12 @@ export default function RegistrationEditor() {
           <Button
             onClick={() => {
               setMessage('Updating Registration', 'basic')
-              updateRegistration(user, competitionInfo.id, {
+              updateRegistrationMutation({
+                user_id,
+                competition_id: competitionInfo.id,
                 status,
-                eventIds: selectedEvents,
+                event_id: selectedEvents,
                 comment,
-              }).then((response) => {
-                if (response.error) {
-                  setMessage(
-                    'Updating Registration failed with error: ' +
-                      response.error,
-                    'negative'
-                  )
-                } else {
-                  setMessage('Successfully updated Registration', 'positive')
-                  setRegistration(response.registration)
-                }
               })
             }}
           >
