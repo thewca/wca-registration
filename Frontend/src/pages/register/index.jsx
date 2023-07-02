@@ -1,3 +1,4 @@
+import { UiIcon } from '@thewca/wca-components'
 import React, { useContext } from 'react'
 import { Popup } from 'semantic-ui-react'
 import {
@@ -5,13 +6,14 @@ import {
   canAttendCompetitions,
 } from '../../api/auth/get_permissions'
 import { AuthContext } from '../../api/helper/context/auth_context'
+import { CompetitionContext } from '../../api/helper/context/competition_context'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import RegistrationPanel from './components/RegistrationPanel'
 import styles from './index.module.scss'
-import { UiIcon } from '@thewca/wca-components'
 
 export default function Register() {
   const { user } = useContext(AuthContext)
+  const { competitionInfo } = useContext(CompetitionContext)
   const loggedIn = user !== null
 
   return (

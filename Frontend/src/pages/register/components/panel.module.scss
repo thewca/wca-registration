@@ -1,3 +1,92 @@
 .panel{
   margin-top: 10px;
 }
+.registration-greeting{
+  text-align: center;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin-bottom: 20px;
+}
+.registration-heading{
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  text-align: center;
+}
+.divider{
+  font-size: 20px !important;
+  border-top: 1px solid rgba(34, 36, 38,1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 1) !important;
+  width: 90%;
+  margin-left: 5% !important;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+.registration-row{
+  display: flex;
+  flex-direction: row;
+  text-align: right;
+  margin-top: 35px;
+  margin-left: 6%;
+  .event-selection-text{
+    width: 15%;
+  }
+  .event-selection-heading{
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin-bottom: 10px;
+  }
+  .event-selection-sub-text{
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+  }
+  .event-selector-wrapper{
+    width: 80%;
+    margin-left: 5%;
+  }
+  .comment-wrapper{
+    width: 80%;
+    margin-left: 5%;
+    text-align: left;
+    textarea{
+      width: 80%;
+      resize: none;
+      height: 100%;
+      border-radius: 20px;
+      border-color: black;
+      padding: 7px;
+    }
+  }
+  .registration-button-wrapper{
+    width: 50%;
+    background-color: #CDCCCC;
+    margin-left: 25%;
+    border-radius: 20px;
+    text-align: center;
+    .registration-warning{
+      margin-top: 20px;
+      margin-bottom: 20px;
+      line-height: 40px;
+      text-align: center;
+      background-color: white;
+      color: #D55125;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 700;
+    }
+    .registration-button{
+      width: 55%;
+      background-color: #D55125 !important;
+      color: white !important;
+      margin-bottom: 20px;
+      font-size: 32px !important;
+    }
+  }
+}
