@@ -21,41 +21,47 @@ export default function RegistrationPanel() {
   const { data: registrationRequest, isLoading } = useQuery({
     queryKey: ['registration', user, competitionInfo.id],
     queryFn: () => getSingleRegistration(user, competitionInfo.id),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+    refetchOnMount: 'always',
   })
   useEffect(() => {
-    if (
-      registrationRequest &&
-      registrationRequest.registration.registration_status
-    ) {
+    if (registrationRequest?.registration.registration_status) {
       setRegistration(registrationRequest.registration)
       setComment(registrationRequest.registration.comment)
       setSelectedEvents(registrationRequest.registration.event_ids)
     }
   }, [registrationRequest])
-  const { mutate: updateRegistrationMutation } = useMutation({
-    mutationFn: updateRegistration,
-    onError: (data) => {
-      setMessage(
-        'Registration update failed with error: ' + data.error,
-        'negative'
-      )
-    },
-    onSuccess: (data) => {
-      setMessage('Registration update succeeded', 'positive')
-      queryClient.setQueryData(['registration', competitionInfo.id, user], data)
-    },
-  })
-  const { mutate: createRegistrationMutation } = useMutation({
-    mutationFn: submitEventRegistration,
-    onError: (data) => {
-      setMessage('Registration failed with error: ' + data.error, 'negative')
-    },
-    onSuccess: (_) => {
-      // We can't update the registration yet, because there might be more steps needed
-      // And the Registration might still be processing
-      setMessage('Registration submitted successfully', 'positive')
-    },
-  })
+  const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
+    useMutation({
+      mutationFn: updateRegistration,
+      onError: (data) => {
+        setMessage(
+          'Registration update failed with error: ' + data.error,
+          'negative'
+        )
+      },
+      onSuccess: (data) => {
+        setMessage('Registration update succeeded', 'positive')
+        queryClient.setQueryData(
+          ['registration', competitionInfo.id, user],
+          data
+        )
+      },
+    })
+  const { mutate: createRegistrationMutation, isLoading: isCreating } =
+    useMutation({
+      mutationFn: submitEventRegistration,
+      onError: (data) => {
+        setMessage('Registration failed with error: ' + data.error, 'negative')
+      },
+      onSuccess: (_) => {
+        // We can't update the registration yet, because there might be more steps needed
+        // And the Registration might still be processing
+        setMessage('Registration submitted successfully', 'positive')
+      },
+    })
 
   return isLoading ? (
     <LoadingMessage />
@@ -64,7 +70,8 @@ export default function RegistrationPanel() {
       {registration.registration_status ? (
         <>
           <h3>You have registered for {competitionInfo.name}</h3>
-          {/* Really weird bug here: Only if I have the console.log statement here (or any other statement referencing it), initialSelected, will work correctly?? */}
+          {/* Really weird bug here: Only if I have the console.log statement here (or any other statement referencing it), initialSelected will work correctly?? */}
+          {/* This will be fixed by changing eventSelector in wca-components to not maintain its own state */}
           {/* eslint-disable-next-line no-console */}
           {console.log(registration.event_ids)}
           <EventSelector
@@ -93,6 +100,7 @@ export default function RegistrationPanel() {
       {registration.registration_status ? (
         <>
           <Button
+            disabled={isUpdating}
             color="blue"
             onClick={() => {
               setMessage('Registration is being updated', 'basic')
@@ -107,6 +115,7 @@ export default function RegistrationPanel() {
             Update Registration
           </Button>
           <Button
+            disabled={isUpdating}
             negative
             onClick={() => {
               setMessage('Registration is being deleted', 'basic')
@@ -123,6 +132,7 @@ export default function RegistrationPanel() {
         </>
       ) : (
         <Button
+          disabled={isCreating}
           onClick={async () => {
             setMessage('Registration is being processed', 'basic')
             createRegistrationMutation({

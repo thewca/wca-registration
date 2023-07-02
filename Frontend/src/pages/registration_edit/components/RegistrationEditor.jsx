@@ -22,6 +22,10 @@ export default function RegistrationEditor() {
   const { data: serverRegistration } = useQuery({
     queryKey: ['registration', competitionInfo.id, user_id],
     queryFn: () => getSingleRegistration(user_id, competitionInfo.id),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+    refetchOnMount: 'always',
   })
   const { isLoading, data: competitorInfo } = useQuery({
     queryKey: ['info', user_id],
