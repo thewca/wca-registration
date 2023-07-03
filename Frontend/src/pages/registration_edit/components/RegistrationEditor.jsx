@@ -64,10 +64,8 @@ export default function RegistrationEditor() {
         <div>
           <h2>{competitorInfo.user.name}</h2>
           <EventSelector
-            handleEventSelection={(events) => {
-              setSelectedEvents(events)
-            }}
-            initialSelected={registration.event_ids}
+            handleEventSelection={setSelectedEvents}
+            selected={selectedEvents}
             events={competitionInfo.event_ids}
             size="2x"
           />

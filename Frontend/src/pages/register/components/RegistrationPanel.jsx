@@ -72,10 +72,6 @@ export default function RegistrationPanel() {
           <div className={styles.registrationGreeting}>
             You have registered for {competitionInfo.name}
           </div>
-          {/* Really weird bug here: Only if I have the console.log statement here (or any other statement referencing it), initialSelected will work correctly?? */}
-          {/* This will be fixed by changing eventSelector in wca-components to not maintain its own state */}
-          {/* eslint-disable-next-line no-console */}
-          {console.log(registration.event_ids)}
           <Divider className={styles.divider} />
           <div className={styles.registrationRow}>
             <div className={styles.eventSelectionText}>
@@ -91,7 +87,7 @@ export default function RegistrationPanel() {
               <EventSelector
                 handleEventSelection={setSelectedEvents}
                 events={competitionInfo.event_ids}
-                initialSelected={registration.event_ids}
+                selected={selectedEvents}
                 size="2x"
               />
             </div>
@@ -120,7 +116,7 @@ export default function RegistrationPanel() {
               <EventSelector
                 handleEventSelection={setSelectedEvents}
                 events={competitionInfo.event_ids}
-                initialSelected={[]}
+                selected={selectedEvents}
                 size="2x"
               />
             </div>
