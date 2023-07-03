@@ -5,6 +5,7 @@ import { Menu, Tab } from 'semantic-ui-react'
 import { canAdminCompetition } from '../api/auth/get_permissions'
 import { AuthContext } from '../api/helper/context/auth_context'
 import { CompetitionContext } from '../api/helper/context/competition_context'
+import styles from './tabs.module.scss'
 
 export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -17,6 +18,7 @@ export default function PageTabs() {
         menuItem: (
           <Menu.Item
             key="tab-registration"
+            className={styles.tabItem}
             onClick={() =>
               navigate(`/${competitionInfo.id}/registrations/edit`)
             }
@@ -33,6 +35,7 @@ export default function PageTabs() {
         menuItem: (
           <Menu.Item
             key="tab-info"
+            className={styles.tabItem}
             onClick={() => navigate(`/${competitionInfo.id}`)}
           >
             <UiIcon name="info" />
@@ -46,6 +49,7 @@ export default function PageTabs() {
         menuItem: (
           <Menu.Item
             key="tab-Competitors"
+            className={styles.tabItem}
             onClick={() => navigate(`/${competitionInfo.id}/registrations`)}
           >
             <UiIcon name="users" />
@@ -58,6 +62,7 @@ export default function PageTabs() {
         menuItem: (
           <Menu.Item
             key="tab-register"
+            className={styles.tabItem}
             onClick={() => navigate(`/${competitionInfo.id}/register`)}
           >
             <UiIcon name="sign in alt" />

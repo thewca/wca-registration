@@ -1,27 +1,26 @@
-.container {
-    width: 1440px;
-}
+@import '../../style/font-sizes';
+@import '../../style/margins';
 .registration-header{
-    margin-top: 10px;
+    margin-top: $single-margin;
+    margin-bottom: $double-margin;
     text-align: center;
-    font-size: 20px;
-    font-style: normal;
+    font-size: $sub-header-size;
     font-weight: 700;
     line-height: normal;
-    margin-bottom: 20px;
 }
 .requirements{
-    margin-top: 10px;
+    margin-top: $single-margin;
+    margin-bottom: $double-margin;
     .requirements-header{
-        font-size: 32px;
+        font-size: $header-size;
         text-align: center;
-        margin-top: 30px;
+        margin-top: $triple-margin;
         font-weight: 700;
     }
     .requirementText{
-        margin-top: 30px;
+        margin-top: $triple-margin;
         font-weight: 500;
-        font-size: 24px;
+        font-size: $sub-header-size;
         background: #DDD;
         border-radius: 28px;
         margin-left: 5%;

@@ -1,6 +1,8 @@
+@import '../style/font-sizes';
+@import '../style/margins';
 .competition-info{
-  flex-shrink: 0;
-  margin-bottom: 15px;
+  margin-bottom: $double-margin;
+  line-height: normal;
 }
 .open{
   color: #007E0D;
@@ -9,82 +11,59 @@
   display: flex;
   border-radius: 39px;
   background: #EBEBEB;
-  width: 1398px;
-  height: 446px;
   padding: 30px;
 }
 .announcement{
   background-color: rgba(255, 92, 0, 0.3);
   padding: 18px;
   border-radius: 18px;
-  width: 898px;
-  height: 97px;
-  flex-shrink: 0;
-  font-size: 22px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
+  font-size: $sub-header-size;
 }
 .location{
   color: #000;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  margin-bottom: 22px;
+  font-size: $sub-header-size;
+  margin-bottom: $double-margin;
 }
 .date{
   color: #000;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  margin-bottom: 26px;
+  font-size: $sub-header-size;
+  margin-bottom: $double-margin;
 }
 .competition-name{
-  width: 533px;
-  height: 50px;
-  font-size: 32px;
-  font-style: normal;
+  font-size: $header-size;
   font-weight: 700;
-  line-height: normal;
-  margin-bottom: 15px;
+  margin-bottom: $double-margin;
 }
 .register-button{
   background-color: #D55125 !important;
   color: white !important;
-  margin: 10px !important;
+  margin: $single-margin !important;
   width: 244px !important;
-  font-size: 32px !important;
+  font-size: $header-size !important;
   border-radius: 12px !important;
 }
 .fee{
-  font-size: 24px;
+  font-size: $sub-header-size;
+  margin-left: $single-margin;
 }
 .image{
-  width: 363px;
-  height: 363px;
+  width: 14vw;
+  height: 100%;
   border-radius: 26px;
   border: 7px solid #000;
   background: #6C6B6B !important;
-  margin-left: 70px;
+  margin-left: 5%;
 }
 .event-list{
   padding: 30px;
-  font-size: 24px;
+  font-size: $sub-header-size;
   .event-header{
-    margin-right: 10px;
+    margin-right: $single-margin;
   }
   div{
-    margin-top: 23px;
+    margin-top: $double-margin;
   }
 }
 .event{
-  margin-left: 10px;
-}
-.info-left{
-  display: block;
-}
-.info-right{
-  display: block;
+  margin-left: $single-margin;
 }

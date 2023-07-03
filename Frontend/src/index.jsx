@@ -18,6 +18,7 @@ import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 import FlashMessage from './ui/messages/flashMessage'
 import PageTabs from './ui/Tabs'
+import { Container } from 'semantic-ui-react'
 
 const router = createBrowserRouter([
   {
@@ -54,10 +55,12 @@ const router = createBrowserRouter([
       {
         path: '/:competition_id',
         element: (
-          <Competition>
-            <PageTabs />
-            <Outlet />
-          </Competition>
+          <Container>
+            <Competition>
+              <PageTabs />
+              <Outlet />
+            </Competition>
+          </Container>
         ),
         children: [
           {

@@ -17,7 +17,7 @@ export default function Register() {
   const loggedIn = user !== null
 
   return (
-    <div className={styles.container}>
+    <div>
       <div className={styles.requirements}>
         <div className={styles.requirementsHeader}>
           Registration Requirements

@@ -1,50 +1,46 @@
+@import '../../../style/font-sizes';
+@import '../../../style/margins';
 .panel{
-  margin-top: 10px;
+  margin-top: $single-margin;
 }
 .registration-greeting{
   text-align: center;
-  font-size: 20px;
-  font-style: normal;
+  font-size: $sub-header-size;
   font-weight: 700;
   line-height: normal;
-  margin-bottom: 20px;
+  margin-bottom: $double-margin;
 }
 .registration-heading{
-  font-size: 24px;
-  font-style: normal;
+  font-size: $sub-header-size;
   font-weight: 700;
   line-height: normal;
   text-align: center;
 }
 .divider{
-  font-size: 20px !important;
-  border-top: 1px solid rgba(34, 36, 38,1) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 1) !important;
+  border-top: 2px solid rgba(34, 36, 38,1) !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 1) !important;
   width: 90%;
   margin-left: 5% !important;
-  margin-top: 10px;
-  margin-bottom: 20px;
+  margin-top: $single-margin;
+  margin-bottom: $double-margin;
 }
 .registration-row{
   display: flex;
   flex-direction: row;
   text-align: right;
-  margin-top: 35px;
+  margin-top: $triple-margin;
   margin-left: 6%;
   .event-selection-text{
     width: 15%;
   }
   .event-selection-heading{
-    font-size: 24px;
-    font-style: normal;
+    font-size: $sub-header-size;
     font-weight: 700;
     line-height: normal;
-    margin-bottom: 10px;
+    margin-bottom: $single-margin;
   }
   .event-selection-sub-text{
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
+    font-size: $text-size;
     line-height: normal;
   }
   .event-selector-wrapper{
@@ -56,7 +52,7 @@
     margin-left: 5%;
     text-align: left;
     textarea{
-      width: 80%;
+      width: 95%;
       resize: none;
       height: 100%;
       border-radius: 20px;
@@ -65,28 +61,27 @@
     }
   }
   .registration-button-wrapper{
-    width: 50%;
+    width: 60%;
     background-color: #CDCCCC;
-    margin-left: 25%;
+    margin-left: 20%;
     border-radius: 20px;
     text-align: center;
     .registration-warning{
-      margin-top: 20px;
-      margin-bottom: 20px;
+      margin-top: $double-margin;
+      margin-bottom: $double-margin;
       line-height: 40px;
       text-align: center;
       background-color: white;
       color: #D55125;
-      font-size: 20px;
-      font-style: normal;
+      font-size: $sub-header-size;
       font-weight: 700;
     }
     .registration-button{
       width: 55%;
       background-color: #D55125 !important;
       color: white !important;
-      margin-bottom: 20px;
-      font-size: 32px !important;
+      margin-bottom: $double-margin;
+      font-size: $header-size !important;
     }
   }
 }
