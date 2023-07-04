@@ -1,6 +1,9 @@
+@import '../../style/font-sizes';
+@import '../../style/margins';
+
 .information{
-  margin-top: 13px;
-  font-size: 24px;
+  margin-top: $single-margin;
+  font-size: $sub-header-size;
   line-height: 1.3em;
   h2{
     margin-bottom: 1em;
@@ -10,8 +13,8 @@
   padding: 30px;
 }
 .registration-period{
-  margin-top: 13px;
-  font-size: 24px;
+  margin-top: $single-margin;
+  font-size: $sub-header-size;
   line-height: 1.3em;
   h2{
     margin-bottom: 1em;

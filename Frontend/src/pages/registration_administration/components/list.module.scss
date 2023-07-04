@@ -1,15 +1,18 @@
+@import '../../../style/font-sizes';
+@import '../../../style/margins';
+@import '../../../style/colors';
 .list {
   border-radius: 23px;
-  background-color: #D9D9D9;
+  background-color: $background-grey;
   border-width: 10px;
   padding: 10px;
 }
 .list-container{
-  margin-top: 20px;
+  margin-top: $double-margin;
 }
 .list-header{
-  font-size: 32px;
-  margin-top: 32px;
-  margin-bottom: 32px;
+  font-size: $header-size;
+  margin-top: $triple-margin;
+  margin-bottom: $triple-margin;
 }
 

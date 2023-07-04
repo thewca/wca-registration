@@ -1,6 +1,8 @@
+@import '../../../style/colors';
+
 .list {
   border-radius: 23px;
-  background: #D9D9D9;
+  background: $background-grey;
   border-width: 10px;
   padding: 10px;
 }
