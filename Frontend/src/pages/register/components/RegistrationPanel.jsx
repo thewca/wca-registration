@@ -40,7 +40,7 @@ export default function RegistrationPanel() {
       mutationFn: updateRegistration,
       onError: (data) => {
         setMessage(
-          'Registration update failed with error: ' + data.error,
+          'Registration update failed with error: ' + data.message,
           'negative'
         )
       },
@@ -56,7 +56,10 @@ export default function RegistrationPanel() {
     useMutation({
       mutationFn: submitEventRegistration,
       onError: (data) => {
-        setMessage('Registration failed with error: ' + data.error, 'negative')
+        setMessage(
+          'Registration failed with error: ' + data.message,
+          'negative'
+        )
       },
       onSuccess: (_) => {
         // We can't update the registration yet, because there might be more steps needed
