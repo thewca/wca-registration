@@ -1,17 +1,23 @@
-import React from 'react'
-import { useParams } from 'react-router-dom'
-import RegistrationEditor from './components/registrationEditor'
+import React, { useContext } from 'react'
+import {
+  CAN_ADMINISTER_COMPETITIONS,
+  canAdminCompetition,
+} from '../../api/auth/get_permissions'
+import { AuthContext } from '../../api/helper/context/auth_context'
+import { CompetitionContext } from '../../api/helper/context/competition_context'
+import PermissionMessage from '../../ui/messages/permissionMessage'
+import RegistrationEditor from './components/RegistrationEditor'
 import styles from './index.module.scss'
 
 export default function RegistrationEdit() {
-  const { competition_id, user_id } = useParams()
-  const loggedIn = localStorage.getItem('user_id') !== null
+  const { competitionInfo } = useContext(CompetitionContext)
+  const { user } = useContext(AuthContext)
   return (
     <div className={styles.container}>
-      {loggedIn ? (
-        <RegistrationEditor competition_id={competition_id} user_id={user_id} />
+      {canAdminCompetition(user, competitionInfo.id) ? (
+        <RegistrationEditor />
       ) : (
-        <span>Please log in first to use this feature</span>
+        <PermissionMessage permissionLevel={CAN_ADMINISTER_COMPETITIONS} />
       )}
     </div>
   )

@@ -1,38 +1,31 @@
-import { ErrorResponse } from '../types'
+import { JWT_KEY, USER_KEY } from '../../ui/App'
+import { BackendError } from '../helper/backend_fetch'
+import { USER_NOT_LOGGED_IN } from '../helper/error_codes'
 
-export interface SuccessfulResponse {
-  token: string
-  error: false
-}
+export async function getJWT(reauthenticate = false): Promise<string> {
+  // the jwt token is cached in local storage, if it has expired, we need to reauthenticate
+  const cachedToken = localStorage.getItem(JWT_KEY)
+  const user = localStorage.getItem(USER_KEY)
+  if (user === null) {
+    throw new BackendError(USER_NOT_LOGGED_IN, 401)
+  }
 
-const JWT_STORAGE_KEY = 'jwt'
-
-export async function getJWT(
-  reauthenticate = false
-): Promise<ErrorResponse | SuccessfulResponse> {
-  // cache the jwt token, if it has expired we just need to reauthenticate
-  const cachedToken = localStorage.getItem(JWT_STORAGE_KEY)
   if (reauthenticate || cachedToken === null) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore AUTH_URL is injected at build time
-      const response = await fetch(
-        `${process.env.AUTH_URL}?user_id=${localStorage.getItem('user_id')}`
-      )
-      if (response.ok) {
-        const token = response.headers.get('authorization')
-        if (token !== null) {
-          localStorage.setItem(JWT_STORAGE_KEY, token)
-          return { token, error: false }
-        }
-        // This should not happen, but I am throwing an error here regardless
-        return { error: 'Did not receive a token', statusCode: 500 }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore AUTH_URL is injected at build time
+    const response = await fetch(`${process.env.AUTH_URL}?user_id=${user}`)
+    const body = await response.json()
+    if (response.ok) {
+      const token = response.headers.get('authorization')
+      if (token !== null) {
+        localStorage.setItem(JWT_KEY, token)
+        return token
       }
-      return { error: response.statusText, statusCode: response.status }
-    } catch ({ name, message }) {
-      return { error: `Error ${name}: ${message}`, statusCode: 500 }
+      // This should not happen, but I am throwing an error here regardless
+      throw new BackendError(body.error, 500)
     }
+    throw new BackendError(body.error, response.status)
   } else {
-    return { token: cachedToken, error: false }
+    return cachedToken
   }
 }

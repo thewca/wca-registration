@@ -1,10 +1,11 @@
+import { useQuery } from '@tanstack/react-query'
 import { FlagIcon } from '@thewca/wca-components'
-import React, { useEffect, useMemo, useReducer, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import React, { useContext, useMemo, useReducer } from 'react'
+import { Link } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
+import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
-import getCompetitorInfo from '../../../api/user/get/get_user_info'
-import LoadingMessage from '../../../ui/loadingMessage'
+import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
 
@@ -99,75 +100,68 @@ const partitionRegistrations = (registrations) => {
 }
 
 export default function RegistrationAdministrationList() {
-  const { competition_id } = useParams()
-  const [registrations, setRegistrations] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { competitionInfo } = useContext(CompetitionContext)
+  const {
+    isLoading,
+    data: registrations,
+    refetch,
+  } = useQuery({
+    queryKey: ['registrations-admin', competitionInfo.id],
+    queryFn: () => getAllRegistrations(competitionInfo.id),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+    refetchOnMount: 'always',
+  })
   const [selected, dispatch] = useReducer(reducer, {
     waiting: [],
     accepted: [],
     deleted: [],
   })
-  const fetchData = async (competition_id) => {
-    const registrations = await getAllRegistrations(competition_id)
-    const regList = []
-    for (const registration of registrations) {
-      registration.user = (await getCompetitorInfo(registration.user_id)).user
-      regList.push(registration)
-    }
-    return regList
-  }
-  useEffect(() => {
-    fetchData(competition_id).then((registrations) => {
-      setRegistrations(registrations)
-      setIsLoading(false)
-    })
-  }, [competition_id])
 
   const { waiting, accepted, deleted } = useMemo(
-    () => partitionRegistrations(registrations),
+    () => partitionRegistrations(registrations ?? []),
     [registrations]
   )
 
   return isLoading ? (
-    <div className={styles.list}>
+    <div className={styles.listContainer}>
       <LoadingMessage />
     </div>
   ) : (
     <>
-      <div className={styles.list}>
-        <h2> Incoming registrations </h2>
+      <div className={styles.listContainer}>
+        <div className={styles.listHeader}> Incoming registrations </div>
         <RegistrationAdministrationTable
           registrations={waiting}
           add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
           remove={(attendee) => dispatch({ type: 'remove-waiting', attendee })}
-          competition_id={competition_id}
+          competition_id={competitionInfo.id}
           selected={selected.waiting}
         />
-        <h2> Approved registrations </h2>
+        <div className={styles.listHeader}> Approved registrations </div>
         <RegistrationAdministrationTable
           registrations={accepted}
           add={(attendee) => dispatch({ type: 'add-accepted', attendee })}
           remove={(attendee) => dispatch({ type: 'remove-accepted', attendee })}
-          competition_id={competition_id}
+          competition_id={competitionInfo.id}
           selected={selected.accepted}
         />
-        <h2> Deleted registrations </h2>
+        <div className={styles.listHeader}> Deleted registrations </div>
         <RegistrationAdministrationTable
           registrations={deleted}
           add={(attendee) => dispatch({ type: 'add-deleted', attendee })}
           remove={(attendee) => dispatch({ type: 'remove-deleted', attendee })}
-          competition_id={competition_id}
+          competition_id={competitionInfo.id}
           selected={selected.deleted}
         />
       </div>
       <RegistrationActions
         selected={selected}
-        refresh={() =>
-          fetchData(competition_id).then((registrations) => {
-            setRegistrations(registrations)
-            dispatch({ type: 'clear-selected' })
-          })
-        }
+        refresh={async () => {
+          await refetch()
+          dispatch({ type: 'clear-selected' })
+        }}
       />
     </>
   )
@@ -181,7 +175,7 @@ function RegistrationAdministrationTable({
   selected,
 }) {
   return (
-    <Table textAlign="left">
+    <Table textAlign="left" className={styles.list}>
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>

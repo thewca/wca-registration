@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Message } from 'semantic-ui-react'
-import Bus from './events/Bus'
+import Bus from '../events/Bus'
 import styles from './flash.module.scss'
 
 export default function FlashMessage() {

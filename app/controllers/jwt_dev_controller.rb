@@ -7,10 +7,10 @@ class JwtDevController < ApplicationController
     # These are all the fields that the monolith jwt tokens set from https://github.com/jwt/ruby-jwt
     user_id = params[:user_id] || "15073"
     iat = Time.now.to_i
-    jti_raw = [JWTOptions.secret, iat].join(':').to_s
+    jti_raw = [JwtOptions.secret, iat].join(':').to_s
     jti = Digest::MD5.hexdigest(jti_raw)
-    payload = { data: { user_id: user_id }, exp: Time.now.to_i + JWTOptions.expiry, sub: user_id, iat: iat, jti: jti }
-    token = JWT.encode payload, JWTOptions.secret, JWTOptions.algorithm
+    payload = { data: { user_id: user_id }, exp: Time.now.to_i + JwtOptions.expiry, sub: user_id, iat: iat, jti: jti }
+    token = JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
     response.set_header("Authorization", "Bearer: #{token}")
     render json: { status: 'ok' }, status: :ok
   end

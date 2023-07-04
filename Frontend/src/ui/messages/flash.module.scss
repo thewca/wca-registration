@@ -1,0 +1,17 @@
+@import '../../style/font-sizes';
+
+.message{
+  position: fixed !important;
+  font-size: $sub-header-size !important;
+  z-index: 100000;
+  width: 20vw;
+  top: 10vh;
+  left: 40vw;
+  text-align: center;
+}
+.visible{
+  display: block;
+}
+.invisible{
+  display: none;
+}

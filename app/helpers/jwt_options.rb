@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module JWTOptions
+module JwtOptions
   class << self
     attr_accessor :secret, :algorithm, :expiry
   end
