@@ -5,6 +5,7 @@ import '@thewca/wca-components/dist/index.esm.css'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
+import { Container } from 'semantic-ui-react'
 import HomePage from './pages/home'
 import Register from './pages/register'
 import RegistrationAdministration from './pages/registration_administration'
@@ -18,7 +19,6 @@ import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 import FlashMessage from './ui/messages/flashMessage'
 import PageTabs from './ui/Tabs'
-import { Container } from 'semantic-ui-react'
 
 const router = createBrowserRouter([
   {
