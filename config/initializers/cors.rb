@@ -22,11 +22,11 @@ if Rails.env.development? || Rails.env.test?
 else
   Rails.application.config.middleware.insert_before 0, Rack::Cors do
     allow do
-      origins 'https://www.worldcubeassociation.org', 'https://test-registration.worldcubeassociation.org'
+      origins 'https://www.worldcubeassociation.org', 'https://test-registration.worldcubeassociation.org', 'https://staging-registration.worldcubeassociation.org'
 
       resource '*',
                headers: :any,
-               expose: ['Authorization'],
+               expose: %i[Authorization],
                methods: %i[get post put patch delete options head]
     end
     allow do
@@ -41,7 +41,6 @@ else
 
       resource '/jwt',
                headers: :any,
-               expose: ['Authorization'],
                methods: %i[get post put patch delete options head]
     end
   end
