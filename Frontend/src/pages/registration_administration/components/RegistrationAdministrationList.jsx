@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { FlagIcon } from '@thewca/wca-components'
+import { FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
@@ -195,7 +195,10 @@ function RegistrationAdministrationTable({
           <Table.HeaderCell>Citizen of</Table.HeaderCell>
           <Table.HeaderCell>Registered on</Table.HeaderCell>
           <Table.HeaderCell>Number of Events</Table.HeaderCell>
+          <Table.HeaderCell>Guests</Table.HeaderCell>
           <Table.HeaderCell>Comment</Table.HeaderCell>
+          <Table.HeaderCell>Administrative notes</Table.HeaderCell>
+          <Table.HeaderCell>Email</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -254,7 +257,16 @@ function RegistrationAdministrationTable({
                   />
                 </Table.Cell>
                 <Table.Cell>{registration.event_ids.length}</Table.Cell>
+                <Table.Cell>{registration.guests}</Table.Cell>
                 <Table.Cell>{registration.comment}</Table.Cell>
+                <Table.Cell>{registration.admin_comment}</Table.Cell>
+                <Table.Cell>
+                  <a
+                    href={`mailto:${registration.user_id}@worldcubeassociation.org`}
+                  >
+                    <UiIcon name="mail" />
+                  </a>
+                </Table.Cell>
               </Table.Row>
             )
           })

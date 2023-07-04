@@ -27,7 +27,8 @@ class RegistrationProcessor
       event_registration(message['competition_id'],
                          message['user_id'],
                          message['step_details']['event_ids'],
-                         message['step_details']['comment'])
+                         message['step_details']['comment'],
+                         message['step_details']['guests'])
     end
   end
 
@@ -40,14 +41,13 @@ class RegistrationProcessor
       empty_registration.save!
     end
 
-    def event_registration(competition_id, user_id, event_ids, comment)
+    def event_registration(competition_id, user_id, event_ids, comment, guests)
       registration = Registration.find("#{competition_id}-#{user_id}")
-      competing_lane = LaneFactory.competing_lane(event_ids, comment)
+      competing_lane = LaneFactory.competing_lane(event_ids, comment, guests)
       if registration.lanes.nil?
         registration.update_attributes(lanes: [competing_lane])
       else
         registration.update_attributes(lanes: registration.lanes.append(competing_lane))
       end
-      registration.save!
     end
 end
