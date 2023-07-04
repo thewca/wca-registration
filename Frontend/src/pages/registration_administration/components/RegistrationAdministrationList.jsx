@@ -175,7 +175,7 @@ function RegistrationAdministrationTable({
   selected,
 }) {
   return (
-    <Table textAlign="left" className={styles.list}>
+    <Table textAlign="left" className={styles.list} singleLine>
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>
@@ -258,8 +258,16 @@ function RegistrationAdministrationTable({
                 </Table.Cell>
                 <Table.Cell>{registration.event_ids.length}</Table.Cell>
                 <Table.Cell>{registration.guests}</Table.Cell>
-                <Table.Cell>{registration.comment}</Table.Cell>
-                <Table.Cell>{registration.admin_comment}</Table.Cell>
+                <Table.Cell title={registration.comment}>
+                  {registration?.comment?.length > 12
+                    ? registration.comment.slice(0, 12) + '...'
+                    : registration.comment}
+                </Table.Cell>
+                <Table.Cell title={registration.admin_comment}>
+                  {registration?.admin_comment?.length > 12
+                    ? registration.admin_comment.slice(0, 12) + '...'
+                    : registration.admin_comment}
+                </Table.Cell>
                 <Table.Cell>
                   <a
                     href={`mailto:${registration.user_id}@worldcubeassociation.org`}
