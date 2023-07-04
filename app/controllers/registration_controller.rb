@@ -98,7 +98,7 @@ class RegistrationController < ApplicationController
         registration_status: 'waiting',
         event_ids: @event_ids,
         comment: comment,
-        guests: guests
+        guests: guests,
       },
     }
 
@@ -139,7 +139,7 @@ class RegistrationController < ApplicationController
         registered_on: updated_registration["created_at"],
         comment: updated_registration.competing_comment,
         admin_comment: updated_registration.admin_comment,
-        guests: updated_registration.guests
+        guests: updated_registration.guests,
       } }
     rescue StandardError => e
       puts e
@@ -243,9 +243,8 @@ class RegistrationController < ApplicationController
             registration_status: x.competing_status,
             registered_on: x["created_at"],
             comment: x.competing_comment,
-            guests: x.guests ,
-            admin_comment: x.admin_comment
-          }
+            guests: x.guests,
+            admin_comment: x.admin_comment }
         end
       end
     end
@@ -259,7 +258,7 @@ class RegistrationController < ApplicationController
         registered_on: registration["created_at"],
         comment: registration.competing_comment,
         admin_comment: registration.admin_comment,
-        guests: registration.guests
+        guests: registration.guests,
       }
     end
 end
