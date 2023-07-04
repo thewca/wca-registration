@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { EventSelector } from '@thewca/wca-components'
+import { EventSelector, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useEffect, useState } from 'react'
-import { Button, TextArea } from 'semantic-ui-react'
+import { Button, Divider, TextArea } from 'semantic-ui-react'
 import { AuthContext } from '../../../api/helper/context/auth_context'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
@@ -69,83 +69,135 @@ export default function RegistrationPanel() {
     <div className={styles.panel}>
       {registration.registration_status ? (
         <>
-          <h3>You have registered for {competitionInfo.name}</h3>
-          {/* Really weird bug here: Only if I have the console.log statement here (or any other statement referencing it), initialSelected will work correctly?? */}
-          {/* This will be fixed by changing eventSelector in wca-components to not maintain its own state */}
-          {/* eslint-disable-next-line no-console */}
-          {console.log(registration.event_ids)}
-          <EventSelector
-            handleEventSelection={setSelectedEvents}
-            events={competitionInfo.event_ids}
-            initialSelected={registration.event_ids}
-            size="2x"
-          />
+          <div className={styles.registrationGreeting}>
+            You have registered for {competitionInfo.name}
+          </div>
+          <Divider className={styles.divider} />
+          <div className={styles.registrationRow}>
+            <div className={styles.eventSelectionText}>
+              <div className={styles.eventSelectionHeading}>
+                Your Selected Events:
+              </div>
+              <div className={styles.eventSelectionSubText}>
+                You can set your preferred events to prefill future competitions
+                in your profile
+              </div>
+            </div>
+            <div className={styles.eventSelectorWrapper}>
+              <EventSelector
+                handleEventSelection={setSelectedEvents}
+                events={competitionInfo.event_ids}
+                selected={selectedEvents}
+                size="2x"
+              />
+            </div>
+          </div>
         </>
       ) : (
         <>
-          <h3> You can register for {competitionInfo.name}</h3>
-          <EventSelector
-            handleEventSelection={setSelectedEvents}
-            events={competitionInfo.event_ids}
-            initialSelected={[]}
-            size="2x"
+          <div className={styles.registrationGreeting}>
+            You can register for {competitionInfo.name}
+          </div>
+          <Divider className={styles.divider} />
+          <div className={styles.registrationHeading}>
+            Registration Fee of $$$ | Waitlist: 0 People
+          </div>
+          <div className={styles.registrationRow}>
+            <div className={styles.eventSelectionText}>
+              <div className={styles.eventSelectionHeading}>
+                Select Your Events:
+              </div>
+              <div className={styles.eventSelectionSubText}>
+                You can set your preferred events to prefill future competitions
+                in your profile
+              </div>
+            </div>
+            <div className={styles.eventSelectorWrapper}>
+              <EventSelector
+                handleEventSelection={setSelectedEvents}
+                events={competitionInfo.event_ids}
+                selected={selectedEvents}
+                size="2x"
+              />
+            </div>
+          </div>
+        </>
+      )}
+      <div className={styles.registrationRow}>
+        <div className={styles.eventSelectionText}>
+          <div className={styles.eventSelectionHeading}>
+            Additional comments you would like to provide to the organizers:
+          </div>
+        </div>
+        <div className={styles.commentWrapper}>
+          <TextArea
+            onChange={(_, data) => setComment(data.value)}
+            value={comment}
           />
-        </>
-      )}
-
-      <TextArea
-        onChange={(_, data) => setComment(data.value)}
-        value={comment}
-      />
-      {registration.registration_status ? (
-        <>
-          <Button
-            disabled={isUpdating}
-            color="blue"
-            onClick={() => {
-              setMessage('Registration is being updated', 'basic')
-              updateRegistrationMutation({
-                user_id: registration.user_id,
-                competition_id: competitionInfo.id,
-                comment,
-                event_ids: selectedEvents,
-              })
-            }}
-          >
-            Update Registration
-          </Button>
-          <Button
-            disabled={isUpdating}
-            negative
-            onClick={() => {
-              setMessage('Registration is being deleted', 'basic')
-              updateRegistrationMutation({
-                user_id: registration.user_id,
-                competition_id: competitionInfo.id,
-                comment,
-                status: 'deleted',
-              })
-            }}
-          >
-            Delete Registration
-          </Button>
-        </>
-      ) : (
-        <Button
-          disabled={isCreating}
-          onClick={async () => {
-            setMessage('Registration is being processed', 'basic')
-            createRegistrationMutation({
-              user_id: user,
-              competition_id: competitionInfo.id,
-              event_ids: selectedEvents,
-            })
-          }}
-          positive
-        >
-          Register
-        </Button>
-      )}
+        </div>
+      </div>
+      <div className={styles.registrationRow}>
+        {registration.registration_status ? (
+          <div className={styles.registrationButtonWrapper}>
+            <div className={styles.registrationWarning}>
+              Your Registration Status: {registration.registration_status}
+              <UiIcon name="circle info" />
+            </div>
+            <Button
+              disabled={isUpdating}
+              color="blue"
+              onClick={() => {
+                setMessage('Registration is being updated', 'basic')
+                updateRegistrationMutation({
+                  user_id: registration.user_id,
+                  competition_id: competitionInfo.id,
+                  comment,
+                  event_ids: selectedEvents,
+                })
+              }}
+            >
+              Update Registration
+            </Button>
+            <Button
+              disabled={isUpdating}
+              negative
+              onClick={() => {
+                setMessage('Registration is being deleted', 'basic')
+                updateRegistrationMutation({
+                  user_id: registration.user_id,
+                  competition_id: competitionInfo.id,
+                  comment,
+                  status: 'deleted',
+                })
+              }}
+            >
+              Delete Registration
+            </Button>
+          </div>
+        ) : (
+          <div className={styles.registrationButtonWrapper}>
+            <div className={styles.registrationWarning}>
+              Submission of Registration does not mean approval to compete.
+              <UiIcon name="circle info" />
+            </div>
+            <Button
+              className={styles.registrationButton}
+              disabled={isCreating}
+              onClick={async () => {
+                setMessage('Registration is being processed', 'basic')
+                createRegistrationMutation({
+                  user_id: user,
+                  competition_id: competitionInfo.id,
+                  event_ids: selectedEvents,
+                })
+              }}
+              positive
+            >
+              Send Registration
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

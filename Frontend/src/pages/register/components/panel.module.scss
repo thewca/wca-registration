@@ -1,11 +1,87 @@
+@import '../../../style/font-sizes';
+@import '../../../style/margins';
 .panel{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 80vw;
+  margin-top: $single-margin;
 }
-.message{
-  position: fixed !important;
-  top: 6vh;
-  width: 40vw;
+.registration-greeting{
+  text-align: center;
+  font-size: $sub-header-size;
+  font-weight: 700;
+  line-height: normal;
+  margin-bottom: $double-margin;
+}
+.registration-heading{
+  font-size: $sub-header-size;
+  font-weight: 700;
+  line-height: normal;
+  text-align: center;
+}
+.divider{
+  border-top: 2px solid rgba(34, 36, 38,1) !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 1) !important;
+  width: 90%;
+  margin-left: 5% !important;
+  margin-top: $single-margin;
+  margin-bottom: $double-margin;
+}
+.registration-row{
+  display: flex;
+  flex-direction: row;
+  text-align: right;
+  margin-top: $triple-margin;
+  margin-left: 6%;
+  .event-selection-text{
+    width: 15%;
+  }
+  .event-selection-heading{
+    font-size: $sub-header-size;
+    font-weight: 700;
+    line-height: normal;
+    margin-bottom: $single-margin;
+  }
+  .event-selection-sub-text{
+    font-size: $text-size;
+    line-height: normal;
+  }
+  .event-selector-wrapper{
+    width: 80%;
+    margin-left: 5%;
+  }
+  .comment-wrapper{
+    width: 80%;
+    margin-left: 5%;
+    text-align: left;
+    textarea{
+      width: 95%;
+      resize: none;
+      height: 100%;
+      border-radius: 20px;
+      border-color: black;
+      padding: 7px;
+    }
+  }
+  .registration-button-wrapper{
+    width: 60%;
+    background-color: #CDCCCC;
+    margin-left: 20%;
+    border-radius: 20px;
+    text-align: center;
+    .registration-warning{
+      margin-top: $double-margin;
+      margin-bottom: $double-margin;
+      line-height: 40px;
+      text-align: center;
+      background-color: white;
+      color: #D55125;
+      font-size: $sub-header-size;
+      font-weight: 700;
+    }
+    .registration-button{
+      width: 55%;
+      background-color: #D55125 !important;
+      color: white !important;
+      margin-bottom: $double-margin;
+      font-size: $header-size !important;
+    }
+  }
 }

@@ -1,0 +1,22 @@
+@import '../../style/font-sizes';
+@import '../../style/margins';
+
+.information{
+  margin-top: $single-margin;
+  font-size: $sub-header-size;
+  line-height: 1.3em;
+  h2{
+    margin-bottom: 1em;
+  }
+}
+.home-container{
+  padding: 30px;
+}
+.registration-period{
+  margin-top: $single-margin;
+  font-size: $sub-header-size;
+  line-height: 1.3em;
+  h2{
+    margin-bottom: 1em;
+  }
+}
