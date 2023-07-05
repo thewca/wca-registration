@@ -14,6 +14,8 @@ interface UpdateRegistrationBody {
   status?: string
   event_ids?: EventId[]
   comment?: string
+  admin_comment?: string
+  guests?: number
 }
 
 type GetRegistrationBody = Record<string, never>

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { FlagIcon } from '@thewca/wca-components'
+import { FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
@@ -99,6 +99,13 @@ const partitionRegistrations = (registrations) => {
   )
 }
 
+// Semantic Table only allows truncating _all_ columns in a table in
+// single line fixed mode. As we only want to truncate the comment/admin notes
+// this function is used to manually truncate the columns.
+// TODO: We could fix this by building our own table component here
+const truncateComment = (comment) =>
+  comment?.length > 12 ? comment.slice(0, 12) + '...' : comment
+
 export default function RegistrationAdministrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
   const {
@@ -175,7 +182,7 @@ function RegistrationAdministrationTable({
   selected,
 }) {
   return (
-    <Table textAlign="left" className={styles.list}>
+    <Table textAlign="left" className={styles.list} singleLine>
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>
@@ -195,7 +202,10 @@ function RegistrationAdministrationTable({
           <Table.HeaderCell>Citizen of</Table.HeaderCell>
           <Table.HeaderCell>Registered on</Table.HeaderCell>
           <Table.HeaderCell>Number of Events</Table.HeaderCell>
+          <Table.HeaderCell>Guests</Table.HeaderCell>
           <Table.HeaderCell>Comment</Table.HeaderCell>
+          <Table.HeaderCell>Administrative notes</Table.HeaderCell>
+          <Table.HeaderCell>Email</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -254,7 +264,20 @@ function RegistrationAdministrationTable({
                   />
                 </Table.Cell>
                 <Table.Cell>{registration.event_ids.length}</Table.Cell>
-                <Table.Cell>{registration.comment}</Table.Cell>
+                <Table.Cell>{registration.guests}</Table.Cell>
+                <Table.Cell title={registration.comment}>
+                  {truncateComment(registration.comment)}
+                </Table.Cell>
+                <Table.Cell title={registration.admin_comment}>
+                  {truncateComment(registration.admin_comment)}
+                </Table.Cell>
+                <Table.Cell>
+                  <a
+                    href={`mailto:${registration.user_id}@worldcubeassociation.org`}
+                  >
+                    <UiIcon name="mail" />
+                  </a>
+                </Table.Cell>
               </Table.Row>
             )
           })

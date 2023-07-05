@@ -9,6 +9,7 @@ esbuild
     bundle: true,
     outfile: 'dist/bundle.js',
     metafile: true,
+    minify: true,
     jsxFactory: 'React.createElement',
     jsxFragment: 'React.Fragment',
     loader: {

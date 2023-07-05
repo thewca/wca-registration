@@ -16,6 +16,8 @@ export interface RegistrationAdmin {
   registration_status: RegistrationStatus
   registered_on: string
   comment: string
+  admin_comment: string
+  guests: number
   user: User
 }
 

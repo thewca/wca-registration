@@ -24,6 +24,7 @@ export default function Register() {
         </div>
         <div className={styles.requirementText}>
           <Popup
+            position="top right"
             content="You need a WCA Account to register"
             trigger={
               <span>
@@ -33,6 +34,7 @@ export default function Register() {
           />
           <br />
           <Popup
+            position="top right"
             content="Once the competitor Limit has been reached you will be put onto the waiting list"
             trigger={
               <span>
@@ -43,6 +45,7 @@ export default function Register() {
           />
           <br />
           <Popup
+            position="top right"
             content="You will get a full refund before this date"
             trigger={
               <span>
@@ -57,6 +60,7 @@ export default function Register() {
           <br />
           <Popup
             content="You can edit your registration until this date"
+            position="top right"
             trigger={
               <span>
                 Edit Registration until{' '}

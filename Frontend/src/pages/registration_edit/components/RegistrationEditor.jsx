@@ -15,6 +15,7 @@ export default function RegistrationEditor() {
   const { user_id } = useParams()
   const { competitionInfo } = useContext(CompetitionContext)
   const [comment, setComment] = useState('')
+  const [adminComment, setAdminComment] = useState('')
   const [status, setStatus] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
@@ -50,9 +51,10 @@ export default function RegistrationEditor() {
   useEffect(() => {
     if (serverRegistration) {
       setRegistration(serverRegistration.registration)
-      setComment(serverRegistration.registration.comment)
+      setComment(serverRegistration.registration.comment ?? '')
       setStatus(serverRegistration.registration.registration_status)
       setSelectedEvents(serverRegistration.registration.event_ids)
+      setAdminComment(serverRegistration.registration.admin_comment ?? '')
     }
   }, [serverRegistration])
 
@@ -70,41 +72,56 @@ export default function RegistrationEditor() {
             size="2x"
           />
           <h3> Comment </h3>
-          <TextArea
-            value={comment}
-            onChange={(_, data) => {
-              setComment(data.value)
-            }}
-          />
+          <div className={styles.commentWrapper}>
+            <TextArea
+              maxLength={180}
+              value={comment}
+              onChange={(_, data) => {
+                setComment(data.value)
+              }}
+            />
+          </div>
+          <h3> Administrative Notes </h3>
+          <div className={styles.commentWrapper}>
+            <TextArea
+              maxLength={180}
+              value={adminComment}
+              onChange={(_, data) => {
+                setAdminComment(data.value)
+              }}
+            />
+          </div>
           <h3> Status </h3>
-          <Checkbox
-            radio
-            label="Accepted"
-            name="checkboxRadioGroup"
-            value="accepted"
-            checked={status === 'accepted'}
-            onChange={(_, data) => setStatus(data.value)}
-          />
-          <br />
-          <Checkbox
-            radio
-            label="Waiting"
-            name="checkboxRadioGroup"
-            value="waiting"
-            checked={status === 'waiting'}
-            onChange={(_, data) => setStatus(data.value)}
-          />
-          <br />
-          <Checkbox
-            radio
-            label="Deleted"
-            name="checkboxRadioGroup"
-            value="deleted"
-            checked={status === 'deleted'}
-            onChange={(_, data) => setStatus(data.value)}
-          />
-          <br />
+          <div className={styles.registrationStatus}>
+            <Checkbox
+              radio
+              label="Accepted"
+              name="checkboxRadioGroup"
+              value="accepted"
+              checked={status === 'accepted'}
+              onChange={(_, data) => setStatus(data.value)}
+            />
+            <br />
+            <Checkbox
+              radio
+              label="Waiting"
+              name="checkboxRadioGroup"
+              value="waiting"
+              checked={status === 'waiting'}
+              onChange={(_, data) => setStatus(data.value)}
+            />
+            <br />
+            <Checkbox
+              radio
+              label="Deleted"
+              name="checkboxRadioGroup"
+              value="deleted"
+              checked={status === 'deleted'}
+              onChange={(_, data) => setStatus(data.value)}
+            />
+          </div>
           <Button
+            color="blue"
             onClick={() => {
               setMessage('Updating Registration', 'basic')
               updateRegistrationMutation({
@@ -113,6 +130,7 @@ export default function RegistrationEditor() {
                 status,
                 event_id: selectedEvents,
                 comment,
+                admin_comment: adminComment,
               })
             }}
           >

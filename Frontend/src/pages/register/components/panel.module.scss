@@ -58,6 +58,12 @@
       border-radius: 20px;
       border-color: black;
       padding: 7px;
+      font-size: $sub-header-size;
+    }
+    .comment-counter{
+      font-size: $sub-header-size;
+      margin-top: $single-margin;
+      float: right;
     }
   }
   .registration-button-wrapper{

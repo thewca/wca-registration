@@ -23,7 +23,7 @@ export default function RegistrationActions({ selected, refresh }) {
     mutationFn: updateRegistration,
     onError: (data) => {
       setMessage(
-        'Registration update failed with error: ' + data.error,
+        'Registration update failed with error: ' + data.message,
         'negative'
       )
     },

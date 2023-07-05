@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useEffect, useState } from 'react'
-import { Button, Divider, TextArea } from 'semantic-ui-react'
+import { Button, Divider, Dropdown, Popup, TextArea } from 'semantic-ui-react'
 import { AuthContext } from '../../../api/helper/context/auth_context'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
@@ -16,6 +16,7 @@ export default function RegistrationPanel() {
   const { competitionInfo } = useContext(CompetitionContext)
   const [comment, setComment] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
+  const [guests, setGuests] = useState(0)
   const [registration, setRegistration] = useState({})
   const queryClient = useQueryClient()
   const { data: registrationRequest, isLoading } = useQuery({
@@ -29,8 +30,9 @@ export default function RegistrationPanel() {
   useEffect(() => {
     if (registrationRequest?.registration.registration_status) {
       setRegistration(registrationRequest.registration)
-      setComment(registrationRequest.registration.comment)
+      setComment(registrationRequest.registration.comment ?? '')
       setSelectedEvents(registrationRequest.registration.event_ids)
+      setGuests(registrationRequest.registration.guests)
     }
   }, [registrationRequest])
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
@@ -38,7 +40,7 @@ export default function RegistrationPanel() {
       mutationFn: updateRegistration,
       onError: (data) => {
         setMessage(
-          'Registration update failed with error: ' + data.error,
+          'Registration update failed with error: ' + data.message,
           'negative'
         )
       },
@@ -54,7 +56,10 @@ export default function RegistrationPanel() {
     useMutation({
       mutationFn: submitEventRegistration,
       onError: (data) => {
-        setMessage('Registration failed with error: ' + data.error, 'negative')
+        setMessage(
+          'Registration failed with error: ' + data.message,
+          'negative'
+        )
       },
       onSuccess: (_) => {
         // We can't update the registration yet, because there might be more steps needed
@@ -131,8 +136,29 @@ export default function RegistrationPanel() {
         </div>
         <div className={styles.commentWrapper}>
           <TextArea
+            maxLength={180}
             onChange={(_, data) => setComment(data.value)}
             value={comment}
+          />
+          <div className={styles.commentCounter}>{comment.length}/180</div>
+        </div>
+      </div>
+      <div className={styles.registrationRow}>
+        <div className={styles.eventSelectionText}>
+          <div className={styles.eventSelectionHeading}>Guests</div>
+        </div>
+        <div className={styles.commentWrapper}>
+          <Dropdown
+            value={guests}
+            onChange={(e, data) => setGuests(data.value)}
+            selection
+            options={[...new Array(10)].map((_, index) => {
+              return {
+                key: `registration-guest-dropdown-${index}`,
+                text: index,
+                value: index,
+              }
+            })}
           />
         </div>
       </div>
@@ -152,6 +178,7 @@ export default function RegistrationPanel() {
                   user_id: registration.user_id,
                   competition_id: competitionInfo.id,
                   comment,
+                  guests,
                   event_ids: selectedEvents,
                 })
               }}
@@ -166,7 +193,6 @@ export default function RegistrationPanel() {
                 updateRegistrationMutation({
                   user_id: registration.user_id,
                   competition_id: competitionInfo.id,
-                  comment,
                   status: 'deleted',
                 })
               }}
@@ -177,8 +203,16 @@ export default function RegistrationPanel() {
         ) : (
           <div className={styles.registrationButtonWrapper}>
             <div className={styles.registrationWarning}>
-              Submission of Registration does not mean approval to compete.
-              <UiIcon name="circle info" />
+              <Popup
+                content="You will only be accepted if you have met all reigstration requirements"
+                position="top center"
+                trigger={
+                  <span>
+                    Submission of Registration does not mean approval to compete{' '}
+                    <UiIcon name="circle info" />
+                  </span>
+                }
+              />
             </div>
             <Button
               className={styles.registrationButton}
@@ -189,6 +223,8 @@ export default function RegistrationPanel() {
                   user_id: user,
                   competition_id: competitionInfo.id,
                   event_ids: selectedEvents,
+                  comment,
+                  guests,
                 })
               }}
               positive
