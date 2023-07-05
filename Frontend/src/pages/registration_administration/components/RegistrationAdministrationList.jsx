@@ -99,6 +99,13 @@ const partitionRegistrations = (registrations) => {
   )
 }
 
+// Semantic Table only allows truncating _all_ columns in a table in
+// single line fixed mode. As we only want to truncate the comment/admin notes
+// this function is used to manually truncate the columns.
+// TODO: We could fix this by building our own table component here
+const truncateComment = (comment) =>
+  comment?.length > 12 ? comment.slice(0, 12) + '...' : comment
+
 export default function RegistrationAdministrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
   const {
@@ -259,14 +266,10 @@ function RegistrationAdministrationTable({
                 <Table.Cell>{registration.event_ids.length}</Table.Cell>
                 <Table.Cell>{registration.guests}</Table.Cell>
                 <Table.Cell title={registration.comment}>
-                  {registration?.comment?.length > 12
-                    ? registration.comment.slice(0, 12) + '...'
-                    : registration.comment}
+                  {truncateComment(registration.comment)}
                 </Table.Cell>
                 <Table.Cell title={registration.admin_comment}>
-                  {registration?.admin_comment?.length > 12
-                    ? registration.admin_comment.slice(0, 12) + '...'
-                    : registration.admin_comment}
+                  {truncateComment(registration.admin_comment)}
                 </Table.Cell>
                 <Table.Cell>
                   <a

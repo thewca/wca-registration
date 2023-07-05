@@ -30,7 +30,7 @@ export default function RegistrationPanel() {
   useEffect(() => {
     if (registrationRequest?.registration.registration_status) {
       setRegistration(registrationRequest.registration)
-      setComment(registrationRequest.registration.comment)
+      setComment(registrationRequest.registration.comment ?? '')
       setSelectedEvents(registrationRequest.registration.event_ids)
       setGuests(registrationRequest.registration.guests)
     }

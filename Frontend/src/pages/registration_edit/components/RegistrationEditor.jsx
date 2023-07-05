@@ -51,10 +51,10 @@ export default function RegistrationEditor() {
   useEffect(() => {
     if (serverRegistration) {
       setRegistration(serverRegistration.registration)
-      setComment(serverRegistration.registration.comment)
+      setComment(serverRegistration.registration.comment ?? '')
       setStatus(serverRegistration.registration.registration_status)
       setSelectedEvents(serverRegistration.registration.event_ids)
-      setAdminComment(serverRegistration.registration.admin_comment)
+      setAdminComment(serverRegistration.registration.admin_comment ?? '')
     }
   }, [serverRegistration])
 
