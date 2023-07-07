@@ -5,7 +5,7 @@ const statsPlugin = require('./statsplugin')
 const openapiTS = require('openapi-typescript')
 const fs = require('fs')
 // Generate Types from spec first so we are sure that the build is never out of sync with the spec
-const localPath = new URL('../../swagger/v1/.yaml', import.meta.url) // may be YAML or JSON format
+const localPath = new URL('../../swagger/v1/swagger.yaml', import.meta.url) // may be YAML or JSON format
 openapiTS(localPath, {
   transform(schemaObject) {
     if ('event_id' in schemaObject && schemaObject.format === 'string') {
