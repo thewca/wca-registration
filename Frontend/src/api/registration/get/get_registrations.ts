@@ -1,6 +1,12 @@
 import { EventId } from '@wca/helpers'
-import backendFetch from '../../helper/backend_fetch'
+import createClient from 'openapi-fetch'
+import backendFetch, { BackendError } from '../../helper/backend_fetch'
+import { paths } from '../../schema'
 import getCompetitorInfo, { User } from '../../user/get/get_user_info'
+
+const { get } = createClient<paths>({
+  baseUrl: 'https://registration.worldcubeassociation.org',
+})
 
 type RegistrationStatus = 'waiting' | 'accepted' | 'deleted'
 
@@ -25,19 +31,25 @@ export async function getConfirmedRegistrations(
   competitionID: string
 ): Promise<Registration[]> {
   //TODO: Because there is currently no bulk user fetch route we need to manually add user data here
-  const registrations = (await backendFetch(
-    `/registrations/${competitionID}`,
-    'GET',
-    {
-      needsAuthentication: false,
-    }
-  )) as Registration[]
+  const { data, error } = await get('/api/v1/registrations/{competition_id}', {
+    params: { path: { competition_id: competitionID } },
+  })
   const regList = []
-  for (const registration of registrations) {
-    registration.user = (await getCompetitorInfo(registration.user_id)).user
-    regList.push(registration)
+  if (error) {
+    throw new BackendError(error, 500)
   }
-  return regList
+  if (data) {
+    for (const registration of data) {
+      const user = (await getCompetitorInfo(registration.user_id)).user
+      regList.push({
+        user_id: registration.user_id,
+        event_ids: registration.event_ids as EventId[],
+        user,
+      })
+    }
+    return regList
+  }
+  return []
 }
 
 export async function getAllRegistrations(

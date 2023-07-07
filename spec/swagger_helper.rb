@@ -38,6 +38,73 @@ RSpec.configure do |config|
             },
             required: [:user_id, :event_ids],
           },
+          registrationAdmin: {
+            type: :object,
+            properties: {
+              user_id: {
+                type: :string,
+              },
+              event_ids: {
+                type: :array,
+                items: {
+                  type: :string,
+                },
+              },
+              comment: {
+                type: :string,
+              },
+              admin_comment: {
+                type: :string,
+              },
+              guests: {
+                type: :number,
+              },
+            },
+            required: [:user_id, :event_ids]
+          },
+          submitRegistrationBody: {
+            properties: {
+              user_id: {
+                type: :string
+              },
+              event_ids: {
+                type: :array,
+                items: {
+                  type: :string,
+                },
+              },
+              comment: {
+                type: :string,
+              },
+              guests: {
+                type: :number,
+              }
+            },
+            required: [:user_id, :event_ids]
+          },
+          updateRegistrationBody: {
+            properties: {
+              user_id: {
+                type: :string
+              },
+              event_ids: {
+                type: :array,
+                items: {
+                  type: :string,
+                },
+              },
+              comment: {
+                type: :string,
+              },
+              admin_comment:{
+                type: :string,
+              },
+              guests: {
+                type: :number,
+              }
+            },
+            required: [:user_id, :event_ids]
+          }
         },
       },
       paths: {},
@@ -46,7 +113,7 @@ RSpec.configure do |config|
           url: 'https://{defaultHost}',
           variables: {
             defaultHost: {
-              default: 'www.example.com',
+              default: 'registration.worldcubeassociation.org',
             },
           },
         },

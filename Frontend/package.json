@@ -13,6 +13,7 @@
   },
   "homepage": "https://github.com/thewca/wca-registration/Frontend/README.md",
   "scripts": {
+    "build:types": "TYPES_ONLY=true node src/build.js",
     "build:dev": "NODE_ENV=\"development\" ASSET_PATH=\"/dist\" API_URL=\"http://localhost:3001/api/v1\" AUTH_URL=\"http://localhost:3001/jwt\" node src/build.js",
     "build:staging": "NODE_ENV=\"production\" ASSET_PATH=\"https://d1qizdh27al0a7.cloudfront.net/staging/dist\" API_URL=\"https://staging.registration.worldcubeassociation.org/api/v1\" AUTH_URL=\"https://staging.registration.worldcubeassociation.org/jwt\" node src/build.js",
     "build:prod": "NODE_ENV=\"production\" ASSET_PATH=\"https://d1qizdh27al0a7.cloudfront.net/dist\" API_URL=\"https://registration.worldcubeassociation.org/api/v1\" AUTH_URL=\"https://registration.worldcubeassociation.org/jwt\" node src/build.js",
@@ -29,6 +30,8 @@
     "esbuild-sass-plugin": "^2.10.0",
     "events": "^3.3.0",
     "fomantic-ui-css": "^2.9.2",
+    "openapi-fetch": "^0.6.1",
+    "openapi-typescript": "^6.2.8",
     "postcss": "^8.4.23",
     "postcss-modules": "^6.0.0",
     "react": "^18.2.0",
