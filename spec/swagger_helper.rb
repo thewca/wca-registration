@@ -26,7 +26,9 @@ RSpec.configure do |config|
           error_response: {
             type: :object,
             properties: {
-              error: :number,
+              error: {
+                type: :number,
+              },
             },
             required: [:error],
           },

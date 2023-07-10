@@ -8,7 +8,8 @@ components:
     error_response:
       type: object
       properties:
-        error: number
+        error:
+          type: number
       required:
       - error
     registration:
