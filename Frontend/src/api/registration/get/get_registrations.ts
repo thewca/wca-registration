@@ -43,7 +43,7 @@ export async function getConfirmedRegistrations(
       const user = (await getCompetitorInfo(registration.user_id)).user
       regList.push({
         user_id: registration.user_id,
-        event_ids: registration.event_ids as EventId[],
+        event_ids: registration.event_ids,
         user,
       })
     }
