@@ -37,24 +37,24 @@ export interface components {
   schemas: {
     registration: {
       user_id: string;
-      event_ids: (string)[];
+      event_ids: (EventId)[];
     };
     registrationAdmin: {
       user_id: string;
-      event_ids: (string)[];
+      event_ids: (EventId)[];
       comment?: string;
       admin_comment?: string;
       guests?: number;
     };
     submitRegistrationBody: {
       user_id: string;
-      event_ids: (string)[];
+      event_ids: (EventId)[];
       comment?: string;
       guests?: number;
     };
     updateRegistrationBody: {
       user_id: string;
-      event_ids: (string)[];
+      event_ids: (EventId)[];
       comment?: string;
       admin_comment?: string;
       guests?: number;

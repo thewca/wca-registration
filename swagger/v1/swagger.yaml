@@ -14,6 +14,7 @@ components:
           type: array
           items:
             type: string
+            format: EventId
       required:
       - user_id
       - event_ids
@@ -26,6 +27,7 @@ components:
           type: array
           items:
             type: string
+            format: EventId
         comment:
           type: string
         admin_comment:
@@ -43,6 +45,7 @@ components:
           type: array
           items:
             type: string
+            format: EventId
         comment:
           type: string
         guests:
@@ -58,6 +61,7 @@ components:
           type: array
           items:
             type: string
+            format: EventId
         comment:
           type: string
         admin_comment:

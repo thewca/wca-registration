@@ -33,6 +33,7 @@ RSpec.configure do |config|
                 type: :array,
                 items: {
                   type: :string,
+                  format: :EventId
                 },
               },
             },
@@ -48,6 +49,7 @@ RSpec.configure do |config|
                 type: :array,
                 items: {
                   type: :string,
+                  format: :EventId
                 },
               },
               comment: {
@@ -71,6 +73,7 @@ RSpec.configure do |config|
                 type: :array,
                 items: {
                   type: :string,
+                  format: :EventId
                 },
               },
               comment: {
@@ -91,6 +94,7 @@ RSpec.configure do |config|
                 type: :array,
                 items: {
                   type: :string,
+                  format: :EventId
                 },
               },
               comment: {
