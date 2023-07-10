@@ -23,12 +23,12 @@ RSpec.configure do |config|
       },
       components: {
         schemas: {
-          error_response:{
+          error_response: {
             type: :object,
             properties: {
               error: :number,
             },
-          required: [:error]
+            required: [:error],
           },
           registration: {
             type: :object,
