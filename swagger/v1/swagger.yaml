@@ -5,6 +5,12 @@ info:
   version: v1
 components:
   schemas:
+    error_response:
+      type: object
+      properties:
+        error: number
+      required:
+      - error
     registration:
       type: object
       properties:
@@ -93,10 +99,22 @@ paths:
                   "$ref": "#/components/schemas/registration"
         '404':
           description: Competition ID doesnt exist
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
         '500':
           description: Competition service unavailable - 500 error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
         '502':
           description: Competition service unavailable - 502 error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
 servers:
 - url: https://{defaultHost}
   variables:

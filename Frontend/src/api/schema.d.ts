@@ -21,11 +21,23 @@ export interface paths {
           };
         };
         /** @description Competition ID doesnt exist */
-        404: never;
+        404: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
         /** @description Competition service unavailable - 500 error */
-        500: never;
+        500: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
         /** @description Competition service unavailable - 502 error */
-        502: never;
+        502: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
       };
     };
   };
@@ -35,6 +47,9 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
+    error_response: {
+      error: number;
+    };
     registration: {
       user_id: string;
       event_ids: (EventId)[];

@@ -31,25 +31,25 @@ export async function getConfirmedRegistrations(
   competitionID: string
 ): Promise<Registration[]> {
   //TODO: Because there is currently no bulk user fetch route we need to manually add user data here
-  const { data, error } = await get('/api/v1/registrations/{competition_id}', {
-    params: { path: { competition_id: competitionID } },
-  })
+  const { data, error, response } = await get(
+    '/api/v1/registrations/{competition_id}',
+    {
+      params: { path: { competition_id: competitionID } },
+    }
+  )
   const regList = []
   if (error) {
-    throw new BackendError(error, 500)
+    throw new BackendError(error.error, response.status)
   }
-  if (data) {
-    for (const registration of data) {
-      const user = (await getCompetitorInfo(registration.user_id)).user
-      regList.push({
-        user_id: registration.user_id,
-        event_ids: registration.event_ids,
-        user,
-      })
-    }
-    return regList
+  for (const registration of data) {
+    const user = (await getCompetitorInfo(registration.user_id)).user
+    regList.push({
+      user_id: registration.user_id,
+      event_ids: registration.event_ids,
+      user,
+    })
   }
-  return []
+  return regList
 }
 
 export async function getAllRegistrations(
