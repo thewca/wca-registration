@@ -3,7 +3,7 @@ import { sassPlugin, postcssModules } from 'esbuild-sass-plugin'
 import statsPlugin from './statsplugin.js'
 
 const context = await esbuild.context({
-  entryPoints: ['src/index.jsx'],
+  entryPoints: ['src/index.dev.jsx'],
   bundle: true,
   outfile: 'dist/bundle.js',
   jsxFactory: 'React.createElement',
