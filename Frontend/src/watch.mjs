@@ -6,7 +6,7 @@ import fs from "fs";
 const localPath = new URL('/swagger/v1/swagger.yaml', import.meta.url) // may be YAML or JSON format
 const output = await openapiTS(localPath, {
   transform(schemaObject) {
-    if ('event_id' in schemaObject && schemaObject.format === 'string') {
+    if ('format' in schemaObject && schemaObject.format === 'EventId') {
       return schemaObject.nullable ? 'EventId | null' : 'EventId'
     }
   },
