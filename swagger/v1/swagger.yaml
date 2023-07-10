@@ -10,16 +10,30 @@ components:
       properties:
         user_id:
           type: string
+        competing:
+          "$ref": "#/components/schemas/competing"
+      required:
+      - user_id
+      - competing
+
+    competing:
+      type: object
+      properties:
         event_ids:
           type: array
           items:
             type: string
         registration_status:
           type: string
+        comment:
+          type: string
+          maxLength: 180
+        guests:
+          type: integer
       required:
-      - user_id
-      - event_ids
-      - registration_status
+        - event_ids
+        - registration_status
+
 paths:
   "/api/v1/attendees/{attendee_id}":
     get:

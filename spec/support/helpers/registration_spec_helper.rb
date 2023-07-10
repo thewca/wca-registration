@@ -28,10 +28,13 @@ module Helpers
         @user_id_816 = "158816"
         @user_id_823 = "158823"
 
-        # Payloads
+        # Cancel payloads
         @cancellation = get_patch("816-cancel-full-registration")
         @double_cancellation = get_patch("823-cancel-full-registration")
         @cancel_wrong_lane = get_patch('823-cancel-wrong-lane')
+
+        # Update payloads
+        @add_444 = get_patch('CubingZANationalChampionship2023-158816')
       end
     end
 
@@ -103,8 +106,32 @@ module Helpers
         # Retrieve the competition details when attendee_id matches
         registration = registrations.find { |r| r["attendee_id"] == attendee_id }
         registration["lanes"] = registration["lanes"].map { |lane| Lane.new(lane) }
-        registration
+        convert_registration_object_to_payload(registration)
       end
+    end
+
+    def convert_registration_object_to_payload(registration)
+      competing_lane = registration["lanes"].find { |l| l.lane_name == "competing" }
+      event_ids = get_event_ids_from_competing_lane(competing_lane)
+
+      {
+        user_id: registration["user_id"],
+        competing: {
+          event_ids: event_ids,
+          registration_status: competing_lane.lane_state,
+        },
+      }
+    end
+
+    def get_event_ids_from_competing_lane(competing_lane)
+      event_ids = []
+      competing_lane.lane_details["event_details"].each do |event|
+        # Add the event["event_id"] to the list of event_ids
+        puts event
+        puts event["event_id"]
+        event_ids << event["event_id"]
+      end
+      event_ids
     end
 
     def get_patch(patch_name)
