@@ -1,28 +1,76 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require 'jwt'
 require_relative '../helpers/competition_api'
-require_relative '../helpers/competitor_api'
+require_relative '../helpers/user_api'
 require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
+  skip_before_action :validate_token, only: [:list]
+  # The order of the validations is important to not leak any non public info via the API
+  # That's why we should always validate a request first, before taking any other before action
+  # before_actions are triggered in the order they are defined
+  before_action :validate_create_request, only: [:create]
   before_action :ensure_lane_exists, only: [:create]
+  before_action :validate_entry_request, only: [:entry]
+  before_action :validate_list_admin, only: [:list_admin]
+  before_action :validate_update_request, only: [:update]
 
+  # For a user to register they need to
+  # 1) Need to actually be the user that they are trying to register
+  # 2) Be Eligible to Compete (complete profile + not banned)
+  # 3) Register for a competition that is open
+  # 4) Register for events that are actually held at the competition
+  # We need to do this in this order, so we don't leak user attributes
+
+  def validate_create_request
+    @user_id, @competition_id, @event_ids = registration_params
+    status = ""
+    cannot_register_reasons = ""
+
+    unless @current_user == @user_id
+      Metrics.registration_impersonation_attempt_counter.increment
+      return render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :forbidden
+    end
+
+    can_compete, reasons = UserApi.can_compete?(@user_id)
+    unless can_compete
+      status = :forbidden
+      cannot_register_reasons = reasons
+    end
+    # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
+    unless CompetitionApi.competition_exists?(@competition_id)
+      status = :forbidden
+      cannot_register_reasons = ErrorCodes::COMPETITION_CLOSED
+    end
+
+    if @event_ids.empty? || !CompetitionApi.events_held?(@event_ids, @competition_id)
+      status = :bad_request
+      cannot_register_reasons = ErrorCodes::COMPETITION_INVALID_EVENTS
+    end
+
+    unless cannot_register_reasons.empty?
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: cannot_register_reasons }, status: status
+    end
+  end
+
+  # We don't know which lane the user is going to complete first, this ensures that an entry in the DB exists
+  # regardless of which lane the uses chooses to start with
   def ensure_lane_exists
-    user_id = params[:competitor_id]
-    competition_id = params[:competition_id]
     @queue_url = ENV["QUEUE_URL"] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
-    # TODO: Cache this call?
+    # TODO: Cache this call? We could keep a list of already created keys
     lane_created = begin
-      Registrations.find("#{competition_id}-#{user_id}")
+      Registration.find("#{@competition_id}-#{@user_id}")
       true
     rescue Dynamoid::Errors::RecordNotFound
       false
     end
     unless lane_created
       step_data = {
-        user_id: user_id,
-        competition_id: competition_id,
+        user_id: @user_id,
+        competition_id: @competition_id,
         step: 'Lane Init',
       }
       id = SecureRandom.uuid
@@ -36,27 +84,21 @@ class RegistrationController < ApplicationController
   end
 
   def create
-    competitor_id = params[:competitor_id]
-    competition_id = params[:competition_id]
-    event_ids = params[:event_ids]
     comment = params[:comment] || ""
-
-    unless validate_request(competitor_id, competition_id) && !event_ids.empty?
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { status: 'User cannot register for competition' }, status: :forbidden
-    end
+    guests = params[:guests] || 0
 
     id = SecureRandom.uuid
 
     step_data = {
-      user_id: competitor_id,
-      competition_id: competition_id,
+      user_id: @user_id,
+      competition_id: @competition_id,
       lane_name: 'competing',
       step: 'Event Registration',
       step_details: {
         registration_status: 'waiting',
-        event_ids: event_ids,
+        event_ids: @event_ids,
         comment: comment,
+        guests: guests,
       },
     }
 
@@ -70,130 +112,93 @@ class RegistrationController < ApplicationController
     render json: { status: 'ok', message: 'Started Registration Process' }
   end
 
+  # You can either update your own registration or one for a competition you administer
+  def validate_update_request
+    @user_id, @competition_id = update_params
+
+    unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :forbidden
+    end
+  end
+
   def update
-    user_id = params[:competitor_id]
-    competition_id = params[:competition_id]
     status = params[:status]
     comment = params[:comment]
+    admin_comment = params[:admin_comment]
+    guests = params[:guests]
     event_ids = params[:event_ids]
 
     begin
-      registration = Registrations.find("#{competition_id}-#{user_id}")
-      updated_lanes = registration.lanes.map { |lane|
-        if lane.lane_name == "competing"
-          if status.present?
-            lane.lane_state = status
-          end
-          if comment.present?
-            lane.lane_details["comment"] = comment
-          end
-          if event_ids.present?
-            lane.lane_details["event_details"] = event_ids.map { |event_id| { event_id: event_id } }
-          end
-        end
-        lane
-      }
-      if status.present?
-        if status == "accepted"
-          updated_registration = registration.update_attributes!(lanes: updated_lanes, is_attending: true)
-        else
-          updated_registration = registration.update_attributes!(lanes: updated_lanes, is_attending: false)
-        end
-      else
-        updated_registration = registration.update_attributes!(lanes: updated_lanes)
-      end
-      # Render a success response
+      registration = Registration.find("#{@competition_id}-#{@user_id}")
+      updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
       render json: { status: 'ok', registration: {
         user_id: updated_registration["user_id"],
-        event_ids: updated_registration["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] },
-        registration_status: updated_registration["lanes"][0].lane_state,
+        event_ids: updated_registration.event_ids,
+        registration_status: updated_registration.competing_status,
         registered_on: updated_registration["created_at"],
-        comment: updated_registration["lanes"][0].lane_details["comment"],
+        comment: updated_registration.competing_comment,
+        admin_comment: updated_registration.admin_comment,
+        guests: updated_registration.guests,
       } }
     rescue StandardError => e
-      # Render an error response
       puts e
       Metrics.registration_dynamodb_errors_counter.increment
-      render json: { status: "Error Updating Registration: #{e.message}" },
+      render json: { error: "Error Updating Registration: #{e.message}" },
              status: :internal_server_error
+    end
+  end
+
+  # You can either view your own registration or one for a competition you administer
+  def validate_entry_request
+    @user_id, @competition_id = entry_params
+
+    unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :forbidden
     end
   end
 
   def entry
-    user_id = params[:user_id]
-    competition_id = params[:competition_id]
-    unless validate_request(user_id, competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { status: "Can't get registration, wrong format" }, status: :forbidden
-    end
-    begin
-      registration = Registrations.find("#{competition_id}-#{user_id}")
-      render json: { registration: {
-        user_id: registration["user_id"],
-        event_ids: registration["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] },
-        registration_status: registration["lanes"][0].lane_state,
-        registered_on: registration["created_at"],
-        comment: registration["lanes"][0].lane_details["comment"],
-      }, status: 'ok' }
-    rescue Dynamoid::Errors::RecordNotFound
-      render json: { registration: {}, status: 'ok' }
-    end
-  end
-
-  def delete
-    user_id = params[:competitor_id]
-    competition_id = params[:competition_id]
-
-    unless validate_request(user_id, competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { status: 'User cannot register, wrong format' }, status: :forbidden
-    end
-    begin
-      registration = Registrations.find("#{competition_id}-#{user_id}")
-      updated_lanes = registration.lanes.map { |lane|
-        if lane.lane_name == "competing"
-          lane.lane_state = "deleted"
-        end
-        lane
-      }
-      puts updated_lanes.to_json
-      registration.update_attributes(lanes: updated_lanes)
-      # Render a success response
-      render json: { status: 'ok' }
-    rescue StandardError => e
-      # Render an error response
-      puts e
-      Metrics.registration_dynamodb_errors_counter.increment
-      render json: { status: "Error deleting item from DynamoDB: #{e.message}" },
-             status: :internal_server_error
-    end
+    registration = get_single_registration(@user_id, @competition_id)
+    render json: { registration: registration, status: 'ok' }
+  rescue Dynamoid::Errors::RecordNotFound
+    render json: { registration: {}, status: 'ok' }
   end
 
   def list
-    competition_id = params[:competition_id]
-    registrations = get_registrations(competition_id, only_attending: true)
-
-    # Render a success response
-    render json: registrations
-  rescue StandardError => e
-    # Render an error response
-    puts e
-    Metrics.registration_dynamodb_errors_counter.increment
-    render json: { status: "Error getting registrations" },
-           status: :internal_server_error
-  end
-
-  def list_admin
-    competition_id = params[:competition_id]
+    competition_id = list_params
     competition_exists = CompetitionApi.competition_exists?(competition_id)
-    registrations = get_registrations(competition_id)
+    registrations = get_registrations(competition_id, only_attending: true)
     if competition_exists[:error]
       # Even if the competition service is down, we still return the registrations if they exists
-      if registrations.count != 0 && competition_exists[:error] == COMPETITION_API_5XX
+      if registrations.count != 0 && competition_exists[:error] == ErrorCodes::COMPETITION_API_5XX
         return render json: registrations
       end
       return render json: { error: competition_exists[:error] }, status: competition_exists[:status]
     end
+    # Render a success response
+    render json: registrations
+  rescue StandardError => e
+    # Render an error response
+    puts e
+    Metrics.registration_dynamodb_errors_counter.increment
+    render json: { error: "Error getting registrations #{e}" },
+           status: :internal_server_error
+  end
+
+  # To list Registrations in the admin view you need to be able to administer the competition
+  def validate_list_admin
+    @competition_id = list_params
+
+    unless UserApi.can_administer?(@current_user, @competition_id)
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: 403
+    end
+  end
+
+  def list_admin
+    registrations = get_registrations(@competition_id)
 
     # Render a success response
     render json: registrations
@@ -201,7 +206,7 @@ class RegistrationController < ApplicationController
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
-    render json: { status: "Error getting registrations: #{e}" },
+    render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
 
@@ -209,50 +214,51 @@ class RegistrationController < ApplicationController
 
     REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
 
-    def user_exists(competitor_id)
-      Rails.cache.fetch(competitor_id, expires_in: 12.hours) do
-        CompetitorApi.check_competitor(competitor_id)
-      end
+    def registration_params
+      params.require([:user_id, :competition_id, :event_ids])
     end
 
-    def competition_open(competition_id)
-      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        CompetitionApi.check_competition(competition_id)
-      end
+    def entry_params
+      params.require([:user_id, :competition_id])
     end
 
-    def can_user_register?(competitor_id, competition_id)
-      # Check if user exists
-      user_exists(competitor_id) and competition_open(competition_id)
+    def update_params
+      params.require([:user_id, :competition_id])
     end
 
-    def validate_request(competitor_id, competition_id, status = 'waiting')
-      if competitor_id.present? && competitor_id.to_s =~ (/\A\d+\z/)
-        if competition_id =~ (/^[a-zA-Z]+\d{4}$/) && REGISTRATION_STATUS.include?(status)
-          can_user_register?(competitor_id, competition_id)
-        end
-      else
-        false
-      end
+    def list_params
+      params.require(:competition_id)
     end
 
     def get_registrations(competition_id, only_attending: false)
-      # Query DynamoDB for registrations with the given competition_id using the Global Secondary Index
-      # TODO make this more beautiful and not break if there are more then one lane
-      # This also currently breaks if a registration is started but never completed
       if only_attending
-        Registrations.where(competition_id: competition_id, is_attending: true).all.map do |x|
-          { competitor_id: x["user_id"],
-            event_ids: x["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] } }
+        Registration.where(competition_id: competition_id, is_attending: true).all.map do |x|
+          { user_id: x["user_id"],
+            event_ids: x.event_ids }
         end
       else
-        Registrations.where(competition_id: competition_id).all.map do |x|
-          { competitor_id: x["user_id"],
-            event_ids: x["lanes"][0].lane_details["event_details"].map { |event| event["event_id"] },
-            registration_status: x["lanes"][0].lane_state,
+        Registration.where(competition_id: competition_id).all.map do |x|
+          { user_id: x["user_id"],
+            event_ids: x.event_ids,
+            registration_status: x.competing_status,
             registered_on: x["created_at"],
-            comment: x["lanes"][0].lane_details["comment"] }
+            comment: x.competing_comment,
+            guests: x.guests,
+            admin_comment: x.admin_comment }
         end
       end
+    end
+
+    def get_single_registration(user_id, competition_id)
+      registration = Registration.find("#{competition_id}-#{user_id}")
+      {
+        user_id: registration["user_id"],
+        event_ids: registration.event_ids,
+        registration_status: registration.competing_status,
+        registered_on: registration["created_at"],
+        comment: registration.competing_comment,
+        admin_comment: registration.admin_comment,
+        guests: registration.guests,
+      }
     end
 end

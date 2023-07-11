@@ -5,54 +5,80 @@ info:
   version: v1
 components:
   schemas:
+    error_response:
+      type: object
+      properties:
+        error:
+          type: number
+      required:
+      - error
     registration:
       type: object
       properties:
         user_id:
           type: string
-        competing:
-          "$ref": "#/components/schemas/competing"
-      required:
-      - user_id
-      - competing
-
-    competing:
-      type: object
-      properties:
         event_ids:
           type: array
           items:
             type: string
-        registration_status:
+            format: EventId
+      required:
+      - user_id
+      - event_ids
+    registrationAdmin:
+      type: object
+      properties:
+        user_id:
           type: string
+        event_ids:
+          type: array
+          items:
+            type: string
+            format: EventId
         comment:
           type: string
-          maxLength: 180
-        guests:
-          type: integer
-      required:
-        - event_ids
-        - registration_status
-
-paths:
-  "/api/v1/attendees/{attendee_id}":
-    get:
-      summary: Retrieve attendee registration
-      parameters:
-      - name: attendee_id
-        in: path
-        required: true
-        schema:
+        admin_comment:
           type: string
-      responses:
-        '200':
-          description: check that registration returned matches expected registration
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/registration"
-        '404':
-          description: attendee_id doesnt exist
+        guests:
+          type: number
+      required:
+      - user_id
+      - event_ids
+    submitRegistrationBody:
+      properties:
+        user_id:
+          type: string
+        event_ids:
+          type: array
+          items:
+            type: string
+            format: EventId
+        comment:
+          type: string
+        guests:
+          type: number
+      required:
+      - user_id
+      - event_ids
+    updateRegistrationBody:
+      properties:
+        user_id:
+          type: string
+        event_ids:
+          type: array
+          items:
+            type: string
+            format: EventId
+        comment:
+          type: string
+        admin_comment:
+          type: string
+        guests:
+          type: number
+      required:
+      - user_id
+      - event_ids
+paths:
   "/api/v1/registrations/{competition_id}":
     get:
       summary: List registrations for a given competition_id
@@ -72,16 +98,26 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/registration"
-        '400':
-          description: Competition ID not provided
         '404':
-          description: Comeptition ID doesnt exist
+          description: Competition ID doesnt exist
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
         '500':
           description: Competition service unavailable - 500 error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
         '502':
           description: Competition service unavailable - 502 error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
 servers:
 - url: https://{defaultHost}
   variables:
     defaultHost:
-      default: www.example.com
+      default: registration.worldcubeassociation.org

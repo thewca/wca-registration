@@ -36,7 +36,7 @@ class QueuePoller
     poller = Aws::SQS::QueuePoller.new(queue_url)
     poller.poll(wait_time_seconds: WAIT_TIME, max_number_of_messages: MAX_MESSAGES) do |messages|
       messages.each do |msg|
-        # Messages are deleted from the queue when the block returns normally!
+        # messages are deleted from the queue when the block returns normally!
         puts "Received message with ID: #{msg.message_id}"
         puts "Message body: #{msg.body}"
         body = JSON.parse msg.body

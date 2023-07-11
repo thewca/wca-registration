@@ -1,6 +1,7 @@
 const { configure, presets } = require('eslint-kit')
 
 module.exports = configure({
+  root: __dirname,
   mode: 'only-errors',
   presets: [
     presets.imports(),
@@ -10,10 +11,12 @@ module.exports = configure({
     presets.typescript(),
   ],
   extend: {
+    root: true,
     rules: {
       'import/no-default-export': 'off',
       'react/jsx-uses-vars': 'error',
       'react/jsx-uses-react': 'error',
     },
+    extends: ['plugin:@tanstack/eslint-plugin-query/recommended'],
   },
 })

@@ -4,7 +4,12 @@ require 'active_support/core_ext/integer/time'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
-  config.hosts << 'registration.worldcubeassociation.org'
+  code_env = ENV.fetch("CODE_ENVIRONMENT", nil)
+  if code_env == "production"
+    config.hosts << 'registration.worldcubeassociation.org'
+  elsif code_env == "staging"
+    config.hosts << 'staging.registration.worldcubeassociation.org'
+  end
 
   # Exclude requests for the /healthcheck/ path from host checking
   Rails.application.config.host_authorization = {
@@ -91,11 +96,10 @@ Rails.application.configure do
   # require "syslog/logger"
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new "app-name")
 
-  if ENV['RAILS_LOG_TO_STDOUT'].present?
-    logger           = ActiveSupport::Logger.new($stdout)
-    logger.formatter = config.log_formatter
-    config.logger    = ActiveSupport::TaggedLogging.new(logger)
-  end
+  # Log to STDOUT by default because then we have the logs in cloudwatch
+  logger           = ActiveSupport::Logger.new($stdout)
+  logger.formatter = config.log_formatter
+  config.logger    = ActiveSupport::TaggedLogging.new(logger)
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
