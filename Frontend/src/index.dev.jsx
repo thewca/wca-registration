@@ -53,7 +53,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/:competition_id',
+        path: '/competitions/:competition_id',
         element: (
           <Container>
             <Competition>
@@ -64,23 +64,23 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            path: '/:competition_id',
+            path: '/competitions/:competition_id',
             element: <HomePage />,
           },
           {
-            path: '/:competition_id/register',
+            path: '/competitions/:competition_id/register',
             element: <Register />,
           },
           {
-            path: '/:competition_id/registrations',
+            path: '/competitions/:competition_id/registrations',
             element: <Registrations />,
           },
           {
-            path: '/:competition_id/:user_id/edit',
+            path: '/competitions/:competition_id/:user_id/edit',
             element: <RegistrationEdit />,
           },
           {
-            path: '/:competition_id/registrations/edit',
+            path: '/competitions/:competition_id/registrations/edit',
             element: <RegistrationAdministration />,
           },
         ],

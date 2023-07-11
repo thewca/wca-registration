@@ -20,7 +20,7 @@ export default function PageTabs() {
             key="tab-registration"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/${competitionInfo.id}/registrations/edit`)
+              navigate(`/competitions/${competitionInfo.id}/registrations/edit`)
             }
           >
             <UiIcon name="list ul" />
@@ -36,7 +36,7 @@ export default function PageTabs() {
           <Menu.Item
             key="tab-info"
             className={styles.tabItem}
-            onClick={() => navigate(`/${competitionInfo.id}`)}
+            onClick={() => navigate(`/competitions/${competitionInfo.id}`)}
           >
             <UiIcon name="info" />
             General Info
@@ -50,7 +50,9 @@ export default function PageTabs() {
           <Menu.Item
             key="tab-Competitors"
             className={styles.tabItem}
-            onClick={() => navigate(`/${competitionInfo.id}/registrations`)}
+            onClick={() =>
+              navigate(`/competitions/${competitionInfo.id}/registrations`)
+            }
           >
             <UiIcon name="users" />
             Competitors
@@ -63,7 +65,9 @@ export default function PageTabs() {
           <Menu.Item
             key="tab-register"
             className={styles.tabItem}
-            onClick={() => navigate(`/${competitionInfo.id}/register`)}
+            onClick={() =>
+              navigate(`/competitions/${competitionInfo.id}/register`)
+            }
           >
             <UiIcon name="sign in alt" />
             Register
