@@ -5,7 +5,10 @@ import { paths } from '../../schema'
 import getCompetitorInfo, { User } from '../../user/get/get_user_info'
 
 const { get } = createClient<paths>({
-  baseUrl: 'https://registration.worldcubeassociation.org',
+  // TODO: Change this once we are fully migrated from backend fetch
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  baseUrl: process.env.API_URL.slice(0, -7),
 })
 
 type RegistrationStatus = 'waiting' | 'accepted' | 'deleted'
