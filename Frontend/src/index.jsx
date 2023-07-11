@@ -18,7 +18,7 @@ import PageTabs from './ui/Tabs'
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/competitions',
     element: (
       <App>
         <FlashMessage />
