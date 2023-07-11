@@ -2,6 +2,37 @@
 
 module Helpers
   module RegistrationHelper
+    def fetch_jwt_token(user_id)
+      # Use whatever method you have to make the request and fetch the JWT token
+      jwt_response = get :jwt, params: { user_id: user_id }) # Adjust the user_id as needed
+      puts jwt_response
+      jwt_token = jwt_response.headers['Authorization']
+      jwt_token
+    end
+
+    RSpec.shared_context 'basic_auth_token' do
+      before do
+        # Fetch the JWT token using the helper method
+        jwt_token = fetch_jwt_token('15073') # Adjust the user_id as needed
+
+        # Set the Authorization header with the JWT token
+        request_header 'Authorization', jwt_token
+      end
+    end
+
+
+    # RSpec.shared_context 'basic_auth_token' do
+    #   before do
+    #     # Make a request to fetch the JWT token
+    #     jwt_response = api_get('/jwt', params: { user_id: '15073' }) # Adjust the user_id as needed
+    #     puts jwt_response
+    #     jwt_token = jwt_response.headers['Authorization']
+
+    #     # Set the Authorization header with the JWT token
+    #     request_header 'Authorization', jwt_token
+    #   end
+    # end
+
     RSpec.shared_context 'registration_data' do
       before do
         # General
@@ -9,12 +40,12 @@ module Helpers
         @required_fields_only = get_registration('CubingZANationalChampionship2023-158817')
         @no_attendee_id = get_registration('CubingZANationalChampionship2023-158818')
 
-        # For 'various optional fields'
+        # # For 'various optional fields'
         @with_is_attending = get_registration('CubingZANationalChampionship2023-158819')
         @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820')
         @with_all_optional_fields = @basic_registration
 
-        # For 'bad request payloads'
+        # # For 'bad request payloads'
         @missing_reg_fields = get_registration('CubingZANationalChampionship2023-158821')
         @empty_json = get_registration('')
         @missing_lane = get_registration('CubingZANationalChampionship2023-158822')
@@ -105,7 +136,12 @@ module Helpers
 
         # Retrieve the competition details when attendee_id matches
         registration = registrations.find { |r| r["attendee_id"] == attendee_id }
-        registration["lanes"] = registration["lanes"].map { |lane| Lane.new(lane) }
+        begin 
+          registration["lanes"] = registration["lanes"].map { |lane| Lane.new(lane) }
+        rescue NoMethodError => e
+          puts e
+          return registration
+        end
         convert_registration_object_to_payload(registration)
       end
     end
@@ -127,8 +163,6 @@ module Helpers
       event_ids = []
       competing_lane.lane_details["event_details"].each do |event|
         # Add the event["event_id"] to the list of event_ids
-        puts event
-        puts event["event_id"]
         event_ids << event["event_id"]
       end
       event_ids
