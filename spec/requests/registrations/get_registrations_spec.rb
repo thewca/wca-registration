@@ -83,6 +83,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
 
           response '404', 'Competition ID doesnt exist' do
+            schema '$ref' => '#/components/schemas/error_response'
             let!(:competition_id) { 'InvalidCompID' }
 
             run_test! do |response|
@@ -96,6 +97,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           include_context '500 response from competition service'
           registration_error_json = { error: ErrorCodes::COMPETITION_API_5XX }.to_json
           response '500', 'Competition service unavailable - 500 error' do
+            schema '$ref' => '#/components/schemas/error_response'
             let!(:competition_id) { competition_no_attendees }
 
             run_test! do |response|
@@ -109,6 +111,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           include_context '502 response from competition service'
           registration_error_json = { error: ErrorCodes::COMPETITION_API_5XX }.to_json
           response '502', 'Competition service unavailable - 502 error' do
+            schema '$ref' => '#/components/schemas/error_response'
             let!(:competition_id) { competition_no_attendees }
 
             run_test! do |response|

@@ -23,6 +23,15 @@ RSpec.configure do |config|
       },
       components: {
         schemas: {
+          error_response: {
+            type: :object,
+            properties: {
+              error: {
+                type: :number,
+              },
+            },
+            required: [:error],
+          },
           registration: {
             type: :object,
             properties: {
@@ -33,7 +42,78 @@ RSpec.configure do |config|
                 type: :array,
                 items: {
                   type: :string,
+                  format: :EventId,
                 },
+              },
+            },
+            required: [:user_id, :event_ids],
+          },
+          registrationAdmin: {
+            type: :object,
+            properties: {
+              user_id: {
+                type: :string,
+              },
+              event_ids: {
+                type: :array,
+                items: {
+                  type: :string,
+                  format: :EventId,
+                },
+              },
+              comment: {
+                type: :string,
+              },
+              admin_comment: {
+                type: :string,
+              },
+              guests: {
+                type: :number,
+              },
+            },
+            required: [:user_id, :event_ids],
+          },
+          submitRegistrationBody: {
+            properties: {
+              user_id: {
+                type: :string,
+              },
+              event_ids: {
+                type: :array,
+                items: {
+                  type: :string,
+                  format: :EventId,
+                },
+              },
+              comment: {
+                type: :string,
+              },
+              guests: {
+                type: :number,
+              },
+            },
+            required: [:user_id, :event_ids],
+          },
+          updateRegistrationBody: {
+            properties: {
+              user_id: {
+                type: :string,
+              },
+              event_ids: {
+                type: :array,
+                items: {
+                  type: :string,
+                  format: :EventId,
+                },
+              },
+              comment: {
+                type: :string,
+              },
+              admin_comment: {
+                type: :string,
+              },
+              guests: {
+                type: :number,
               },
             },
             required: [:user_id, :event_ids],
@@ -46,7 +126,7 @@ RSpec.configure do |config|
           url: 'https://{defaultHost}',
           variables: {
             defaultHost: {
-              default: 'www.example.com',
+              default: 'registration.worldcubeassociation.org',
             },
           },
         },
