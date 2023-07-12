@@ -11,9 +11,9 @@ export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { user } = useContext(AuthContext)
   const navigate = useNavigate()
-  const panes = useMemo(() => {
+  const panes = useMemo(async () => {
     const adminPanes = []
-    if (canAdminCompetition(user, competitionInfo.id)) {
+    if (await canAdminCompetition(competitionInfo.id)) {
       adminPanes.push({
         menuItem: (
           <Menu.Item
