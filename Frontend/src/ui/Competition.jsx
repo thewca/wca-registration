@@ -8,6 +8,13 @@ import { CompetitionContext } from '../api/helper/context/competition_context'
 import styles from './competition.module.scss'
 import LoadingMessage from './messages/loadingMessage'
 
+const isOpen = (competitionInfo) => {
+  return (
+    new Date(competitionInfo.registration_open) < new Date() &&
+    new Date(competitionInfo.registration_close) > new Date()
+  )
+}
+
 export default function Competition({ children }) {
   const { competition_id } = useParams()
   const navigate = useNavigate()
@@ -28,7 +35,11 @@ export default function Competition({ children }) {
               <div className={styles.infoLeft}>
                 <div className={styles.competitionName}>
                   <UiIcon name="bookmark ouline" /> {competitionInfo.name} |{' '}
-                  <span className={styles.open}>Open</span>
+                  {isOpen(competitionInfo) ? (
+                    <span className={styles.open}>Open</span>
+                  ) : (
+                    <span className={styles.close}>Close</span>
+                  )}
                 </div>
                 <div className={styles.location}>
                   <UiIcon name="pin" /> {competitionInfo.venue_address}
@@ -45,7 +56,11 @@ export default function Competition({ children }) {
                 </div>
                 <Button
                   className={styles.registerButton}
-                  onClick={() => navigate(`/${competitionInfo.id}/register`)}
+                  disabled={!isOpen(competitionInfo)}
+                  onClick={(_, data) => {
+                    if (!data.disabled)
+                      navigate(`/competitions/${competitionInfo.id}/register`)
+                  }}
                 >
                   Register
                 </Button>
