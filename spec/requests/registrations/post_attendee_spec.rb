@@ -11,6 +11,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
   path '/api/v1/register' do
     post 'Add an attendee registration' do
+      consumes 'application/json'
       parameter name: :registration, in: :body,
                 schema: { '$ref' => '#/components/schemas/registration' }, required: true
       parameter name: 'Authorization', in: :header, type: :string
@@ -20,22 +21,31 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'basic_auth_token'
         include_context 'registration_data'
 
-
         response '202', 'only required fields included' do
-          let(:registration) { required_fields_only }
-          let(:'Authorization') { @jwt_token }
+          let!(:registration) { @required_fields_only }
+          let!(:'Authorization') { @jwt_token }
 
           run_test!
         end
 
         response '202', 'various optional fields' do
-          # include_context 'registration_data' NOTE: Commented out because I'm only partially sure include_context in a shared context works
-          it_behaves_like 'optional field tests', @with_is_attending
-          it_behaves_like 'optional field tests', @with_hide_name_publicly
-          it_behaves_like 'optional field tests', @with_all_optional_fields
+          before do 
+            puts "Prospective payload variable: #{@with_is_attending}"
+          end
+
+          let (:payload) {@with_is_attending}
+
+          it_behaves_like 'optional field tests' do
+            let (:passed_payload) {payload}
+          end
+          # it_behaves_like 'optional field tests', @with_hide_name_publicly
+          # it_behaves_like 'optional field tests', @with_all_optional_fields
         end
       end
 
+          # let!(:registration) { @with_is_attending }
+          # let(:'Authorization') { @jwt_token }
+      #
       context 'fail: request validation fails' do
         include_context 'basic_auth_token'
         include_context 'registration_data'

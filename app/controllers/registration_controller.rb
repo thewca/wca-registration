@@ -215,6 +215,7 @@ class RegistrationController < ApplicationController
     REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
 
     def registration_params
+      puts "Params (from controller): #{params}"
       params.require([:user_id, :competition_id, :event_ids])
     end
 

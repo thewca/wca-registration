@@ -16,6 +16,7 @@ services:
       VAULT_DEV_ROOT_TOKEN_ID: aDGdUASDGIUASGDKI
       PROMETHEUS_EXPORTER: "prometheus_exporter"
       REDIS_URL: "redis://redis:6379"
+      RAILS_LOG_TO_STDOUT: "true"
     volumes:
       - .:/app
       - gems_volume_handler:/usr/local/bundle

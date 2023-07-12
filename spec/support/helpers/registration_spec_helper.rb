@@ -123,7 +123,7 @@ module Helpers
         begin 
           registration["lanes"] = registration["lanes"].map { |lane| Lane.new(lane) }
         rescue NoMethodError => e
-          puts e
+          # puts e
           return registration
         end
         convert_registration_object_to_payload(registration)
@@ -136,6 +136,7 @@ module Helpers
 
       {
         user_id: registration["user_id"],
+        competition_id: registration["competition_id"],
         competing: {
           event_ids: event_ids,
           registration_status: competing_lane.lane_state,
