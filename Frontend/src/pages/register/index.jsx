@@ -11,7 +11,7 @@ import PermissionMessage from '../../ui/messages/permissionMessage'
 import RegistrationPanel from './components/RegistrationPanel'
 import styles from './index.module.scss'
 
-export default async function Register() {
+export default function Register() {
   const { user } = useContext(AuthContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const loggedIn = user !== null
@@ -78,7 +78,7 @@ export default async function Register() {
       ) : (
         <>
           <div className={styles.registrationHeader}>Hi, {user}</div>
-          {(await canAttendCompetitions(user)) ? (
+          {canAttendCompetitions(user) ? (
             <RegistrationPanel />
           ) : (
             <PermissionMessage permissionLevel={CAN_ATTEND_COMPETITIONS} />

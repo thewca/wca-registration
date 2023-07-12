@@ -7,22 +7,22 @@ interface Permissions {
 }
 type Scope = '*' | string[]
 
-async function getPermissions() {
+function getPermissions() {
   return externalServiceFetch(
     'https://test-registration.worldcubeassociation.org/api/v10/users/me/permissions'
-  ) as Promise<Permissions>
+  ) as Permissions
 }
 
-export async function canAdminCompetition(competitionId: string) {
-  const permissions = await getPermissions()
+export function canAdminCompetition(competitionId: string) {
+  const permissions = getPermissions()
   return (
     permissions.can_administer_competitions.scope === '*' ||
     permissions.can_administer_competitions.scope.includes(competitionId)
   )
 }
 
-export async function canAttendCompetitions() {
-  const permissions = await getPermissions()
+export function canAttendCompetitions() {
+  const permissions = getPermissions()
   return permissions.can_attend_competitions.scope === '*'
 }
 

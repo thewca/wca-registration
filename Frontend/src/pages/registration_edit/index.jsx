@@ -8,11 +8,11 @@ import PermissionMessage from '../../ui/messages/permissionMessage'
 import RegistrationEditor from './components/RegistrationEditor'
 import styles from './index.module.scss'
 
-export default async function RegistrationEdit() {
+export default function RegistrationEdit() {
   const { competitionInfo } = useContext(CompetitionContext)
   return (
     <div className={styles.container}>
-      {(await canAdminCompetition(competitionInfo.id)) ? (
+      {canAdminCompetition(competitionInfo.id) ? (
         <RegistrationEditor />
       ) : (
         <PermissionMessage permissionLevel={CAN_ADMINISTER_COMPETITIONS} />
