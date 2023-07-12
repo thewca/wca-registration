@@ -17,56 +17,6 @@ module Helpers
       end
     end
 
-
-    
-    # def fetch_jwt_token(user_id='15073')
-    #   iat = Time.now.to_i
-    #   jti_raw = [JwtOptions.secret, iat].join(':').to_s
-    #   jti = Digest::MD5.hexdigest(jti_raw)
-    #   payload = { data: { user_id: user_id }, exp: Time.now.to_i + JwtOptions.expiry, sub: user_id, iat: iat, jti: jti }
-    #   JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
-
-    #   # jwt_response = get :jwt, params: { user_id: user_id }
-    #   # puts jwt_response
-    #   # jwt_token = jwt_response.headers['Authorization']
-    #   # jwt_token
-    # end
-
-    # RSpec.shared_context 'basic_auth_token' do
-
-    #   # Make a request to fetch the JWT token
-    #   user_id = '15073'
-    #   iat = Time.now.to_i
-    #   jti_raw = [JwtOptions.secret, iat].join(':').to_s
-    #   jti = Digest::MD5.hexdigest(jti_raw)
-    #   payload = { data: { user_id: user_id }, exp: Time.now.to_i + JwtOptions.expiry, sub: user_id, iat: iat, jti: jti }
-    #   jwt_token = JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
-    #   puts jwt_token
-
-    #   @jwt_header = "Bearer #{jwt_token}"
-    #   puts @jwt_header
-
-
-      # Fetch the JWT token using the helper method
-      # jwt_token = fetch_jwt_token('15073') # Adjust the user_id as needed
-
-      # Set the Authorization header with the JWT token
-      # header 'Authorization', 'eyJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InVzZXJfaWQiOiIxNTA3MyJ9LCJleHAiOiIxNjg5MTU0NTY4Iiwic3ViIjoiMTUwNzMiLCJpYXQiOjE2ODkxNTI3NjgsImp0aSI6ImFmNzk3NGU0NjliMzRiM2Y2NjQ5MzYwZWM1ZWQxOTUzIn0.eS-ujg1L9dtO
-# Dp_jYd-bIzLo9d1orZ8ol0DXinbD7vk'
-    # end
-
-    # RSpec.shared_context 'basic_auth_token' do
-    #   before do
-    #     # Make a request to fetch the JWT token
-    #     jwt_response = api_get('/jwt', params: { user_id: '15073' }) # Adjust the user_id as needed
-    #     puts jwt_response
-    #     jwt_token = jwt_response.headers['Authorization']
-
-    #     # Set the Authorization header with the JWT token
-    #     request_header 'Authorization', jwt_token
-    #   end
-    # end
-
     RSpec.shared_context 'registration_data' do
       before do
         # General

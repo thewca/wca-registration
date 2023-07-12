@@ -1,11 +1,13 @@
 RSpec.shared_examples 'optional field tests' do |payload|
   let!(:registration) { payload }
+  let(:'Authorization') { @jwt_token }
 
   run_test!
 end
 
 RSpec.shared_examples 'payload error tests' do |payload|
   let!(:registration) { payload }
+  let(:'Authorization') { @jwt_token }
 
   run_test!
 end
