@@ -1,7 +1,9 @@
-RSpec.shared_examples 'optional field tests' do |passed_payload|
-  puts "SHARED EXAMPLE PAYLOAD: #{passed_payload}"
+RSpec.shared_examples 'optional field tests' do |payload|
+  before do
+    puts "SHARED EXAMPLE PAYLOAD: #{send(payload)}"
+  end
 
-  let!(:registration) { passed_payload }
+  let(:registration) { send(payload) }
   let(:'Authorization') { @jwt_token }
 
   run_test!

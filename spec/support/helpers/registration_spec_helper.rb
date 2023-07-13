@@ -18,6 +18,8 @@ module Helpers
     end
 
     RSpec.shared_context 'registration_data' do
+      let(:required_fields_only) { get_registration('CubingZANationalChampionship2023-158817') }
+
       before do
         # General
         @basic_registration = get_registration('CubingZANationalChampionship2023-158816')
@@ -25,7 +27,7 @@ module Helpers
         @no_attendee_id = get_registration('CubingZANationalChampionship2023-158818')
 
         # # For 'various optional fields'
-        @with_is_attending = get_registration('CubingZANationalChampionship2023-158819')
+        # @with_is_attending = get_registration('CubingZANationalChampionship2023-158819')
         @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820')
         @with_all_optional_fields = @basic_registration
 

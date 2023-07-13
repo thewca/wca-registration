@@ -22,22 +22,34 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'registration_data'
 
         response '202', 'only required fields included' do
-          let!(:registration) { @required_fields_only }
-          let!(:'Authorization') { @jwt_token }
+          let(:registration) { @required_fields_only }
+          let(:'Authorization') { @jwt_token }
 
           run_test!
+
+          # let (:registration) {@with_is_attending}
+          run_test!
+        end
+
+        response '202', 'including comment field' do
         end
 
         response '202', 'various optional fields' do
           before do 
-            puts "Prospective payload variable: #{@with_is_attending}"
+            puts "Prospective payload variable: #{with_is_attending}"
           end
 
-          let (:payload) {@with_is_attending}
+          # subject {@required_fields_only}
+          it_behaves_like 'optional field tests', :required_fields_only
+          # it_behaves_like 'optional field tests' do
+          #   let(:payload) { with_is_attending }
+          # end
 
-          it_behaves_like 'optional field tests' do
-            let (:passed_payload) {payload}
-          end
+          # let (:payload) {@with_is_attending}
+
+          # it_behaves_like 'optional field tests' do
+          #   let (:passed_payload) {payload}
+          # end
           # it_behaves_like 'optional field tests', @with_hide_name_publicly
           # it_behaves_like 'optional field tests', @with_all_optional_fields
         end
