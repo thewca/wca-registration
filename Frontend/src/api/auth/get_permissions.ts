@@ -1,4 +1,6 @@
+import * as process from 'process'
 import externalServiceFetch from '../helper/external_service_fetch'
+import getPermissionsMock from '../mocks/get_permissions'
 
 interface Permissions {
   can_attend_competitions: { scope: Scope }
@@ -8,9 +10,12 @@ interface Permissions {
 type Scope = '*' | string[]
 
 function getPermissions() {
-  return externalServiceFetch(
-    'https://test-registration.worldcubeassociation.org/api/v10/users/me/permissions'
-  ) as Permissions
+  if (process.env.NODE_ENV === 'production') {
+    return externalServiceFetch(
+      'https://test-registration.worldcubeassociation.org/api/v10/users/me/permissions'
+    ) as Permissions
+  }
+  return getPermissionsMock()
 }
 
 export function canAdminCompetition(competitionId: string) {
