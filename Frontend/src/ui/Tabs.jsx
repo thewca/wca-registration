@@ -13,7 +13,7 @@ export default function PageTabs() {
   const navigate = useNavigate()
   const panes = useMemo(() => {
     const adminPanes = []
-    if (canAdminCompetition(user, competitionInfo.id)) {
+    if (canAdminCompetition(competitionInfo.id)) {
       adminPanes.push({
         menuItem: (
           <Menu.Item

@@ -15,7 +15,7 @@
   "scripts": {
     "build:dev": "NODE_ENV=\"development\" ASSET_PATH=\"/dist\" API_URL=\"http://localhost:3001/api/v1\" AUTH_URL=\"http://localhost:3001/jwt\" node src/build.js",
     "build:staging": "NODE_ENV=\"staging\" ASSET_PATH=\"https://d1qizdh27al0a7.cloudfront.net/staging/dist\" API_URL=\"https://staging.registration.worldcubeassociation.org/api/v1\" AUTH_URL=\"https://staging.registration.worldcubeassociation.org/jwt\" node src/build.js",
-    "build:prod": "NODE_ENV=\"production\" ASSET_PATH=\"https://d1qizdh27al0a7.cloudfront.net/dist\" API_URL=\"https://registration.worldcubeassociation.org/api/v1\" AUTH_URL=\"https://worldcubeassociation.org/api/v1/jwt\" node src/build.js",
+    "build:prod": "NODE_ENV=\"production\" ASSET_PATH=\"https://d1qizdh27al0a7.cloudfront.net/dist\" API_URL=\"https://registration.worldcubeassociation.org/api/v1\" AUTH_URL=\"https://test-registration.worldcubeassociation.org/api/v10/auth/jwt\" node src/build.js",
     "watch": "node src/watch.mjs",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix"
@@ -34,11 +34,13 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.2",
-    "semantic-ui-react": "^2.1.4"
+    "semantic-ui-react": "^2.1.4",
+    "sync-fetch": "^0.5.2"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^4.29.9",
     "@types/node": "^20.2.5",
+    "@types/sync-fetch": "^0.4.0",
     "eslint": "^8.40.0",
     "eslint-kit": "^9.3.0",
     "prettier": "^2.8.8"

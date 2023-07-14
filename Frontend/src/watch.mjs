@@ -28,6 +28,7 @@ const context = await esbuild.context({
   define: {
     'process.env.API_URL': '"http://localhost:3001/api/v1"',
     'process.env.AUTH_URL': '"http://localhost:3001/jwt"',
+    'process.env.NODE_ENV': '"development"',
   },
 })
 
