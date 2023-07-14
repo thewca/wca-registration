@@ -10,40 +10,26 @@ export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)
   const navigate = useNavigate()
   const panes = useMemo(() => {
-    return [
-      {
+    const optionalTabs = []
+    if (canAdminCompetition(competitionInfo.id)) {
+      optionalTabs.push({
         menuItem: (
           <Menu.Item
-            key="tab-info"
+            key="tab-registration"
             className={styles.tabItem}
-            onClick={() => navigate(`/competitions/${competitionInfo.id}`)}
+            onClick={() =>
+              navigate(`/competitions/${competitionInfo.id}/registrations/edit`)
+            }
           >
-            <UiIcon name="info" />
-            General Info
+            <UiIcon name="list ul" />
+            Registrations
           </Menu.Item>
         ),
         render: () => {},
-      },
-      ...(canAdminCompetition(competitionInfo.id)
-        ? {
-            menuItem: (
-              <Menu.Item
-                key="tab-registration"
-                className={styles.tabItem}
-                onClick={() =>
-                  navigate(
-                    `/competitions/${competitionInfo.id}/registrations/edit`
-                  )
-                }
-              >
-                <UiIcon name="list ul" />
-                Registrations
-              </Menu.Item>
-            ),
-            render: () => {},
-          }
-        : []),
-      {
+      })
+    }
+    if (new Date(competitionInfo.registration_open) < Date.now()) {
+      optionalTabs.push({
         menuItem: (
           <Menu.Item
             key="tab-Competitors"
@@ -54,6 +40,21 @@ export default function PageTabs() {
           >
             <UiIcon name="users" />
             Competitors
+          </Menu.Item>
+        ),
+        render: () => {},
+      })
+    }
+    return [
+      {
+        menuItem: (
+          <Menu.Item
+            key="tab-info"
+            className={styles.tabItem}
+            onClick={() => navigate(`/competitions/${competitionInfo.id}`)}
+          >
+            <UiIcon name="info" />
+            General Info
           </Menu.Item>
         ),
         render: () => {},
@@ -73,6 +74,7 @@ export default function PageTabs() {
         ),
         render: () => {},
       },
+      ...optionalTabs,
       ...competitionInfo.tabs.map((tab) => {
         return {
           menuItem: (
@@ -90,7 +92,12 @@ export default function PageTabs() {
         }
       }),
     ]
-  }, [competitionInfo.id, competitionInfo.tabs, navigate])
+  }, [
+    competitionInfo.id,
+    competitionInfo.registration_open,
+    competitionInfo.tabs,
+    navigate,
+  ])
   return (
     <Tab
       panes={panes}
