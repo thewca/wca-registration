@@ -1,5 +1,8 @@
+import * as currencies from '@dinero.js/currencies'
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
+import { dinero, toDecimal } from 'dinero.js'
+import moment from 'moment'
 import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button, Image } from 'semantic-ui-react'
@@ -7,13 +10,6 @@ import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import styles from './competition.module.scss'
 import LoadingMessage from './messages/loadingMessage'
-
-const isOpen = (competitionInfo) => {
-  return (
-    new Date(competitionInfo.registration_open) < new Date() &&
-    new Date(competitionInfo.registration_close) > new Date()
-  )
-}
 
 export default function Competition({ children }) {
   const { competition_id } = useParams()
@@ -35,7 +31,7 @@ export default function Competition({ children }) {
               <div className={styles.infoLeft}>
                 <div className={styles.competitionName}>
                   <UiIcon name="bookmark ouline" /> {competitionInfo.name} |{' '}
-                  {isOpen(competitionInfo) ? (
+                  {competitionInfo['registration_opened?'] ? (
                     <span className={styles.open}>Open</span>
                   ) : (
                     <span className={styles.close}>Close</span>
@@ -45,8 +41,16 @@ export default function Competition({ children }) {
                   <UiIcon name="pin" /> {competitionInfo.venue_address}
                 </div>
                 <div className={styles.date}>
-                  {new Date(competitionInfo.start_date).toDateString()},{' '}
-                  <a href="https://calendar.google.com">
+                  {moment(competitionInfo.start_date).format('LL')},{' '}
+                  <a
+                    href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${
+                      competitionInfo.id
+                    }&dates=${moment(competitionInfo.start_date).format(
+                      'YYYYMMDD'
+                    )}/${moment(competitionInfo.end_date).format(
+                      'YYYYMMDD'
+                    )}&location=${competitionInfo.venue_address}`}
+                  >
                     Add to Google Calendar
                   </a>
                 </div>
@@ -56,7 +60,7 @@ export default function Competition({ children }) {
                 </div>
                 <Button
                   className={styles.registerButton}
-                  disabled={!isOpen(competitionInfo)}
+                  disabled={!competitionInfo['registration_opened?']}
                   onClick={(_, data) => {
                     if (!data.disabled)
                       navigate(`/competitions/${competitionInfo.id}/register`)
@@ -64,7 +68,17 @@ export default function Competition({ children }) {
                 >
                   Register
                 </Button>
-                <span className={styles.fee}>Registration Fee of $$$</span>
+                <span className={styles.fee}>
+                  Registration Fee:{' '}
+                  {toDecimal(
+                    dinero({
+                      amount:
+                        competitionInfo.base_entry_fee_lowest_denomination,
+                      currency: currencies[competitionInfo.currency_code],
+                    }),
+                    ({ value, currency }) => `${currency.code} ${value}`
+                  ) ?? 'No Entry Fee'}
+                </span>
               </div>
               <div className={styles.infoRight}>
                 <Image href={competitionInfo.url} className={styles.image} />
@@ -83,7 +97,7 @@ export default function Competition({ children }) {
                 <span className={styles.eventHeader}>Main Event:</span>
                 <span className={styles.event}>
                   <CubingIcon
-                    event={competitionInfo.event_ids[0]}
+                    event={competitionInfo.main_event_id}
                     selected={true}
                   />
                 </span>

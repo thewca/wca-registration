@@ -1,4 +1,3 @@
-import * as process from 'process'
 import externalServiceFetch from '../helper/external_service_fetch'
 import getPermissionsMock from '../mocks/get_permissions'
 
