@@ -105,7 +105,9 @@ export default function RegistrationPanel() {
           </div>
           <Divider className={styles.divider} />
           <div className={styles.registrationHeading}>
-            Registration Fee of $$$ | Waitlist: 0 People
+            Registration Fee of{' '}
+            {competitionInfo.base_entry_fee_lowest_denomination} | Waitlist: 0
+            People
           </div>
           <div className={styles.registrationRow}>
             <div className={styles.eventSelectionText}>
@@ -152,7 +154,9 @@ export default function RegistrationPanel() {
             value={guests}
             onChange={(e, data) => setGuests(data.value)}
             selection
-            options={[...new Array(10)].map((_, index) => {
+            options={[
+              ...new Array(competitionInfo.guests_per_registration_limit ?? 99),
+            ].map((_, index) => {
               return {
                 key: `registration-guest-dropdown-${index}`,
                 text: index,
@@ -167,10 +171,13 @@ export default function RegistrationPanel() {
           <div className={styles.registrationButtonWrapper}>
             <div className={styles.registrationWarning}>
               Your Registration Status: {registration.registration_status}
+              {competitionInfo.allow_registration_edits
+                ? 'Update Your Registration below'
+                : 'Registration Editing is disabled'}
               <UiIcon name="circle info" />
             </div>
             <Button
-              disabled={isUpdating}
+              disabled={isUpdating || competitionInfo.allow_registration_edits}
               color="blue"
               onClick={() => {
                 setMessage('Registration is being updated', 'basic')

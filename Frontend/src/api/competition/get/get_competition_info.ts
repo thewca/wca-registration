@@ -5,6 +5,6 @@ export default async function getCompetitionInfo(
   competitionId: string
 ): Promise<CompetitionInfo> {
   return externalServiceFetch(
-    `https://www.worldcubeassociation.org/api/v0/competitions/${competitionId}`
+    `https://test-registration.worldcubeassociation.org/api/v10/competitions/${competitionId}`
   )
 }

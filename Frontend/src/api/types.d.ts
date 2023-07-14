@@ -18,31 +18,53 @@ interface UpdateRegistrationBody {
   guests?: number
 }
 
-type GetRegistrationBody = Record<string, never>
+interface Tabs {
+  id: number
+  competition_id: string
+  name: string
+  content: string
+  display_order: number
+}
 
 // This needs to be moved to WCA-helpers
 interface CompetitionInfo {
-  id: string
-  name: string
-  registration_open: string
-  registration_close: string
-  announced_at: string
-  start_date: string
-  end_date: string
-  competitor_limit?: number
-  cancelled_at?: string
-  url: string
-  website: string
-  short_name: string
-  city: string
-  venue_address: string
-  venue_details: string
-  latitude_degrees: number
-  longitude_degrees: number
-  country_iso2: string
-  event_ids: EventId[]
+  'id': string
+  'name': string
+  'registration_open': string
+  'registration_close': string
+  'announced_at': string
+  'start_date': string
+  'end_date': string
+  'competitor_limit'?: number
+  'cancelled_at'?: string
+  'refund_policy_limit_date'?: string
+  'event_change_deadline_date'?: string
+  'waiting_list_deadline_date'?: string
+  'base_entry_fee_lowest_denomination'?: string
+  'currency_code'?: string
+  'on_the_spot_registration': boolean
+  'on_the_spot_entry_fee_lowest_denomination': string
+  'extra_registration_requirements': string
+  'url': string
+  'website': string
+  'short_name': string
+  'city': string
+  'venue_address': string
+  'venue_details': string
+  'latitude_degrees': number
+  'longitude_degrees': number
+  'country_iso2': string
+  'registration_opened?': boolean
+  'event_ids': EventId[]
+  'main_event_id': EventId
+  'guests_per_registration_limit'?: number
+  'guest_entry_status': 'free' | 'restricted' | 'unclear'
+  'allow_registration_edits': boolean
+  'allow_registration_without_qualification': boolean
+  'allow_registration_self_delete_after_acceptance': boolean
   // TODO: create a User Type
-  delegates: object[]
-  organizers: object[]
-  class: string
+  'delegates': object[]
+  'organizers': object[]
+  'tabs': Tabs[]
+  'class': string
 }
