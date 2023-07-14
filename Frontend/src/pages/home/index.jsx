@@ -1,4 +1,7 @@
+import { marked } from 'marked'
+import moment from 'moment'
 import React, { useContext } from 'react'
+import { Button } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import styles from './home.module.scss'
 
@@ -6,48 +9,100 @@ export default function HomePage() {
   const { competitionInfo } = useContext(CompetitionContext)
   return (
     <div className={styles.homeContainer}>
+      <div className={styles.requirements}>
+        <div>Registration Requirements:</div>
+        <div>[INSERT ORGANIZER MESSAGE REGARDING REQUIREMENTS]</div>
+        <div>
+          <Button>View All</Button>
+        </div>
+      </div>
       <div className={styles.information}>
-        <h2>Information:</h2>
-        <span>
-          Welcome to {competitionInfo.name}, the ultimate destination for
-          Rubik's Cube enthusiasts! Whether you're a seasoned speedcuber or a
-          beginner looking to unravel the mysteries of the cube,{' '}
-          {competitionInfo.short_name} has something exciting in store for you.
-          Prepare to dive into the world of twists, turns, and mind-boggling
-          algorithms! Join us on{' '}
-          {new Date(competitionInfo.start_date).toDateString()} in{' '}
-          {competitionInfo.city} as we bring together the most talented cubers
-          from around the globe for an unforgettable competition experience.
-          Push your solving skills to the limit, compete against the best, and
-          bask in the exhilaration of record-breaking moments. With various
-          categories and events, {competitionInfo.short_name} caters to cubers
-          of all skill levels. From the lightning-fast speeds of the 3x3x3
-          Rubik's Cube to the intricate patterns of the Megaminx, there's a
-          challenge waiting for every cuber. Don't miss out on the Pyraminx,
-          Square-1, and a range of other exciting puzzles that will keep you on
-          the edge of your seat. Immerse yourself in the vibrant atmosphere of
-          our venue, filled with like-minded cubers sharing their love for the
-          iconic Rubik's Cube. Whether you're spectating or participating,{' '}
-          {competitionInfo.short_name} offers an opportunity to connect with
-          fellow cubing enthusiasts, exchange strategies, and witness the sheer
-          brilliance of top cubers in action. To ensure fair competition, our
-          experienced delegates oversee every solve, guaranteeing accuracy and
-          integrity throughout the event. Get ready to break records, challenge
-          yourself, and maybe even discover new techniques to solve the cube
-          faster than ever before. Can't wait to get started? Register today and
-          secure your spot at {competitionInfo.name}! Limited slots are
-          available, so don't miss this chance to be a part of the most
-          anticipated Rubik's Cube competition of the year. Whether you're here
-          to compete or simply soak up the excitement,{' '}
-          {competitionInfo.short_name} promises an unforgettable experience for
-          everyone.
-        </span>
+        <div className={styles.informationHeader}>Information:</div>
+        <div
+          className={styles.informationText}
+          dangerouslySetInnerHTML={{
+            __html: marked(competitionInfo.information),
+          }}
+        />
       </div>
       <div className={styles.registrationPeriod}>
-        <h2>Registration Period:</h2>
-        Online registration opened{' '}
-        {new Date(competitionInfo.registration_open).toString()} and will close{' '}
-        {new Date(competitionInfo.registration_close).toString()}.
+        <div className={styles.registrationHeader}>Registration Period:</div>
+        <div className={styles.registrationPeriodText}>
+          {new Date(competitionInfo.registration_open) < new Date()
+            ? `Registration opened ${moment(
+                competitionInfo.registration_open
+              ).calendar()} and will close ${moment(
+                competitionInfo.registration_close
+              ).format('ll')}`
+            : `Registration will open ${moment(
+                competitionInfo.registration_open
+              ).calendar()}`}
+        </div>
+      </div>
+      <div className={styles.details}>
+        <div>
+          <span className={styles.detailHeader}>Date: </span>
+          {moment(competitionInfo.start_date).format('ll')}{' '}
+        </div>
+        <div>
+          <span className={styles.detailHeader}>Start Time: </span>
+          XX:XX PM
+        </div>
+        <div>
+          <span className={styles.detailHeader}>City: </span>
+          {competitionInfo.city}, {competitionInfo.country_iso2}
+        </div>
+        <div>
+          <span className={styles.detailHeader}>Venue: </span>
+          <ul>
+            <li>
+              <span className={styles.detailHeader}>Address: </span>
+              {competitionInfo.venue_address}
+            </li>
+            <li>
+              <span className={styles.detailHeader}>Details: </span>
+              {competitionInfo.venue_details}
+            </li>
+          </ul>
+        </div>
+        <div>
+          <span className={styles.detailHeader}>Competitor Limit: </span>
+          {competitionInfo.competitor_limit}
+        </div>
+        <div>
+          <span className={styles.detailHeader}>Contact: </span>
+          <a
+            href={`mailto:${competitionInfo.organizers[0].email}`}
+            className={styles.delegateLink}
+          >
+            {competitionInfo.organizers[0].name}
+          </a>
+        </div>
+        <div>
+          <span className={styles.detailHeader}>Organizers: </span>
+          {competitionInfo.organizers.map((organizer) => (
+            <a
+              key={`competition-organizer-${organizer.id}`}
+              href={`mailto:${organizer.email}`}
+              className={styles.delegateLink}
+            >
+              {organizer.name}
+            </a>
+          ))}
+        </div>
+        <div>
+          <span className={styles.detailHeader}>Delegates: </span>
+          {competitionInfo.delegates.map((delegate) => (
+            <a
+              key={`competition-organizer-${delegate.id}`}
+              href={`mailto:${delegate.email}`}
+              className={styles.delegateLink}
+            >
+              {delegate.name}
+            </a>
+          ))}
+        </div>
+        <div>Download all of the competitions details as a PDF here</div>
       </div>
     </div>
   )

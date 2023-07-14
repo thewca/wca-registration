@@ -1,5 +1,6 @@
 @import '../../style/font-sizes';
 @import '../../style/margins';
+@import '../../style/colors';
 .registration-header{
     margin-top: $single-margin;
     margin-bottom: $double-margin;
@@ -21,7 +22,7 @@
         margin-top: $triple-margin;
         font-weight: 500;
         font-size: $sub-header-size;
-        background: #DDD;
+        background-color: $requirements-red;
         border-radius: 28px;
         margin-left: 5%;
         padding: 30px;

@@ -30,6 +30,7 @@ interface Tabs {
 interface CompetitionInfo {
   'id': string
   'name': string
+  'information': string
   'registration_open': string
   'registration_close': string
   'announced_at': string
@@ -62,9 +63,35 @@ interface CompetitionInfo {
   'allow_registration_edits': boolean
   'allow_registration_without_qualification': boolean
   'allow_registration_self_delete_after_acceptance': boolean
-  // TODO: create a User Type
-  'delegates': object[]
-  'organizers': object[]
+  'delegates': UserFull[]
+  'organizers': UserFull[]
   'tabs': Tabs[]
   'class': string
+}
+
+interface UserFull {
+  id: string
+  created_at: string
+  updated_at: string
+  name: string
+  delegate_status: string
+  gender: 'm' | 'w' | 'o'
+  country_iso2: string
+  email: string
+  region: string
+  senior_delegate_id: number
+  class: string
+  //TODO
+  teams: object[]
+  wca_id: string
+  country: {
+    id: string
+    name: string
+    iso2: string
+  }
+  avatar: {
+    url: string
+    pending_url: string
+    thumb_url: string
+  }
 }

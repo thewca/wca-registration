@@ -51,9 +51,10 @@ export default function Register() {
             trigger={
               <span>
                 Full Refund before{' '}
-                {new Date(
-                  competitionInfo.registration_close
-                ).toLocaleDateString()}
+                {moment(
+                  competitionInfo.refund_policy_limit_date ??
+                    competitionInfo.start_date
+                ).format('ll')}
                 <UiIcon name="circle info" />
               </span>
             }
