@@ -19,6 +19,6 @@ export default async function getCompetitorInfo(
   userId: string
 ): Promise<UserInfo> {
   return externalServiceFetch(
-    `https://www.worldcubeassociation.org/api/v0/users/${userId}`
+    `https://api.worldcubeassociation.org/users/${userId}`
   )
 }
