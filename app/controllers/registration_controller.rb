@@ -12,8 +12,8 @@ class RegistrationController < ApplicationController
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
   before_action :validate_create_request, only: [:create]
-  before_action :ensure_lane_exists, only: [:create]
   before_action :validate_entry_request, only: [:entry]
+  before_action :ensure_lane_exists, only: [:create]
   before_action :validate_list_admin, only: [:list_admin]
   before_action :validate_update_request, only: [:update]
 
@@ -25,11 +25,19 @@ class RegistrationController < ApplicationController
   # We need to do this in this order, so we don't leak user attributes
 
   def validate_create_request
-    @user_id, @competition_id, @event_ids = registration_params
+    # @user_id = registration_params[:user_id]
+    # @competition_id = registration_params[:competition_id]
+    # @event_ids = registration_params[:competing]["event_ids"]
+    @user_id, @competition_id, @competing = registration_params
+    puts "rEGISTRATION PARAMS #{registration_params}"
+    puts "USER ID: #{@user_id}"
+    @event_ids = @competing["event_ids"]
+    puts "eVENT IDS: #{@event_ids}"
     status = ""
     cannot_register_reasons = ""
 
     unless @current_user == @user_id
+      puts "current user: #{@current_user}"
       Metrics.registration_impersonation_attempt_counter.increment
       return render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :forbidden
     end
@@ -39,6 +47,7 @@ class RegistrationController < ApplicationController
       status = :forbidden
       cannot_register_reasons = reasons
     end
+
     # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
     unless CompetitionApi.competition_exists?(@competition_id)
       status = :forbidden
@@ -216,7 +225,9 @@ class RegistrationController < ApplicationController
 
     def registration_params
       puts "Params (from controller): #{params}"
-      params.require([:user_id, :competition_id, :event_ids])
+      params.require([:user_id, :competition_id])
+      params.require(:competing).require(:event_ids)
+      params
     end
 
     def entry_params

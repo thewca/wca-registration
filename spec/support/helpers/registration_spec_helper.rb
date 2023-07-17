@@ -2,7 +2,7 @@
 
 module Helpers
   module RegistrationHelper
-    def fetch_jwt_token(user_id='15073')
+    def fetch_jwt_token(user_id)
       iat = Time.now.to_i
       jti_raw = [JwtOptions.secret, iat].join(':').to_s
       jti = Digest::MD5.hexdigest(jti_raw)
@@ -13,8 +13,21 @@ module Helpers
 
     RSpec.shared_context 'basic_auth_token' do
       before do
-        @jwt_token = fetch_jwt_token
+        @jwt_token = fetch_jwt_token('158817')
+        # @jwt_token_2 = fetch_jwt_token('158817')
       end
+    end
+
+    RSpec.shared_context 'registration_fixtures' do 
+      # before do
+      #   @test_registration = {
+      #     user_id:"158817", 
+      #     competition_id:"CubingZANationalChampionship2023",
+      #     competing: {
+      #       event_ids:["333", "333MBF"]
+      #     }
+      #   }
+      # end
     end
 
     RSpec.shared_context 'registration_data' do

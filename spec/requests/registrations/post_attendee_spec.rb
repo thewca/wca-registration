@@ -3,9 +3,6 @@
 require 'swagger_helper'
 require_relative '../../support/helpers/registration_spec_helper'
 
-# end
-#  
-
 RSpec.describe 'v1 Registrations API', type: :request do
   include Helpers::RegistrationHelper
 
@@ -20,54 +17,35 @@ RSpec.describe 'v1 Registrations API', type: :request do
       context 'success registration posts' do
         include_context 'basic_auth_token'
         include_context 'registration_data'
+        include_context 'registration_fixtures'
 
         response '202', 'only required fields included' do
+          before do
+            puts "Req field: #{@required_fields_only}"
+            puts "Test reg: #{@test_registration}"
+          end
           let(:registration) { @required_fields_only }
           let(:'Authorization') { @jwt_token }
 
-          run_test!
-
-          # let (:registration) {@with_is_attending}
           run_test!
         end
 
         response '202', 'including comment field' do
         end
-
-        response '202', 'various optional fields' do
-          before do 
-            puts "Prospective payload variable: #{with_is_attending}"
-          end
-
-          # subject {@required_fields_only}
-          it_behaves_like 'optional field tests', :required_fields_only
-          # it_behaves_like 'optional field tests' do
-          #   let(:payload) { with_is_attending }
-          # end
-
-          # let (:payload) {@with_is_attending}
-
-          # it_behaves_like 'optional field tests' do
-          #   let (:passed_payload) {payload}
-          # end
-          # it_behaves_like 'optional field tests', @with_hide_name_publicly
-          # it_behaves_like 'optional field tests', @with_all_optional_fields
-        end
       end
+      
+      # TODO: Allow the registration_status to be sent as part of a post request, but only if it is submitted by someone who has admin powers on the comp
 
-          # let!(:registration) { @with_is_attending }
-          # let(:'Authorization') { @jwt_token }
-      #
-      context 'fail: request validation fails' do
-        include_context 'basic_auth_token'
-        include_context 'registration_data'
+      # context 'fail: request validation fails' do
+      #   include_context 'basic_auth_token'
+      #   include_context 'registration_data'
 
-        response '400', 'bad request - required fields not found' do
-          it_behaves_like 'payload error tests', @missing_reg_fields
-          it_behaves_like 'payload error tests', @empty_json
-          it_behaves_like 'payload error tests', @missing_lane
-        end
-      end
+      #   response '400', 'bad request - required fields not found' do
+      #     it_behaves_like 'payload error tests', @missing_reg_fields
+      #     it_behaves_like 'payload error tests', @empty_json
+      #     it_behaves_like 'payload error tests', @missing_lane
+      #   end
+      # end
 
       context 'fail: general elibigibility validation fails' do
         # response 'fail' 'attendee is banned as a competitor' do

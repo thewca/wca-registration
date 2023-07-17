@@ -58,8 +58,13 @@ group :development, :test do
 
   # rspec-rails for creating tests
   gem 'rspec-rails'
+
   # Use rswag for creating rspec tests that also produce swagger spec files
   gem 'rswag'
+
+  # Use pry for live debugging
+  gem 'pry'
+
 
   # webmock for mocking responses from other microservices
   gem 'webmock', require: false
