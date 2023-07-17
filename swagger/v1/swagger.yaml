@@ -5,68 +5,79 @@ info:
   version: v1
 components:
   schemas:
+    error_response:
+      type: object
+      properties:
+        error:
+          type: number
+      required:
+      - error
     registration:
       type: object
       properties:
-        attendee_id:
-          type: string
-        competition_id:
-          type: string
         user_id:
           type: string
-        is_attending:
-          type: boolean
-        lane_states:
-          type: object
-        lanes:
+        event_ids:
           type: array
           items:
-            type: object
-            properties:
-              lane_name:
-                type: string
-              lane_state:
-                type: string
-              completed_steps:
-                type: array
-              lane_details:
-                type: object
-              payment_reference:
-                type: string
-              payment_amount:
-                type: string
-              transaction_currency:
-                type: string
-              discount_percentage:
-                type: string
-              discount_amount:
-                type: string
-              last_action:
-                type: string
-              last_action_datetime:
-                type: string
-                format: date_time
-              last_action_user:
-                type: string
-            required:
-            - lane_name
-            - lane_state
-            - completed_steps
-            - lane_details
-            - payment_reference
-            - payment_amount
-            - transaction_currency
-            - last_action
-            - last_action_datetime
-            - last_action_user
-        hide_name_publicly:
-          type: boolean
+            type: string
+            format: EventId
       required:
-      - attendee_id
-      - competition_id
       - user_id
-      - lane_states
-      - lanes
+      - event_ids
+    registrationAdmin:
+      type: object
+      properties:
+        user_id:
+          type: string
+        event_ids:
+          type: array
+          items:
+            type: string
+            format: EventId
+        comment:
+          type: string
+        admin_comment:
+          type: string
+        guests:
+          type: number
+      required:
+      - user_id
+      - event_ids
+    submitRegistrationBody:
+      properties:
+        user_id:
+          type: string
+        event_ids:
+          type: array
+          items:
+            type: string
+            format: EventId
+        comment:
+          type: string
+        guests:
+          type: number
+      required:
+      - user_id
+      - event_ids
+    updateRegistrationBody:
+      properties:
+        user_id:
+          type: string
+        event_ids:
+          type: array
+          items:
+            type: string
+            format: EventId
+        comment:
+          type: string
+        admin_comment:
+          type: string
+        guests:
+          type: number
+      required:
+      - user_id
+      - event_ids
 paths:
   "/api/v1/registrations/{competition_id}":
     get:
@@ -79,39 +90,34 @@ paths:
           type: string
       responses:
         '200':
-          description: Valid competition_id but no registrations for it
+          description: Competitions Service is down but we have registrations for
+            the competition_id in our database
           content:
             application/json:
               schema:
                 type: array
                 items:
                   "$ref": "#/components/schemas/registration"
-        '400':
-          description: Competition ID not provided
         '404':
-          description: Comeptition ID doesnt exist
-        '500':
-          description: Competition service unavailable - 500 error
-        '502':
-          description: Competition service unavailable - 502 error
-  "/api/v1/registration/{attendee-id}":
-    get:
-      summary: Retrieve attendee registration
-      parameters:
-      - name: competition_id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: retrieve registration information
+          description: Competition ID doesnt exist
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/registration"
+                "$ref": "#/components/schemas/error_response"
+        '500':
+          description: Competition service unavailable - 500 error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+        '502':
+          description: Competition service unavailable - 502 error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
 servers:
 - url: https://{defaultHost}
   variables:
     defaultHost:
-      default: www.example.com
+      default: registration.worldcubeassociation.org

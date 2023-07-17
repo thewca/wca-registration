@@ -126,6 +126,7 @@ services:
       - wca-registration
     volumes:
       - ./Frontend/src:/app/src
+      - ./swagger/v1/swagger.yaml:/swagger/v1/swagger.yaml
 
   nginx:
     container_name: nginx
