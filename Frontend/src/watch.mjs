@@ -15,7 +15,7 @@ const output = await openapiTS(localPath, {
 fs.writeFileSync('src/api/schema.d.ts', output)
 
 const context = await esbuild.context({
-  entryPoints: ['src/index.jsx'],
+  entryPoints: ['src/index.dev.jsx'],
   bundle: true,
   outfile: 'dist/bundle.js',
   jsxFactory: 'React.createElement',
@@ -40,6 +40,7 @@ const context = await esbuild.context({
   define: {
     'process.env.API_URL': '"http://localhost:3001/api/v1"',
     'process.env.AUTH_URL': '"http://localhost:3001/jwt"',
+    'process.env.NODE_ENV': '"development"',
   },
 })
 

@@ -45,7 +45,9 @@ export default function Competition({ children }) {
                 </div>
                 <Button
                   className={styles.registerButton}
-                  onClick={() => navigate(`/${competitionInfo.id}/register`)}
+                  onClick={() =>
+                    navigate(`/competitions/${competitionInfo.id}/register`)
+                  }
                 >
                   Register
                 </Button>
