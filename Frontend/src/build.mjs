@@ -18,7 +18,11 @@ fs.writeFileSync('./src/api/schema.d.ts', output)
 if (!process.env.TYPES_ONLY) {
     esbuild
         .build({
-            entryPoints: ['src/index.jsx'],
+            entryPoints: [
+                process.env.NODE_ENV === 'production'
+                    ? 'src/index.jsx'
+                    : 'src/index.dev.jsx',
+            ],
             bundle: true,
             outfile: 'dist/bundle.js',
             metafile: true,
