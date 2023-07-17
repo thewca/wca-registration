@@ -99,12 +99,12 @@ module Helpers
       before do
         # Create a "normal" registration entry
         basic_registration = get_registration('CubingZANationalChampionship2023-158816')
-        registration = Registrations.new(basic_registration)
+        registration = Registration.new(basic_registration)
         registration.save
 
         # Create a registration that is already cancelled
         cancelled_registration = get_registration('CubingZANationalChampionship2023-158823')
-        registration = Registrations.new(cancelled_registration)
+        registration = Registration.new(cancelled_registration)
         registration.save
       end
     end

@@ -28,41 +28,30 @@ class RegistrationController < ApplicationController
     @user_id = registration_params[:user_id]
     @competition_id = registration_params[:competition_id]
     @event_ids = registration_params[:competing]["event_ids"]
-    puts "REGISTRATION PARAMS #{registration_params}"
-    puts "USER ID: #{@user_id}"
-    puts "EVENT IDS: #{@event_ids}"
     status = ""
     cannot_register_reason = ""
-    puts cannot_register_reason.class
 
     unless @current_user == @user_id
-      puts "current user: #{@current_user}"
       Metrics.registration_impersonation_attempt_counter.increment
       return render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :forbidden
     end
 
     can_compete, reasons = UserApi.can_compete?(@user_id)
-    puts "CAN COMPETE: #{can_compete}"
-    puts "REASONS: #{reasons.class}"
     unless can_compete
-      puts "executing"
       status = :forbidden
       cannot_register_reason = reasons
     end
-    puts cannot_register_reason.class
 
     # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
     unless CompetitionApi.competition_exists?(@competition_id)
       status = :forbidden
       cannot_register_reasons = ErrorCodes::COMPETITION_CLOSED
     end
-    puts cannot_register_reason.class
 
     if @event_ids.empty? || !CompetitionApi.events_held?(@event_ids, @competition_id)
       status = :bad_request
       cannot_register_reasons = ErrorCodes::COMPETITION_INVALID_EVENTS
     end
-    puts cannot_register_reason.class
 
     unless cannot_register_reason.empty?
       Metrics.registration_validation_errors_counter.increment
