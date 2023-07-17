@@ -2,6 +2,17 @@
 
 module Helpers
   module RegistrationHelper
+    RSpec.shared_context 'stub ZA champs comp info' do
+      before do
+        competition_id = "CubingZANationalChampionship2023"
+        competition_details = get_competition_details(competition_id)
+
+        # Stub the request to the Competition Service
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+          .to_return(status: 200, body: competition_details.to_json)
+      end
+    end
+
     def fetch_jwt_token(user_id)
       iat = Time.now.to_i
       jti_raw = [JwtOptions.secret, iat].join(':').to_s
@@ -124,7 +135,7 @@ module Helpers
 
         # Retrieve the competition details when competition_id matches
         competition_details['competitions'].each do |competition|
-          competition if competition['id'] == competition_id
+          return competition if competition['id'] == competition_id
         end
       end
     end

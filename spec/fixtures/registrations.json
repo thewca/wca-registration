@@ -20,7 +20,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -60,7 +60,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -98,7 +98,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -138,7 +138,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -177,7 +177,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -213,7 +213,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -259,7 +259,7 @@
             "event_registration_state":"cancelled"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"cancelled"

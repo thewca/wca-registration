@@ -16,18 +16,6 @@ module Mocks
           scope: %w[BudapestSummer2023],
         },
       }
-    when "2", "6427" # Test Competitors
-      {
-        can_attend_competitions: {
-          scope: "*",
-        },
-        can_organize_competitions: {
-          scope: [],
-        },
-        can_administer_competitions: {
-          scope: [],
-        },
-      }
     when "15073" # Test Admin
       {
         can_attend_competitions: {
@@ -69,7 +57,7 @@ module Mocks
     else
       {
         can_attend_competitions: {
-          scope: [],
+          scope: "*",
         },
         can_organize_competitions: {
           scope: [],

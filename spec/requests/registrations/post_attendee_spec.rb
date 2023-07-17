@@ -18,6 +18,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'basic_auth_token'
         include_context 'registration_data'
         include_context 'registration_fixtures'
+        include_context 'stub ZA champs comp info'
 
         response '202', 'only required fields included' do
           before do
@@ -30,8 +31,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test!
         end
 
-        response '202', 'including comment field' do
-        end
+        # response '202', 'including comment field' do
+        # end
       end
       
       # TODO: Allow the registration_status to be sent as part of a post request, but only if it is submitted by someone who has admin powers on the comp
