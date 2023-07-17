@@ -1,5 +1,7 @@
+import * as currencies from '@dinero.js/currencies'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
+import { dinero, toDecimal } from 'dinero.js'
 import React, { useContext, useEffect, useState } from 'react'
 import { Button, Divider, Dropdown, Popup, TextArea } from 'semantic-ui-react'
 import { AuthContext } from '../../../api/helper/context/auth_context'
@@ -106,8 +108,14 @@ export default function RegistrationPanel() {
           <Divider className={styles.divider} />
           <div className={styles.registrationHeading}>
             Registration Fee of{' '}
-            {competitionInfo.base_entry_fee_lowest_denomination} | Waitlist: 0
-            People
+            {toDecimal(
+              dinero({
+                amount: competitionInfo.base_entry_fee_lowest_denomination,
+                currency: currencies[competitionInfo.currency_code],
+              }),
+              ({ value, currency }) => `${currency.code} ${value}`
+            ) ?? 'No Entry Fee'}{' '}
+            | Waitlist: 0 People
           </div>
           <div className={styles.registrationRow}>
             <div className={styles.eventSelectionText}>
@@ -177,7 +185,7 @@ export default function RegistrationPanel() {
               <UiIcon name="circle info" />
             </div>
             <Button
-              disabled={isUpdating || competitionInfo.allow_registration_edits}
+              disabled={isUpdating || !competitionInfo.allow_registration_edits}
               color="blue"
               onClick={() => {
                 setMessage('Registration is being updated', 'basic')

@@ -65,9 +65,10 @@ export default function Register() {
             trigger={
               <span>
                 Edit Registration until{' '}
-                {moment(competitionInfo.event_change_deadline_date).format(
-                  'll'
-                )}
+                {moment(
+                  competitionInfo.event_change_deadline_date ??
+                    competitionInfo.end_date
+                ).format('ll')}
                 <UiIcon name="circle info" />
               </span>
             }
