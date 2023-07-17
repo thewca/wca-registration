@@ -3,13 +3,11 @@ import React, { useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Tab } from 'semantic-ui-react'
 import { canAdminCompetition } from '../api/auth/get_permissions'
-import { AuthContext } from '../api/helper/context/auth_context'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import styles from './tabs.module.scss'
 
 export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { user } = useContext(AuthContext)
   const navigate = useNavigate()
   const panes = useMemo(() => {
     const adminPanes = []
@@ -76,7 +74,7 @@ export default function PageTabs() {
         render: () => {},
       },
     ]
-  }, [competitionInfo.id, navigate, user])
+  }, [competitionInfo.id, navigate])
   return (
     <Tab
       panes={panes}
