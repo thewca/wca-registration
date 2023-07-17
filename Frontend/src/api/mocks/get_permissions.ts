@@ -10,10 +10,10 @@ export default function getPermissionsMock() {
           scope: '*',
         },
         can_organize_competitions: {
-          scope: ['BudapestSummer2023'],
+          scope: ['BanjaLukaCubeDay2023'],
         },
         can_administer_competitions: {
-          scope: ['BudapestSummer2023'],
+          scope: ['BanjaLukaCubeDay2023'],
         },
       }
     case '2':
