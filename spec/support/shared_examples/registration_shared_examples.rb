@@ -1,17 +1,19 @@
+# frozen_string_literal: true
+
 RSpec.shared_examples 'optional field tests' do |payload|
   before do
     puts "SHARED EXAMPLE PAYLOAD: #{send(payload)}"
   end
 
   let(:registration) { send(payload) }
-  let(:'Authorization') { @jwt_token }
+  let(:Authorization) { @jwt_token }
 
   run_test!
 end
 
 RSpec.shared_examples 'payload error tests' do |payload|
   let!(:registration) { payload }
-  let(:'Authorization') { @jwt_token }
+  let(:Authorization) { @jwt_token }
 
   run_test!
 end

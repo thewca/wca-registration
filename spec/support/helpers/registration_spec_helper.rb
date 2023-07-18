@@ -134,9 +134,9 @@ module Helpers
 
         # Retrieve the competition details when attendee_id matches
         registration = registrations.find { |r| r["attendee_id"] == attendee_id }
-        begin 
+        begin
           registration["lanes"] = registration["lanes"].map { |lane| Lane.new(lane) }
-        rescue NoMethodError => e
+        rescue NoMethodError
           # puts e
           return registration
         end

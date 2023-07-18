@@ -26,7 +26,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts "Test reg: #{@test_registration}"
           end
           let(:registration) { @required_fields_only }
-          let(:'Authorization') { @jwt_token }
+          let(:Authorization) { @jwt_token }
 
           run_test!
         end
@@ -34,7 +34,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # response '202', 'including comment field' do
         # end
       end
-      
+
       # TODO: Allow the registration_status to be sent as part of a post request, but only if it is submitted by someone who has admin powers on the comp
 
       # context 'fail: request validation fails' do

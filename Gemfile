@@ -65,7 +65,6 @@ group :development, :test do
   # Use pry for live debugging
   gem 'pry'
 
-
   # webmock for mocking responses from other microservices
   gem 'webmock', require: false
 
