@@ -21,7 +21,10 @@ RSpec.describe 'testing DynamoID reads', type: :request do
   include_context 'database seed'
 
   it 'returns registration by attendee_id as defined in the schema' do
-    basic_registration = get_registration('CubingZANationalChampionship2023-158816')
+    basic_registration = get_registration('CubingZANationalChampionship2023-158816', true)
+    Registration.all.each do |reg|
+      puts reg.inspect
+    end
     registration_from_database = Registration.find('CubingZANationalChampionship2023-158816')
 
     expect(registration_equal(registration_from_database, basic_registration)).to eq(true)

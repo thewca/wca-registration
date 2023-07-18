@@ -93,6 +93,7 @@ class RegistrationController < ApplicationController
     id = SecureRandom.uuid
 
     step_data = {
+      attendee_id: "#{@competition_id}-#{@user_id}",
       user_id: @user_id,
       competition_id: @competition_id,
       lane_name: 'competing',

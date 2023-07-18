@@ -14,6 +14,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
       competition_with_registrations = 'CubingZANationalChampionship2023'
       competition_no_attendees = '1AVG2013'
+      comp_service_unavailable = 'BrightSunOpen2023'
 
       context 'success responses' do
         include_context 'database seed'
@@ -93,7 +94,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         # TODO: Refactor to use shared_examples once passing
-        context 'competition service not available (500) and no registrations in our database for competition_id' do
+        context '500 - competition service not available (500) and no registrations in our database for competition_id' do
           include_context '500 response from competition service'
           registration_error_json = { error: ErrorCodes::COMPETITION_API_5XX }.to_json
           response '500', 'Competition service unavailable - 500 error' do
@@ -107,12 +108,12 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         # TODO: Refactor to use shared_examples once passing
-        context 'competition service not available - 502' do
+        context '502 - competition service not available - 502, and no registration for competition ID' do
           include_context '502 response from competition service'
           registration_error_json = { error: ErrorCodes::COMPETITION_API_5XX }.to_json
           response '502', 'Competition service unavailable - 502 error' do
             schema '$ref' => '#/components/schemas/error_response'
-            let!(:competition_id) { competition_no_attendees }
+            let!(:competition_id) { comp_service_unavailable }
 
             run_test! do |response|
               expect(response.body).to eq(registration_error_json)
