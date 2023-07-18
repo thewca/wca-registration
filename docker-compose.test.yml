@@ -20,7 +20,7 @@ services:
     tty: true
     command: >
       bash -c 'bundle install && yarn install &&
-      bundle exec "rspec spec/db/database_functions_spec.rb"'
+      bundle exec rspec'
     networks:
       - wca-registration
     depends_on:
