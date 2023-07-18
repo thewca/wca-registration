@@ -27,13 +27,14 @@ class UserApi
 
   def self.get_permissions(user_id)
     if Rails.env.production?
+      # TODO: move creating the token to its own method
       iat = Time.now.to_i
       jti_raw = [JwtOptions.secret, iat].join(':').to_s
       jti = Digest::MD5.hexdigest(jti_raw)
       payload = { data: { service_id: "registration.worldcubeassociation.org" }, aud: "users.worldcubeassociation.org", exp: Time.now.to_i + JwtOptions.expiry, sub: "registration.worldcubeassociation.org", iat: iat, jti: jti }
       token = JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
-      response = HTTParty.get("https://test-registration.worldcubeassociation.org/api/v10/internal/users/#{user_id}/permissions", headers: { 'Authorization' => "Bearer: #{token}"})
-      response
+      HTTParty.get("https://test-registration.worldcubeassociation.org/api/v10/internal/users/#{user_id}/permissions", headers: { 'Authorization' => "Bearer: #{token}" })
+
     else
       Mocks.permissions_mock(user_id)
     end

@@ -1,10 +1,10 @@
+import { UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import moment from 'moment'
 import React, { useContext } from 'react'
 import { Button } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import styles from './home.module.scss'
-import { UiIcon } from '@thewca/wca-components'
 
 export default function HomePage() {
   const { competitionInfo } = useContext(CompetitionContext)

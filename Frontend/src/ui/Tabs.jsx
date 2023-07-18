@@ -96,6 +96,7 @@ export default function PageTabs() {
     ]
   }, [
     competitionInfo.id,
+    competitionInfo.use_wca_registration,
     competitionInfo.registration_open,
     competitionInfo.tabs,
     navigate,
