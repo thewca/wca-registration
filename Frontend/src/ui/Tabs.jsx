@@ -2,12 +2,13 @@ import { UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Tab } from 'semantic-ui-react'
-import { canAdminCompetition } from '../api/auth/get_permissions'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import styles from './tabs.module.scss'
+import { PermissionsContext } from '../api/helper/context/permission_context'
 
 export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)
+  const { canAdminCompetition } = useContext(PermissionsContext)
   const navigate = useNavigate()
   const panes = useMemo(() => {
     const adminPanes = []
@@ -74,7 +75,7 @@ export default function PageTabs() {
         render: () => {},
       },
     ]
-  }, [competitionInfo.id, navigate])
+  }, [canAdminCompetition, competitionInfo.id, navigate])
   return (
     <Tab
       panes={panes}

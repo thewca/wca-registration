@@ -1,7 +1,8 @@
 import { USER_KEY } from '../../ui/App'
 import { USER_IS_BANNED, USER_PROFILE_INCOMPLETE } from '../helper/error_codes'
+import { Permissions } from '../auth/get_permissions'
 
-export default function getPermissionsMock() {
+export default function getPermissionsMock(): Permissions {
   const userId = localStorage.getItem(USER_KEY)
   switch (userId) {
     case '1':

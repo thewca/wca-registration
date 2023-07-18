@@ -1,20 +1,19 @@
 import { UiIcon } from '@thewca/wca-components'
 import React, { useContext } from 'react'
 import { Popup } from 'semantic-ui-react'
-import {
-  CAN_ATTEND_COMPETITIONS,
-  canAttendCompetitions,
-} from '../../api/auth/get_permissions'
-import { AuthContext } from '../../api/helper/context/auth_context'
+import { CAN_ATTEND_COMPETITIONS } from '../../api/auth/get_permissions'
+import { UserContext } from '../../api/helper/context/user_context'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import RegistrationPanel from './components/RegistrationPanel'
 import styles from './index.module.scss'
+import { PermissionsContext } from '../../api/helper/context/permission_context'
 
 export default function Register() {
-  const { user } = useContext(AuthContext)
+  const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
-  const loggedIn = user !== null
+  const { canAttendCompetitions } = useContext(PermissionsContext)
+  const loggedIn = user !== undefined
 
   return (
     <div>
@@ -77,8 +76,8 @@ export default function Register() {
         <h2>You have to log in to Register for a Competition</h2>
       ) : (
         <>
-          <div className={styles.registrationHeader}>Hi, {user}</div>
-          {canAttendCompetitions(user) ? (
+          <div className={styles.registrationHeader}>Hi, {user.name}</div>
+          {canAttendCompetitions() ? (
             <RegistrationPanel />
           ) : (
             <PermissionMessage permissionLevel={CAN_ATTEND_COMPETITIONS} />
