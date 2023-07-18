@@ -15,9 +15,9 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
       # TODO: Figure out how to validate the data written to the database
       context 'success registration posts' do
+        include_context 'database seed'
         include_context 'basic_auth_token'
         include_context 'registration_data'
-        include_context 'registration_fixtures'
         include_context 'stub ZA champs comp info'
 
         response '202', 'only required fields included' do

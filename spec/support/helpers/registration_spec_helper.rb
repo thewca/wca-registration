@@ -29,18 +29,6 @@ module Helpers
       end
     end
 
-    RSpec.shared_context 'registration_fixtures' do 
-      # before do
-      #   @test_registration = {
-      #     user_id:"158817", 
-      #     competition_id:"CubingZANationalChampionship2023",
-      #     competing: {
-      #       event_ids:["333", "333MBF"]
-      #     }
-      #   }
-      # end
-    end
-
     RSpec.shared_context 'registration_data' do
       let(:required_fields_only) { get_registration('CubingZANationalChampionship2023-158817') }
 

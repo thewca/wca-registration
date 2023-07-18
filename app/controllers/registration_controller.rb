@@ -112,7 +112,7 @@ class RegistrationController < ApplicationController
                         message_deduplication_id: id,
                       })
 
-    render json: { status: 'ok', message: 'Started Registration Process' }
+    render json: { status: 'accepted', message: 'Started Registration Process' }, status: :accepted
   end
 
   # You can either update your own registration or one for a competition you administer
