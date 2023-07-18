@@ -2,7 +2,7 @@
 
 require 'swagger_helper'
 require_relative 'get_registrations_spec'
-require_relative 'get_attendee_spec'
+require_relative 'post_attendee_spec'
 require_relative '../../support/helpers/registration_spec_helper'
 
 # TODO: Write more tests for other cases according to airtable
