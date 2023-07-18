@@ -11,6 +11,23 @@ export default function PageTabs() {
   const navigate = useNavigate()
   const panes = useMemo(() => {
     const optionalTabs = []
+    if (competitionInfo.use_wca_registration) {
+      optionalTabs.push({
+        menuItem: (
+          <Menu.Item
+            key="tab-register"
+            className={styles.tabItem}
+            onClick={() =>
+              navigate(`/competitions/${competitionInfo.id}/register`)
+            }
+          >
+            <UiIcon name="sign in alt" />
+            Register
+          </Menu.Item>
+        ),
+        render: () => {},
+      })
+    }
     if (canAdminCompetition(competitionInfo.id)) {
       optionalTabs.push({
         menuItem: (
@@ -55,21 +72,6 @@ export default function PageTabs() {
           >
             <UiIcon name="info" />
             General Info
-          </Menu.Item>
-        ),
-        render: () => {},
-      },
-      {
-        menuItem: (
-          <Menu.Item
-            key="tab-register"
-            className={styles.tabItem}
-            onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/register`)
-            }
-          >
-            <UiIcon name="sign in alt" />
-            Register
           </Menu.Item>
         ),
         render: () => {},

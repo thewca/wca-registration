@@ -39,6 +39,7 @@ interface CompetitionInfo {
   'competitor_limit'?: number
   'cancelled_at'?: string
   'refund_policy_limit_date'?: string
+  'refund_policy_percent'?: number
   'event_change_deadline_date'?: string
   'waiting_list_deadline_date'?: string
   'base_entry_fee_lowest_denomination'?: string
@@ -50,12 +51,17 @@ interface CompetitionInfo {
   'website': string
   'short_name': string
   'city': string
+  'venue': string
   'venue_address': string
-  'venue_details': string
+  'force_comment_in_registration': boolean
+  'venue_details'?: string
   'latitude_degrees': number
   'longitude_degrees': number
+  'number_of_bookmarks': number
   'country_iso2': string
   'registration_opened?': boolean
+  'use_wca_registration': boolean
+  'external_registration_page'?: string
   'event_ids': EventId[]
   'main_event_id': EventId
   'guests_per_registration_limit'?: number
@@ -65,6 +71,7 @@ interface CompetitionInfo {
   'allow_registration_self_delete_after_acceptance': boolean
   'delegates': UserFull[]
   'organizers': UserFull[]
+  'contact': string
   'tabs': Tabs[]
   'class': string
 }

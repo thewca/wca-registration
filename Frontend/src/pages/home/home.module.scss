@@ -22,6 +22,11 @@
     font-weight: bold;
   }
 }
+.bookmarked{
+  text-align: center;
+  font-size: $sub-header-size;
+  margin-top: $double-margin;
+}
 .requirements{
   font-weight: 500;
   font-size: $sub-header-size;
@@ -43,6 +48,9 @@
   }
   .detailHeader{
     font-weight: bold;
+  }
+  p{
+    display: inline;
   }
   .delegateLink{
     margin-right: $single-margin;

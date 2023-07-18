@@ -4,6 +4,7 @@ import React, { useContext } from 'react'
 import { Button } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import styles from './home.module.scss'
+import { UiIcon } from '@thewca/wca-components'
 
 export default function HomePage() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -16,15 +17,19 @@ export default function HomePage() {
           <Button>View All</Button>
         </div>
       </div>
-      <div className={styles.information}>
-        <div className={styles.informationHeader}>Information:</div>
-        <div
-          className={styles.informationText}
-          dangerouslySetInnerHTML={{
-            __html: marked(competitionInfo.information),
-          }}
-        />
-      </div>
+      {competitionInfo.information ? (
+        <div className={styles.information}>
+          <div className={styles.informationHeader}>Information:</div>
+          <div
+            className={styles.informationText}
+            dangerouslySetInnerHTML={{
+              __html: marked(competitionInfo.information),
+            }}
+          />
+        </div>
+      ) : (
+        ''
+      )}
       <div className={styles.registrationPeriod}>
         <div className={styles.registrationHeader}>Registration Period:</div>
         <div className={styles.registrationPeriodText}>
@@ -54,15 +59,22 @@ export default function HomePage() {
         </div>
         <div>
           <span className={styles.detailHeader}>Venue: </span>
+          <span
+            dangerouslySetInnerHTML={{ __html: marked(competitionInfo.venue) }}
+          />
           <ul>
             <li>
               <span className={styles.detailHeader}>Address: </span>
               {competitionInfo.venue_address}
             </li>
-            <li>
-              <span className={styles.detailHeader}>Details: </span>
-              {competitionInfo.venue_details}
-            </li>
+            {competitionInfo.venue_details ? (
+              <li>
+                <span className={styles.detailHeader}>Details: </span>
+                {competitionInfo.venue_details}
+              </li>
+            ) : (
+              ''
+            )}
           </ul>
         </div>
         <div>
@@ -71,12 +83,21 @@ export default function HomePage() {
         </div>
         <div>
           <span className={styles.detailHeader}>Contact: </span>
-          <a
-            href={`mailto:${competitionInfo.organizers[0].email}`}
-            className={styles.delegateLink}
-          >
-            {competitionInfo.organizers[0].name}
-          </a>
+          {competitionInfo.contact ? (
+            <a
+              href={`mailto:${competitionInfo.contact}`}
+              className={styles.delegateLink}
+            >
+              {competitionInfo.contact}
+            </a>
+          ) : (
+            <a
+              href={`https://www.worldcubeassociation.org/contact/website?competitionId=${competitionInfo.id}`}
+              className={styles.delegateLink}
+            >
+              Organization Team
+            </a>
+          )}
         </div>
         <div>
           <span className={styles.detailHeader}>Organizers: </span>
@@ -102,7 +123,19 @@ export default function HomePage() {
             </a>
           ))}
         </div>
-        <div>Download all of the competitions details as a PDF here</div>
+        <div>
+          <UiIcon name="print" /> Download all of the competitions details as a
+          PDF{' '}
+          <a
+            href={`https://www.worldcubeassociation.org/competitions/${competitionInfo.id}.pdf`}
+          >
+            here
+          </a>
+        </div>
+      </div>
+      <div className={styles.bookmarked}>
+        The Competition has been bookmarked{' '}
+        {competitionInfo.number_of_bookmarks} times
       </div>
     </div>
   )

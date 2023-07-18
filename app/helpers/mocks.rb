@@ -69,7 +69,7 @@ module Mocks
     else
       {
         can_attend_competitions: {
-          scope: [],
+          scope: "*",
         },
         can_organize_competitions: {
           scope: [],

@@ -62,8 +62,14 @@ export default function Competition({ children }) {
                   className={styles.registerButton}
                   disabled={!competitionInfo['registration_opened?']}
                   onClick={(_, data) => {
-                    if (!data.disabled)
-                      navigate(`/competitions/${competitionInfo.id}/register`)
+                    if (!data.disabled) {
+                      if (competitionInfo.use_wca_registration) {
+                        navigate(`/competitions/${competitionInfo.id}/register`)
+                      } else {
+                        window.location =
+                          competitionInfo.external_registration_page
+                      }
+                    }
                   }}
                 >
                   Register
