@@ -86,12 +86,12 @@ module Helpers
     RSpec.shared_context 'database seed' do
       before do
         # Create a "normal" registration entry
-        basic_registration = get_registration('CubingZANationalChampionship2023-158816')
+        basic_registration = get_registration('CubingZANationalChampionship2023-158816', true)
         registration = Registration.new(basic_registration)
         registration.save
 
         # Create a registration that is already cancelled
-        cancelled_registration = get_registration('CubingZANationalChampionship2023-158823')
+        cancelled_registration = get_registration('CubingZANationalChampionship2023-158823', true)
         registration = Registration.new(cancelled_registration)
         registration.save
       end
@@ -100,18 +100,18 @@ module Helpers
     RSpec.shared_context '500 response from competition service' do
       before do
         error_json = { error:
-                         'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' }.to_json
+                         'Internal Server Error for url: /api/v0/competitions/1AVG2013' }.to_json
 
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/1AVG2013")
           .to_return(status: 500, body: error_json)
       end
     end
 
     RSpec.shared_context '502 response from competition service' do
       before do
-        error_json = { error: 'Internal Server Error for url: /api/v0/competitions/CubingZANationalChampionship2023' }.to_json
+        error_json = { error: 'Internal Server Error for url: /api/v0/competitions/BrightSunOpen2023' }.to_json
 
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/BrightSunOpen2023")
           .to_return(status: 502, body: error_json)
       end
     end
@@ -128,7 +128,7 @@ module Helpers
       end
     end
 
-    def get_registration(attendee_id)
+    def get_registration(attendee_id, raw = false)
       File.open("#{Rails.root}/spec/fixtures/registrations.json", 'r') do |f|
         registrations = JSON.parse(f.read)
 
@@ -136,6 +136,9 @@ module Helpers
         registration = registrations.find { |r| r["attendee_id"] == attendee_id }
         begin
           registration["lanes"] = registration["lanes"].map { |lane| Lane.new(lane) }
+          if raw
+            return registration
+          end
         rescue NoMethodError
           # puts e
           return registration
@@ -143,6 +146,7 @@ module Helpers
         convert_registration_object_to_payload(registration)
       end
     end
+
 
     def convert_registration_object_to_payload(registration)
       competing_lane = registration["lanes"].find { |l| l.lane_name == "competing" }
