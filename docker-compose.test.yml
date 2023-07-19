@@ -19,7 +19,7 @@ services:
       - gems_volume_handler:/usr/local/bundle
     tty: true
     command: >
-      bash -c 'bundle install && yarn install &&
+      bash -c 'bundle install && yarn install && bin/rake db:seed &&
       bundle exec rspec'
     networks:
       - wca-registration
