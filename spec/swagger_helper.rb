@@ -39,8 +39,8 @@ RSpec.configure do |config|
                 type: :string,
               },
               message: {
-                type: :string
-              }
+                type: :string,
+              },
             },
             required: [:status, :message],
           },
@@ -90,12 +90,12 @@ RSpec.configure do |config|
               user_id: {
                 type: :string,
               },
-              competition_id:{
-                type: :string
+              competition_id: {
+                type: :string,
               },
-              competing:{
+              competing: {
                 type: :object,
-                properties:{
+                properties: {
                   event_ids: {
                     type: :array,
                     items: {
@@ -109,8 +109,8 @@ RSpec.configure do |config|
                   guests: {
                     type: :number,
                   },
-                }
-              }
+                },
+              },
             },
             required: [:user_id, :competition_id, :competing],
           },
