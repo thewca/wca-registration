@@ -11,13 +11,25 @@ const DROPDOWNS = [
       {
         path: '/competitions/BanjaLukaCubeDay2023',
         icon: 'frog',
-        title: 'Test Competition 1',
+        title: 'Open Competition 1',
         reactRoute: true,
       },
       {
         path: '/competitions/DarmstadtDodecahedronDays2023',
         icon: 'fish',
-        title: 'Test Competition 2',
+        title: 'Open Competition 2',
+        reactRoute: true,
+      },
+      {
+        path: '/competitions/HessenOpen2023',
+        icon: 'close',
+        title: 'Closed Competition',
+        reactRoute: true,
+      },
+      {
+        path: '/competitions/BrizZonSylwesterOpen2023',
+        icon: 'time',
+        title: 'Not yet open Competition',
         reactRoute: true,
       },
     ],

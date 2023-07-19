@@ -54,7 +54,7 @@ module Mocks
           scope: [],
         },
       }
-    else
+    else # Default value for test competitors
       {
         can_attend_competitions: {
           scope: "*",
