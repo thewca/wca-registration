@@ -2,6 +2,44 @@
 
 module Helpers
   module RegistrationHelper
+    RSpec.shared_context 'competition information' do
+      before do
+        # Define competition IDs
+        @comp_with_registrations = 'CubingZANationalChampionship2023'
+        @empty_comp = '1AVG2013'
+        @error_comp_404 = 'InvalidCompID'
+        @error_comp_500 = 'BrightSunOpen2023'
+        @error_comp_502 = 'GACubersStudyJuly2023'
+
+        # COMP WITH REGISTATIONS - Stub competition info
+        competition_details = get_competition_details(@comp_with_registrations)
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@comp_with_registrations}")
+          .to_return(status: 200, body: competition_details.to_json)
+
+        # EMPTY COMP STUB
+        competition_details = get_competition_details(@empty_comp)
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@empty_comp}")
+          .to_return(status: 200, body: competition_details.to_json)
+
+        # 404 COMP STUB
+        wca_error_json = { error: 'Competition with id InvalidCompId not found' }.to_json
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_404}")
+          .to_return(status: 404, body: wca_error_json)
+
+        # 500 COMP STUB
+        error_json = { error:
+                         "Internal Server Error for url: /api/v0/competitions/#{@error_comp_500}" }.to_json
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_500}")
+          .to_return(status: 500, body: error_json)
+
+        # 502 COMP STUB
+        error_json = { error:
+                         "Internal Server Error for url: /api/v0/competitions/#{@error_comp_502}" }.to_json
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_502}")
+          .to_return(status: 502, body: error_json)
+      end
+    end
+
     RSpec.shared_context 'stub ZA champs comp info' do
       before do
         competition_id = "CubingZANationalChampionship2023"
@@ -97,8 +135,19 @@ module Helpers
       end
     end
 
+    RSpec.shared_context '200 response from competition service' do
+      before do 
+        competition_details = get_competition_details('CubingZANationalChampionship2023')
+
+        # Stub the request to the Competition Service
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/CubingZANationalChampionship2023")
+          .to_return(status: 200, body: competition_details.to_json)
+      end
+    end
+
     RSpec.shared_context '500 response from competition service' do
       before do
+        puts "in 500"
         error_json = { error:
                          'Internal Server Error for url: /api/v0/competitions/1AVG2013' }.to_json
 

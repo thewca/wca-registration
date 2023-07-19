@@ -20,10 +20,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'stub ZA champs comp info'
 
         response '202', 'only required fields included' do
-          before do
-            puts "Req field: #{@required_fields_only}"
-            puts "Test reg: #{@test_registration}"
-          end
           let(:registration) { @required_fields_only }
           let(:Authorization) { @jwt_token }
 

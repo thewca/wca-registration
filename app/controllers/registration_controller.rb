@@ -174,6 +174,8 @@ class RegistrationController < ApplicationController
     competition_id = list_params
     competition_exists = CompetitionApi.competition_exists?(competition_id)
     registrations = get_registrations(competition_id, only_attending: true)
+    registrations.each do |reg|
+    end
     if competition_exists[:error]
       # Even if the competition service is down, we still return the registrations if they exists
       if registrations.count != 0 && competition_exists[:error] == ErrorCodes::COMPETITION_API_5XX
@@ -219,7 +221,6 @@ class RegistrationController < ApplicationController
     REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
 
     def registration_params
-      puts "Params (from controller): #{params}"
       params.require([:user_id, :competition_id])
       params.require(:competing).require(:event_ids)
       params
