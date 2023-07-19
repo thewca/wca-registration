@@ -222,9 +222,11 @@ export default function RegistrationPanel() {
                 createRegistrationMutation({
                   user_id: user,
                   competition_id: competitionInfo.id,
-                  event_ids: selectedEvents,
-                  comment,
-                  guests,
+                  competing: {
+                    event_ids: selectedEvents,
+                    comment,
+                    guests,
+                  },
                 })
               }}
               positive

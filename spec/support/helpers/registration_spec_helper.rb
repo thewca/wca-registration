@@ -63,7 +63,7 @@ module Helpers
     RSpec.shared_context 'basic_auth_token' do
       before do
         @jwt_token = fetch_jwt_token('158817')
-        # @jwt_token_2 = fetch_jwt_token('158817')
+        @jwt_token_wrong_user = fetch_jwt_token('999999')
       end
     end
 
