@@ -1,8 +1,8 @@
 import createClient from 'openapi-fetch'
 import { getJWT } from '../../auth/get_jwt'
-import { components, paths } from '../../schema'
 import { BackendError } from '../../helper/backend_fetch'
 import { EXPIRED_TOKEN } from '../../helper/error_codes'
+import { components, paths } from '../../schema'
 
 const { post } = createClient<paths>({
   // TODO: Change this once we are fully migrated from backend fetch
