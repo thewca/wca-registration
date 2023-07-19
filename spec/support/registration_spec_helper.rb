@@ -2,6 +2,8 @@
 
 module Helpers
   module RegistrationHelper
+    # SHARED CONTEXTS
+
     RSpec.shared_context 'competition information' do
       before do
         # Define competition IDs
@@ -40,30 +42,9 @@ module Helpers
       end
     end
 
-    RSpec.shared_context 'stub ZA champs comp info' do
-      before do
-        competition_id = "CubingZANationalChampionship2023"
-        competition_details = get_competition_details(competition_id)
-
-        # Stub the request to the Competition Service
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
-          .to_return(status: 200, body: competition_details.to_json)
-      end
-    end
-
-    def fetch_jwt_token(user_id)
-      iat = Time.now.to_i
-      jti_raw = [JwtOptions.secret, iat].join(':').to_s
-      jti = Digest::MD5.hexdigest(jti_raw)
-      payload = { data: { user_id: user_id }, exp: Time.now.to_i + JwtOptions.expiry, sub: user_id, iat: iat, jti: jti }
-      token = JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
-      "Bearer #{token}"
-    end
-
     RSpec.shared_context 'basic_auth_token' do
       before do
         @jwt_token = fetch_jwt_token('158817')
-        # @jwt_token_2 = fetch_jwt_token('158817')
       end
     end
 
@@ -105,22 +86,6 @@ module Helpers
       end
     end
 
-    # NOTE: Remove this once post_attendee_spec.rb tests are passing
-    # RSpec.shared_context 'various optional fields' do
-    #   include_context 'registration_data'
-    #   before do
-    #     @payloads = [@with_is_attending, @with_hide_name_publicly, @with_all_optional_fields]
-    #   end
-    # end
-
-    # NOTE: Remove this once post_attendee_spec.rb tests are passing
-    # RSpec.shared_context 'bad request payloads' do
-    #   include_context 'registration_data'
-    #   before do
-    #     @bad_payloads = [@missing_reg_fields, @empty_json, @missing_lane]
-    #   end
-    # end
-
     RSpec.shared_context 'database seed' do
       before do
         # Create a "normal" registration entry
@@ -135,37 +100,9 @@ module Helpers
       end
     end
 
-    RSpec.shared_context '200 response from competition service' do
-      before do
-        competition_details = get_competition_details('CubingZANationalChampionship2023')
+    # HELPER METHODS
 
-        # Stub the request to the Competition Service
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/CubingZANationalChampionship2023")
-          .to_return(status: 200, body: competition_details.to_json)
-      end
-    end
-
-    RSpec.shared_context '500 response from competition service' do
-      before do
-        puts "in 500"
-        error_json = { error:
-                         'Internal Server Error for url: /api/v0/competitions/1AVG2013' }.to_json
-
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/1AVG2013")
-          .to_return(status: 500, body: error_json)
-      end
-    end
-
-    RSpec.shared_context '502 response from competition service' do
-      before do
-        error_json = { error: 'Internal Server Error for url: /api/v0/competitions/BrightSunOpen2023' }.to_json
-
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/BrightSunOpen2023")
-          .to_return(status: 502, body: error_json)
-      end
-    end
-
-    # Retrieves the saved JSON response of /api/v0/competitions for the given competition ID
+    # For mocking - returns the saved JSON response of /api/v0/competitions for the given competition ID
     def get_competition_details(competition_id)
       File.open("#{Rails.root}/spec/fixtures/competition_details.json", 'r') do |f|
         competition_details = JSON.parse(f.read)
@@ -177,6 +114,19 @@ module Helpers
       end
     end
 
+    # Creates a JWT token for the given user_id
+    def fetch_jwt_token(user_id)
+      iat = Time.now.to_i
+      jti_raw = [JwtOptions.secret, iat].join(':').to_s
+      jti = Digest::MD5.hexdigest(jti_raw)
+      payload = { data: { user_id: user_id }, exp: Time.now.to_i + JwtOptions.expiry, sub: user_id, iat: iat, jti: jti }
+      token = JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
+      "Bearer #{token}"
+    end
+
+    # Returns a registration from registrations.json for the given attendee_id
+    # If raw is true, returns it in the simplified format for submission to the POST registration endpoint
+    # If raw is false, returns the database-like registration JSON object
     def get_registration(attendee_id, raw)
       File.open("#{Rails.root}/spec/fixtures/registrations.json", 'r') do |f|
         registrations = JSON.parse(f.read)
@@ -196,29 +146,8 @@ module Helpers
       end
     end
 
-    def convert_registration_object_to_payload(registration)
-      competing_lane = registration["lanes"].find { |l| l.lane_name == "competing" }
-      event_ids = get_event_ids_from_competing_lane(competing_lane)
-
-      {
-        user_id: registration["user_id"],
-        competition_id: registration["competition_id"],
-        competing: {
-          event_ids: event_ids,
-          registration_status: competing_lane.lane_state,
-        },
-      }
-    end
-
-    def get_event_ids_from_competing_lane(competing_lane)
-      event_ids = []
-      competing_lane.lane_details["event_details"].each do |event|
-        # Add the event["event_id"] to the list of event_ids
-        event_ids << event["event_id"]
-      end
-      event_ids
-    end
-
+    # "patch" object is the input to a PATCH request to an API endpoint.
+    # This function returns a JSON patch object according to its "patch_name" (the key value in a JSON file)
     def get_patch(patch_name)
       File.open("#{Rails.root}/spec/fixtures/patches.json", 'r') do |f|
         patches = JSON.parse(f.read)
@@ -229,46 +158,78 @@ module Helpers
       end
     end
 
-    def registration_equal(registration_model, registration_hash)
-      unchecked_attributes = [:created_at, :updated_at]
+    private
 
-      registration_model.attributes.each do |k, v|
-        unless unchecked_attributes.include?(k)
-          hash_value = registration_hash[k.to_s]
+      # Converts a raw registration object (database-like format) to a payload which can be sent to the registration API
+      def convert_registration_object_to_payload(registration)
+        competing_lane = registration["lanes"].find { |l| l.lane_name == "competing" }
+        event_ids = get_event_ids_from_competing_lane(competing_lane)
 
-          if v.is_a?(Hash) && hash_value.is_a?(Hash)
-            return false unless nested_hash_equal?(v, hash_value)
-          elsif v.is_a?(Array) && hash_value.is_a?(Array)
-            return false unless lanes_equal(v, hash_value)
-          elsif hash_value != v
-            puts "#{hash_value} does not equal #{v}"
+        {
+          user_id: registration["user_id"],
+          competition_id: registration["competition_id"],
+          competing: {
+            event_ids: event_ids,
+            registration_status: competing_lane.lane_state,
+          },
+        }
+      end
+
+      # Returns an array of event_ids for the given competing lane
+      # NOTE: Assumes that the given lane is a competing lane - it doesn't validate this
+      def get_event_ids_from_competing_lane(competing_lane)
+        event_ids = []
+        competing_lane.lane_details["event_details"].each do |event|
+          # Add the event["event_id"] to the list of event_ids
+          event_ids << event["event_id"]
+        end
+        event_ids
+      end
+
+      # Determines whether the two given values represent equiivalent registration hashes
+      def registration_equal(registration_model, registration_hash)
+        unchecked_attributes = [:created_at, :updated_at]
+
+        registration_model.attributes.each do |k, v|
+          unless unchecked_attributes.include?(k)
+            hash_value = registration_hash[k.to_s]
+
+            if v.is_a?(Hash) && hash_value.is_a?(Hash)
+              return false unless nested_hash_equal?(v, hash_value)
+            elsif v.is_a?(Array) && hash_value.is_a?(Array)
+              return false unless lanes_equal(v, hash_value)
+            elsif hash_value != v
+              puts "#{hash_value} does not equal #{v}"
+              return false
+            end
+          end
+        end
+
+        true
+      end
+
+      # Determines whether the given registration lanes are equivalent
+      # Helper method to registration_equal
+      def lanes_equal(lanes1, lanes2)
+        lanes1.each_with_index do |el, i|
+          unless el == lanes2[i]
             return false
           end
         end
+        true
       end
 
-      true
-    end
-
-    def lanes_equal(lanes1, lanes2)
-      lanes1.each_with_index do |el, i|
-        unless el == lanes2[i]
-          return false
+      # Helper method to registration_equal
+      def nested_hash_equal?(hash1, hash2)
+        hash1.each do |k, v|
+          if v.is_a?(Hash) && hash2[k].is_a?(Hash)
+            return false unless nested_hash_equal?(v, hash2[k])
+          elsif hash2[k.to_s] != v
+            puts "#{hash2[k.to_s]} does not equal to #{v}"
+            return false
+          end
         end
+        true
       end
-      true
-    end
-
-    def nested_hash_equal?(hash1, hash2)
-      hash1.each do |k, v|
-        if v.is_a?(Hash) && hash2[k].is_a?(Hash)
-          return false unless nested_hash_equal?(v, hash2[k])
-        elsif hash2[k.to_s] != v
-          puts "#{hash2[k.to_s]} does not equal to #{v}"
-          return false
-        end
-      end
-      true
-    end
   end
 end

@@ -17,7 +17,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'database seed'
         include_context 'basic_auth_token'
         include_context 'registration_data'
-        include_context 'stub ZA champs comp info'
+        include_context 'competition information'
 
         response '202', 'only required fields included' do
           let(:registration) { @required_fields_only }

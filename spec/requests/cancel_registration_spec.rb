@@ -40,8 +40,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
       end
 
-      context 'SUCCESS: registration updates' do
-      end
+      # context 'SUCCESS: registration updates' do
+      # end
     end
   end
 end
