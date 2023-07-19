@@ -68,23 +68,23 @@ module Helpers
     end
 
     RSpec.shared_context 'registration_data' do
-      let(:required_fields_only) { get_registration('CubingZANationalChampionship2023-158817') }
+      let(:required_fields_only) { get_registration('CubingZANationalChampionship2023-158817', false) }
 
       before do
         # General
-        @basic_registration = get_registration('CubingZANationalChampionship2023-158816')
-        @required_fields_only = get_registration('CubingZANationalChampionship2023-158817')
-        @no_attendee_id = get_registration('CubingZANationalChampionship2023-158818')
+        @basic_registration = get_registration('CubingZANationalChampionship2023-158816', false)
+        @required_fields_only = get_registration('CubingZANationalChampionship2023-158817', false)
+        @no_attendee_id = get_registration('CubingZANationalChampionship2023-158818', false)
 
         # # For 'various optional fields'
         # @with_is_attending = get_registration('CubingZANationalChampionship2023-158819')
-        @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820')
+        @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820', false)
         @with_all_optional_fields = @basic_registration
 
         # # For 'bad request payloads'
-        @missing_reg_fields = get_registration('CubingZANationalChampionship2023-158821')
-        @empty_json = get_registration('')
-        @missing_lane = get_registration('CubingZANationalChampionship2023-158822')
+        @missing_reg_fields = get_registration('CubingZANationalChampionship2023-158821', false)
+        @empty_json = get_registration('', false)
+        @missing_lane = get_registration('CubingZANationalChampionship2023-158822', false)
       end
     end
 
@@ -136,7 +136,7 @@ module Helpers
     end
 
     RSpec.shared_context '200 response from competition service' do
-      before do 
+      before do
         competition_details = get_competition_details('CubingZANationalChampionship2023')
 
         # Stub the request to the Competition Service
@@ -177,7 +177,7 @@ module Helpers
       end
     end
 
-    def get_registration(attendee_id, raw = false)
+    def get_registration(attendee_id, raw)
       File.open("#{Rails.root}/spec/fixtures/registrations.json", 'r') do |f|
         registrations = JSON.parse(f.read)
 
@@ -195,7 +195,6 @@ module Helpers
         convert_registration_object_to_payload(registration)
       end
     end
-
 
     def convert_registration_object_to_payload(registration)
       competing_lane = registration["lanes"].find { |l| l.lane_name == "competing" }

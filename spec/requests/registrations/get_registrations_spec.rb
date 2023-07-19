@@ -45,14 +45,14 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         # TODO: This test is malformed - it isn't testing what it is trying to
         # context 'Competition service down (502) but registrations exist' do
-          # include_context '502 response from competition service'
+        # include_context '502 response from competition service'
 
-          # response '200', 'Competitions Service is down but we have registrations for the competition_id in our database' do
-            # let!(:competition_id) { competition_with_registrations }
+        # response '200', 'Competitions Service is down but we have registrations for the competition_id in our database' do
+        # let!(:competition_id) { competition_with_registrations }
 
-            # TODO: Validate the expected list of registrations
-            # run_test!
-          # end
+        # TODO: Validate the expected list of registrations
+        # run_test!
+        # end
         # end
 
         # TODO: Define a registration payload we expect to receive - wait for ORM to be implemented to achieve this.

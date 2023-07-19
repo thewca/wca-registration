@@ -7,7 +7,7 @@ RSpec.describe 'testing DynamoID writes', type: :request do
   include Helpers::RegistrationHelper
 
   it 'creates a registration object from a given hash' do
-    basic_registration = get_registration('CubingZANationalChampionship2023-158816')
+    basic_registration = get_registration('CubingZANationalChampionship2023-158816', false)
 
     registration = Registration.new(basic_registration)
     registration.save
