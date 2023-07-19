@@ -11,6 +11,7 @@ import RegistrationEdit from './pages/registration_edit'
 import Registrations from './pages/registrations'
 import App from './ui/App'
 import Competition from './ui/Competition'
+import CustomTab from './ui/CustomTab'
 import FlashMessage from './ui/messages/flashMessage'
 import PageTabs from './ui/Tabs'
 
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
           {
             path: '/competitions/:competition_id/register',
             element: <Register />,
+          },
+          {
+            path: '/competitions/:competition_id/tabs/:tab_id',
+            element: <CustomTab />,
           },
           {
             path: '/competitions/:competition_id/registrations',

@@ -21,6 +21,9 @@ gem 'jbuilder'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors'
 
+# much better gem for http requests than the native ruby one
+gem 'httparty'
+
 # jwt decoding
 gem 'jwt'
 
