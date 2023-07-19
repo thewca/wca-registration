@@ -17,7 +17,7 @@ export default function HomePage() {
           <Button>View All</Button>
         </div>
       </div>
-      {competitionInfo.information ? (
+      {competitionInfo.information && (
         <div className={styles.information}>
           <div className={styles.informationHeader}>Information:</div>
           <div
@@ -27,8 +27,6 @@ export default function HomePage() {
             }}
           />
         </div>
-      ) : (
-        ''
       )}
       <div className={styles.registrationPeriod}>
         <div className={styles.registrationHeader}>Registration Period:</div>
@@ -47,7 +45,7 @@ export default function HomePage() {
       <div className={styles.details}>
         <div>
           <span className={styles.detailHeader}>Date: </span>
-          {moment(competitionInfo.start_date).format('ll')}{' '}
+          {moment(competitionInfo.start_date).format('ll')}
         </div>
         <div>
           <span className={styles.detailHeader}>Start Time: </span>
@@ -67,13 +65,11 @@ export default function HomePage() {
               <span className={styles.detailHeader}>Address: </span>
               {competitionInfo.venue_address}
             </li>
-            {competitionInfo.venue_details ? (
+            {competitionInfo.venue_details && (
               <li>
                 <span className={styles.detailHeader}>Details: </span>
                 {competitionInfo.venue_details}
               </li>
-            ) : (
-              ''
             )}
           </ul>
         </div>
@@ -84,12 +80,11 @@ export default function HomePage() {
         <div>
           <span className={styles.detailHeader}>Contact: </span>
           {competitionInfo.contact ? (
-            <a
-              href={`mailto:${competitionInfo.contact}`}
-              className={styles.delegateLink}
-            >
-              {competitionInfo.contact}
-            </a>
+            <span
+              dangerouslySetInnerHTML={{
+                __html: marked(competitionInfo.contact),
+              }}
+            />
           ) : (
             <a
               href={`https://www.worldcubeassociation.org/contact/website?competitionId=${competitionInfo.id}`}
