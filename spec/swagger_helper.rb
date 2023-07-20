@@ -22,6 +22,14 @@ RSpec.configure do |config|
         version: 'v1',
       },
       components: {
+        securitySchemes: {
+          Bearer: {
+            description: "...",
+            type: :apiKey,
+            name: 'Authorization',
+            in: :header,
+          },
+        },
         schemas: {
           error_response: {
             type: :object,

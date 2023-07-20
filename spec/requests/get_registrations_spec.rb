@@ -4,6 +4,10 @@ require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
 require_relative '../../app/helpers/error_codes'
 
+# TODO: Check Swaggerized output
+# TODO: Compare payloads received to expected payloads
+# TODO: Add commented tests
+# TODO: Brainstorm other tests that could be included
 RSpec.describe 'v1 Registrations API', type: :request do
   include Helpers::RegistrationHelper
 
@@ -17,7 +21,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'competition information'
         include_context 'database seed'
 
-        response '200', 'request and response conform to schema' do
+        response '200', 'PASSING request and response conform to schema' do
           schema type: :array, items: { '$ref' => '#/components/schemas/registration' }
 
           let!(:competition_id) { @comp_with_registrations }
@@ -25,7 +29,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test!
         end
 
-        response '200', 'Valid competition_id but no registrations for it' do
+        response '200', 'PASSING Valid competition_id but no registrations for it' do
           let!(:competition_id) { @empty_comp }
 
           run_test! do |response|
@@ -60,14 +64,14 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # end
 
         # TODO: define access scopes in order to implement run this tests
-        response '200', 'User is allowed to access registration data (various scenarios)' do
+        response '200', 'PASSING User is allowed to access registration data (various scenarios)' do
           let!(:competition_id) { competition_id }
         end
       end
 
       context 'fail responses' do
         include_context 'competition information'
-        context 'competition_id not found by Competition Service' do
+        context 'PASSING competition_id not found by Competition Service' do
           registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
 
           response '404', 'Competition ID doesnt exist' do
@@ -82,7 +86,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         context '500 - competition service not available (500) and no registrations in our database for competition_id' do
           registration_error_json = { error: ErrorCodes::COMPETITION_API_5XX }.to_json
-          response '500', 'Competition service unavailable - 500 error' do
+          response '500', 'PASSING Competition service unavailable - 500 error' do
             schema '$ref' => '#/components/schemas/error_response'
             let!(:competition_id) { @error_comp_500 }
 
@@ -94,7 +98,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         context '502 - competition service not available - 502, and no registration for competition ID' do
           registration_error_json = { error: ErrorCodes::COMPETITION_API_5XX }.to_json
-          response '502', 'Competition service unavailable - 502 error' do
+          response '502', 'PASSING Competition service unavailable - 502 error' do
             schema '$ref' => '#/components/schemas/error_response'
             let!(:competition_id) { @error_comp_502 }
 

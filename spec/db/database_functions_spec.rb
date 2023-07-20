@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'swagger_helper'
-require_relative '../support/helpers/registration_spec_helper'
+require_relative '../support/registration_spec_helper'
 
-RSpec.describe 'testing DynamoID writes', type: :request do
+RSpec.describe 'PASSING testing DynamoID writes', type: :request do
   include Helpers::RegistrationHelper
 
   it 'creates a registration object from a given hash' do
@@ -16,7 +16,7 @@ RSpec.describe 'testing DynamoID writes', type: :request do
   end
 end
 
-RSpec.describe 'testing DynamoID reads', type: :request do
+RSpec.describe 'PASSING testing DynamoID reads', type: :request do
   include Helpers::RegistrationHelper
   include_context 'database seed'
 

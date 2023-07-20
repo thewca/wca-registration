@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'swagger_helper'
-require_relative '../../../app/helpers/error_codes'
+require_relative '../../app/helpers/error_codes'
 
 RSpec.describe 'v1 Registrations API', type: :request do
   include Helpers::RegistrationHelper
