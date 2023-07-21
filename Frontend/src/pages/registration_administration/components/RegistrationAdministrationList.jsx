@@ -122,7 +122,7 @@ export default function RegistrationAdministrationList() {
     refetchOnMount: 'always',
     retry: false,
     onError: (err) => {
-      setMessage(err.toString(), 'error')
+      setMessage(err.message, 'error')
     },
   })
   const [selected, dispatch] = useReducer(reducer, {

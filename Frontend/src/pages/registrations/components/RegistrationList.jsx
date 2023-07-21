@@ -8,15 +8,13 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 
 export default function RegistrationList() {
-  // Fetch data
   const { competitionInfo } = useContext(CompetitionContext)
-
   const { isLoading, data: registrations } = useQuery({
     queryKey: ['registrations', competitionInfo.id],
     queryFn: () => getConfirmedRegistrations(competitionInfo.id),
     retry: false,
     onError: (err) => {
-      setMessage(err.error, 'error')
+      setMessage(err.message, 'error')
     },
   })
 
