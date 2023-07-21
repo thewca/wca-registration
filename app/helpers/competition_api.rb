@@ -5,9 +5,9 @@ require 'net/http'
 require 'json'
 
 require_relative 'error_codes'
-class CompetitionApi
+class CompetitionApi < WcaApi
   def self.fetch_competition(competition_id)
-    uri = URI("https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+    uri = URI("https://test-registration.worldcubeassociation.org/api/v10/competitions/#{competition_id}")
     res = Net::HTTP.get_response(uri)
     case res
     when Net::HTTPSuccess
@@ -22,10 +22,11 @@ class CompetitionApi
     end
   end
 
-  def self.competition_exists?(competition_id)
-    Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+  def self.competition_open?(competition_id)
+    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
       self.fetch_competition(competition_id)
     end
+    competition_info[:competition_info]["registration_opened?"]
   end
 
   def self.events_held?(event_ids, competition_id)
