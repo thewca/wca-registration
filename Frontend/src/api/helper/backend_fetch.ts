@@ -1,17 +1,10 @@
 import { getJWT } from '../auth/get_jwt'
-import {
-  GetRegistrationBody,
-  SubmitRegistrationBody,
-  UpdateRegistrationBody,
-} from '../types'
+import { UpdateRegistrationBody } from '../types'
 import { EXPIRED_TOKEN } from './error_codes'
 
 type Method = 'POST' | 'GET' | 'PATCH' | 'DELETE'
 
-type Body =
-  | SubmitRegistrationBody
-  | UpdateRegistrationBody
-  | GetRegistrationBody
+type Body = UpdateRegistrationBody
 
 export class BackendError extends Error {
   errorCode: number
@@ -31,7 +24,7 @@ export default async function backendFetch(
     needsAuthentication: boolean
   }
 ): Promise<unknown> {
-  let init = {}
+  let init
   let headers = {}
   if (options.needsAuthentication) {
     const token = await getJWT()

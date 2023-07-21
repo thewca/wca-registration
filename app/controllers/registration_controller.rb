@@ -42,20 +42,19 @@ class RegistrationController < ApplicationController
       cannot_register_reason = reasons
     end
 
-    # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
-    unless CompetitionApi.competition_exists?(@competition_id)
+    unless CompetitionApi.competition_open?(@competition_id)
       status = :forbidden
-      cannot_register_reasons = ErrorCodes::COMPETITION_CLOSED
+      cannot_register_reason = ErrorCodes::COMPETITION_CLOSED
     end
 
     if @event_ids.empty? || !CompetitionApi.events_held?(@event_ids, @competition_id)
       status = :bad_request
-      cannot_register_reasons = ErrorCodes::COMPETITION_INVALID_EVENTS
+      cannot_register_reason = ErrorCodes::COMPETITION_INVALID_EVENTS
     end
 
     unless cannot_register_reason.empty?
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: cannot_register_reasons }, status: status
+      render json: { error: cannot_register_reason }, status: status
     end
   end
 

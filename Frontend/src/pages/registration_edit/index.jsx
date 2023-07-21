@@ -7,11 +7,10 @@ import RegistrationEditor from './components/RegistrationEditor'
 import styles from './index.module.scss'
 
 export default function RegistrationEdit() {
-  const { competitionInfo } = useContext(CompetitionContext)
   const { canAdminCompetition } = useContext(PermissionsContext)
   return (
     <div className={styles.container}>
-      {canAdminCompetition(competitionInfo.id) ? (
+      {canAdminCompetition ? (
         <RegistrationEditor />
       ) : (
         <PermissionMessage permissionLevel={CAN_ADMINISTER_COMPETITIONS} />

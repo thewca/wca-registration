@@ -14,6 +14,7 @@ import Competition from './ui/Competition'
 import CustomTab from './ui/CustomTab'
 import FlashMessage from './ui/messages/flashMessage'
 import PageTabs from './ui/Tabs'
+import User from './ui/User'
 
 const router = createBrowserRouter([
   {
@@ -30,8 +31,10 @@ const router = createBrowserRouter([
         element: (
           <Container>
             <Competition>
-              <PageTabs />
-              <Outlet />
+              <User>
+                <PageTabs />
+                <Outlet />
+              </User>
             </Competition>
           </Container>
         ),

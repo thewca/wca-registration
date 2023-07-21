@@ -1,7 +1,7 @@
-import { USER_KEY } from '../../ui/App'
+import { USER_KEY } from '../../ui/User'
 import { UserFull } from '../helper/context/user_context'
 
-export default function getMeMock(): UserFull {
+export default function getMeMock(): UserFull | undefined {
   const userId = localStorage.getItem(USER_KEY)
   switch (userId) {
     case '1':
@@ -161,30 +161,6 @@ export default function getMeMock(): UserFull {
         },
       }
     default:
-      return {
-        id: '13371337',
-        created_at: '-',
-        updated_at: '-',
-        name: 'Default Defaultington',
-        delegate_status: '',
-        gender: 'o',
-        country_iso2: 'DL',
-        email: '13371337@worldcubeassociation.org',
-        region: 'Somewhere',
-        senior_delegate_id: 0,
-        class: 'user',
-        teams: [],
-        wca_id: '',
-        country: {
-          id: 'DL',
-          name: 'Default Land',
-          iso2: 'DL',
-        },
-        avatar: {
-          url: '-',
-          pending_url: '-',
-          thumb_url: '-',
-        },
-      }
+      return undefined
   }
 }

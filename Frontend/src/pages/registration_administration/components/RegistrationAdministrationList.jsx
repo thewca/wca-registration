@@ -8,6 +8,7 @@ import { getAllRegistrations } from '../../../api/registration/get/get_registrat
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
+import { setMessage } from '../../../ui/events/messages'
 
 // Currently it is at the developer's discretion to make sure
 // an attendee is added to the right list.
@@ -119,6 +120,10 @@ export default function RegistrationAdministrationList() {
     refetchOnReconnect: false,
     staleTime: Infinity,
     refetchOnMount: 'always',
+    retry: false,
+    onError: (err) => {
+      setMessage(err.toString(), 'error')
+    },
   })
   const [selected, dispatch] = useReducer(reducer, {
     waiting: [],

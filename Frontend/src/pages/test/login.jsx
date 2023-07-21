@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { USER_KEY } from '../../ui/App'
+import { USER_KEY } from '../../ui/User'
 
 export default function TestLogin() {
   const { login_id } = useParams()

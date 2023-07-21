@@ -3,8 +3,8 @@ import React, { useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Tab } from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
-import styles from './tabs.module.scss'
 import { PermissionsContext } from '../api/helper/context/permission_context'
+import styles from './tabs.module.scss'
 
 export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -29,7 +29,7 @@ export default function PageTabs() {
         render: () => {},
       })
     }
-    if (canAdminCompetition(competitionInfo.id)) {
+    if (canAdminCompetition) {
       optionalTabs.push({
         menuItem: (
           <Menu.Item

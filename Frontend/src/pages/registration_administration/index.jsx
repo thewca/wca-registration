@@ -7,11 +7,10 @@ import RegistrationAdministrationList from './components/RegistrationAdministrat
 import styles from './index.module.scss'
 
 export default function RegistrationAdministration() {
-  const { competitionInfo } = useContext(CompetitionContext)
   const { canAdminCompetition } = useContext(PermissionsContext)
   return (
     <div className={styles.container}>
-      {canAdminCompetition(competitionInfo.id) ? (
+      {canAdminCompetition ? (
         <RegistrationAdministrationList />
       ) : (
         <PermissionMessage permissionLevel={CAN_ADMINISTER_COMPETITIONS} />
