@@ -12,8 +12,8 @@ class RegistrationController < ApplicationController
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
   before_action :validate_create_request, only: [:create]
-  before_action :ensure_lane_exists, only: [:create]
   before_action :validate_entry_request, only: [:entry]
+  before_action :ensure_lane_exists, only: [:create]
   before_action :validate_list_admin, only: [:list_admin]
   before_action :validate_update_request, only: [:update]
 
@@ -25,9 +25,11 @@ class RegistrationController < ApplicationController
   # We need to do this in this order, so we don't leak user attributes
 
   def validate_create_request
-    @user_id, @competition_id, @event_ids = registration_params
+    @user_id = registration_params[:user_id]
+    @competition_id = registration_params[:competition_id]
+    @event_ids = registration_params[:competing]["event_ids"]
     status = ""
-    cannot_register_reasons = ""
+    cannot_register_reason = ""
 
     unless @current_user == @user_id
       Metrics.registration_impersonation_attempt_counter.increment
@@ -37,8 +39,9 @@ class RegistrationController < ApplicationController
     can_compete, reasons = UserApi.can_compete?(@user_id)
     unless can_compete
       status = :forbidden
-      cannot_register_reasons = reasons
+      cannot_register_reason = reasons
     end
+
     # TODO: Create a proper competition_is_open? method (that would require changing test comps every once in a while)
     unless CompetitionApi.competition_exists?(@competition_id)
       status = :forbidden
@@ -50,7 +53,7 @@ class RegistrationController < ApplicationController
       cannot_register_reasons = ErrorCodes::COMPETITION_INVALID_EVENTS
     end
 
-    unless cannot_register_reasons.empty?
+    unless cannot_register_reason.empty?
       Metrics.registration_validation_errors_counter.increment
       render json: { error: cannot_register_reasons }, status: status
     end
@@ -90,6 +93,7 @@ class RegistrationController < ApplicationController
     id = SecureRandom.uuid
 
     step_data = {
+      attendee_id: "#{@competition_id}-#{@user_id}",
       user_id: @user_id,
       competition_id: @competition_id,
       lane_name: 'competing',
@@ -109,7 +113,7 @@ class RegistrationController < ApplicationController
                         message_deduplication_id: id,
                       })
 
-    render json: { status: 'ok', message: 'Started Registration Process' }
+    render json: { status: 'accepted', message: 'Started Registration Process' }, status: :accepted
   end
 
   # You can either update your own registration or one for a competition you administer
@@ -215,7 +219,9 @@ class RegistrationController < ApplicationController
     REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
 
     def registration_params
-      params.require([:user_id, :competition_id, :event_ids])
+      params.require([:user_id, :competition_id])
+      params.require(:competing).require(:event_ids)
+      params
     end
 
     def entry_params

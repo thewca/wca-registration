@@ -229,7 +229,9 @@ function RegistrationAdministrationTable({
                   />
                 </Table.Cell>
                 <Table.Cell>
-                  <Link to={`/${competition_id}/${registration.user.id}/edit`}>
+                  <Link
+                    to={`/competitions/${competition_id}/${registration.user.id}/edit`}
+                  >
                     Edit
                   </Link>
                 </Table.Cell>

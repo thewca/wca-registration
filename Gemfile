@@ -21,6 +21,9 @@ gem 'jbuilder'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors'
 
+# much better gem for http requests than the native ruby one
+gem 'httparty'
+
 # jwt decoding
 gem 'jwt'
 
@@ -58,8 +61,12 @@ group :development, :test do
 
   # rspec-rails for creating tests
   gem 'rspec-rails'
+
   # Use rswag for creating rspec tests that also produce swagger spec files
   gem 'rswag'
+
+  # Use pry for live debugging
+  gem 'pry'
 
   # webmock for mocking responses from other microservices
   gem 'webmock', require: false

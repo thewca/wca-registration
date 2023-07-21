@@ -11,9 +11,26 @@ export default function PageTabs() {
   const { canAdminCompetition } = useContext(PermissionsContext)
   const navigate = useNavigate()
   const panes = useMemo(() => {
-    const adminPanes = []
+    const optionalTabs = []
+    if (competitionInfo.use_wca_registration) {
+      optionalTabs.push({
+        menuItem: (
+          <Menu.Item
+            key="tab-register"
+            className={styles.tabItem}
+            onClick={() =>
+              navigate(`/competitions/${competitionInfo.id}/register`)
+            }
+          >
+            <UiIcon name="sign in alt" />
+            Register
+          </Menu.Item>
+        ),
+        render: () => {},
+      })
+    }
     if (canAdminCompetition(competitionInfo.id)) {
-      adminPanes.push({
+      optionalTabs.push({
         menuItem: (
           <Menu.Item
             key="tab-registration"
@@ -24,6 +41,23 @@ export default function PageTabs() {
           >
             <UiIcon name="list ul" />
             Registrations
+          </Menu.Item>
+        ),
+        render: () => {},
+      })
+    }
+    if (new Date(competitionInfo.registration_open) < Date.now()) {
+      optionalTabs.push({
+        menuItem: (
+          <Menu.Item
+            key="tab-Competitors"
+            className={styles.tabItem}
+            onClick={() =>
+              navigate(`/competitions/${competitionInfo.id}/registrations`)
+            }
+          >
+            <UiIcon name="users" />
+            Competitors
           </Menu.Item>
         ),
         render: () => {},
@@ -43,39 +77,32 @@ export default function PageTabs() {
         ),
         render: () => {},
       },
-      ...adminPanes,
-      {
-        menuItem: (
-          <Menu.Item
-            key="tab-Competitors"
-            className={styles.tabItem}
-            onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/registrations`)
-            }
-          >
-            <UiIcon name="users" />
-            Competitors
-          </Menu.Item>
-        ),
-        render: () => {},
-      },
-      {
-        menuItem: (
-          <Menu.Item
-            key="tab-register"
-            className={styles.tabItem}
-            onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/register`)
-            }
-          >
-            <UiIcon name="sign in alt" />
-            Register
-          </Menu.Item>
-        ),
-        render: () => {},
-      },
+      ...optionalTabs,
+      ...competitionInfo.tabs.map((tab) => {
+        return {
+          menuItem: (
+            <Menu.Item
+              key={`tabs-${tab.id}`}
+              className={styles.tabItem}
+              onClick={() =>
+                navigate(`/competitions/${competitionInfo.id}/tabs/${tab.id}`)
+              }
+            >
+              {tab.name}
+            </Menu.Item>
+          ),
+          render: () => {},
+        }
+      }),
     ]
-  }, [canAdminCompetition, competitionInfo.id, navigate])
+  }, [
+    canAdminCompetition,
+    competitionInfo.id,
+    competitionInfo.use_wca_registration,
+    competitionInfo.registration_open,
+    competitionInfo.tabs,
+    navigate,
+  ])
   return (
     <Tab
       panes={panes}

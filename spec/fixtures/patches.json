@@ -1,0 +1,38 @@
+{
+  "816-cancel-full-registration": {
+    "attendee_id":"CubingZANationalChampionship2023-158816",
+    "lane_states":{
+      "competing":"cancelled"
+    }
+  },
+  "823-cancel-full-registration": {
+    "attendee_id":"CubingZANationalChampionship2023-158823",
+    "lane_states":{
+      "competing":"cancelled"
+    }
+  },
+  "823-cancel-wrong-lane": {
+    "attendee_id":"CubingZANationalChampionship2023-158823",
+    "lane_states":{
+      "staffing":"cancelled"
+    }
+  },
+  "816-add-event": {
+    "attendee_id":"CubingZANationalChampionship2023-158816",
+    "completed_steps":[1,2,3,4],
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"444",
+            "event_registration_state":"accepted"
+          }
+        ],
+        "custom_data": {}
+      }
+    }]
+
+  }
+
+}

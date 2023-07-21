@@ -6,24 +6,7 @@ require 'webmock/rspec'
 WebMock.disable_net_connect!(allow_localhost: true)
 WebMock.allow_net_connect!
 
-module DynamoidReset
-  def self.all
-    Dynamoid.adapter.list_tables.each do |table|
-      # Only delete tables in our namespace
-      if table =~ /^#{Dynamoid::Config.namespace}/
-        Dynamoid.adapter.delete_table(table)
-      end
-    end
-    Dynamoid.adapter.tables.clear
-    # Recreate all tables to avoid unexpected errors
-    Dynamoid.included_models.each { |m| m.create_table(sync: true) }
-  end
-end
-
 RSpec.configure do |config|
-  config.before(:each) do
-    DynamoidReset.all
-  end
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

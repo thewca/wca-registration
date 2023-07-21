@@ -1,4 +1,5 @@
 import { UiIcon } from '@thewca/wca-components'
+import moment from 'moment'
 import React, { useContext } from 'react'
 import { Popup } from 'semantic-ui-react'
 import { CAN_ATTEND_COMPETITIONS } from '../../api/auth/get_permissions'
@@ -49,9 +50,10 @@ export default function Register() {
             trigger={
               <span>
                 Full Refund before{' '}
-                {new Date(
-                  competitionInfo.registration_close
-                ).toLocaleDateString()}
+                {moment(
+                  competitionInfo.refund_policy_limit_date ??
+                    competitionInfo.start_date
+                ).format('ll')}
                 <UiIcon name="circle info" />
               </span>
             }
@@ -63,9 +65,10 @@ export default function Register() {
             trigger={
               <span>
                 Edit Registration until{' '}
-                {new Date(
-                  competitionInfo.registration_close
-                ).toLocaleDateString()}
+                {moment(
+                  competitionInfo.event_change_deadline_date ??
+                    competitionInfo.end_date
+                ).format('ll')}
                 <UiIcon name="circle info" />
               </span>
             }
@@ -74,15 +77,30 @@ export default function Register() {
       </div>
       {!loggedIn ? (
         <h2>You have to log in to Register for a Competition</h2>
-      ) : (
-        <>
+      ) : // eslint-disable-next-line unicorn/no-nested-ternary
+      competitionInfo['registration_opened?'] ? (
+        <div>
           <div className={styles.registrationHeader}>Hi, {user.name}</div>
-          {canAttendCompetitions() ? (
+          {canAttendCompetitions(user) ? (
             <RegistrationPanel />
           ) : (
             <PermissionMessage permissionLevel={CAN_ATTEND_COMPETITIONS} />
           )}
-        </>
+        </div>
+      ) : (
+        <div className={styles.competitionNotOpen}>
+          <Message warning>
+            {moment(competitionInfo.registration_open).diff(moment.now()) < 0
+              ? `Competition Registration closed on ${moment(
+                  competitionInfo.registration_close
+                ).format('ll')}`
+              : `Competition Registration will open in ${moment(
+                  competitionInfo.registration_open
+                ).fromNow()} on ${moment(
+                  competitionInfo.registration_open
+                ).format('lll')}`}
+          </Message>
+        </div>
       )}
     </div>
   )

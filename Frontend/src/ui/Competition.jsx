@@ -1,5 +1,8 @@
+import * as currencies from '@dinero.js/currencies'
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
+import { dinero, toDecimal } from 'dinero.js'
+import moment from 'moment'
 import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button, Image } from 'semantic-ui-react'
@@ -28,14 +31,26 @@ export default function Competition({ children }) {
               <div className={styles.infoLeft}>
                 <div className={styles.competitionName}>
                   <UiIcon name="bookmark ouline" /> {competitionInfo.name} |{' '}
-                  <span className={styles.open}>Open</span>
+                  {competitionInfo['registration_opened?'] ? (
+                    <span className={styles.open}>Open</span>
+                  ) : (
+                    <span className={styles.close}>Close</span>
+                  )}
                 </div>
                 <div className={styles.location}>
                   <UiIcon name="pin" /> {competitionInfo.venue_address}
                 </div>
                 <div className={styles.date}>
-                  {new Date(competitionInfo.start_date).toDateString()},{' '}
-                  <a href="https://calendar.google.com">
+                  {moment(competitionInfo.start_date).format('LL')},{' '}
+                  <a
+                    href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${
+                      competitionInfo.id
+                    }&dates=${moment(competitionInfo.start_date).format(
+                      'YYYYMMDD'
+                    )}/${moment(competitionInfo.end_date).format(
+                      'YYYYMMDD'
+                    )}&location=${competitionInfo.venue_address}`}
+                  >
                     Add to Google Calendar
                   </a>
                 </div>
@@ -45,13 +60,31 @@ export default function Competition({ children }) {
                 </div>
                 <Button
                   className={styles.registerButton}
-                  onClick={() =>
-                    navigate(`/competitions/${competitionInfo.id}/register`)
-                  }
+                  disabled={!competitionInfo['registration_opened?']}
+                  onClick={(_, data) => {
+                    if (!data.disabled) {
+                      if (competitionInfo.use_wca_registration) {
+                        navigate(`/competitions/${competitionInfo.id}/register`)
+                      } else {
+                        window.location =
+                          competitionInfo.external_registration_page
+                      }
+                    }
+                  }}
                 >
                   Register
                 </Button>
-                <span className={styles.fee}>Registration Fee of $$$</span>
+                <span className={styles.fee}>
+                  Registration Fee:{' '}
+                  {toDecimal(
+                    dinero({
+                      amount:
+                        competitionInfo.base_entry_fee_lowest_denomination,
+                      currency: currencies[competitionInfo.currency_code],
+                    }),
+                    ({ value, currency }) => `${currency.code} ${value}`
+                  ) ?? 'No Entry Fee'}
+                </span>
               </div>
               <div className={styles.infoRight}>
                 <Image href={competitionInfo.url} className={styles.image} />
@@ -70,7 +103,7 @@ export default function Competition({ children }) {
                 <span className={styles.eventHeader}>Main Event:</span>
                 <span className={styles.event}>
                   <CubingIcon
-                    event={competitionInfo.event_ids[0]}
+                    event={competitionInfo.main_event_id}
                     selected={true}
                   />
                 </span>

@@ -20,7 +20,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -60,7 +60,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -75,14 +75,13 @@
       "discount_amount":"0",
       "last_action":"created",
       "last_action_datetime":"2023-01-01T00:00:00Z",
-      "last_action_user":"158816"
+      "last_action_user":"158817"
     }
     ]
   },
   {
     "attendee_id":"CubingZANationalChampionship2023-158818",
     "competition_id":"CubingZANationalChampionship2023",
-    "user_id":"158817",
     "lane_states":{
       "competitor":"accepted"
     },
@@ -99,7 +98,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -114,20 +113,21 @@
       "discount_amount":"0",
       "last_action":"created",
       "last_action_datetime":"2023-01-01T00:00:00Z",
-      "last_action_user":"158816"
+      "last_action_user":"158818"
     }
     ]
   },
   {
     "attendee_id":"CubingZANationalChampionship2023-158819",
     "competition_id":"CubingZANationalChampionship2023",
-    "user_id":"158817",
+    "is_attending":true,
+    "user_id":"158819",
     "lane_states":{
-      "competitor":"accepted"
+      "competing":"accepted"
     },
     "lanes":[{
-      "lane_name":"competitor",
-      "lane_state":"Accepted",
+      "lane_name":"competing",
+      "lane_state":"accepted",
       "completed_steps":[1,2,3],
       "lane_details":{
         "event_details":[
@@ -138,7 +138,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -153,21 +153,20 @@
       "discount_amount":"0",
       "last_action":"created",
       "last_action_datetime":"2023-01-01T00:00:00Z",
-      "last_action_user":"158816"
-    }
-    ]
+      "last_action_user":"158819"
+    }]
   },
   {
     "attendee_id":"CubingZANationalChampionship2023-158820",
     "competition_id":"CubingZANationalChampionship2023",
-    "hide_name_publicly":false,
-    "user_id":"158817",
+    "user_id":"158820",
+    "hide_name_publicly": false,
     "lane_states":{
-      "competitor":"accepted"
+      "competing":"accepted"
     },
     "lanes":[{
-      "lane_name":"competitor",
-      "lane_state":"Accepted",
+      "lane_name":"competing",
+      "lane_state":"accepted",
       "completed_steps":[1,2,3],
       "lane_details":{
         "event_details":[
@@ -178,7 +177,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -193,22 +192,17 @@
       "discount_amount":"0",
       "last_action":"created",
       "last_action_datetime":"2023-01-01T00:00:00Z",
-      "last_action_user":"158816"
-    }
-    ]
+      "last_action_user":"158820"
+    }]
   },
   {
     "attendee_id":"CubingZANationalChampionship2023-158821",
-    "competition_id":"CubingZANationalChampionship2023",
-    "user_id":"158817",
-    "hide_name_publicly":false,
-    "is_attending":true,
     "lane_states":{
-      "competitor":"accepted"
+      "competing":"accepted"
     },
     "lanes":[{
-      "lane_name":"competitor",
-      "lane_state":"Accepted",
+      "lane_name":"competing",
+      "lane_state":"accepted",
       "completed_steps":[1,2,3],
       "lane_details":{
         "event_details":[
@@ -219,7 +213,7 @@
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333MBF",
+            "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
@@ -234,8 +228,53 @@
       "discount_amount":"0",
       "last_action":"created",
       "last_action_datetime":"2023-01-01T00:00:00Z",
-      "last_action_user":"158816"
+      "last_action_user":"158821"
+    }]
+  },
+  {
+    "attendee_id":"CubingZANationalChampionship2023-158822",
+    "competition_id":"CubingZANationalChampionship2023",
+    "user_id":"158822",
+    "lane_states":{
+      "competing":"accepted"
     }
-    ]
+  },
+  {
+    "attendee_id":"CubingZANationalChampionship2023-158823",
+    "competition_id":"CubingZANationalChampionship2023",
+    "user_id":"158823",
+    "lane_states":{
+      "competing":"cancelled"
+    },
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_state":"cancelled",
+      "completed_steps":[1,2,3],
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"333",
+            "event_cost":"5",
+            "event_cost_currency":"$",
+            "event_registration_state":"cancelled"
+          },
+          {
+            "event_id":"333mbf",
+            "event_cost":"10.5",
+            "event_cost_currency":"$",
+            "event_registration_state":"cancelled"
+          }
+        ],
+        "custom_data": {}
+      },
+      "payment_reference":"PI-1235231",
+      "payment_amount":"10",
+      "transaction_currency":"$",
+      "discount_percentage":"0",
+      "discount_amount":"0",
+      "last_action":"cancelled",
+      "last_action_datetime":"2023-01-01T00:01:00Z",
+      "last_action_user":"158823"
+    }]
   }
 ]
