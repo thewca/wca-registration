@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   unless ENV.fetch("CODE_ENVIRONMENT", "development") == "production"
     get '/jwt', to: 'jwt_dev#index'
   end
+
   get '/api/v1/register', to: 'registration#entry'
   post '/api/v1/register', to: 'registration#create'
   patch '/api/v1/register', to: 'registration#update'

@@ -23,6 +23,14 @@ If you want to the test suite once-off, run `docker compose -f "docker-compose.t
 
 ## Tests and API Docs
 
+### Running Tests
+
+Connect to the docker container, then use one of the following:
+- All tests: `bundle exec rspec`
+- A specific folder only: `bundle exec rspec spec/requests/registrations/{file-name}`
+- Only success or fail tests in a specific file: `bundle exec rspec spec/requests/registrations/{file-name} -e "{success or fail}`
+
+
 ### RSwag and SwaggerUI
 
 We use [RSwag](https://github.com/rswag/RSwag) to generate the API docs from the structure of our spec (test) files.

@@ -12,6 +12,16 @@ components:
           type: number
       required:
       - error
+    success_response:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+      required:
+      - status
+      - message
     registration:
       type: object
       properties:
@@ -48,18 +58,24 @@ components:
       properties:
         user_id:
           type: string
-        event_ids:
-          type: array
-          items:
-            type: string
-            format: EventId
-        comment:
+        competition_id:
           type: string
-        guests:
-          type: number
+        competing:
+          type: object
+          properties:
+            event_ids:
+              type: array
+              items:
+                type: string
+                format: EventId
+            comment:
+              type: string
+            guests:
+              type: number
       required:
       - user_id
-      - event_ids
+      - competition_id
+      - competing
     updateRegistrationBody:
       properties:
         user_id:
@@ -90,8 +106,7 @@ paths:
           type: string
       responses:
         '200':
-          description: Competitions Service is down but we have registrations for
-            the competition_id in our database
+          description: Valid competition_id but no registrations for it
           content:
             application/json:
               schema:
@@ -116,6 +131,33 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
+  "/api/v1/register":
+    post:
+      summary: Add an attendee registration
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '202':
+          description: only required fields included
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/success_response"
+        '403':
+          description: user impersonation attempt
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/submitRegistrationBody"
+        required: true
 servers:
 - url: https://{defaultHost}
   variables:

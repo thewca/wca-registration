@@ -42,13 +42,18 @@ global_secondary_indexes = [
     },
   },
 ]
-$dynamodb.create_table({
-                         table_name: table_name,
-                         key_schema: key_schema,
-                         attribute_definitions: attribute_definitions,
-                         provisioned_throughput: provisioned_throughput,
-                         global_secondary_indexes: global_secondary_indexes,
-                       })
+begin
+  $dynamodb.create_table({
+                           table_name: table_name,
+                           key_schema: key_schema,
+                           attribute_definitions: attribute_definitions,
+                           provisioned_throughput: provisioned_throughput,
+                           global_secondary_indexes: global_secondary_indexes,
+                         })
+rescue Aws::DynamoDB::Errors::ResourceInUseException
+  puts "Database Already exists"
+end
+
 # Create SQS Queue
 queue_name = 'registrations.fifo'
 $sqs.create_queue({
