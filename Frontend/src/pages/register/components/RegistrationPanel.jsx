@@ -12,6 +12,7 @@ import submitEventRegistration from '../../../api/registration/post/submit_regis
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './panel.module.scss'
+import Processing from './Processing'
 
 export default function RegistrationPanel() {
   const { user } = useContext(AuthContext)
@@ -20,6 +21,7 @@ export default function RegistrationPanel() {
   const [selectedEvents, setSelectedEvents] = useState([])
   const [guests, setGuests] = useState(0)
   const [registration, setRegistration] = useState({})
+  const [processing, setProcessing] = useState(false)
   const queryClient = useQueryClient()
   const { data: registrationRequest, isLoading } = useQuery({
     queryKey: ['registration', user, competitionInfo.id],
@@ -67,191 +69,201 @@ export default function RegistrationPanel() {
         // We can't update the registration yet, because there might be more steps needed
         // And the Registration might still be processing
         setMessage('Registration submitted successfully', 'positive')
+        setProcessing(true)
       },
     })
 
   return isLoading ? (
     <LoadingMessage />
   ) : (
-    <div className={styles.panel}>
-      {registration.registration_status ? (
-        <>
-          <div className={styles.registrationGreeting}>
-            You have registered for {competitionInfo.name}
-          </div>
-          <Divider className={styles.divider} />
-          <div className={styles.registrationRow}>
-            <div className={styles.eventSelectionText}>
-              <div className={styles.eventSelectionHeading}>
-                Your Selected Events:
-              </div>
-              <div className={styles.eventSelectionSubText}>
-                You can set your preferred events to prefill future competitions
-                in your profile
-              </div>
-            </div>
-            <div className={styles.eventSelectorWrapper}>
-              <EventSelector
-                handleEventSelection={setSelectedEvents}
-                events={competitionInfo.event_ids}
-                selected={selectedEvents}
-                size="2x"
-              />
-            </div>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className={styles.registrationGreeting}>
-            You can register for {competitionInfo.name}
-          </div>
-          <Divider className={styles.divider} />
-          <div className={styles.registrationHeading}>
-            Registration Fee of{' '}
-            {toDecimal(
-              dinero({
-                amount: competitionInfo.base_entry_fee_lowest_denomination,
-                currency: currencies[competitionInfo.currency_code],
-              }),
-              ({ value, currency }) => `${currency.code} ${value}`
-            ) ?? 'No Entry Fee'}{' '}
-            | Waitlist: 0 People
-          </div>
-          <div className={styles.registrationRow}>
-            <div className={styles.eventSelectionText}>
-              <div className={styles.eventSelectionHeading}>
-                Select Your Events:
-              </div>
-              <div className={styles.eventSelectionSubText}>
-                You can set your preferred events to prefill future competitions
-                in your profile
-              </div>
-            </div>
-            <div className={styles.eventSelectorWrapper}>
-              <EventSelector
-                handleEventSelection={setSelectedEvents}
-                events={competitionInfo.event_ids}
-                selected={selectedEvents}
-                size="2x"
-              />
-            </div>
-          </div>
-        </>
+    <div>
+      {processing && (
+        <div className={styles.processing}>
+          <Processing processing={processing} setProcessing={setProcessing} />
+        </div>
       )}
-      <div className={styles.registrationRow}>
-        <div className={styles.eventSelectionText}>
-          <div className={styles.eventSelectionHeading}>
-            Additional comments you would like to provide to the organizers:
-          </div>
-        </div>
-        <div className={styles.commentWrapper}>
-          <TextArea
-            maxLength={180}
-            onChange={(_, data) => setComment(data.value)}
-            value={comment}
-          />
-          <div className={styles.commentCounter}>{comment.length}/180</div>
-        </div>
-      </div>
-      <div className={styles.registrationRow}>
-        <div className={styles.eventSelectionText}>
-          <div className={styles.eventSelectionHeading}>Guests</div>
-        </div>
-        <div className={styles.commentWrapper}>
-          <Dropdown
-            value={guests}
-            onChange={(e, data) => setGuests(data.value)}
-            selection
-            options={[
-              ...new Array(
-                (competitionInfo.guests_per_registration_limit ?? 99) + 1 // Arrays start at 0
-              ),
-            ].map((_, index) => {
-              return {
-                key: `registration-guest-dropdown-${index}`,
-                text: index,
-                value: index,
-              }
-            })}
-          />
-        </div>
-      </div>
-      <div className={styles.registrationRow}>
+      <div className={processing ? styles.panelProcessing : styles.panel}>
         {registration.registration_status ? (
-          <div className={styles.registrationButtonWrapper}>
-            <div className={styles.registrationWarning}>
-              Your Registration Status: {registration.registration_status}
-              {competitionInfo.allow_registration_edits
-                ? 'Update Your Registration below'
-                : 'Registration Editing is disabled'}
-              <UiIcon name="circle info" />
+          <>
+            <div className={styles.registrationGreeting}>
+              You have registered for {competitionInfo.name}
             </div>
-            <Button
-              disabled={isUpdating || !competitionInfo.allow_registration_edits}
-              color="blue"
-              onClick={() => {
-                setMessage('Registration is being updated', 'basic')
-                updateRegistrationMutation({
-                  user_id: registration.user_id,
-                  competition_id: competitionInfo.id,
-                  comment,
-                  guests,
-                  event_ids: selectedEvents,
-                })
-              }}
-            >
-              Update Registration
-            </Button>
-            <Button
-              disabled={isUpdating}
-              negative
-              onClick={() => {
-                setMessage('Registration is being deleted', 'basic')
-                updateRegistrationMutation({
-                  user_id: registration.user_id,
-                  competition_id: competitionInfo.id,
-                  status: 'deleted',
-                })
-              }}
-            >
-              Delete Registration
-            </Button>
-          </div>
+            <Divider className={styles.divider} />
+            <div className={styles.registrationRow}>
+              <div className={styles.eventSelectionText}>
+                <div className={styles.eventSelectionHeading}>
+                  Your Selected Events:
+                </div>
+                <div className={styles.eventSelectionSubText}>
+                  You can set your preferred events to prefill future
+                  competitions in your profile
+                </div>
+              </div>
+              <div className={styles.eventSelectorWrapper}>
+                <EventSelector
+                  handleEventSelection={setSelectedEvents}
+                  events={competitionInfo.event_ids}
+                  selected={selectedEvents}
+                  size="2x"
+                />
+              </div>
+            </div>
+          </>
         ) : (
-          <div className={styles.registrationButtonWrapper}>
-            <div className={styles.registrationWarning}>
-              <Popup
-                content="You will only be accepted if you have met all reigstration requirements"
-                position="top center"
-                trigger={
-                  <span>
-                    Submission of Registration does not mean approval to compete{' '}
-                    <UiIcon name="circle info" />
-                  </span>
-                }
-              />
+          <>
+            <div className={styles.registrationGreeting}>
+              You can register for {competitionInfo.name}
             </div>
-            <Button
-              className={styles.registrationButton}
-              disabled={isCreating}
-              onClick={async () => {
-                setMessage('Registration is being processed', 'basic')
-                createRegistrationMutation({
-                  user_id: user,
-                  competition_id: competitionInfo.id,
-                  competing: {
-                    event_ids: selectedEvents,
+            <Divider className={styles.divider} />
+            <div className={styles.registrationHeading}>
+              Registration Fee of{' '}
+              {toDecimal(
+                dinero({
+                  amount: competitionInfo.base_entry_fee_lowest_denomination,
+                  currency: currencies[competitionInfo.currency_code],
+                }),
+                ({ value, currency }) => `${currency.code} ${value}`
+              ) ?? 'No Entry Fee'}{' '}
+              | Waitlist: 0 People
+            </div>
+            <div className={styles.registrationRow}>
+              <div className={styles.eventSelectionText}>
+                <div className={styles.eventSelectionHeading}>
+                  Select Your Events:
+                </div>
+                <div className={styles.eventSelectionSubText}>
+                  You can set your preferred events to prefill future
+                  competitions in your profile
+                </div>
+              </div>
+              <div className={styles.eventSelectorWrapper}>
+                <EventSelector
+                  handleEventSelection={setSelectedEvents}
+                  events={competitionInfo.event_ids}
+                  selected={selectedEvents}
+                  size="2x"
+                />
+              </div>
+            </div>
+          </>
+        )}
+        <div className={styles.registrationRow}>
+          <div className={styles.eventSelectionText}>
+            <div className={styles.eventSelectionHeading}>
+              Additional comments you would like to provide to the organizers:
+            </div>
+          </div>
+          <div className={styles.commentWrapper}>
+            <TextArea
+              maxLength={180}
+              onChange={(_, data) => setComment(data.value)}
+              value={comment}
+            />
+            <div className={styles.commentCounter}>{comment.length}/180</div>
+          </div>
+        </div>
+        <div className={styles.registrationRow}>
+          <div className={styles.eventSelectionText}>
+            <div className={styles.eventSelectionHeading}>Guests</div>
+          </div>
+          <div className={styles.commentWrapper}>
+            <Dropdown
+              value={guests}
+              onChange={(e, data) => setGuests(data.value)}
+              selection
+              options={[
+                ...new Array(
+                  (competitionInfo.guests_per_registration_limit ?? 99) + 1 // Arrays start at 0
+                ),
+              ].map((_, index) => {
+                return {
+                  key: `registration-guest-dropdown-${index}`,
+                  text: index,
+                  value: index,
+                }
+              })}
+            />
+          </div>
+        </div>
+        <div className={styles.registrationRow}>
+          {registration.registration_status ? (
+            <div className={styles.registrationButtonWrapper}>
+              <div className={styles.registrationWarning}>
+                Your Registration Status: {registration.registration_status}
+                {competitionInfo.allow_registration_edits
+                  ? 'Update Your Registration below'
+                  : 'Registration Editing is disabled'}
+                <UiIcon name="circle info" />
+              </div>
+              <Button
+                disabled={
+                  isUpdating || !competitionInfo.allow_registration_edits
+                }
+                color="blue"
+                onClick={() => {
+                  setMessage('Registration is being updated', 'basic')
+                  updateRegistrationMutation({
+                    user_id: registration.user_id,
+                    competition_id: competitionInfo.id,
                     comment,
                     guests,
-                  },
-                })
-              }}
-              positive
-            >
-              Send Registration
-            </Button>
-          </div>
-        )}
+                    event_ids: selectedEvents,
+                  })
+                }}
+              >
+                Update Registration
+              </Button>
+              <Button
+                disabled={isUpdating}
+                negative
+                onClick={() => {
+                  setMessage('Registration is being deleted', 'basic')
+                  updateRegistrationMutation({
+                    user_id: registration.user_id,
+                    competition_id: competitionInfo.id,
+                    status: 'deleted',
+                  })
+                }}
+              >
+                Delete Registration
+              </Button>
+            </div>
+          ) : (
+            <div className={styles.registrationButtonWrapper}>
+              <div className={styles.registrationWarning}>
+                <Popup
+                  content="You will only be accepted if you have met all reigstration requirements"
+                  position="top center"
+                  trigger={
+                    <span>
+                      Submission of Registration does not mean approval to
+                      compete <UiIcon name="circle info" />
+                    </span>
+                  }
+                />
+              </div>
+              <Button
+                className={styles.registrationButton}
+                disabled={isCreating}
+                onClick={async () => {
+                  setMessage('Registration is being processed', 'basic')
+                  createRegistrationMutation({
+                    user_id: user,
+                    competition_id: competitionInfo.id,
+                    competing: {
+                      event_ids: selectedEvents,
+                      comment,
+                      guests,
+                    },
+                  })
+                }}
+                positive
+              >
+                Send Registration
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
