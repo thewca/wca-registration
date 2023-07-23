@@ -13,8 +13,9 @@ import App from './ui/App'
 import Competition from './ui/Competition'
 import CustomTab from './ui/CustomTab'
 import FlashMessage from './ui/messages/flashMessage'
+import PermissionsProvider from './ui/PermissionsProvider'
 import PageTabs from './ui/Tabs'
-import User from './ui/User'
+import UserProvider from './ui/UserProvider'
 
 const router = createBrowserRouter([
   {
@@ -22,7 +23,9 @@ const router = createBrowserRouter([
     element: (
       <App>
         <FlashMessage />
-        <Outlet />
+        <UserProvider>
+          <Outlet />
+        </UserProvider>
       </App>
     ),
     children: [
@@ -31,10 +34,10 @@ const router = createBrowserRouter([
         element: (
           <Container>
             <Competition>
-              <User>
+              <PermissionsProvider>
                 <PageTabs />
                 <Outlet />
-              </User>
+              </PermissionsProvider>
             </Competition>
           </Container>
         ),

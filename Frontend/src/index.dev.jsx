@@ -20,7 +20,7 @@ import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 import FlashMessage from './ui/messages/flashMessage'
 import PageTabs from './ui/Tabs'
-import User from './ui/User'
+import UserProvider from './ui/UserProvider'
 
 const router = createBrowserRouter([
   {
@@ -59,10 +59,10 @@ const router = createBrowserRouter([
         element: (
           <Container>
             <Competition>
-              <User>
+              <UserProvider>
                 <PageTabs />
                 <Outlet />
-              </User>
+              </UserProvider>
             </Competition>
           </Container>
         ),

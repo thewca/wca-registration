@@ -1,4 +1,4 @@
-import { USER_KEY } from '../../ui/User'
+import { USER_KEY } from '../../ui/UserProvider'
 import { UserFull } from '../helper/context/user_context'
 
 export default function getMeMock(): UserFull | undefined {
