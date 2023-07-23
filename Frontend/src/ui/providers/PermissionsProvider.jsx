@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import React, { useContext } from 'react'
-import { getPermissions } from '../api/auth/get_permissions'
-import { CompetitionContext } from '../api/helper/context/competition_context'
-import { PermissionsContext } from '../api/helper/context/permission_context'
-import { UserContext } from '../api/helper/context/user_context'
-import { setMessage } from './events/messages'
-import LoadingMessage from './messages/loadingMessage'
+import { getPermissions } from '../../api/auth/get_permissions'
+import { CompetitionContext } from '../../api/helper/context/competition_context'
+import { PermissionsContext } from '../../api/helper/context/permission_context'
+import { UserContext } from '../../api/helper/context/user_context'
+import { setMessage } from '../events/messages'
+import LoadingMessage from '../messages/loadingMessage'
 
 export default function PermissionsProvider({ children }) {
   const { user } = useContext(UserContext)

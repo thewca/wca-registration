@@ -1,7 +1,7 @@
 import Base64 from 'crypto-js/enc-base64'
 import md5 from 'crypto-js/md5'
 import * as jose from 'jose'
-import { USER_KEY } from '../../ui/UserProvider'
+import { USER_KEY } from '../../ui/providers/UserProvider'
 
 export default async function getJWTMock(): Promise<string> {
   const user = localStorage.getItem(USER_KEY)

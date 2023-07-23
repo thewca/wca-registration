@@ -1,4 +1,4 @@
-import { USER_KEY } from '../../ui/UserProvider'
+import { USER_KEY } from '../../ui/providers/UserProvider'
 import { Permissions } from '../auth/get_permissions'
 import { USER_IS_BANNED, USER_PROFILE_INCOMPLETE } from '../helper/error_codes'
 

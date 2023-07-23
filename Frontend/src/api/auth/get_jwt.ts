@@ -1,4 +1,4 @@
-import { JWT_KEY } from '../../ui/UserProvider'
+import { JWT_KEY } from '../../ui/providers/UserProvider'
 import { BackendError } from '../helper/backend_fetch'
 import getJWTMock from '../mocks/get_jwt'
 

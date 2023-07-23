@@ -13,9 +13,9 @@ import App from './ui/App'
 import Competition from './ui/Competition'
 import CustomTab from './ui/CustomTab'
 import FlashMessage from './ui/messages/flashMessage'
-import PermissionsProvider from './ui/PermissionsProvider'
+import PermissionsProvider from './ui/providers/PermissionsProvider'
+import UserProvider from './ui/providers/UserProvider'
 import PageTabs from './ui/Tabs'
-import UserProvider from './ui/UserProvider'
 
 const router = createBrowserRouter([
   {
