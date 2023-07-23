@@ -46,7 +46,7 @@ module Helpers
         competition_details = get_competition_details(competition_id)
 
         # Stub the request to the Competition Service
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+        stub_request(:get, "https://test-registration.worldcubeassociation.org/api/v10/competitions/#{competition_id}")
           .to_return(status: 200, body: competition_details.to_json)
       end
     end
