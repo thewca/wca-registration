@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import React, from 'react'
+import React from 'react'
 import { UserContext } from '../api/helper/context/user_context'
 import getMe from '../api/user/get/get_me'
 import LoadingMessage from './messages/loadingMessage'
@@ -19,8 +19,6 @@ export default function UserProvider({ children }) {
   return isLoading ? (
     <LoadingMessage />
   ) : (
-    <UserContext.Provider value={{ user }}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={{ user }}>{children}</UserContext.Provider>
   )
 }
