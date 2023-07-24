@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import React, { useState } from 'react'
-import { pollRegistrations } from '../../../api/registration/get/poll_registrations'
 import { Message } from 'semantic-ui-react'
+import { pollRegistrations } from '../../../api/registration/get/poll_registrations'
 
 const REFETCH_INTERVAL = 3000
 

@@ -113,6 +113,26 @@ class RegistrationController < ApplicationController
                         message_deduplication_id: id,
                       })
 
+    # If the competition uses stripe we also need to initialize the payment to get a payment intent id
+    if CompetitionApi.uses_wca_payment?(@competition_id)
+      fee_lowest_denomination, currency_code = CompetitionApi.payment_info(@competition_id)
+      step_data = {
+        attendee_id: "#{@competition_id}-#{@user_id}",
+        lane_name: 'competing',
+        step: 'Event Registration',
+        step_details: {
+          fee_lowest_denomination: fee_lowest_denomination,
+          currency_code: currency_code
+        },
+      }
+      $sqs.send_message({
+                          queue_url: @queue_url,
+                          message_body: step_data.to_json,
+                          message_group_id: id,
+                          message_deduplication_id: id,
+                        })
+    end
+
     render json: { status: 'accepted', message: 'Started Registration Process' }, status: :accepted
   end
 
