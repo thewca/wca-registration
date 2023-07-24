@@ -13,13 +13,13 @@ class LaneFactory
     competing_lane
   end
 
-  def self.payment_lane(fee_lowest_denominator, currency_code payment_intent_id)
+  def self.payment_lane(fee_lowest_denominator, currency_code payment_intent_client_secret)
     competing_lane = Lane.new({})
     competing_lane.lane_name = "payment"
     competing_lane.completed_steps = ["Payment Intent Init"]
     competing_lane.lane_details = {
       amount_lowest_denominator: fee_lowest_denominator,
-      payment_intent_id: payment_intent_id,
+      payment_intent_client_secret: payment_intent_client_secret,
       currency_code: currency_code
     }
     competing_lane

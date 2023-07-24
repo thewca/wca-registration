@@ -43,18 +43,22 @@ class RegistrationProcessor
     def lane_init(competition_id, user_id)
       empty_registration = Registration.new(attendee_id: "#{competition_id}-#{user_id}",
                                             competition_id: competition_id,
-                                            user_id: user_id, lane_states:[{ "competing": "initialized" }])
+                                            user_id: user_id)
       empty_registration.save!
     end
 
     def payment_init(attendee_id, fee_lowest_denomination, currency_code)
       token = JwtHelper.get_token("payments.worldcubeassociation.org")
-      response = HTTParty.post("https://test-registration.worldcubeassociation.org/api/v10/internal/payments/init", body: { "attendee_id" => attendee_id }.to_json, headers: { 'Authorization' => "Bearer: #{token}", "Content-Type" => "application/json" })
+      #TODO: When we support per event registrations we need to properly calculate the fee
+      response = HTTParty.post("https://test-registration.worldcubeassociation.org/api/v10/internal/payments/init",
+                               body: { "attendee_id" => attendee_id, "amount" => fee_lowest_denomination, "currency_code" => currency_code }.to_json,
+                               headers: { 'Authorization' => "Bearer: #{token}",
+                                          "Content-Type" => "application/json" })
       unless response.ok?
-        raise "Error from the payments service" # This will retry the query item
+        raise "Error from the payments service" # This will retry the queue item
       end
       registration = Registration.find(attendee_id)
-      payment_lane = LaneFactory.payment_lane(fee_lowest_denomination, currency_code, response["payment_intent_id"])
+      payment_lane = LaneFactory.payment_lane(fee_lowest_denomination, currency_code, response["client_secret"])
       payment_lane_state = { "payment": "initialized" }
       # Due to the nature of using a FIFO queue, event_registration should have completed already, should we still
       # check for registration.lanes.nil? as in event_registration?
