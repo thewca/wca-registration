@@ -4,8 +4,8 @@ import { EventSelector, UiIcon } from '@thewca/wca-components'
 import { dinero, toDecimal } from 'dinero.js'
 import React, { useContext, useEffect, useState } from 'react'
 import { Button, Divider, Dropdown, Popup, TextArea } from 'semantic-ui-react'
-import { AuthContext } from '../../../api/helper/context/auth_context'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import { UserContext } from '../../../api/helper/context/user_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
@@ -14,7 +14,7 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './panel.module.scss'
 
 export default function RegistrationPanel() {
-  const { user } = useContext(AuthContext)
+  const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const [comment, setComment] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
@@ -22,12 +22,16 @@ export default function RegistrationPanel() {
   const [registration, setRegistration] = useState({})
   const queryClient = useQueryClient()
   const { data: registrationRequest, isLoading } = useQuery({
-    queryKey: ['registration', user, competitionInfo.id],
-    queryFn: () => getSingleRegistration(user, competitionInfo.id),
+    queryKey: ['registration', user.id, competitionInfo.id],
+    queryFn: () => getSingleRegistration(user.id, competitionInfo.id),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
     refetchOnMount: 'always',
+    retry: false,
+    onError: (err) => {
+      setMessage(err.error, 'error')
+    },
   })
   useEffect(() => {
     if (registrationRequest?.registration.registration_status) {
@@ -49,7 +53,7 @@ export default function RegistrationPanel() {
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
-          ['registration', competitionInfo.id, user],
+          ['registration', competitionInfo.id, user.id],
           data
         )
       },
@@ -181,6 +185,7 @@ export default function RegistrationPanel() {
           <div className={styles.registrationButtonWrapper}>
             <div className={styles.registrationWarning}>
               Your Registration Status: {registration.registration_status}
+              <br />
               {competitionInfo.allow_registration_edits
                 ? 'Update Your Registration below'
                 : 'Registration Editing is disabled'}
@@ -237,7 +242,7 @@ export default function RegistrationPanel() {
               onClick={async () => {
                 setMessage('Registration is being processed', 'basic')
                 createRegistrationMutation({
-                  user_id: user,
+                  user_id: user.id.toString(),
                   competition_id: competitionInfo.id,
                   competing: {
                     event_ids: selectedEvents,

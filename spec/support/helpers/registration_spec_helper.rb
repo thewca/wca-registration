@@ -13,29 +13,29 @@ module Helpers
 
         # COMP WITH REGISTATIONS - Stub competition info
         competition_details = get_competition_details(@comp_with_registrations)
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@comp_with_registrations}")
+        stub_request(:get, "https://test-registration.worldcubeassociation.org/api/v10/#{@comp_with_registrations}")
           .to_return(status: 200, body: competition_details.to_json)
 
         # EMPTY COMP STUB
         competition_details = get_competition_details(@empty_comp)
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@empty_comp}")
+        stub_request(:get, "https://test-registration.worldcubeassociation.org/api/v10/#{@empty_comp}")
           .to_return(status: 200, body: competition_details.to_json)
 
         # 404 COMP STUB
         wca_error_json = { error: 'Competition with id InvalidCompId not found' }.to_json
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_404}")
+        stub_request(:get, "https://test-registration.worldcubeassociation.org/api/v10/competitions/#{@error_comp_404}")
           .to_return(status: 404, body: wca_error_json)
 
         # 500 COMP STUB
         error_json = { error:
                          "Internal Server Error for url: /api/v0/competitions/#{@error_comp_500}" }.to_json
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_500}")
+        stub_request(:get, "https://test-registration.worldcubeassociation.org/api/v10/competitions/#{@error_comp_500}")
           .to_return(status: 500, body: error_json)
 
         # 502 COMP STUB
         error_json = { error:
                          "Internal Server Error for url: /api/v0/competitions/#{@error_comp_502}" }.to_json
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_502}")
+        stub_request(:get, "https://test-registration.worldcubeassociation.org/api/v10/competitions/#{@error_comp_502}")
           .to_return(status: 502, body: error_json)
       end
     end
@@ -46,7 +46,7 @@ module Helpers
         competition_details = get_competition_details(competition_id)
 
         # Stub the request to the Competition Service
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{competition_id}")
+        stub_request(:get, "https://test-registration.worldcubeassociation.org/api/v10/competitions/#{competition_id}")
           .to_return(status: 200, body: competition_details.to_json)
       end
     end

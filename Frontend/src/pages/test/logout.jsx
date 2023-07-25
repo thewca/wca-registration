@@ -1,10 +1,9 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { AuthContext } from '../../api/helper/context/auth_context'
+import { USER_KEY } from '../../ui/providers/UserProvider'
 
 export default function TestLogout() {
-  const { setUser } = useContext(AuthContext)
-  useEffect(() => setUser(null), [setUser])
+  useEffect(() => localStorage.removeItem(USER_KEY), [])
   return (
     <div style={{ position: 'absolute', right: '35%' }}>
       <h1> Successfully 'logged out' </h1>

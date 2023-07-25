@@ -2,21 +2,19 @@ import { UiIcon } from '@thewca/wca-components'
 import moment from 'moment'
 import React, { useContext } from 'react'
 import { Message, Popup } from 'semantic-ui-react'
-import {
-  CAN_ATTEND_COMPETITIONS,
-  canAttendCompetitions,
-} from '../../api/auth/get_permissions'
-import { AuthContext } from '../../api/helper/context/auth_context'
+import { CAN_ATTEND_COMPETITIONS } from '../../api/auth/get_permissions'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
+import { PermissionsContext } from '../../api/helper/context/permission_context'
+import { UserContext } from '../../api/helper/context/user_context'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import RegistrationPanel from './components/RegistrationPanel'
 import styles from './index.module.scss'
 
 export default function Register() {
-  const { user } = useContext(AuthContext)
+  const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
+  const { canAttendCompetition } = useContext(PermissionsContext)
   const loggedIn = user !== null
-
   return (
     <div>
       <div className={styles.requirements}>
@@ -81,8 +79,8 @@ export default function Register() {
       ) : // eslint-disable-next-line unicorn/no-nested-ternary
       competitionInfo['registration_opened?'] ? (
         <div>
-          <div className={styles.registrationHeader}>Hi, {user}</div>
-          {canAttendCompetitions(user) ? (
+          <div className={styles.registrationHeader}>Hi, {user.name}</div>
+          {canAttendCompetition ? (
             <RegistrationPanel />
           ) : (
             <PermissionMessage permissionLevel={CAN_ATTEND_COMPETITIONS} />

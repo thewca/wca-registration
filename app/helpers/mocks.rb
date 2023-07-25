@@ -10,10 +10,10 @@ module Mocks
           "scope" => "*",
         },
         "can_organize_competitions" => {
-          "scope" => %w[BudapestSummer2023],
+          "scope" => %w[BanjaLukaCubeDay2023],
         },
         "can_administer_competitions" => {
-          "scope" => %w[BudapestSummer2023],
+          "scope" => %w[BanjaLukaCubeDay2023],
         },
       }
     when "15073" # Test Admin
