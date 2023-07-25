@@ -264,7 +264,7 @@ class RegistrationController < ApplicationController
     end
 
     def payment_ticket_params
-      params.require([:user_id, :competition_id])
+      params.require(:competition_id)
       params.permit(:refresh)
       params
     end
