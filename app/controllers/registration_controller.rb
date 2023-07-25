@@ -243,7 +243,7 @@ class RegistrationController < ApplicationController
 
   private
 
-    REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
+    REGISTRATION_STATUS = %w[incoming waitlist accepted deleted].freeze
 
     def registration_params
       params.require([:user_id, :competition_id])
