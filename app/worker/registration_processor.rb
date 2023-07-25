@@ -25,10 +25,6 @@ class RegistrationProcessor
     puts "Working on Message: #{message}"
     if message['step'] == 'Lane Init'
       lane_init(message['competition_id'], message['user_id'])
-    elsif message['step'] == 'Payment init'
-      payment_init(message['attendee_id'],
-                   message['step_details']['fee_lowest_denomination'],
-                   message['step_details']['currency_code'])
     elsif message['step'] == 'Event Registration'
       event_registration(message['competition_id'],
                          message['user_id'],
@@ -47,32 +43,15 @@ class RegistrationProcessor
       empty_registration.save!
     end
 
-    def payment_init(attendee_id, fee_lowest_denomination, currency_code)
-      token = JwtHelper.get_token("payments.worldcubeassociation.org")
-      #TODO: When we support per event fees we need to properly calculate the fee
-      response = HTTParty.post("https://test-registration.worldcubeassociation.org/api/v10/internal/payments/init",
-                               body: { "attendee_id" => attendee_id, "amount" => fee_lowest_denomination, "currency_code" => currency_code }.to_json,
-                               headers: { 'Authorization' => "Bearer: #{token}",
-                                          "Content-Type" => "application/json" })
-      unless response.ok?
-        raise "Error from the payments service" # This will retry the queue item
-      end
-      registration = Registration.find(attendee_id)
-      payment_lane = LaneFactory.payment_lane(fee_lowest_denomination, currency_code, response["client_secret"])
-      payment_lane_state = { "payment": "initialized" }
-      # Due to the nature of using a FIFO queue, event_registration should have completed already, should we still
-      # check for registration.lanes.nil? as in event_registration?
-      registration.update_attributes(lanes: registration.lanes.append(payment_lane), lane_states: registration.lane_states.append(payment_lane_state))
-    end
-
     def event_registration(competition_id, user_id, event_ids, comment, guests)
       registration = Registration.find("#{competition_id}-#{user_id}")
       competing_lane = LaneFactory.competing_lane(event_ids, comment, guests)
-      competing_lane_state = { "competing": "incoming" }
+      new_lane_states = registration.lane_states
+      new_lane_states["competing"] = "incoming"
       if registration.lanes.nil?
-        registration.update_attributes(lanes: [competing_lane], lane_states: [competing_lane_state])
+        registration.update_attributes(lanes: [competing_lane], lane_states: new_lane_states)
       else
-        registration.update_attributes(lanes: registration.lanes.append(competing_lane), lane_states: registration.lane_states.append(competing_lane_state))
+        registration.update_attributes(lanes: registration.lanes.append(competing_lane), lane_states: new_lane_states)
       end
     end
 end

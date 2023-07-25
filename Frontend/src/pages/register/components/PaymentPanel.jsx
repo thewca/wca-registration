@@ -45,7 +45,7 @@ export default function PaymentPanel() {
       <PaymentElement id="payment-element" />
       <button disabled={isLoading || !stripe || !elements} id="submit">
         <span id="button-text">
-          {isLoading ? <div className="spinner" id="spinner"></div> : 'Pay now'}
+          {isLoading ? <div className="spinner" id="spinner" /> : 'Pay now'}
         </span>
       </button>
       {/* Show any error or success messages */}

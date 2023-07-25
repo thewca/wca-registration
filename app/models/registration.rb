@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'lane'
+require_relative '../helpers/competition_api'
 class Registration
   include Dynamoid::Document
 
@@ -32,6 +33,19 @@ class Registration
     lanes.filter_map { |x| x.lane_details["admin_comment"] if x.lane_name == "competing" }[0]
   end
 
+  def payment_ticket
+    lanes.filter_map { |x| x.lane_details["client_secret_key"] if x.lane_name == "payment" }[0]
+  end
+
+  # TODO: Change this when we support per event payment
+  def payment_amount
+    CompetitionApi.payment_info(competition_id)
+  end
+
+  def competing_state
+    lane_states["competing"]
+  end
+
   def update_competing_lane!(update_params)
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == "competing"
@@ -43,13 +57,24 @@ class Registration
       end
       lane
     end
+    updated_lane_states = if update_params[:status].present?
+                           lane_states["competing"] = update_params[:status]
+                         else
+                           lane_states
+                         end
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
     updated_is_attending = if update_params[:status].present?
                              update_params[:status] == "accepted"
                            else
                              is_attending
                            end
-    update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending)
+    update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending, lane_states: updated_lane_states)
+  end
+
+  def init_payment_lane(amount, currency_code, client_secret)
+    payment_lane = LaneFactory.payment_lane(amount, currency_code, client_secret)
+    payment_lane_state = { "payment": "initialized" }
+    update_attributes(lanes: lanes.append(payment_lane), lane_states: lane_states.append(payment_lane_state))
   end
 
   # Fields

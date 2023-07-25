@@ -16,6 +16,7 @@ class RegistrationController < ApplicationController
   before_action :ensure_lane_exists, only: [:create]
   before_action :validate_list_admin, only: [:list_admin]
   before_action :validate_update_request, only: [:update]
+  before_action :validate_payment_ticket_request, only: [:payment_ticket]
 
   # For a user to register they need to
   # 1) Need to actually be the user that they are trying to register
@@ -113,26 +114,6 @@ class RegistrationController < ApplicationController
                         message_deduplication_id: id,
                       })
 
-    # If the competition uses stripe we also need to initialize the payment to get a payment intent id
-    if CompetitionApi.uses_wca_payment?(@competition_id)
-      fee_lowest_denomination, currency_code = CompetitionApi.payment_info(@competition_id)
-      step_data = {
-        attendee_id: "#{@competition_id}-#{@user_id}",
-        lane_name: 'competing',
-        step: 'Event Registration',
-        step_details: {
-          fee_lowest_denomination: fee_lowest_denomination,
-          currency_code: currency_code
-        },
-      }
-      $sqs.send_message({
-                          queue_url: @queue_url,
-                          message_body: step_data.to_json,
-                          message_group_id: id,
-                          message_deduplication_id: id,
-                        })
-    end
-
     render json: { status: 'accepted', message: 'Started Registration Process' }, status: :accepted
   end
 
@@ -188,6 +169,32 @@ class RegistrationController < ApplicationController
     render json: { registration: registration, status: 'ok' }
   rescue Dynamoid::Errors::RecordNotFound
     render json: { registration: {}, status: 'ok' }
+  end
+
+  def validate_payment_ticket_request
+    params = payment_ticket_params
+    competition_id = params[:competition_id]
+    unless CompetitionApi.uses_wca_payment?(@competition_id)
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: ErrorCodes::PAYMENT_NOT_ENABLED }
+    end
+    @registration = Registration.find("#{competition_id}-#{@current_user}")
+    if @registration.competing_state.nil?
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: ErrorCodes::PAYMENT_NOT_READY }
+    end
+  end
+
+  def payment_ticket
+    refresh = params[:refresh]
+    if refresh || @registration.payment_ticket.nil?
+      amount, currency_code = @registration.payment_amount
+      ticket = PaymentApi.get_ticket(@registration.id, amount, currency_code)
+      @registration.init_payment_lane(amount, currency_code, ticket)
+    else
+      ticket = @registration.payment_ticket
+    end
+    render json: { client_secret_id: ticket }
   end
 
   def list
@@ -254,6 +261,12 @@ class RegistrationController < ApplicationController
 
     def list_params
       params.require(:competition_id)
+    end
+
+    def payment_ticket_params
+      params.require([:user_id, :competition_id])
+      params.permit(:refresh)
+      params
     end
 
     def get_registrations(competition_id, only_attending: false)

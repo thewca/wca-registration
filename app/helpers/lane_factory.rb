@@ -5,6 +5,7 @@ class LaneFactory
     competing_lane = Lane.new({})
     competing_lane.lane_name = "competing"
     competing_lane.completed_steps = ["Event Registration"]
+    competing_lane.lane_state = "incoming"
     competing_lane.lane_details = {
       event_details: event_ids.map { |event_id| { event_id: event_id } },
       comment: comment,
@@ -17,6 +18,7 @@ class LaneFactory
     competing_lane = Lane.new({})
     competing_lane.lane_name = "payment"
     competing_lane.completed_steps = ["Payment Intent Init"]
+    competing_lane.lane_state = "initialized"
     competing_lane.lane_details = {
       amount_lowest_denominator: fee_lowest_denominator,
       payment_intent_client_secret: payment_intent_client_secret,
