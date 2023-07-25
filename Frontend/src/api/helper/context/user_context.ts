@@ -27,9 +27,9 @@ export interface UserFull {
   }
 }
 interface UserContext {
-  user?: UserFull
+  user: UserFull | null
 }
 
 export const UserContext = createContext<UserContext>({
-  user: undefined,
+  user: null,
 })

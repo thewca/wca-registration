@@ -1,7 +1,7 @@
 import { USER_KEY } from '../../ui/providers/UserProvider'
 import { UserFull } from '../helper/context/user_context'
 
-export default function getMeMock(): UserFull | undefined {
+export default function getMeMock(): UserFull | null {
   const userId = localStorage.getItem(USER_KEY)
   switch (userId) {
     case '1':
@@ -161,6 +161,6 @@ export default function getMeMock(): UserFull | undefined {
         },
       }
     default:
-      return undefined
+      return null
   }
 }

@@ -75,6 +75,12 @@ const DROPDOWNS = [
         title: 'Test Incomplete User',
         reactRoute: true,
       },
+      {
+        path: '/logout',
+        icon: 'sign out',
+        title: 'Log Out',
+        reactRoute: true,
+      },
     ],
   },
 ]

@@ -9,7 +9,7 @@ import LoadingMessage from '../messages/loadingMessage'
 
 export default function PermissionsProvider({ children }) {
   const { user } = useContext(UserContext)
-  const loggedIn = user !== undefined
+  const loggedIn = user !== null
   const { isLoading, data: permissions } = useQuery({
     queryKey: ['permissions-me'],
     queryFn: () => getPermissions(),

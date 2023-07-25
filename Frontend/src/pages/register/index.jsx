@@ -14,8 +14,7 @@ export default function Register() {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAttendCompetition } = useContext(PermissionsContext)
-  const loggedIn = user !== undefined
-
+  const loggedIn = user !== null
   return (
     <div>
       <div className={styles.requirements}>
