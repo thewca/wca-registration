@@ -242,7 +242,7 @@ export default function RegistrationPanel() {
               onClick={async () => {
                 setMessage('Registration is being processed', 'basic')
                 createRegistrationMutation({
-                  user_id: user.id,
+                  user_id: user.id.toString(),
                   competition_id: competitionInfo.id,
                   competing: {
                     event_ids: selectedEvents,

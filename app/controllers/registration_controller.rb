@@ -31,7 +31,7 @@ class RegistrationController < ApplicationController
     status = ""
     cannot_register_reason = nil
 
-    unless @current_user == @user_id
+    unless @current_user == @user_id.to_s
       Metrics.registration_impersonation_attempt_counter.increment
       return render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :forbidden
     end
