@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 module Mocks
-  # This needs to come from the user service*, but currently no route exists that gives this info
+
+  # I created a client_intent_secret on staging using the stripe test_key
+  def self.payment_ticket_mock
+    "u6L9FnC2dBlLCHYmG9cbfzce0hWiQNBhOyuuKQ-A_OkIPaQJxX_Pd5ew0Gtk42dINM86HCDvIjrJk4Am_qFfDQ"
+  end
+
   def self.permissions_mock(user_id)
     case user_id
     when "1" # Test Organizer
