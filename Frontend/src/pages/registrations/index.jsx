@@ -4,7 +4,7 @@ import styles from './index.module.scss'
 
 export default function Registrations() {
   return (
-    <div className={styles.container}>
+    <div>
       <div className={styles.listHeader}>Competitors:</div>
       <RegistrationList />
     </div>

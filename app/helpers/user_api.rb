@@ -3,10 +3,9 @@
 require 'httparty'
 require 'json'
 require_relative 'mocks'
-require_relative 'jwt_helper'
+require_relative 'wca_api'
 
-
-class UserApi
+class UserApi < WcaApi
   def self.fetch_user(user_id)
     uri = URI("https://www.worldcubeassociation.org/api/v0/users/#{user_id}")
     begin

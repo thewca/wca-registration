@@ -30,8 +30,6 @@
     "@thewca/wca-components": "0.5.0",
     "@wca/helpers": "^1.1.4",
     "dinero.js": "^2.0.0-alpha.14",
-    "esbuild": "^0.18.6",
-    "esbuild-sass-plugin": "^2.10.0",
     "events": "^3.3.0",
     "fomantic-ui-css": "^2.9.2",
     "marked": "^5.1.1",
@@ -43,15 +41,19 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.2",
-    "semantic-ui-react": "^2.1.4",
-    "sync-fetch": "^0.5.2"
+    "semantic-ui-react": "^2.1.4"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^4.29.9",
+    "@types/crypto-js": "^4.1.1",
     "@types/node": "^20.2.5",
     "@types/sync-fetch": "^0.4.0",
+    "crypto-js": "^4.1.1",
+    "esbuild": "^0.18.6",
+    "esbuild-sass-plugin": "^2.10.0",
     "eslint": "^8.40.0",
     "eslint-kit": "^9.3.0",
+    "jose": "^4.14.4",
     "prettier": "^2.8.8"
   }
 }
