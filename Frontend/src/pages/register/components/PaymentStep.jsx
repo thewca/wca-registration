@@ -1,12 +1,13 @@
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
+import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import { setMessage } from '../../../ui/events/messages'
 
-export default function PaymentPanel() {
+export default function PaymentStep() {
   const stripe = useStripe()
   const elements = useElements()
-  const [message, setMessage] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
-
+  const { competitionInfo } = useContext(CompetitionContext)
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -21,8 +22,8 @@ export default function PaymentPanel() {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        // Make sure to change this to your payment completion page
-        return_url: `${window.location.origin}/completion`,
+        // Just for testing, the actual route will probably live somewhere else
+        return_url: `${window.location.origin}/api/v10/internal/payment/finish?competition_id=${competitionInfo.id}`,
       },
     })
 
@@ -32,9 +33,9 @@ export default function PaymentPanel() {
     // be redirected to an intermediate site first to authorize the payment, then
     // redirected to the `return_url`.
     if (error.type === 'card_error' || error.type === 'validation_error') {
-      setMessage(error.message)
+      setMessage(error.message, 'error')
     } else {
-      setMessage('An unexpected error occured.')
+      setMessage('An unexpected error occured.', 'error')
     }
 
     setIsLoading(false)
@@ -48,8 +49,6 @@ export default function PaymentPanel() {
           {isLoading ? <div className="spinner" id="spinner" /> : 'Pay now'}
         </span>
       </button>
-      {/* Show any error or success messages */}
-      {message && <div id="payment-message">{message}</div>}
     </form>
   )
 }

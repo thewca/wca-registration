@@ -54,6 +54,7 @@ interface CompetitionInfo {
   'country_iso2': string
   'registration_opened?': boolean
   'use_wca_registration': boolean
+  'using_stripe_payments?': boolean
   'external_registration_page'?: string
   'event_ids': EventId[]
   'main_event_id': EventId

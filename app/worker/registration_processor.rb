@@ -4,7 +4,6 @@ require 'aws-sdk-dynamodb'
 require 'dynamoid'
 require 'httparty'
 require_relative '../helpers/lane_factory'
-require_relative '../helpers/jwt_helper'
 
 class RegistrationProcessor
   def initialize

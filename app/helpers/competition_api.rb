@@ -5,6 +5,7 @@ require 'net/http'
 require 'json'
 
 require_relative 'error_codes'
+require_relative 'wca_api'
 class CompetitionApi < WcaApi
   def self.fetch_competition(competition_id)
     uri = URI("https://test-registration.worldcubeassociation.org/api/v10/competitions/#{competition_id}")

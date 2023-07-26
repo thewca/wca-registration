@@ -4,8 +4,8 @@ import { EventSelector, UiIcon } from '@thewca/wca-components'
 import { dinero, toDecimal } from 'dinero.js'
 import React, { useContext, useEffect, useState } from 'react'
 import { Button, Divider, Dropdown, Popup, TextArea } from 'semantic-ui-react'
-import { UserContext } from '../../../api/helper/context/user_context'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import { UserContext } from '../../../api/helper/context/user_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
@@ -14,7 +14,7 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './panel.module.scss'
 import Processing from './Processing'
 
-export default function RegistrationPanel() {
+export default function CompetingStep({ nextStep }) {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const [comment, setComment] = useState('')
@@ -23,7 +23,11 @@ export default function RegistrationPanel() {
   const [registration, setRegistration] = useState({})
   const [processing, setProcessing] = useState(false)
   const queryClient = useQueryClient()
-  const { data: registrationRequest, isLoading } = useQuery({
+  const {
+    data: registrationRequest,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['registration', competitionInfo.id, user.id],
     queryFn: () => getSingleRegistration(user.id, competitionInfo.id),
     refetchOnWindowFocus: false,
@@ -83,7 +87,16 @@ export default function RegistrationPanel() {
     <div>
       {processing && (
         <div className={styles.processing}>
-          <Processing processing={processing} setProcessing={setProcessing} />
+          <Processing
+            onProcessingComplete={() => {
+              setProcessing(false)
+              if (competitionInfo['using_stripe_payments?']) {
+                nextStep()
+              } else {
+                refetch()
+              }
+            }}
+          />
         </div>
       )}
       <div className={processing ? styles.panelProcessing : styles.panel}>
