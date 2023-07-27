@@ -10,10 +10,10 @@ module Mocks
           "scope" => "*",
         },
         "can_organize_competitions" => {
-          "scope" => %w[BanjaLukaCubeDay2023],
+          "scope" => %w[CubingZANationalChampionship2023],
         },
         "can_administer_competitions" => {
-          "scope" => %w[BanjaLukaCubeDay2023],
+          "scope" => %w[CubingZANationalChampionship2023],
         },
       }
     when "2" # Test Multi-Comp Organizer

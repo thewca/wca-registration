@@ -4,6 +4,8 @@ require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
 require_relative '../../app/helpers/error_codes'
 
+#x TODO: Add checks for mocking on all tests that need mocking
+# TODO: Why doesn't list_admin call competition API? Should it? 
 #x TODO: Add update logic from main for determining admin auth
 #x TODO: Add explicit check for non-auth to return attending only
 #x TODO: Add explicit cehck for auth to return all attendees irrespective of status
@@ -34,10 +36,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '200', 'FAILING only returns attending registrations' do # waiting_list are being counted as is_attending - not sure how this is set? maybe in the model logic?
+        response '200', 'PASSING only returns attending registrations' do # waiting_list are being counted as is_attending - not sure how this is set? maybe in the model logic?
           let!(:competition_id) { @includes_non_attending_registrations }
 
           run_test! do |response|
+            assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
             body = JSON.parse(response.body)
             expect(body.length).to eq(1)
           end
@@ -47,6 +50,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           let!(:competition_id) { @empty_comp }
 
           run_test! do |response|
+            assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
             body = JSON.parse(response.body)
             expect(body).to eq([])
           end
@@ -57,6 +61,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
             let!(:competition_id) { @registrations_exist_comp_500 }
 
             run_test! do |response|
+              assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
               body = JSON.parse(response.body)
               expect(body.length).to eq(3)
             end
@@ -68,6 +73,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
             let!(:competition_id) { @registrations_exist_comp_502 }
 
             run_test! do |response|
+              assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
               body = JSON.parse(response.body)
               expect(body.length).to eq(2)
             end
@@ -79,14 +85,15 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'competition information'
         include_context 'database seed'
 
-        context 'PASSING competition_id not found by Competition Service' do
+        context 'competition_id not found by Competition Service' do
           registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
 
-          response '404', 'Competition ID doesnt exist' do
+          response '404', 'PASSING Competition ID doesnt exist' do
             schema '$ref' => '#/components/schemas/error_response'
             let(:competition_id) { @error_comp_404 }
 
             run_test! do |response|
+              assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
               expect(response.body).to eq(registration_error_json)
             end
           end
@@ -99,6 +106,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
             let!(:competition_id) { @error_comp_500 }
 
             run_test! do |response|
+              assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
               expect(response.body).to eq(registration_error_json)
             end
           end
@@ -111,6 +119,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
             let!(:competition_id) { @error_comp_502 }
 
             run_test! do |response|
+              assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
               expect(response.body).to eq(registration_error_json)
             end
           end

@@ -16,41 +16,49 @@ module Helpers
         @registrations_exist_comp_500 = 'WinchesterWeeknightsIV2023'
         @registrations_exist_comp_502 = 'BangaloreCubeOpenJuly2023'
 
+        @base_comp_url = "https://test-registration.worldcubeassociation.org/api/v10/competitions/"
 
-        # COMP WITH REGISTATIONS - Stub competition info
-        competition_details = get_competition_details(@comp_with_registrations)
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@comp_with_registrations}")
+        # TODO: Refctor these to be single lines that call a "stub competition" method?(how do I customise bodys and codes?)
+
+        # COMP WITH ALL ATTENDING REGISTRATIONS
+        competition_details = get_competition_details(@attending_registrations_only)
+        stub_request(:get, "#{@base_comp_url}#{@attending_registrations_only}")
+          .to_return(status: 200, body: competition_details.to_json)
+
+        # COMP WITH DIFFERENT REGISTATION STATUSES - Stub competition info
+        competition_details = get_competition_details(@includes_non_attending_registrations)
+        stub_request(:get, "#{@base_comp_url}#{@includes_non_attending_registrations}")
           .to_return(status: 200, body: competition_details.to_json)
 
         # EMPTY COMP STUB
         competition_details = get_competition_details(@empty_comp)
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@empty_comp}")
+        stub_request(:get, "#{@base_comp_url}#{@empty_comp}")
           .to_return(status: 200, body: competition_details.to_json)
 
         # 404 COMP STUB
         wca_error_json = { error: 'Competition with id InvalidCompId not found' }.to_json
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_404}")
+        stub_request(:get, "#{@base_comp_url}#{@error_comp_404}")
           .to_return(status: 404, body: wca_error_json)
 
         # 500 COMP STUB
         error_json = { error:
                          "Internal Server Error for url: /api/v0/competitions/#{@error_comp_500}" }.to_json
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_500}")
+        stub_request(:get, "#{@base_comp_url}#{@error_comp_500}")
           .to_return(status: 500, body: error_json)
 
         error_json = { error:
                          "Internal Server Error for url: /api/v0/competitions/#{@registrations_exist_comp_500}" }.to_json
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@registrations_exist_comp_500}")
+        stub_request(:get, "#{@base_comp_url}#{@registrations_exist_comp_500}")
           .to_return(status: 500, body: error_json)
 
         # 502 COMP STUB
         error_json = { error:
                          "Internal Server Error for url: /api/v0/competitions/#{@error_comp_502}" }.to_json
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_502}")
+        stub_request(:get, "#{@base_comp_url}#{@error_comp_502}")
           .to_return(status: 502, body: error_json)
         error_json = { error:
                          "Internal Server Error for url: /api/v0/competitions/#{@registrations_exist_comp_502}" }.to_json
-        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@registrations_exist_comp_502}")
+        stub_request(:get, "#{@base_comp_url}#{@registrations_exist_comp_502}")
           .to_return(status: 502, body: error_json)
       end
     end

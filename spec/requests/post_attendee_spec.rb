@@ -25,7 +25,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'registration_data'
         include_context 'competition information'
 
-        response '202', 'PASSING only required fields included' do
+        response '202', 'FAILING only required fields included' do
           let(:registration) { @required_fields_only }
           let(:'Authorization') { @jwt_token }
           run_test!

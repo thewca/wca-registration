@@ -120,7 +120,7 @@
   {
     "attendee_id":"CubingZANationalChampionship2023-158819",
     "competition_id":"CubingZANationalChampionship2023",
-    "is_attending":true,
+    "is_attending":false,
     "user_id":"158819",
     "lane_states":{
       "competing":"waiting_list"
