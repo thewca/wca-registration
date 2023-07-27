@@ -89,7 +89,7 @@ module Helpers
         @empty_payload = {}.to_json
 
         # Failure cases
-        @comp_not_open = get_registration('NewYorkNewYear2023-158817', false)
+        @comp_not_open = get_registration('BrizZonSylwesterOpen2023-158817', false)
 
         # For 'various optional fields'
         @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820', false)

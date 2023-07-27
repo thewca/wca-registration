@@ -33,7 +33,7 @@ class RegistrationController < ApplicationController
 
     unless @current_user == @user_id.to_s
       Metrics.registration_impersonation_attempt_counter.increment
-      return render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :forbidden
+      return render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :unauthorized
     end
 
     can_compete, reasons = UserApi.can_compete?(@user_id)
@@ -121,7 +121,7 @@ class RegistrationController < ApplicationController
 
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :forbidden
+      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :unauthorized
     end
   end
 
@@ -158,7 +158,7 @@ class RegistrationController < ApplicationController
 
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :forbidden
+      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :unauthorized
     end
   end
 
@@ -196,7 +196,7 @@ class RegistrationController < ApplicationController
 
     unless UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: 403
+      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: 401
     end
   end
 

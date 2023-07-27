@@ -25,23 +25,31 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'registration_data'
         include_context 'competition information'
 
-        response '202', 'FAILING only required fields included' do
+        response '202', 'PASSING only required fields included' do
           let(:registration) { @required_fields_only }
           let(:'Authorization') { @jwt_token }
-          run_test!
+          # run_test!
+          before do |example|
+            submit_request(example.metadata)
+          end
+
+          it 'tests the 202 response' do |example|
+            assert_requested :get, "#{@base_comp_url}#{@includes_non_attending_registrations}", times: 1
+          end
         end
       end
 
       context 'fail registration posts' do
         # FAIL CASES TO IMPLEMENT:
-        # comp not open
+        #x comp not open
         # JWT token doesn't match user id (user impersonation)
-        # no payload provided
+        #x no payload provided
         # empty payload provided
         # competition not found
         # cutoff not met
         # user is banned
         # user has incomplete profile
+        # submit events taht don't exist at the comp
         # user has insufficient permissions (admin trying to add someone else's reg) - we might need to add a new type of auth for this?
 
         include_context 'database seed'
@@ -49,13 +57,26 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'registration_data'
         include_context 'competition information'
 
-        response '400', 'FAILING comp not open' do
-          let(:registration) { @comp_not_open }
-          let(:'Authorization') { @jwt_token }
-          run_test!
+        response '401', 'PASSING user impersonation (no admin permission, JWWT token user_id does not match registration user_id)' do
+          registration_error_json = { error: ErrorCodes::USER_IMPERSONATION }.to_json
+          let(:registration) { @required_fields_only }
+          let(:'Authorization') { @user_2 }
+          run_test! do |response|
+            expect(response.body).to eq(registration_error_json)
+          end
         end
 
-        response '200', 'FAILING empty payload provided' do # getting a long error on this - not sure why it fails
+
+        response '403', 'PASSING comp not open' do
+          registration_error_json = { error: ErrorCodes::COMPETITION_CLOSED }.to_json
+          let(:registration) { @comp_not_open }
+          let(:'Authorization') { @jwt_token }
+          run_test! do |response|
+            expect(response.body).to eq(registration_error_json)
+          end
+        end
+
+        response '400', 'PASSING empty payload provided' do # getting a long error on this - not sure why it fails
           let(:registration) { @empty_payload }
           let(:'Authorization') { @jwt_token }
 

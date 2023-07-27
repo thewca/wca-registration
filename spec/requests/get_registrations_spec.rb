@@ -4,6 +4,7 @@ require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
 require_relative '../../app/helpers/error_codes'
 
+# Change 403's to 401's
 #x TODO: Add checks for mocking on all tests that need mocking
 # TODO: Why doesn't list_admin call competition API? Should it? 
 #x TODO: Add update logic from main for determining admin auth
@@ -200,7 +201,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'database seed'
         include_context 'auth_tokens'
 
-        response '403', 'PASSING Attending user cannot get admin registration list' do
+        response '401', 'PASSING Attending user cannot get admin registration list' do
           registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let!(:competition_id) { @attending_registrations_only }
           let(:'Authorization') { @jwt_token }
@@ -210,7 +211,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '403', 'PASSING organizer cannot access registrations for comps they arent organizing - single comp auth' do
+        response '401', 'PASSING organizer cannot access registrations for comps they arent organizing - single comp auth' do
           registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let!(:competition_id) { @attending_registrations_only }
           let(:'Authorization') { @organizer_token }
@@ -220,7 +221,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '403', 'PASSING organizer cannot access registrations for comps they arent organizing - multi comp auth' do
+        response '401', 'PASSING organizer cannot access registrations for comps they arent organizing - multi comp auth' do
           registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let!(:competition_id) { @registrations_exist_comp_500 }
           let(:'Authorization') { @multi_comp_organizer_token }

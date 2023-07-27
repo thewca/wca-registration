@@ -647,8 +647,8 @@
     "hide_name_publicly": false
   },
   {
-    "attendee_id":"NewYorkNewYear2023-158817",
-    "competition_id":"NewYorkNewYear2023",
+    "attendee_id":"BrizZonSylwesterOpen2023-158817",
+    "competition_id":"BrizZonSylwesterOpen2023",
     "user_id":"158817",
     "is_attending":true,
     "lane_states":{
@@ -661,13 +661,13 @@
       "lane_details":{
         "event_details":[
           {
-            "event_id":"333",
+            "event_id":"444",
             "event_cost":"5",
             "event_cost_currency":"$",
             "event_registration_state":"accepted"
           },
           {
-            "event_id":"333mbf",
+            "event_id":"333bf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
             "event_registration_state":"waiting-list"
