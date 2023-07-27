@@ -80,6 +80,9 @@ module Helpers
         @no_attendee_id = get_registration('CubingZANationalChampionship2023-158818', false)
         @empty_payload = {}.to_json
 
+        # Failure cases
+        @comp_not_open = get_registration('NewYorkNewYear2023-158817', false)
+
         # For 'various optional fields'
         @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820', false)
 

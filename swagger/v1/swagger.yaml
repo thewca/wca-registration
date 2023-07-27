@@ -4,6 +4,12 @@ info:
   title: API V1
   version: v1
 components:
+  securitySchemes:
+    Bearer:
+      description: "..."
+      type: apiKey
+      name: Authorization
+      in: header
   schemas:
     error_response:
       type: object
@@ -37,10 +43,15 @@ components:
             format: EventId
         comment:
           type: string
+          nullable: true
         admin_comment:
           type: string
+          nullable: true
         guests:
           type: number
+          nullable: true
+        email:
+          type: string
       required:
       - user_id
       - event_ids
@@ -81,7 +92,7 @@ components:
 paths:
   "/api/v1/registrations/{competition_id}":
     get:
-      summary: List registrations for a given competition_id
+      summary: 'Public: list registrations for a given competition_id'
       parameters:
       - name: competition_id
         in: path
@@ -90,8 +101,7 @@ paths:
           type: string
       responses:
         '200':
-          description: Competitions Service is down but we have registrations for
-            the competition_id in our database
+          description: PASSING comp service down but registrations exist
           content:
             application/json:
               schema:
@@ -105,17 +115,57 @@ paths:
               schema:
                 "$ref": "#/components/schemas/error_response"
         '500':
-          description: Competition service unavailable - 500 error
+          description: PASSING Competition service unavailable - 500 error
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
         '502':
-          description: Competition service unavailable - 502 error
+          description: PASSING Competition service unavailable - 502 error
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
+  "/api/v1/registrations/{competition_id}/admin":
+    get:
+      summary: 'Public: list registrations for a given competition_id'
+      security:
+      - Bearer: {}
+      parameters:
+      - name: competition_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: PASSING organizer has access to comp 2
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/registrationAdmin"
+        '403':
+          description: PASSING organizer cannot access registrations for comps they
+            arent organizing - multi comp auth
+  "/api/v1/register":
+    post:
+      summary: Add an attendee registration
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '202':
+          description: PASSING only required fields included
+        '200':
+          description: FAILING empty payload provided
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/registration"
+        required: true
 servers:
 - url: https://{defaultHost}
   variables:

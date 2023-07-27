@@ -3,12 +3,12 @@
 require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
 
-# TODO: Check Swaggerized output
+# TODO: Validate expected vs actual output
 # TODO: Add test cases for various JWT token error codes
 # TODO: Add test cases for competition API (new file)
 # TODO: Add test cases for users API (new file)
 # TODO: Add test cases for competition info being returned from endpoint (check that we respond appropriately to different values/conditionals)
-# TODO: Validate expected vs actual output
+# TODO: Check Swaggerized output
 RSpec.describe 'v1 Registrations API', type: :request do
   include Helpers::RegistrationHelper
 
@@ -28,8 +28,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '202', 'PASSING only required fields included' do
           let(:registration) { @required_fields_only }
           let(:'Authorization') { @jwt_token }
-
-
           run_test!
         end
       end
@@ -50,6 +48,12 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'auth_tokens'
         include_context 'registration_data'
         include_context 'competition information'
+
+        response '400', 'FAILING comp not open' do
+          let(:registration) { @comp_not_open }
+          let(:'Authorization') { @jwt_token }
+          run_test!
+        end
 
         response '200', 'FAILING empty payload provided' do # getting a long error on this - not sure why it fails
           let(:registration) { @empty_payload }
