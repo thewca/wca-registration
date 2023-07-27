@@ -71,12 +71,18 @@ RSpec.configure do |config|
               },
               comment: {
                 type: :string,
+                nullable: true,
               },
               admin_comment: {
                 type: :string,
+                nullable: true,
               },
               guests: {
                 type: :number,
+                nullable: true,
+              },
+              email: {
+                type: :string,
               },
             },
             required: [:user_id, :event_ids],

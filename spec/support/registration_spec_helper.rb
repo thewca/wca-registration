@@ -7,11 +7,15 @@ module Helpers
     RSpec.shared_context 'competition information' do
       before do
         # Define competition IDs
-        @comp_with_registrations = 'CubingZANationalChampionship2023'
+        @includes_non_attending_registrations = 'CubingZANationalChampionship2023'
+        @attending_registrations_only = 'LazarilloOpen2023'
         @empty_comp = '1AVG2013'
         @error_comp_404 = 'InvalidCompID'
         @error_comp_500 = 'BrightSunOpen2023'
         @error_comp_502 = 'GACubersStudyJuly2023'
+        @registrations_exist_comp_500 = 'WinchesterWeeknightsIV2023'
+        @registrations_exist_comp_502 = 'BangaloreCubeOpenJuly2023'
+
 
         # COMP WITH REGISTATIONS - Stub competition info
         competition_details = get_competition_details(@comp_with_registrations)
@@ -34,14 +38,34 @@ module Helpers
         stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_500}")
           .to_return(status: 500, body: error_json)
 
+        error_json = { error:
+                         "Internal Server Error for url: /api/v0/competitions/#{@registrations_exist_comp_500}" }.to_json
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@registrations_exist_comp_500}")
+          .to_return(status: 500, body: error_json)
+
         # 502 COMP STUB
         error_json = { error:
                          "Internal Server Error for url: /api/v0/competitions/#{@error_comp_502}" }.to_json
         stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@error_comp_502}")
           .to_return(status: 502, body: error_json)
+        error_json = { error:
+                         "Internal Server Error for url: /api/v0/competitions/#{@registrations_exist_comp_502}" }.to_json
+        stub_request(:get, "https://www.worldcubeassociation.org/api/v0/competitions/#{@registrations_exist_comp_502}")
+          .to_return(status: 502, body: error_json)
       end
     end
 
+    RSpec.shared_context 'auth_tokens' do
+      before do
+        @jwt_token = fetch_jwt_token('158817')
+        @user_2 = fetch_jwt_token('158200')
+        @admin_token = fetch_jwt_token('15073')
+        @organizer_token = fetch_jwt_token('1')
+        @multi_comp_organizer_token = fetch_jwt_token('2')
+      end
+    end
+
+    # Can remove this
     RSpec.shared_context 'basic_auth_token' do
       before do
         @jwt_token = fetch_jwt_token('158817')
@@ -49,20 +73,17 @@ module Helpers
     end
 
     RSpec.shared_context 'registration_data' do
-      let(:required_fields_only) { get_registration('CubingZANationalChampionship2023-158817', false) }
-
       before do
         # General
         @basic_registration = get_registration('CubingZANationalChampionship2023-158816', false)
         @required_fields_only = get_registration('CubingZANationalChampionship2023-158817', false)
         @no_attendee_id = get_registration('CubingZANationalChampionship2023-158818', false)
+        @empty_payload = {}.to_json
 
-        # # For 'various optional fields'
-        # @with_is_attending = get_registration('CubingZANationalChampionship2023-158819')
+        # For 'various optional fields'
         @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820', false)
-        @with_all_optional_fields = @basic_registration
 
-        # # For 'bad request payloads'
+        # For 'bad request payloads'
         @missing_reg_fields = get_registration('CubingZANationalChampionship2023-158821', false)
         @empty_json = get_registration('', false)
         @missing_lane = get_registration('CubingZANationalChampionship2023-158822', false)
@@ -88,19 +109,43 @@ module Helpers
 
     RSpec.shared_context 'database seed' do
       before do
-        # Create a "normal" registration entry
-        basic_registration = get_registration('CubingZANationalChampionship2023-158816', true)
-        registration = Registration.new(basic_registration)
-        registration.save
+        create_registration(get_registration('CubingZANationalChampionship2023-158816', true)) # Accepted registration
+        create_registration(get_registration('CubingZANationalChampionship2023-158817', true)) # Pending registration
+        create_registration(get_registration('CubingZANationalChampionship2023-158818', true)) # update_pending registration
+        create_registration(get_registration('CubingZANationalChampionship2023-158819', true)) # waiting_list registration
+        create_registration(get_registration('CubingZANationalChampionship2023-158823', true)) # Cancelled registration
+        # registration = Registration.new(basic_registration)
+        # registration.save
 
         # Create a registration that is already cancelled
-        cancelled_registration = get_registration('CubingZANationalChampionship2023-158823', true)
-        registration = Registration.new(cancelled_registration)
-        registration.save
+        # cancelled_registration = get_registration('CubingZANationalChampionship2023-158823', true) # Cancelled registration
+        # registration = Registration.new(cancelled_registration)
+        # registration.save
+
+        # Create registrations for 'WinchesterWeeknightsIV2023' - all accepted
+        create_registration(get_registration('WinchesterWeeknightsIV2023-158816', true))
+        create_registration(get_registration('WinchesterWeeknightsIV2023-158817', true))
+        create_registration(get_registration('WinchesterWeeknightsIV2023-158818', true))
+
+        # Create registrations for 'BangaloreCubeOpenJuly2023' - all accepted
+        create_registration(get_registration('BangaloreCubeOpenJuly2023-158818', true))
+        create_registration(get_registration('BangaloreCubeOpenJuly2023-158819', true))
+
+        # Create registrations for 'LazarilloOpen2023' - all accepted
+        create_registration(get_registration('LazarilloOpen2023-158820', true))
+        create_registration(get_registration('LazarilloOpen2023-158821', true))
+        create_registration(get_registration('LazarilloOpen2023-158822', true))
+        create_registration(get_registration('LazarilloOpen2023-158823', true))
       end
     end
 
     # HELPER METHODS
+
+    # Create registration from raw registration JSON
+    def create_registration(registration_data)
+      registration = Registration.new(registration_data)
+      registration.save
+    end
 
     # For mocking - returns the saved JSON response of /api/v0/competitions for the given competition ID
     def get_competition_details(competition_id)

@@ -21,12 +21,38 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
       context 'success registration posts' do
         include_context 'database seed'
-        include_context 'basic_auth_token'
+        include_context 'auth_tokens'
         include_context 'registration_data'
         include_context 'competition information'
 
         response '202', 'PASSING only required fields included' do
           let(:registration) { @required_fields_only }
+          let(:'Authorization') { @jwt_token }
+
+
+          run_test!
+        end
+      end
+
+      context 'fail registration posts' do
+        # FAIL CASES TO IMPLEMENT:
+        # comp not open
+        # JWT token doesn't match user id (user impersonation)
+        # no payload provided
+        # empty payload provided
+        # competition not found
+        # cutoff not met
+        # user is banned
+        # user has incomplete profile
+        # user has insufficient permissions (admin trying to add someone else's reg) - we might need to add a new type of auth for this?
+
+        include_context 'database seed'
+        include_context 'auth_tokens'
+        include_context 'registration_data'
+        include_context 'competition information'
+
+        response '200', 'FAILING empty payload provided' do # getting a long error on this - not sure why it fails
+          let(:registration) { @empty_payload }
           let(:'Authorization') { @jwt_token }
 
           run_test!

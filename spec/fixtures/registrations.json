@@ -45,11 +45,11 @@
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158817",
     "lane_states":{
-      "competing":"accepted"
+      "competing":"pending"
     },
     "lanes":[{
       "lane_name":"competing",
-      "lane_state":"accepted",
+      "lane_state":"pending",
       "completed_steps":[1,2,3],
       "lane_details":{
         "event_details":[
@@ -57,13 +57,13 @@
             "event_id":"333",
             "event_cost":"5",
             "event_cost_currency":"$",
-            "event_registration_state":"accepted"
+            "event_registration_state":"pending"
           },
           {
             "event_id":"333mbf",
             "event_cost":"10.5",
             "event_cost_currency":"$",
-            "event_registration_state":"waiting-list"
+            "event_registration_state":"pending"
           }
         ],
         "custom_data": {}
@@ -83,11 +83,11 @@
     "attendee_id":"CubingZANationalChampionship2023-158818",
     "competition_id":"CubingZANationalChampionship2023",
     "lane_states":{
-      "competitor":"accepted"
+      "competitor":"update_pending"
     },
     "lanes":[{
       "lane_name":"competing",
-      "lane_state":"accepted",
+      "lane_state":"update_pending",
       "completed_steps":[1,2,3],
       "lane_details":{
         "event_details":[
@@ -95,7 +95,7 @@
             "event_id":"333",
             "event_cost":"5",
             "event_cost_currency":"$",
-            "event_registration_state":"accepted"
+            "event_registration_state":"update-pending"
           },
           {
             "event_id":"333mbf",
@@ -123,11 +123,11 @@
     "is_attending":true,
     "user_id":"158819",
     "lane_states":{
-      "competing":"accepted"
+      "competing":"waiting_list"
     },
     "lanes":[{
       "lane_name":"competing",
-      "lane_state":"accepted",
+      "lane_state":"waiting_list",
       "completed_steps":[1,2,3],
       "lane_details":{
         "event_details":[
@@ -135,7 +135,7 @@
             "event_id":"333",
             "event_cost":"5",
             "event_cost_currency":"$",
-            "event_registration_state":"accepted"
+            "event_registration_state":"waiting_list"
           },
           {
             "event_id":"333mbf",
@@ -276,5 +276,374 @@
       "last_action_datetime":"2023-01-01T00:01:00Z",
       "last_action_user":"158823"
     }]
+  },
+  {
+    "attendee_id":"WinchesterWeeknightsIV2023-158816",
+    "competition_id":"WinchesterWeeknightsIV2023",
+    "user_id":"158816",
+    "is_attending":true,
+    "lane_states":{
+      "competing":"accepted"
+    },
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_state":"accepted",
+      "completed_steps":[1,2,3],
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"333",
+            "event_cost":"5",
+            "event_cost_currency":"$",
+            "event_registration_state":"accepted"
+          },
+          {
+            "event_id":"333mbf",
+            "event_cost":"10.5",
+            "event_cost_currency":"$",
+            "event_registration_state":"waiting-list"
+          }
+        ],
+        "custom_data": {}
+      },
+      "payment_reference":"PI-1235231",
+      "payment_amount":"10",
+      "transaction_currency":"$",
+      "discount_percentage":"0",
+      "discount_amount":"0",
+      "last_action":"created",
+      "last_action_datetime":"2023-01-01T00:00:00Z",
+      "last_action_user":"158816"
+    }
+    ],
+    "hide_name_publicly": false
+  },
+  {
+    "attendee_id":"WinchesterWeeknightsIV2023-158817",
+    "competition_id":"WinchesterWeeknightsIV2023",
+    "user_id":"158817",
+    "is_attending":true,
+    "lane_states":{
+      "competing":"accepted"
+    },
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_state":"accepted",
+      "completed_steps":[1,2,3],
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"333",
+            "event_cost":"5",
+            "event_cost_currency":"$",
+            "event_registration_state":"accepted"
+          },
+          {
+            "event_id":"333mbf",
+            "event_cost":"10.5",
+            "event_cost_currency":"$",
+            "event_registration_state":"waiting-list"
+          }
+        ],
+        "custom_data": {}
+      },
+      "payment_reference":"PI-1235231",
+      "payment_amount":"10",
+      "transaction_currency":"$",
+      "discount_percentage":"0",
+      "discount_amount":"0",
+      "last_action":"created",
+      "last_action_datetime":"2023-01-01T00:00:00Z",
+      "last_action_user":"158818"
+    }
+    ],
+    "hide_name_publicly": false
+  },
+  {
+    "attendee_id":"WinchesterWeeknightsIV2023-158818",
+    "competition_id":"WinchesterWeeknightsIV2023",
+    "user_id":"158818",
+    "is_attending":true,
+    "lane_states":{
+      "competing":"accepted"
+    },
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_state":"accepted",
+      "completed_steps":[1,2,3],
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"333",
+            "event_cost":"5",
+            "event_cost_currency":"$",
+            "event_registration_state":"accepted"
+          },
+          {
+            "event_id":"333mbf",
+            "event_cost":"10.5",
+            "event_cost_currency":"$",
+            "event_registration_state":"waiting-list"
+          }
+        ],
+        "custom_data": {}
+      },
+      "payment_reference":"PI-1235231",
+      "payment_amount":"10",
+      "transaction_currency":"$",
+      "discount_percentage":"0",
+      "discount_amount":"0",
+      "last_action":"created",
+      "last_action_datetime":"2023-01-01T00:00:00Z",
+      "last_action_user":"158818"
+    }
+    ],
+    "hide_name_publicly": false
+  },
+  {
+    "attendee_id":"BangaloreCubeOpenJuly2023-158818",
+    "competition_id":"BangaloreCubeOpenJuly2023",
+    "user_id":"158818",
+    "is_attending":true,
+    "lane_states":{
+      "competing":"accepted"
+    },
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_state":"accepted",
+      "completed_steps":[1,2,3],
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"333",
+            "event_cost":"5",
+            "event_cost_currency":"$",
+            "event_registration_state":"accepted"
+          },
+          {
+            "event_id":"333mbf",
+            "event_cost":"10.5",
+            "event_cost_currency":"$",
+            "event_registration_state":"waiting-list"
+          }
+        ],
+        "custom_data": {}
+      },
+      "payment_reference":"PI-1235231",
+      "payment_amount":"10",
+      "transaction_currency":"$",
+      "discount_percentage":"0",
+      "discount_amount":"0",
+      "last_action":"created",
+      "last_action_datetime":"2023-01-01T00:00:00Z",
+      "last_action_user":"158818"
+    }
+    ],
+    "hide_name_publicly": false
+  },
+  {
+    "attendee_id":"BangaloreCubeOpenJuly2023-158819",
+    "competition_id":"BangaloreCubeOpenJuly2023",
+    "user_id":"158819",
+    "is_attending":true,
+    "lane_states":{
+      "competing":"accepted"
+    },
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_state":"accepted",
+      "completed_steps":[1,2,3],
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"333",
+            "event_cost":"5",
+            "event_cost_currency":"$",
+            "event_registration_state":"accepted"
+          },
+          {
+            "event_id":"333mbf",
+            "event_cost":"10.5",
+            "event_cost_currency":"$",
+            "event_registration_state":"waiting-list"
+          }
+        ],
+        "custom_data": {}
+      },
+      "payment_reference":"PI-1235231",
+      "payment_amount":"10",
+      "transaction_currency":"$",
+      "discount_percentage":"0",
+      "discount_amount":"0",
+      "last_action":"created",
+      "last_action_datetime":"2023-01-01T00:00:00Z",
+      "last_action_user":"158819"
+    }
+    ],
+    "hide_name_publicly": false
+  },
+  {
+    "attendee_id":"LazarilloOpen2023-158820",
+    "competition_id":"LazarilloOpen2023",
+    "user_id":"158820",
+    "is_attending":true,
+    "lane_states":{
+      "competing":"accepted"
+    },
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_state":"accepted",
+      "completed_steps":[1,2,3],
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"333",
+            "event_cost":"5",
+            "event_cost_currency":"$",
+            "event_registration_state":"accepted"
+          },
+          {
+            "event_id":"333mbf",
+            "event_cost":"10.5",
+            "event_cost_currency":"$",
+            "event_registration_state":"waiting-list"
+          }
+        ],
+        "custom_data": {}
+      },
+      "payment_reference":"PI-1235231",
+      "payment_amount":"10",
+      "transaction_currency":"$",
+      "discount_percentage":"0",
+      "discount_amount":"0",
+      "last_action":"created",
+      "last_action_datetime":"2023-01-01T00:00:00Z",
+      "last_action_user":"158820"
+    }
+    ],
+    "hide_name_publicly": false
+  },
+  {
+    "attendee_id":"LazarilloOpen2023-158821",
+    "competition_id":"LazarilloOpen2023",
+    "user_id":"158821",
+    "is_attending":true,
+    "lane_states":{
+      "competing":"accepted"
+    },
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_state":"accepted",
+      "completed_steps":[1,2,3],
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"333",
+            "event_cost":"5",
+            "event_cost_currency":"$",
+            "event_registration_state":"accepted"
+          },
+          {
+            "event_id":"333mbf",
+            "event_cost":"10.5",
+            "event_cost_currency":"$",
+            "event_registration_state":"waiting-list"
+          }
+        ],
+        "custom_data": {}
+      },
+      "payment_reference":"PI-1235231",
+      "payment_amount":"10",
+      "transaction_currency":"$",
+      "discount_percentage":"0",
+      "discount_amount":"0",
+      "last_action":"created",
+      "last_action_datetime":"2023-01-01T00:00:00Z",
+      "last_action_user":"158821"
+    }
+    ],
+    "hide_name_publicly": false
+  },
+  {
+    "attendee_id":"LazarilloOpen2023-158822",
+    "competition_id":"LazarilloOpen2023",
+    "user_id":"158822",
+    "is_attending":true,
+    "lane_states":{
+      "competing":"accepted"
+    },
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_state":"accepted",
+      "completed_steps":[1,2,3],
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"333",
+            "event_cost":"5",
+            "event_cost_currency":"$",
+            "event_registration_state":"accepted"
+          },
+          {
+            "event_id":"333mbf",
+            "event_cost":"10.5",
+            "event_cost_currency":"$",
+            "event_registration_state":"waiting-list"
+          }
+        ],
+        "custom_data": {}
+      },
+      "payment_reference":"PI-1235231",
+      "payment_amount":"10",
+      "transaction_currency":"$",
+      "discount_percentage":"0",
+      "discount_amount":"0",
+      "last_action":"created",
+      "last_action_datetime":"2023-01-01T00:00:00Z",
+      "last_action_user":"158822"
+    }
+    ],
+    "hide_name_publicly": false
+  },
+  {
+    "attendee_id":"LazarilloOpen2023-158823",
+    "competition_id":"LazarilloOpen2023",
+    "user_id":"158823",
+    "is_attending":true,
+    "lane_states":{
+      "competing":"accepted"
+    },
+    "lanes":[{
+      "lane_name":"competing",
+      "lane_state":"accepted",
+      "completed_steps":[1,2,3],
+      "lane_details":{
+        "event_details":[
+          {
+            "event_id":"333",
+            "event_cost":"5",
+            "event_cost_currency":"$",
+            "event_registration_state":"accepted"
+          },
+          {
+            "event_id":"333mbf",
+            "event_cost":"10.5",
+            "event_cost_currency":"$",
+            "event_registration_state":"waiting-list"
+          }
+        ],
+        "custom_data": {}
+      },
+      "payment_reference":"PI-1235231",
+      "payment_amount":"10",
+      "transaction_currency":"$",
+      "discount_percentage":"0",
+      "discount_amount":"0",
+      "last_action":"created",
+      "last_action_datetime":"2023-01-01T00:00:00Z",
+      "last_action_user":"158823"
+    }
+    ],
+    "hide_name_publicly": false
   }
 ]

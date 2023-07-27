@@ -4,19 +4,21 @@ require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
 require_relative '../../app/helpers/error_codes'
 
+#x TODO: Add update logic from main for determining admin auth
+#x TODO: Add explicit check for non-auth to return attending only
+#x TODO: Add explicit cehck for auth to return all attendees irrespective of status
+#x TODO: Add checks for test behaviour (ie number of items in return payload)
+#x TODO: Add commented tests
 # TODO: Check Swaggerized output
-# TODO: Compare payloads received to expected payloads
-# TODO: Add commented tests
 # TODO: Brainstorm other tests that could be included
 RSpec.describe 'v1 Registrations API', type: :request do
   include Helpers::RegistrationHelper
 
   path '/api/v1/registrations/{competition_id}' do
-    get 'List registrations for a given competition_id' do
+    get 'Public: list registrations for a given competition_id' do
       parameter name: :competition_id, in: :path, type: :string, required: true
       produces 'application/json'
 
-      # TODO: Check the list contents against expected list contents
       context 'success responses' do
         include_context 'competition information'
         include_context 'database seed'
@@ -24,9 +26,21 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '200', 'PASSING request and response conform to schema' do
           schema type: :array, items: { '$ref' => '#/components/schemas/registration' }
 
-          let!(:competition_id) { @comp_with_registrations }
+          let!(:competition_id) { @attending_registrations_only }
 
-          run_test!
+          run_test! do |response|
+            body = JSON.parse(response.body)
+            expect(body.length).to eq(4)
+          end
+        end
+
+        response '200', 'FAILING only returns attending registrations' do # waiting_list are being counted as is_attending - not sure how this is set? maybe in the model logic?
+          let!(:competition_id) { @includes_non_attending_registrations }
+
+          run_test! do |response|
+            body = JSON.parse(response.body)
+            expect(body.length).to eq(1)
+          end
         end
 
         response '200', 'PASSING Valid competition_id but no registrations for it' do
@@ -38,39 +52,33 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        # TODO
-        # context 'Competition service down (500) but registrations exist' do
-        #   response '200', 'comp service down but registrations exist' do
-        #     let!(:competition_id) { competition_with_registrations }
+        context 'Competition service down (500) but registrations exist' do
+          response '200', 'PASSING comp service down but registrations exist' do
+            let!(:competition_id) { @registrations_exist_comp_500 }
 
-        #     run_test!
-        #   end
-        # end
+            run_test! do |response|
+              body = JSON.parse(response.body)
+              expect(body.length).to eq(3)
+            end
+          end
+        end
 
-        # TODO: This test is malformed - it isn't testing what it is trying to
-        # context 'Competition service down (502) but registrations exist' do
-        # include_context '502 response from competition service'
+        context 'Competition service down (502) but registrations exist' do
+          response '200', 'PASSING comp service down but registrations exist' do
+            let!(:competition_id) { @registrations_exist_comp_502 }
 
-        # response '200', 'Competitions Service is down but we have registrations for the competition_id in our database' do
-        # let!(:competition_id) { competition_with_registrations }
-
-        # TODO: Validate the expected list of registrations
-        # run_test!
-        # end
-        # end
-
-        # TODO: Define a registration payload we expect to receive - wait for ORM to be implemented to achieve this.
-        # response '200', 'Validate that registration details received match expected details' do
-        # end
-
-        # TODO: define access scopes in order to implement run this tests
-        response '200', 'PASSING User is allowed to access registration data (various scenarios)' do
-          let!(:competition_id) { competition_id }
+            run_test! do |response|
+              body = JSON.parse(response.body)
+              expect(body.length).to eq(2)
+            end
+          end
         end
       end
 
       context 'fail responses' do
         include_context 'competition information'
+        include_context 'database seed'
+
         context 'PASSING competition_id not found by Competition Service' do
           registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
 
@@ -107,10 +115,111 @@ RSpec.describe 'v1 Registrations API', type: :request do
             end
           end
         end
+      end
+    end
+  end
 
-        # TODO: define access scopes in order to implement run this tests
-        # response '403', 'User is not allowed to access registration data (various scenarios)' do
-        # end
+  path '/api/v1/registrations/{competition_id}/admin' do
+    get 'Public: list registrations for a given competition_id' do
+      security [Bearer: {}]
+      parameter name: :competition_id, in: :path, type: :string, required: true
+      produces 'application/json'
+
+      context 'success responses' do
+        include_context 'competition information'
+        include_context 'database seed'
+        include_context 'auth_tokens'
+
+        response '200', 'PASSING request and response conform to schema' do
+          schema type: :array, items: { '$ref' => '#/components/schemas/registrationAdmin' }
+
+          let!(:competition_id) { @attending_registrations_only }
+          let(:'Authorization') { @admin_token }
+
+          run_test! do |response|
+            body = JSON.parse(response.body)
+            expect(body.length).to eq(4)
+          end
+        end
+
+        response '200', 'PASSING admin registration endpoint returns registrations in all states' do
+          let!(:competition_id) { @includes_non_attending_registrations }
+          let(:'Authorization') { @admin_token }
+
+          run_test! do |response|
+            body = JSON.parse(response.body)
+            expect(body.length).to eq(5)
+          end
+        end
+
+        # TODO user has competition-specific auth and can get all registrations
+        response '200', 'PASSING organizer can access admin list for their competition' do
+          let!(:competition_id) { @includes_non_attending_registrations }
+          let(:'Authorization') { @organizer_token }
+
+          run_test! do |response|
+            body = JSON.parse(response.body)
+            expect(body.length).to eq(5)
+          end
+        end
+
+        context 'user has comp-specific auth for multiple comps' do
+          response '200', 'PASSING organizer has access to comp 1' do
+            let!(:competition_id) { @includes_non_attending_registrations }
+            let(:'Authorization') { @multi_comp_organizer_token }
+
+            run_test! do |response|
+              body = JSON.parse(response.body)
+              expect(body.length).to eq(5)
+            end
+          end
+
+          response '200', 'PASSING organizer has access to comp 2' do
+            let!(:competition_id) { @attending_registrations_only }
+            let(:'Authorization') { @multi_comp_organizer_token }
+
+            run_test! do |response|
+              body = JSON.parse(response.body)
+              expect(body.length).to eq(4)
+            end
+          end
+        end
+      end
+
+      context 'fail responses' do
+        include_context 'competition information'
+        include_context 'database seed'
+        include_context 'auth_tokens'
+
+        response '403', 'PASSING Attending user cannot get admin registration list' do
+          registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
+          let!(:competition_id) { @attending_registrations_only }
+          let(:'Authorization') { @jwt_token }
+
+          run_test! do |response|
+            expect(response.body).to eq(registration_error_json)
+          end
+        end
+
+        response '403', 'PASSING organizer cannot access registrations for comps they arent organizing - single comp auth' do
+          registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
+          let!(:competition_id) { @attending_registrations_only }
+          let(:'Authorization') { @organizer_token }
+
+          run_test! do |response|
+            expect(response.body).to eq(registration_error_json)
+          end
+        end
+
+        response '403', 'PASSING organizer cannot access registrations for comps they arent organizing - multi comp auth' do
+          registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
+          let!(:competition_id) { @registrations_exist_comp_500 }
+          let(:'Authorization') { @multi_comp_organizer_token }
+
+          run_test! do |response|
+            expect(response.body).to eq(registration_error_json)
+          end
+        end
       end
     end
   end
