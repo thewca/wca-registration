@@ -14,7 +14,7 @@ export interface paths {
         };
       };
       responses: {
-        /** @description Competitions Service is down but we have registrations for the competition_id in our database */
+        /** @description Valid competition_id but no registrations for it */
         200: {
           content: {
             "application/json": (components["schemas"]["registration"])[];
@@ -41,6 +41,35 @@ export interface paths {
       };
     };
   };
+  "/api/v1/register": {
+    /** Add an attendee registration */
+    post: {
+      parameters: {
+        header?: {
+          Authorization?: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["submitRegistrationBody"];
+        };
+      };
+      responses: {
+        /** @description only required fields included */
+        202: {
+          content: {
+            "application/json": components["schemas"]["success_response"];
+          };
+        };
+        /** @description user impersonation attempt */
+        403: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+      };
+    };
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -49,6 +78,10 @@ export interface components {
   schemas: {
     error_response: {
       error: number;
+    };
+    success_response: {
+      status: string;
+      message: string;
     };
     registration: {
       user_id: string;
@@ -63,9 +96,12 @@ export interface components {
     };
     submitRegistrationBody: {
       user_id: string;
-      event_ids: (EventId)[];
-      comment?: string;
-      guests?: number;
+      competition_id: string;
+      competing: {
+        event_ids?: (EventId)[];
+        comment?: string;
+        guests?: number;
+      };
     };
     updateRegistrationBody: {
       user_id: string;

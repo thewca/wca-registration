@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-require 'uri'
-require 'net/http'
+require 'httparty'
 require 'json'
 require_relative 'mocks'
-
-class UserApi
+require_relative 'wca_api'
+class UserApi < WcaApi
   def self.fetch_user(user_id)
     uri = URI("https://www.worldcubeassociation.org/api/v0/users/#{user_id}")
     begin
@@ -26,9 +25,19 @@ class UserApi
     end
   end
 
-  # TODO: The real permission route will live in the user service
   def self.get_permissions(user_id)
-    Mocks.permissions_mock(user_id)
+    if Rails.env.production?
+      # TODO: move creating the token to its own method
+      iat = Time.now.to_i
+      jti_raw = [JwtOptions.secret, iat].join(':').to_s
+      jti = Digest::MD5.hexdigest(jti_raw)
+      payload = { data: { service_id: "registration.worldcubeassociation.org" }, aud: "users.worldcubeassociation.org", exp: Time.now.to_i + JwtOptions.expiry, sub: "registration.worldcubeassociation.org", iat: iat, jti: jti }
+      token = JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
+      HTTParty.get("https://test-registration.worldcubeassociation.org/api/v10/internal/users/#{user_id}/permissions", headers: { 'Authorization' => "Bearer: #{token}" })
+
+    else
+      Mocks.permissions_mock(user_id)
+    end
   end
 
   def self.can_compete?(user_id)
@@ -37,13 +46,13 @@ class UserApi
     permissions = Rails.cache.fetch("#{user_id}-permissions", expires_in: 5.minutes) do
       self.get_permissions(user_id)
     end
-    [permissions[:can_attend_competitions][:scope] == "*", permissions[:can_attend_competitions][:reasons]]
+    [permissions["can_attend_competitions"]["scope"] == "*", permissions["can_attend_competitions"]["reasons"]]
   end
 
   def self.can_administer?(user_id, competition_id)
     permissions = Rails.cache.fetch("#{user_id}-permissions", expires_in: 5.minutes) do
       self.get_permissions(user_id)
     end
-    permissions[:can_administer_competitions][:scope] == "*" || permissions[:can_administer_competitions][:scope].include?(competition_id)
+    permissions["can_administer_competitions"]["scope"] == "*" || permissions["can_administer_competitions"]["scope"].include?(competition_id)
   end
 end

@@ -1,9 +1,8 @@
-import fetch from 'sync-fetch'
 import { BackendError } from './backend_fetch'
 
-export default function externalServiceFetch(route: string) {
-  const response = fetch(route)
-  const body = response.json()
+export default async function externalServiceFetch(route: string) {
+  const response = await fetch(route)
+  const body = await response.json()
   if (response.ok) {
     return body
   }

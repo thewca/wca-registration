@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
+import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
@@ -119,6 +120,10 @@ export default function RegistrationAdministrationList() {
     refetchOnReconnect: false,
     staleTime: Infinity,
     refetchOnMount: 'always',
+    retry: false,
+    onError: (err) => {
+      setMessage(err.message, 'error')
+    },
   })
   const [selected, dispatch] = useReducer(reducer, {
     waiting: [],
@@ -229,7 +234,9 @@ function RegistrationAdministrationTable({
                   />
                 </Table.Cell>
                 <Table.Cell>
-                  <Link to={`/${competition_id}/${registration.user.id}/edit`}>
+                  <Link
+                    to={`/competitions/${competition_id}/${registration.user.id}/edit`}
+                  >
                     Edit
                   </Link>
                 </Table.Cell>

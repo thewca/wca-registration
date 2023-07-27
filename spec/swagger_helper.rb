@@ -40,6 +40,18 @@ RSpec.configure do |config|
             },
             required: [:error],
           },
+          success_response: {
+            type: :object,
+            properties: {
+              status: {
+                type: :string,
+              },
+              message: {
+                type: :string,
+              },
+            },
+            required: [:status, :message],
+          },
           registration: {
             type: :object,
             properties: {
@@ -92,21 +104,29 @@ RSpec.configure do |config|
               user_id: {
                 type: :string,
               },
-              event_ids: {
-                type: :array,
-                items: {
-                  type: :string,
-                  format: :EventId,
-                },
-              },
-              comment: {
+              competition_id: {
                 type: :string,
               },
-              guests: {
-                type: :number,
+              competing: {
+                type: :object,
+                properties: {
+                  event_ids: {
+                    type: :array,
+                    items: {
+                      type: :string,
+                      format: :EventId,
+                    },
+                  },
+                  comment: {
+                    type: :string,
+                  },
+                  guests: {
+                    type: :number,
+                  },
+                },
               },
             },
-            required: [:user_id, :event_ids],
+            required: [:user_id, :competition_id, :competing],
           },
           updateRegistrationBody: {
             properties: {

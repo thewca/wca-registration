@@ -1,11 +1,15 @@
 @import '../style/font-sizes';
 @import '../style/margins';
+@import '../style/colors';
 .competition-info{
   margin-bottom: $double-margin;
   line-height: normal;
 }
 .open{
   color: #007E0D;
+}
+.close{
+  color: #c23321;
 }
 .header{
   display: flex;
@@ -14,7 +18,7 @@
   padding: 30px;
 }
 .announcement{
-  background-color: rgba(255, 92, 0, 0.3);
+  background-color: $requirements-red;
   padding: 18px;
   border-radius: 18px;
   font-size: $sub-header-size;
