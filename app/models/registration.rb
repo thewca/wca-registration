@@ -43,7 +43,7 @@ class Registration
   end
 
   def competing_state
-    lane_states["competing"]
+    lane_states[:competing]
   end
 
   def update_competing_lane!(update_params)
@@ -73,8 +73,8 @@ class Registration
 
   def init_payment_lane(amount, currency_code, client_secret)
     payment_lane = LaneFactory.payment_lane(amount, currency_code, client_secret)
-    payment_lane_state = { "payment": "initialized" }
-    update_attributes(lanes: lanes.append(payment_lane), lane_states: lane_states.append(payment_lane_state))
+    lane_states[:payment] = "initialized"
+    update_attributes(lanes: lanes.append(payment_lane), lane_states: lane_states)
   end
 
   # Fields

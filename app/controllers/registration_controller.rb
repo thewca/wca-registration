@@ -171,16 +171,15 @@ class RegistrationController < ApplicationController
   end
 
   def validate_payment_ticket_request
-    params = payment_ticket_params
     competition_id = params[:competition_id]
-    unless CompetitionApi.uses_wca_payment?(@competition_id)
+    unless CompetitionApi.uses_wca_payment?(competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::PAYMENT_NOT_ENABLED }
+      render json: { error: ErrorCodes::PAYMENT_NOT_ENABLED }, status: :forbidden
     end
     @registration = Registration.find("#{competition_id}-#{@current_user}")
     if @registration.competing_state.nil?
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::PAYMENT_NOT_READY }
+      render json: { error: ErrorCodes::PAYMENT_NOT_READY }, status: :forbidden
     end
   end
 
@@ -188,7 +187,7 @@ class RegistrationController < ApplicationController
     refresh = params[:refresh]
     if refresh || @registration.payment_ticket.nil?
       amount, currency_code = @registration.payment_amount
-      ticket = PaymentApi.get_ticket(@registration.id, amount, currency_code)
+      ticket = PaymentApi.get_ticket(@registration[:attendee_id], amount, currency_code)
       @registration.init_payment_lane(amount, currency_code, ticket)
     else
       ticket = @registration.payment_ticket
@@ -260,12 +259,6 @@ class RegistrationController < ApplicationController
 
     def list_params
       params.require(:competition_id)
-    end
-
-    def payment_ticket_params
-      params.require(:competition_id)
-      params.permit(:refresh)
-      params
     end
 
     def get_registrations(competition_id, only_attending: false)

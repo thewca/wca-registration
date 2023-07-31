@@ -50,7 +50,7 @@ class CompetitionApi < WcaApi
     competition_info[:competition_info]["event_ids"].to_set.superset?(event_ids.to_set)
   end
 
-  def payment_info(competition_id)
+  def self.payment_info(competition_id)
     competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
       self.fetch_competition(competition_id)
     end

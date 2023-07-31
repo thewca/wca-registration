@@ -38,10 +38,10 @@ export default function StripeWrapper() {
   return (
     <>
       <h1>Payment</h1>
-      {isLoading && stripePromise && isError && (
+      {!isLoading && stripePromise && !isError && (
         <Elements
           stripe={stripePromise}
-          options={{ clientSecret: data.client_secret }}
+          options={{ clientSecret: data.client_secret_id }}
         >
           <PaymentStep />
         </Elements>

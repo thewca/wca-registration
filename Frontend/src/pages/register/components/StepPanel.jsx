@@ -6,7 +6,8 @@ import StripeWrapper from './StripeWrapper'
 
 export default function StepPanel() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const [currentStep, setCurrentStep] = useState('competing')
+  // const [currentStep, setCurrentStep] = useState('competing')
+  const [activeIndex, setActiveIndex] = useState(0)
 
   const panes = useMemo(() => {
     const panes = [
@@ -14,11 +15,13 @@ export default function StepPanel() {
         menuItem: 'Event Registration',
         key: 'competing',
         render: () => (
-          <CompetingStep
-            nextStep={() => {
-              setCurrentStep('payment')
-            }}
-          />
+          <Tab.Pane>
+            <CompetingStep
+              nextStep={() => {
+                setActiveIndex(1)
+              }}
+            />
+          </Tab.Pane>
         ),
       },
     ]
@@ -26,14 +29,18 @@ export default function StepPanel() {
       panes.push({
         menuItem: 'Payment',
         key: 'payment',
-        render: () => <StripeWrapper />,
+        render: () => (
+          <Tab.Pane>
+            <StripeWrapper />
+          </Tab.Pane>
+        ),
       })
     }
     return panes
   }, [competitionInfo])
   return (
     <div>
-      <Tab renderActiveOnly panes={panes} activeIndex={currentStep} />
+      <Tab renderActiveOnly panes={panes} activeIndex={activeIndex} />
     </div>
   )
 }

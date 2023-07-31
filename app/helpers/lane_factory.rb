@@ -14,7 +14,7 @@ class LaneFactory
     competing_lane
   end
 
-  def self.payment_lane(fee_lowest_denominator, currency_code payment_intent_client_secret)
+  def self.payment_lane(fee_lowest_denominator, currency_code, payment_intent_client_secret)
     payment_lane = Lane.new({})
     payment_lane.lane_name = "payment"
     payment_lane.completed_steps = ["Payment Intent Init"]

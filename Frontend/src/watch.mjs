@@ -41,6 +41,7 @@ const context = await esbuild.context({
     'process.env.API_URL': '"http://localhost:3001/api/v1"',
     'process.env.AUTH_URL': '"http://localhost:3001/jwt"',
     'process.env.NODE_ENV': '"development"',
+    'process.env.STRIPE_PUBLISHABLE_KEY': '"pk_test_N0KdZIOedIrP8C4bD5XLUxOY"',
   },
 })
 
