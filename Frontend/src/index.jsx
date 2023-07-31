@@ -47,6 +47,14 @@ const router = createBrowserRouter([
             element: <HomePage />,
           },
           {
+            path: '/competitions/:competition_id/events',
+            element: <Events />,
+          },
+          {
+            path: '/competitions/:competition_id/schedule',
+            element: <Schedule />,
+          },
+          {
             path: '/competitions/:competition_id/register',
             element: <Register />,
           },

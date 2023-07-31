@@ -1,20 +1,25 @@
 import { UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import moment from 'moment'
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { Button } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
-import styles from './home.module.scss'
+import RegistrationRequirements from '../register/components/RegistrationRequirements'
+import styles from './index.module.scss'
 
 export default function HomePage() {
   const { competitionInfo } = useContext(CompetitionContext)
+  const { showAllRequirements, setShowAllRequirements } = useState(false)
   return (
     <div className={styles.homeContainer}>
       <div className={styles.requirements}>
         <div>Registration Requirements:</div>
         <div>[INSERT ORGANIZER MESSAGE REGARDING REQUIREMENTS]</div>
+        {showAllRequirements && <RegistrationRequirements />}
         <div>
-          <Button>View All</Button>
+          <Button onClick={() => setShowAllRequirements(!showAllRequirements)}>
+            View All
+          </Button>
         </div>
       </div>
       {competitionInfo.information && (

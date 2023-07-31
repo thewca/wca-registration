@@ -45,6 +45,7 @@ interface CompetitionInfo {
   'short_name': string
   'city': string
   'venue': string
+  'competition_events': CompetitionEvent[]
   'venue_address': string
   'force_comment_in_registration': boolean
   'venue_details'?: string
@@ -69,13 +70,21 @@ interface CompetitionInfo {
   'class': string
 }
 
+interface CompetitionEvent {
+  id: number
+  competition_id: string
+  event_id: EventId
+  fee_lowest_denomination: number
+  qualification: object
+}
+
 interface UserFull {
   id: string
   created_at: string
   updated_at: string
   name: string
   delegate_status: string
-  gender: 'm' | 'w' | 'o'
+  gender: 'm' | 'f' | 'o'
   country_iso2: string
   email: string
   region: string

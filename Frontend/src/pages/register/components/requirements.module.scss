@@ -1,0 +1,15 @@
+@import '../../../style/font-sizes';
+@import '../../../style/margins';
+@import '../../../style/colors';
+
+.requirementText{
+  margin-top: $triple-margin;
+  font-weight: 500;
+  font-size: $sub-header-size;
+  background-color: $requirements-red;
+  border-radius: 28px;
+  margin-left: 5%;
+  padding: 30px;
+  width: 90%;
+  line-height: 3em;
+}
