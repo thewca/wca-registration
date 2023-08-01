@@ -4,14 +4,15 @@ require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
 require_relative '../../app/helpers/error_codes'
 
-# Change 403's to 401's
-#x TODO: Add checks for mocking on all tests that need mocking
-# TODO: Why doesn't list_admin call competition API? Should it? 
-#x TODO: Add update logic from main for determining admin auth
-#x TODO: Add explicit check for non-auth to return attending only
-#x TODO: Add explicit cehck for auth to return all attendees irrespective of status
-#x TODO: Add checks for test behaviour (ie number of items in return payload)
-#x TODO: Add commented tests
+# FINN Change 403's to 401's
+# x TODO: Add checks for mocking on all tests that need mocking
+# TODO: Add case where registration for the competition hasn't opened yet, but the competition exists - should return empty list
+# FINN TODO: Why doesn't list_admin call competition API? Should it?
+# x TODO: Add update logic from main for determining admin auth
+# x TODO: Add explicit check for non-auth to return attending only
+# x TODO: Add explicit cehck for auth to return all attendees irrespective of status
+# x TODO: Add checks for test behaviour (ie number of items in return payload)
+# x TODO: Add commented tests
 # TODO: Check Swaggerized output
 # TODO: Brainstorm other tests that could be included
 RSpec.describe 'v1 Registrations API', type: :request do
@@ -144,7 +145,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           schema type: :array, items: { '$ref' => '#/components/schemas/registrationAdmin' }
 
           let!(:competition_id) { @attending_registrations_only }
-          let(:'Authorization') { @admin_token }
+          let(:Authorization) { @admin_token }
 
           run_test! do |response|
             body = JSON.parse(response.body)
@@ -154,7 +155,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         response '200', 'PASSING admin registration endpoint returns registrations in all states' do
           let!(:competition_id) { @includes_non_attending_registrations }
-          let(:'Authorization') { @admin_token }
+          let(:Authorization) { @admin_token }
 
           run_test! do |response|
             body = JSON.parse(response.body)
@@ -162,10 +163,10 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        # TODO user has competition-specific auth and can get all registrations
+        # TODO: user has competition-specific auth and can get all registrations
         response '200', 'PASSING organizer can access admin list for their competition' do
           let!(:competition_id) { @includes_non_attending_registrations }
-          let(:'Authorization') { @organizer_token }
+          let(:Authorization) { @organizer_token }
 
           run_test! do |response|
             body = JSON.parse(response.body)
@@ -176,7 +177,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         context 'user has comp-specific auth for multiple comps' do
           response '200', 'PASSING organizer has access to comp 1' do
             let!(:competition_id) { @includes_non_attending_registrations }
-            let(:'Authorization') { @multi_comp_organizer_token }
+            let(:Authorization) { @multi_comp_organizer_token }
 
             run_test! do |response|
               body = JSON.parse(response.body)
@@ -186,7 +187,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           response '200', 'PASSING organizer has access to comp 2' do
             let!(:competition_id) { @attending_registrations_only }
-            let(:'Authorization') { @multi_comp_organizer_token }
+            let(:Authorization) { @multi_comp_organizer_token }
 
             run_test! do |response|
               body = JSON.parse(response.body)
@@ -204,7 +205,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '401', 'PASSING Attending user cannot get admin registration list' do
           registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let!(:competition_id) { @attending_registrations_only }
-          let(:'Authorization') { @jwt_token }
+          let(:Authorization) { @jwt_token }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -214,7 +215,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '401', 'PASSING organizer cannot access registrations for comps they arent organizing - single comp auth' do
           registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let!(:competition_id) { @attending_registrations_only }
-          let(:'Authorization') { @organizer_token }
+          let(:Authorization) { @organizer_token }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -224,7 +225,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '401', 'PASSING organizer cannot access registrations for comps they arent organizing - multi comp auth' do
           registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let!(:competition_id) { @registrations_exist_comp_500 }
-          let(:'Authorization') { @multi_comp_organizer_token }
+          let(:Authorization) { @multi_comp_organizer_token }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)

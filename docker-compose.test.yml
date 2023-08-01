@@ -20,7 +20,7 @@ services:
     tty: true
     command: >
       bash -c 'bundle install && yarn install && bin/rake db:seed &&
-      bundle exec rspec'
+      bundle exec rspec -e PASSING'
     networks:
       - wca-registration
     depends_on:

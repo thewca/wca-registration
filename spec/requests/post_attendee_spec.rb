@@ -20,6 +20,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
                 schema: { '$ref' => '#/components/schemas/registration' }, required: true
 
       context 'success registration posts' do
+        # SUCCESS CASES TO IMPLEMENT
+        # admin submits registration on competitor's behalf
         include_context 'database seed'
         include_context 'auth_tokens'
         include_context 'registration_data'
@@ -27,7 +29,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         response '202', 'PASSING only required fields included' do
           let(:registration) { @required_fields_only }
-          let(:'Authorization') { @jwt_token }
+          let(:Authorization) { @jwt_token }
           # run_test!
           before do |example|
             submit_request(example.metadata)
@@ -41,16 +43,15 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
       context 'fail registration posts' do
         # FAIL CASES TO IMPLEMENT:
-        #x comp not open
-        # JWT token doesn't match user id (user impersonation)
-        #x no payload provided
-        # empty payload provided
+        # x comp not open
+        # x JWT token doesn't match user id (user impersonation)
+        # x no payload provided
         # competition not found
-        # cutoff not met
+        # competitor does not meet qualification requirements - will need to mock users service for this? - investigate what the monolith currently does and replicate that
         # user is banned
         # user has incomplete profile
         # submit events taht don't exist at the comp
-        # user has insufficient permissions (admin trying to add someone else's reg) - we might need to add a new type of auth for this?
+        # user has insufficient permissions (admin of different comp trying to add reg)
 
         include_context 'database seed'
         include_context 'auth_tokens'
@@ -60,17 +61,16 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '401', 'PASSING user impersonation (no admin permission, JWWT token user_id does not match registration user_id)' do
           registration_error_json = { error: ErrorCodes::USER_IMPERSONATION }.to_json
           let(:registration) { @required_fields_only }
-          let(:'Authorization') { @user_2 }
+          let(:Authorization) { @user_2 }
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
           end
         end
 
-
         response '403', 'PASSING comp not open' do
           registration_error_json = { error: ErrorCodes::COMPETITION_CLOSED }.to_json
           let(:registration) { @comp_not_open }
-          let(:'Authorization') { @jwt_token }
+          let(:Authorization) { @jwt_token }
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
           end
@@ -78,7 +78,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         response '400', 'PASSING empty payload provided' do # getting a long error on this - not sure why it fails
           let(:registration) { @empty_payload }
-          let(:'Authorization') { @jwt_token }
+          let(:Authorization) { @jwt_token }
 
           run_test!
         end
