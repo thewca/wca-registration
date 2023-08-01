@@ -1,18 +1,24 @@
 import React, { useContext, useMemo, useState } from 'react'
-import { Tab } from 'semantic-ui-react'
+import { Menu, Tab } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import CompetingStep from './CompetingStep'
 import StripeWrapper from './StripeWrapper'
+import styles from '../../../ui/tabs.module.scss'
+import { UiIcon } from '@thewca/wca-components'
 
 export default function StepPanel() {
   const { competitionInfo } = useContext(CompetitionContext)
-  // const [currentStep, setCurrentStep] = useState('competing')
   const [activeIndex, setActiveIndex] = useState(0)
 
   const panes = useMemo(() => {
     const panes = [
       {
-        menuItem: 'Event Registration',
+        menuItem: (
+          <Menu.Item key="step-registration" onClick={() => setActiveIndex(0)}>
+            <UiIcon name="sign in alt" />
+            Register
+          </Menu.Item>
+        ),
         key: 'competing',
         render: () => (
           <Tab.Pane>
@@ -27,7 +33,12 @@ export default function StepPanel() {
     ]
     if (competitionInfo['using_stripe_payments?']) {
       panes.push({
-        menuItem: 'Payment',
+        menuItem: (
+          <Menu.Item key="step-payment" onClick={() => setActiveIndex(1)}>
+            <UiIcon name="payment stripe" />
+            Payment
+          </Menu.Item>
+        ),
         key: 'payment',
         render: () => (
           <Tab.Pane>
