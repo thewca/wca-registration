@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import React, { useContext, useEffect, useState } from 'react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PAYMENT_NOT_READY } from '../../../api/helper/error_codes'
-import getPaymentClientSecret from '../../../api/registration/get/get_payment_client_secret'
+import getPaymentInfo from '../../../api/registration/get/get_payment_client_secret'
 import { setMessage } from '../../../ui/events/messages'
 import PaymentStep from './PaymentStep'
 
@@ -14,7 +14,7 @@ export default function StripeWrapper() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { data, isLoading, isError } = useQuery({
     queryKey: ['payment-secret', competitionInfo.id],
-    queryFn: () => getPaymentClientSecret(competitionInfo.id),
+    queryFn: () => getPaymentInfo(competitionInfo.id),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
@@ -32,8 +32,14 @@ export default function StripeWrapper() {
   })
 
   useEffect(() => {
-    setStripePromise(loadStripe(process.env.STRIPE_PUBLISHABLE_KEY))
-  }, [])
+    if (!isLoading) {
+      setStripePromise(
+        loadStripe(process.env.STRIPE_PUBLISHABLE_KEY, {
+          stripeAccount: data.connected_account_id,
+        })
+      )
+    }
+  }, [data.connected_account_id, isLoading])
 
   return (
     <>
@@ -41,7 +47,9 @@ export default function StripeWrapper() {
       {!isLoading && stripePromise && !isError && (
         <Elements
           stripe={stripePromise}
-          options={{ clientSecret: data.client_secret_id }}
+          options={{
+            clientSecret: data.client_secret_id,
+          }}
         >
           <PaymentStep />
         </Elements>

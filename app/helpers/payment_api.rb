@@ -15,7 +15,7 @@ class PaymentApi < WcaApi
         puts response
         raise "Error from the payments service"
       end
-      return response["client_secret"]
+      return response["client_secret"], response["connected_account_id"]
     end
     return Mocks.payment_ticket_mock
   end
