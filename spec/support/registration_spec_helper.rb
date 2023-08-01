@@ -125,13 +125,6 @@ module Helpers
         create_registration(get_registration('CubingZANationalChampionship2023-158818', true)) # update_pending registration
         create_registration(get_registration('CubingZANationalChampionship2023-158819', true)) # waiting_list registration
         create_registration(get_registration('CubingZANationalChampionship2023-158823', true)) # Cancelled registration
-        # registration = Registration.new(basic_registration)
-        # registration.save
-
-        # Create a registration that is already cancelled
-        # cancelled_registration = get_registration('CubingZANationalChampionship2023-158823', true) # Cancelled registration
-        # registration = Registration.new(cancelled_registration)
-        # registration.save
 
         # Create registrations for 'WinchesterWeeknightsIV2023' - all accepted
         create_registration(get_registration('WinchesterWeeknightsIV2023-158816', true))
