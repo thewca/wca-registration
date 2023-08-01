@@ -17,7 +17,7 @@ export interface paths {
         /** @description Valid competition_id but no registrations for it */
         200: {
           content: {
-            "application/json": (components["schemas"]["registration"])[];
+            "application/json": components["schemas"]["registration"][];
           };
         };
         /** @description Competition ID doesnt exist */
@@ -85,11 +85,11 @@ export interface components {
     };
     registration: {
       user_id: string;
-      event_ids: (EventId)[];
+      event_ids: EventId[];
     };
     registrationAdmin: {
       user_id: string;
-      event_ids: (EventId)[];
+      event_ids: EventId[];
       comment?: string;
       admin_comment?: string;
       guests?: number;
@@ -98,14 +98,14 @@ export interface components {
       user_id: string;
       competition_id: string;
       competing: {
-        event_ids?: (EventId)[];
+        event_ids?: EventId[];
         comment?: string;
         guests?: number;
       };
     };
     updateRegistrationBody: {
       user_id: string;
-      event_ids: (EventId)[];
+      event_ids: EventId[];
       comment?: string;
       admin_comment?: string;
       guests?: number;

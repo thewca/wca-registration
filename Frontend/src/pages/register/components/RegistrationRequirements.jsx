@@ -1,7 +1,6 @@
 import { UiIcon } from '@thewca/wca-components'
 import moment from 'moment/moment'
-import { useContext } from 'react'
-import React from 'react/react.shared-subset'
+import React, { useContext } from 'react'
 import { Popup } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import styles from './requirements.module.scss'

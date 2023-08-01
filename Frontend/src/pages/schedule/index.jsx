@@ -1,94 +1,104 @@
-import { useQuery } from '@tanstack/react-query'
 import React, { useContext } from 'react'
-import getSchedule from '../../api/competition/get/get_schedule'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
-import { setMessage } from '../../ui/events/messages'
-import LoadingMessage from '../../ui/messages/loadingMessage'
-import styles from './index.modules.scss'
+import styles from './index.module.scss'
+import { Table, TableCell } from 'semantic-ui-react'
+import moment from 'moment'
+import { getFormatName } from '@wca/helpers'
+
+const getDatesBetween = (startDate, endDate) => {
+  const currentDate = new Date(startDate)
+  const dates = [currentDate]
+  // eslint doesn't get that we modify with setDate
+  // eslint-disable-next-line no-unmodified-loop-condition
+  while (currentDate <= endDate) {
+    dates.push(new Date(currentDate))
+    currentDate.setDate(currentDate.getDate() + 1)
+  }
+  return dates
+}
+
+const activitiesByDate = (activities, date) => {
+  return activities.filter(
+    (activity) => new Date(activity.startTime).getDate() === date.getDate()
+  )
+}
 
 export default function Schedule() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { isLoading, data: schedule } = useQuery({
-    queryKey: ['schedule', competitionInfo.id],
-    queryFn: () => getSchedule(competitionInfo.id),
-    retry: false,
-    onError: (err) => {
-      setMessage(err.message, 'error')
-    },
-  })
-  return isLoading ? (
-    <LoadingMessage />
-  ) : (
-    <div style={styles.scheduleWrapper}>
-      <table className="show-events-table">
-        <thead>
-          <tr>
-            <th>Event</th>
-            <th>Round</th>
-            <th>Format</th>
-            <th>Time Limit</th>
-            {competitionInfo['uses_cutoff?'] && <th>cutoff</th>}
-            <th>Proceed</th>
-            {competitionInfo['uses_qualification?'] && <th>qualifcation</th>}
-          </tr>
-        </thead>
-
-        {/*<tbody>*/}
-        {/*<*/}
-        {/*% @competition.competition_events.sort_by {|ce| ce.event.rank}.each do |competition_event| %>*/}
-        {/*<% competition_event.rounds.each do |round| %>*/}
-        {/*<tr className="<%= round.final_round? ? " last-round" : "" %>">*/}
-        {/*  <td>*/}
-        {/*    <*/}
-        {/*    %= competition_event.event.name if round.number == 1 %>*/}
-        {/*  </td>*/}
-        {/*  <td>*/}
-        {/*    <*/}
-        {/*    %= round.round_type.name %>*/}
-        {/*  </td>*/}
-        {/*  <td>*/}
-        {/*    <*/}
-        {/*    %= round.full_format_name(with_short_names: true, with_tooltips: true) %>*/}
-        {/*  </td>*/}
-        {/*  <td>*/}
-        {/*    <*/}
-        {/*    %= round.time_limit_to_s %>*/}
-        {/*    <% if competition_event.event.can_change_time_limit? %>*/}
-        {/*    <% if round.time_limit.cumulative_round_ids.length == 1 %>*/}
-        {/*    <%= link_to "*", "#cumulative-time-limit" %>*/}
-        {/*    <% elsif round.time_limit.cumulative_round_ids.length > 1 %>*/}
-        {/*    <%= link_to "**", "#cumulative-across-rounds-time-limit" %>*/}
-        {/*    <% end %>*/}
-        {/*    <% end %>*/}
-        {/*  </td>*/}
-        {/*  <*/}
-        {/*  % if @competition.uses_cutoff? %>*/}
-        {/*  <td>*/}
-        {/*    <*/}
-        {/*    %= round.cutoff_to_s %></td>*/}
-        {/*  <*/}
-        {/*  % end %>*/}
-        {/*  <td>*/}
-        {/*    <*/}
-        {/*    %= round.advancement_condition_to_s %></td>*/}
-        {/*  <*/}
-        {/*  % if @competition.uses_qualification? %>*/}
-        {/*  <% if round.number == 1 %>*/}
-        {/*  <td>*/}
-        {/*    <*/}
-        {/*    %= competition_event.qualification_to_s %></td>*/}
-        {/*  <*/}
-        {/*  % else %>*/}
-        {/*  <td></td>*/}
-        {/*  <*/}
-        {/*  % end %>*/}
-        {/*  <% end %>*/}
-        {/*</tr>*/}
-        {/*<*/}
-        {/*% end %>*/}
-        {/*<% end %>*/}
-        {/*</tbody>*/}
-      </table>
+  const competitionDays = getDatesBetween(
+    competitionInfo.start_date,
+    competitionInfo.end_date
+  )
+  return (
+    <div>
+      {competitionDays.map((date) => {
+        const activitiesForDay = activitiesByDate(
+          competitionInfo.schedule_wcif.venues.flatMap((venue) =>
+            venue.rooms.flatMap((room) => room.activities)
+          ),
+          date
+        ).sort((a, b) => new Date(a.startTime) > new Date(b.startTime))
+        return (
+          <div key={date.toLocaleString()}>
+            <h2>Schedule for {moment(date).format('ll')}</h2>
+            <Table>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell>Start</Table.HeaderCell>
+                  <Table.HeaderCell>End</Table.HeaderCell>
+                  <Table.HeaderCell>Activity</Table.HeaderCell>
+                  <Table.HeaderCell>Room</Table.HeaderCell>
+                  <Table.HeaderCell>Format</Table.HeaderCell>
+                  <Table.HeaderCell>Time Limit</Table.HeaderCell>
+                  <Table.HeaderCell>Time Cutoff</Table.HeaderCell>
+                  <Table.HeaderCell>Proceed</Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {activitiesForDay.map((activity) => {
+                  const round = competitionInfo.events_with_rounds
+                    .flatMap((events) => events.rounds)
+                    .find((round) => round.id === activity.activityCode)
+                  const room = competitionInfo.schedule_wcif.venues
+                    .flatMap((venue) => venue.rooms)
+                    .find((room) =>
+                      room.activities.some(
+                        (ac) => ac.activityCode === activity.activityCode
+                      )
+                    )
+                  return (
+                    <Table.Row key={activity.id}>
+                      <Table.Cell>
+                        {moment(activity.startTime).format('HH:mm')}
+                      </Table.Cell>
+                      <Table.Cell>
+                        {moment(activity.endTime).format('HH:mm')}
+                      </Table.Cell>
+                      <Table.Cell>{activity.name}</Table.Cell>
+                      <Table.Cell>{room.name}</Table.Cell>
+                      <Table.Cell>
+                        {round?.format && getFormatName(round.format)}
+                      </Table.Cell>
+                      <TableCell>
+                        {round?.timeLimit &&
+                          `${round.timeLimit.centiseconds / 100} seconds`}
+                      </TableCell>
+                      <TableCell>
+                        {round?.cutoff &&
+                          `${round.cutoff?.attemptResult / 100} seconds`}
+                      </TableCell>
+                      <TableCell>
+                        {round?.advancementCondition &&
+                          `Top ${round.advancementCondition.level} ${round.advancementCondition.type} proceed`}
+                      </TableCell>
+                    </Table.Row>
+                  )
+                })}
+              </Table.Body>
+            </Table>
+          </div>
+        )
+      })}
     </div>
   )
 }

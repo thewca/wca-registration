@@ -22,6 +22,8 @@ import FlashMessage from './ui/messages/flashMessage'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import UserProvider from './ui/providers/UserProvider'
 import PageTabs from './ui/Tabs'
+import Events from './pages/events'
+import Schedule from './pages/schedule'
 
 const router = createBrowserRouter([
   {
@@ -73,6 +75,14 @@ const router = createBrowserRouter([
           {
             path: '/competitions/:competition_id',
             element: <HomePage />,
+          },
+          {
+            path: '/competitions/:competition_id/events',
+            element: <Events />,
+          },
+          {
+            path: '/competitions/:competition_id/schedule',
+            element: <Schedule />,
           },
           {
             path: '/competitions/:competition_id/register',
