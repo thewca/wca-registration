@@ -22,7 +22,7 @@ class LaneFactory
     payment_lane.lane_details = {
       amount_lowest_denominator: fee_lowest_denominator,
       payment_intent_client_secret: payment_intent_client_secret,
-      currency_code: currency_code
+      currency_code: currency_code,
     }
     payment_lane
   end

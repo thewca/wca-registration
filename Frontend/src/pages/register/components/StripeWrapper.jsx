@@ -39,7 +39,7 @@ export default function StripeWrapper() {
         })
       )
     }
-  }, [data.connected_account_id, isLoading])
+  }, [data?.connected_account_id, isLoading])
 
   return (
     <>

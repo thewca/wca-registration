@@ -58,10 +58,10 @@ class Registration
       lane
     end
     updated_lane_states = if update_params[:status].present?
-                           lane_states["competing"] = update_params[:status]
-                         else
-                           lane_states
-                         end
+                            lane_states["competing"] = update_params[:status]
+                          else
+                            lane_states
+                          end
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
     updated_is_attending = if update_params[:status].present?
                              update_params[:status] == "accepted"
