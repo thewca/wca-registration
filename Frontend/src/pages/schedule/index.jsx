@@ -1,20 +1,19 @@
+import { getFormatName } from '@wca/helpers'
+import moment from 'moment'
 import React, { useContext } from 'react'
+import { Table, TableCell } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import styles from './index.module.scss'
-import { Table, TableCell } from 'semantic-ui-react'
-import moment from 'moment'
-import { getFormatName } from '@wca/helpers'
 
 const getDatesBetween = (startDate, endDate) => {
-  const currentDate = new Date(startDate)
-  const dates = [currentDate]
-  // eslint doesn't get that we modify with setDate
-  // eslint-disable-next-line no-unmodified-loop-condition
-  while (currentDate <= endDate) {
-    dates.push(new Date(currentDate))
-    currentDate.setDate(currentDate.getDate() + 1)
+  const fromDate = moment(startDate)
+  const toDate = moment(endDate)
+  const diff = toDate.diff(fromDate, 'days') + 1
+  const range = []
+  for (let i = 0; i < diff; i++) {
+    range.push(moment(startDate).add(i, 'days').toDate())
   }
-  return dates
+  return range
 }
 
 const activitiesByDate = (activities, date) => {
@@ -30,8 +29,8 @@ export default function Schedule() {
     competitionInfo.end_date
   )
   return (
-    <div>
-      {competitionDays.map((date) => {
+    <div className={styles.scheduleWrapper}>
+      {competitionDays.map((date, index) => {
         const activitiesForDay = activitiesByDate(
           competitionInfo.schedule_wcif.venues.flatMap((venue) =>
             venue.rooms.flatMap((room) => room.activities)
@@ -39,9 +38,14 @@ export default function Schedule() {
           date
         ).sort((a, b) => new Date(a.startTime) > new Date(b.startTime))
         return (
-          <div key={date.toLocaleString()}>
+          <div
+            key={date.toLocaleString()}
+            className={`${
+              index === competitionDays.length - 1 ? styles.scheduleTable : ''
+            }`}
+          >
             <h2>Schedule for {moment(date).format('ll')}</h2>
-            <Table>
+            <Table striped>
               <Table.Header>
                 <Table.Row>
                   <Table.HeaderCell>Start</Table.HeaderCell>

@@ -1,3 +1,9 @@
+@import '../../style/margins';
+
 .schedule-wrapper{
-  color: black
+  padding: 30px;
+}
+
+.schedule-table{
+  margin-top: $triple-margin;
 }
