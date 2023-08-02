@@ -1,13 +1,13 @@
 import moment from 'moment'
 import React, { useContext } from 'react'
-import { Message, Popup } from 'semantic-ui-react'
+import { Message } from 'semantic-ui-react'
 import { CAN_ATTEND_COMPETITIONS } from '../../api/auth/get_permissions'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
 import PermissionMessage from '../../ui/messages/permissionMessage'
-import RegistrationRequirements from './components/RegistrationRequirements'
 import RegistrationPanel from './components/RegistrationPanel'
+import RegistrationRequirements from './components/RegistrationRequirements'
 import styles from './index.module.scss'
 
 export default function Register() {

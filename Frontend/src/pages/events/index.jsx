@@ -1,6 +1,5 @@
+import { getEventName, getFormatName } from '@wca/helpers'
 import React, { useContext } from 'react'
-import { CompetitionContext } from '../../api/helper/context/competition_context'
-import styles from './index.module.scss'
 import {
   Table,
   TableBody,
@@ -9,7 +8,8 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'semantic-ui-react'
-import { getEventName, getFormatName } from '@wca/helpers'
+import { CompetitionContext } from '../../api/helper/context/competition_context'
+import styles from './index.module.scss'
 
 export default function Events() {
   const { competitionInfo } = useContext(CompetitionContext)
