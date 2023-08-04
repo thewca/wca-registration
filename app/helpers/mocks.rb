@@ -1,14 +1,6 @@
 # frozen_string_literal: true
 
 module Mocks
-  # I created a client_intent_secret on staging using the stripe test_key
-  # The issue is that you can of course only use this payment intent once
-  # So in the future we need to find a better solution to this
-  # (probably run a copy of the payment service if you want to test payments)
-  def self.payment_ticket_mock
-    %w[pi_3NaFXMGZClrCFkEy2ih4F1au_secret_HII0QlqrgZzolNM5KM4CYAmOT acct_1NYpaMGZClrCFkEy]
-  end
-
   def self.permissions_mock(user_id)
     case user_id
     when "1" # Test Organizer
