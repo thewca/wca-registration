@@ -9,7 +9,7 @@ import styles from './index.module.scss'
 
 export default function HomePage() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { showAllRequirements, setShowAllRequirements } = useState(false)
+  const [ showAllRequirements, setShowAllRequirements ] = useState(false)
   return (
     <div className={styles.homeContainer}>
       <div className={styles.requirements}>
