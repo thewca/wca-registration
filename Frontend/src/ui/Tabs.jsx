@@ -1,4 +1,4 @@
-import { UiIcon } from '@thewca/wca-components'
+import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Tab } from 'semantic-ui-react'
@@ -78,6 +78,36 @@ export default function PageTabs() {
         render: () => {},
       },
       ...optionalTabs,
+      {
+        menuItem: (
+          <Menu.Item
+            key="tab-events"
+            className={styles.tabItem}
+            onClick={() =>
+              navigate(`/competitions/${competitionInfo.id}/events`)
+            }
+          >
+            <CubingIcon event={competitionInfo.main_event_id} selected />
+            Events
+          </Menu.Item>
+        ),
+        render: () => {},
+      },
+      {
+        menuItem: (
+          <Menu.Item
+            key="tab-schedule"
+            className={styles.tabItem}
+            onClick={() =>
+              navigate(`/competitions/${competitionInfo.id}/schedule`)
+            }
+          >
+            <UiIcon name="calendar" />
+            Schedule
+          </Menu.Item>
+        ),
+        render: () => {},
+      },
       ...competitionInfo.tabs.map((tab) => {
         return {
           menuItem: (
@@ -99,6 +129,7 @@ export default function PageTabs() {
     canAdminCompetition,
     competitionInfo.id,
     competitionInfo.use_wca_registration,
+    competitionInfo.main_event_id,
     competitionInfo.registration_open,
     competitionInfo.tabs,
     navigate,

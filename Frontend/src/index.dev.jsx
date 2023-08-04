@@ -6,11 +6,13 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { Container } from 'semantic-ui-react'
+import Events from './pages/events'
 import HomePage from './pages/home'
 import Register from './pages/register'
 import RegistrationAdministration from './pages/registration_administration'
 import RegistrationEdit from './pages/registration_edit'
 import Registrations from './pages/registrations'
+import Schedule from './pages/schedule'
 import TestLogin from './pages/test/login'
 import TestLogout from './pages/test/logout'
 import App from './ui/App'
@@ -73,6 +75,14 @@ const router = createBrowserRouter([
           {
             path: '/competitions/:competition_id',
             element: <HomePage />,
+          },
+          {
+            path: '/competitions/:competition_id/events',
+            element: <Events />,
+          },
+          {
+            path: '/competitions/:competition_id/schedule',
+            element: <Schedule />,
           },
           {
             path: '/competitions/:competition_id/register',
