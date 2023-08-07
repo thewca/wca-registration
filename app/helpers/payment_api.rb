@@ -6,7 +6,7 @@ require_relative 'mocks'
 class PaymentApi < WcaApi
   def self.get_ticket(attendee_id, amount, currency_code)
     token = self.get_wca_token("payments.worldcubeassociation.org")
-    response = HTTParty.post("https://test-registration.worldcubeassociation.org/api/v10/internal/payment/init",
+    response = HTTParty.post("https://test-registration.worldcubeassociation.org/api/v10/payment/init",
                              body: { "attendee_id" => attendee_id, "amount" => amount, "currency_code" => currency_code }.to_json,
                              headers: { 'Authorization' => "Bearer: #{token}",
                                         "Content-Type" => "application/json" })

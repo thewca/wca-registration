@@ -23,7 +23,7 @@ export default function PaymentStep() {
       elements,
       confirmParams: {
         // Just for testing, the actual route will probably live somewhere else
-        return_url: `${window.location.origin}/api/v10/internal/payment/finish?competition_id=${competitionInfo.id}`,
+        return_url: `${window.location.origin}/api/v10/payment/${competitionInfo.id}/finish`,
       },
     })
 
