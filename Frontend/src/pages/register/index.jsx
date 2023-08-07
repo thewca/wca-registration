@@ -6,8 +6,8 @@ import { CompetitionContext } from '../../api/helper/context/competition_context
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
 import PermissionMessage from '../../ui/messages/permissionMessage'
-import RegistrationPanel from './components/RegistrationPanel'
 import RegistrationRequirements from './components/RegistrationRequirements'
+import StepPanel from './components/StepPanel'
 import styles from './index.module.scss'
 
 export default function Register() {
@@ -30,7 +30,7 @@ export default function Register() {
         <div>
           <div className={styles.registrationHeader}>Hi, {user.name}</div>
           {canAttendCompetition ? (
-            <RegistrationPanel />
+            <StepPanel />
           ) : (
             <PermissionMessage permissionLevel={CAN_ATTEND_COMPETITIONS} />
           )}

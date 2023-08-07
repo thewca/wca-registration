@@ -16,6 +16,7 @@ class RegistrationController < ApplicationController
   before_action :ensure_lane_exists, only: [:create]
   before_action :validate_list_admin, only: [:list_admin]
   before_action :validate_update_request, only: [:update]
+  before_action :validate_payment_ticket_request, only: [:payment_ticket]
 
   # For a user to register they need to
   # 1) Need to actually be the user that they are trying to register
@@ -169,6 +170,31 @@ class RegistrationController < ApplicationController
     render json: { registration: {}, status: 'ok' }
   end
 
+  def validate_payment_ticket_request
+    competition_id = params[:competition_id]
+    unless CompetitionApi.uses_wca_payment?(competition_id)
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: ErrorCodes::PAYMENT_NOT_ENABLED }, status: :forbidden
+    end
+    @registration = Registration.find("#{competition_id}-#{@current_user}")
+    if @registration.competing_state.nil?
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: ErrorCodes::PAYMENT_NOT_READY }, status: :forbidden
+    end
+  end
+
+  def payment_ticket
+    refresh = params[:refresh]
+    if refresh || @registration.payment_ticket.nil?
+      amount, currency_code = @registration.payment_amount
+      ticket, account_id = PaymentApi.get_ticket(@registration[:attendee_id], amount, currency_code)
+      @registration.init_payment_lane(amount, currency_code, ticket)
+    else
+      ticket = @registration.payment_ticket
+    end
+    render json: { client_secret_id: ticket, connected_account_id: account_id }
+  end
+
   def list
     competition_id = list_params
     competition_exists = CompetitionApi.competition_exists?(competition_id)
@@ -215,7 +241,7 @@ class RegistrationController < ApplicationController
 
   private
 
-    REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
+    REGISTRATION_STATUS = %w[incoming waitlist accepted deleted].freeze
 
     def registration_params
       params.require([:user_id, :competition_id])

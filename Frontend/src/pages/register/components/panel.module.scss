@@ -3,6 +3,10 @@
 .panel{
   margin-top: $single-margin;
 }
+.panel-processing{
+  margin-top: $single-margin;
+  filter: blur(8px);
+}
 .registration-greeting{
   text-align: center;
   font-size: $sub-header-size;
@@ -23,6 +27,10 @@
   margin-left: 5% !important;
   margin-top: $single-margin;
   margin-bottom: $double-margin;
+}
+.processing{
+  background-color: gray;
+  display: flex;
 }
 .registration-row{
   display: flex;

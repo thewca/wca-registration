@@ -4,37 +4,12 @@ require 'httparty'
 require 'json'
 require_relative 'mocks'
 require_relative 'wca_api'
-class UserApi < WcaApi
-  def self.fetch_user(user_id)
-    uri = URI("https://www.worldcubeassociation.org/api/v0/users/#{user_id}")
-    begin
-      res = Net::HTTP.get_response(uri)
-      if res.is_a?(Net::HTTPSuccess)
-        body = JSON.parse res.body
-        body["user"]
-      else
-        # The Competitor Service is unreachable
-        Metrics.registration_competitor_api_error_counter.increment
-        puts 'network request failed'
-        false
-      end
-    rescue StandardError => _e
-      puts 'The service does not have internet'
-      Metrics.registration_competitor_api_error_counter.increment
-      false
-    end
-  end
 
+class UserApi < WcaApi
   def self.get_permissions(user_id)
     if Rails.env.production?
-      # TODO: move creating the token to its own method
-      iat = Time.now.to_i
-      jti_raw = [JwtOptions.secret, iat].join(':').to_s
-      jti = Digest::MD5.hexdigest(jti_raw)
-      payload = { data: { service_id: "registration.worldcubeassociation.org" }, aud: "users.worldcubeassociation.org", exp: Time.now.to_i + JwtOptions.expiry, sub: "registration.worldcubeassociation.org", iat: iat, jti: jti }
-      token = JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
+      token = self.get_wca_token("users.worldcubeassociation.org")
       HTTParty.get("https://test-registration.worldcubeassociation.org/api/v10/internal/users/#{user_id}/permissions", headers: { 'Authorization' => "Bearer: #{token}" })
-
     else
       Mocks.permissions_mock(user_id)
     end

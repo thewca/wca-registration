@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Mocks
-  # This needs to come from the user service*, but currently no route exists that gives this info
   def self.permissions_mock(user_id)
     case user_id
     when "1" # Test Organizer
