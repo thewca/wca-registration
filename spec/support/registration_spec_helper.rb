@@ -15,6 +15,7 @@ module Helpers
         @error_comp_502 = 'GACubersStudyJuly2023'
         @registrations_exist_comp_500 = 'WinchesterWeeknightsIV2023'
         @registrations_exist_comp_502 = 'BangaloreCubeOpenJuly2023'
+        @registrations_not_open = 'BrizZonSylwesterOpen2023'
 
         @base_comp_url = "https://test-registration.worldcubeassociation.org/api/v10/competitions/"
 
@@ -33,6 +34,11 @@ module Helpers
         # EMPTY COMP STUB
         competition_details = get_competition_details(@empty_comp)
         stub_request(:get, "#{@base_comp_url}#{@empty_comp}")
+          .to_return(status: 200, body: competition_details.to_json)
+
+        # REGISTRATIONS NOT OPEN
+        competition_details = get_competition_details(@registrations_not_open)
+        stub_request(:get, "#{@base_comp_url}#{@registrations_not_open}")
           .to_return(status: 200, body: competition_details.to_json)
 
         # 404 COMP STUB
@@ -67,9 +73,13 @@ module Helpers
       before do
         @jwt_token = fetch_jwt_token('158817')
         @user_2 = fetch_jwt_token('158200')
+        @user_3 = fetch_jwt_token('158201')
+        @user_4 = fetch_jwt_token('158202')
         @admin_token = fetch_jwt_token('15073')
         @organizer_token = fetch_jwt_token('1')
         @multi_comp_organizer_token = fetch_jwt_token('2')
+        @banned_user_jwt = fetch_jwt_token('209943')
+        @incomplete_user_jwt = fetch_jwt_token('999999')
       end
     end
 
@@ -87,9 +97,16 @@ module Helpers
         @required_fields_only = get_registration('CubingZANationalChampionship2023-158817', false)
         @no_attendee_id = get_registration('CubingZANationalChampionship2023-158818', false)
         @empty_payload = {}.to_json
+        @reg_2 = get_registration('LazarilloOpen2023-158820', false)
 
         # Failure cases
+        @admin_comp_not_open = get_registration('BrizZonSylwesterOpen2023-15073', false)
         @comp_not_open = get_registration('BrizZonSylwesterOpen2023-158817', false)
+        @bad_comp_name = get_registration('InvalidCompID-158817', false)
+        @banned_user_reg = get_registration('CubingZANationalChampionship2023-209943', false)
+        @incomplete_user_reg = get_registration('CubingZANationalChampionship2023-999999', false)
+        @events_not_held_reg = get_registration('CubingZANationalChampionship2023-158201', false)
+        @events_not_exist_reg = get_registration('CubingZANationalChampionship2023-158202', false)
 
         # For 'various optional fields'
         @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820', false)

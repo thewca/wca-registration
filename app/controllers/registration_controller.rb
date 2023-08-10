@@ -7,6 +7,7 @@ require_relative '../helpers/user_api'
 require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
+  @@enable_traces = true
   skip_before_action :validate_token, only: [:list]
   # The order of the validations is important to not leak any non public info via the API
   # That's why we should always validate a request first, before taking any other before action
@@ -25,34 +26,62 @@ class RegistrationController < ApplicationController
   # We need to do this in this order, so we don't leak user attributes
 
   def validate_create_request
+    puts "validing create request" if @@enable_traces
     @user_id = registration_params[:user_id]
+    puts @user_id
     @competition_id = registration_params[:competition_id]
+    puts @competition_id
     @event_ids = registration_params[:competing]["event_ids"]
+    puts @event_ids
     status = ""
     cannot_register_reason = nil
 
-    unless @current_user == @user_id.to_s
+    # This could be split out into a "validate competition exists" method
+    # Validations could also be restructured to be a bunch of private methods that validators call
+    puts CompetitionApi.competition_exists?(@competition_id)
+    unless CompetitionApi.competition_exists?(@competition_id) == true
+      puts "competition doesn't exist"
+      render_error(:not_found, ErrorCodes::COMPETITION_NOT_FOUND)
+      return
+    end
+
+    unless @current_user == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_impersonation_attempt_counter.increment
       return render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :unauthorized
     end
 
     can_compete, reasons = UserApi.can_compete?(@user_id)
+    puts "can compete, reasons: #{can_compete}, #{reasons}" if @@enable_traces
     unless can_compete
-      status = :forbidden
-      cannot_register_reason = reasons
+      puts "in can't compete"
+      if reasons == ErrorCodes::USER_IS_BANNED
+        render_error(:forbidden, ErrorCodes::USER_IS_BANNED)
+      else
+        render_error(:unauthorized, ErrorCodes::USER_PROFILE_INCOMPLETE)
+      end
+      return
+      # status = :forbidden
+      # cannot_register_reason = reasons
     end
 
+    puts "3"
     unless CompetitionApi.competition_open?(@competition_id)
-      status = :forbidden
-      cannot_register_reason = ErrorCodes::COMPETITION_CLOSED
+      unless UserApi.can_administer?(@current_user, @competition_id) && @current_user == @user_id.to_s
+        # Admin can only pre-regiser for themselves, not for other users
+        render_error(:forbidden, ErrorCodes::COMPETITION_CLOSED)
+        return
+      end
     end
 
+    puts "4"
     if @event_ids.empty? || !CompetitionApi.events_held?(@event_ids, @competition_id)
-      status = :bad_request
-      cannot_register_reason = ErrorCodes::COMPETITION_INVALID_EVENTS
+      render_error(:unprocessable_entity, ErrorCodes::COMPETITION_INVALID_EVENTS)
+      return
     end
 
+    puts "Cannot register reason 1: #{cannot_register_reason}"
     unless cannot_register_reason.nil?
+      puts "Cannot register reason 2: #{cannot_register_reason}"
       Metrics.registration_validation_errors_counter.increment
       render json: { error: cannot_register_reason }, status: status
     end
@@ -86,6 +115,7 @@ class RegistrationController < ApplicationController
   end
 
   def create
+    puts "passed validation, creating registration"
     comment = params[:comment] || ""
     guests = params[:guests] || 0
 
@@ -170,17 +200,25 @@ class RegistrationController < ApplicationController
   end
 
   def list
+    puts "checking competitions"
     competition_id = list_params
-    competition_exists = CompetitionApi.competition_exists?(competition_id)
-    registrations = get_registrations(competition_id, only_attending: true)
-    if competition_exists[:error]
-      # Even if the competition service is down, we still return the registrations if they exists
-      if registrations.count != 0 && competition_exists[:error] == ErrorCodes::COMPETITION_API_5XX
-        return render json: registrations
-      end
-      return render json: { error: competition_exists[:error] }, status: competition_exists[:status]
+    competition_info = CompetitionApi.get_competition_info(competition_id)
+
+    puts "comp info: #{competition_info}"
+    if competition_info[:competition_exists?] == false
+      puts "in false" if @@enable_traces
+      return render json: { error: competition_info[:error] }, status: competition_info[:status]
     end
-    # Render a success response
+
+    puts "comp exists" if @@enable_traces
+
+    registrations = get_registrations(competition_id, only_attending: true)
+
+    if registrations.count == 0 && competition_info[:error] == ErrorCodes::COMPETITION_API_5XX
+      puts "comp has 500 error" if @@enable_traces
+      return render json: { error: competition_info[:error] }, status: competition_info[:status]
+    end
+    puts "rendering json" if @@enable_traces
     render json: registrations
   rescue StandardError => e
     # Render an error response
@@ -218,6 +256,7 @@ class RegistrationController < ApplicationController
     REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
 
     def registration_params
+      puts params
       params.require([:user_id, :competition_id])
       params.require(:competing).require(:event_ids)
       params
@@ -265,5 +304,11 @@ class RegistrationController < ApplicationController
         admin_comment: registration.admin_comment,
         guests: registration.guests,
       }
+    end
+
+    def render_error(status, error)
+      puts "rendering error"
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: error }, status: status
     end
 end

@@ -22,16 +22,53 @@ class CompetitionApi < WcaApi
     end
   end
 
-  def self.competition_open?(competition_id)
+  def self.get_competition_info(competition_id)
+    puts "retrieving comp info"
     competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
       self.fetch_competition(competition_id)
     end
+    puts "raw comp info: #{competition_info}"
+    puts "error: #{competition_info[:error]}"
+    puts "befre if"
+
+    if competition_info[:error] == false
+      puts "no error"
+      competition_info[:competition_exists?] = true
+      competition_info[:competition_open?] = competition_info[:competition_info]["registration_opened?"]
+    else
+      puts "there's an error"
+      if competition_info[:error] == ErrorCodes::COMPETITION_NOT_FOUND
+        puts "competition not found"
+        competition_info[:competition_exists?] = false
+      else
+        puts "some other error"
+        # If there's any other kind of error we don't know whether the competition exists or not
+        competition_info[:competition_exists?] = nil
+      end
+    end
+    puts "final comp info: #{competition_info}"
+    competition_info
+  end
+
+  def self.competition_open?(competition_id)
+    puts "checking if open"
+    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+      self.fetch_competition(competition_id)
+    end
+    puts "fetched competition: #{competition_info}"
     competition_info[:competition_info]["registration_opened?"]
   end
 
   def self.competition_exists?(competition_id)
-    Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+    puts "checking if exists"
+    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
       self.fetch_competition(competition_id)
+    end
+
+    if competition_info[:error] == false
+      true
+    else
+      competition_info
     end
   end
 
