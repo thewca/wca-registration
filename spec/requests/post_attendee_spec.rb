@@ -17,7 +17,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
       security [Bearer: {}]
       consumes 'application/json'
       parameter name: :registration, in: :body,
-                schema: { '$ref' => '#/components/schemas/registration' }, required: true
+                schema: { '$ref' => '#/components/schemas/submitRegistrationBody' }, required: true
 
       context '-> success registration posts' do
         # SUCCESS CASES TO IMPLEMENT

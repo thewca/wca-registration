@@ -15,6 +15,19 @@ class Registration
     lanes.filter_map { |x| x.lane_details["event_details"].pluck("event_id") if x.lane_name == "competing" }[0]
   end
 
+  def registered_event_ids
+    event_ids = []
+
+    competing_lane = lanes.find { |x| x.lane_name == "competing" }
+
+    competing_lane.lane_details["event_details"].each do |event|
+      if event["event_registration_state"] != "deleted"
+        event_ids << event["event_id"]
+      end
+    end
+    event_ids
+  end
+
   def competing_status
     lanes.filter_map { |x| x.lane_state if x.lane_name == "competing" }[0]
   end
@@ -33,8 +46,15 @@ class Registration
   end
 
   def update_competing_lane!(update_params)
+    lane_states[:competing] = update_params[:status] if update_params[:status].present?
+
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == "competing"
+        if update_params[:status] == "deleted"
+          lane.lane_details["event_details"].each do |event|
+            event["event_registration_state"] = update_params[:status]
+          end
+        end
         lane.lane_state = update_params[:status] if update_params[:status].present?
         lane.lane_details["comment"] = update_params[:comment] if update_params[:comment].present?
         lane.lane_details["guests"] = update_params[:guests] if update_params[:guests].present?

@@ -1,9 +1,8 @@
 {
   "816-cancel-full-registration": {
-    "attendee_id":"CubingZANationalChampionship2023-158816",
-    "lane_states":{
-      "competing":"cancelled"
-    }
+    "user_id":"158817",
+    "competition_id":"CubingZANationalChampionship2023",
+    "status":"deleted"
   },
   "823-cancel-full-registration": {
     "attendee_id":"CubingZANationalChampionship2023-158823",

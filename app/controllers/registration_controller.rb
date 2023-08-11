@@ -167,7 +167,7 @@ class RegistrationController < ApplicationController
       updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
       render json: { status: 'ok', registration: {
         user_id: updated_registration["user_id"],
-        event_ids: updated_registration.event_ids,
+        registered_event_ids: updated_registration.registered_event_ids,
         registration_status: updated_registration.competing_status,
         registered_on: updated_registration["created_at"],
         comment: updated_registration.competing_comment,
@@ -267,6 +267,7 @@ class RegistrationController < ApplicationController
     end
 
     def update_params
+      puts "update params: #{params}"
       params.require([:user_id, :competition_id])
     end
 
