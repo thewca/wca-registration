@@ -205,7 +205,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '401', ' -> PASSING Attending user cannot get admin registration list' do
           registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let!(:competition_id) { @attending_registrations_only }
-          let(:Authorization) { @jwt_token }
+          let(:Authorization) { @jwt_817 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)

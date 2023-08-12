@@ -71,10 +71,14 @@ module Helpers
 
     RSpec.shared_context 'auth_tokens' do
       before do
-        @jwt_token = fetch_jwt_token('158817')
-        @user_2 = fetch_jwt_token('158200')
-        @user_3 = fetch_jwt_token('158201')
-        @user_4 = fetch_jwt_token('158202')
+        @jwt_816 = fetch_jwt_token('158816')
+        @jwt_817 = fetch_jwt_token('158817')
+        @jwt_818 = fetch_jwt_token('158818')
+        @jwt_819 = fetch_jwt_token('158819')
+        @jwt_823 = fetch_jwt_token('158823')
+        @jwt_200 = fetch_jwt_token('158200')
+        @jwt_201 = fetch_jwt_token('158201')
+        @jwt_202 = fetch_jwt_token('158202')
         @admin_token = fetch_jwt_token('15073')
         @organizer_token = fetch_jwt_token('1')
         @multi_comp_organizer_token = fetch_jwt_token('2')
@@ -126,7 +130,11 @@ module Helpers
         @user_id_823 = "158823"
 
         # Cancel payloads
-        @cancellation = get_patch("816-cancel-full-registration")
+        @cancellation_816 = get_patch("816-cancel-full-registration")
+        @cancellation_817 = get_patch("817-cancel-full-registration")
+        @cancellation_818 = get_patch("818-cancel-full-registration")
+        @cancellation_819 = get_patch("819-cancel-full-registration")
+        @cancellation_823 = get_patch("823-cancel-full-registration")
         @double_cancellation = get_patch("823-cancel-full-registration")
         @cancel_wrong_lane = get_patch('823-cancel-wrong-lane')
 

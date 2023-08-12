@@ -29,7 +29,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         response '202', '-> PASSING competitor submits basic registration' do
           let(:registration) { @required_fields_only }
-          let(:Authorization) { @jwt_token }
+          let(:Authorization) { @jwt_817 }
 
           run_test! do |response|
             assert_requested :get, "#{@base_comp_url}#{@includes_non_attending_registrations}", times: 1
@@ -67,7 +67,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '401', ' -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration user_id)' do
           registration_error_json = { error: ErrorCodes::USER_IMPERSONATION }.to_json
           let(:registration) { @required_fields_only }
-          let(:Authorization) { @user_2 }
+          let(:Authorization) { @jwt_200 }
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
           end
@@ -77,7 +77,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '403', ' -> PASSING comp not open' do
           registration_error_json = { error: ErrorCodes::COMPETITION_CLOSED }.to_json
           let(:registration) { @comp_not_open }
-          let(:Authorization) { @jwt_token }
+          let(:Authorization) { @jwt_817 }
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
           end
@@ -106,7 +106,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '422', '-> PASSING contains event IDs which are not held at competition' do
           registration_error_json = { error: ErrorCodes::COMPETITION_INVALID_EVENTS }.to_json
           let(:registration) { @events_not_held_reg }
-          let(:Authorization) { @user_3 }
+          let(:Authorization) { @jwt_201 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -116,7 +116,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '422', '-> PASSING contains event IDs which are not held at competition' do
           registration_error_json = { error: ErrorCodes::COMPETITION_INVALID_EVENTS }.to_json
           let(:registration) { @events_not_exist_reg }
-          let(:Authorization) { @user_4 }
+          let(:Authorization) { @jwt_202 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -125,7 +125,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         response '400', ' -> PASSING empty payload provided' do # getting a long error on this - not sure why it fails
           let(:registration) { @empty_payload }
-          let(:Authorization) { @jwt_token }
+          let(:Authorization) { @jwt_817 }
 
           run_test!
         end
@@ -133,7 +133,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '404', ' -> PASSING competition does not exist' do
           registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
           let(:registration) { @bad_comp_name }
-          let(:Authorization) { @jwt_token }
+          let(:Authorization) { @jwt_817 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -201,7 +201,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '422', '-> PASSING admin adds reg for user which contains event IDs which do not exist' do
           registration_error_json = { error: ErrorCodes::COMPETITION_INVALID_EVENTS }.to_json
           let(:registration) { @events_not_exist_reg }
-          let(:Authorization) { @user_4 }
+          let(:Authorization) { @jwt_202 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -218,7 +218,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         response '404', ' -> PASSING admin adds reg for competition which does not exist' do
           registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
           let(:registration) { @bad_comp_name }
-          let(:Authorization) { @jwt_token }
+          let(:Authorization) { @jwt_817 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
