@@ -4,15 +4,8 @@ require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
 require_relative '../../app/helpers/error_codes'
 
-# FINN Change 403's to 401's
-# x TODO: Add checks for mocking on all tests that need mocking
 # TODO: Add case where registration for the competition hasn't opened yet, but the competition exists - should return empty list
 # FINN TODO: Why doesn't list_admin call competition API? Should it?
-# x TODO: Add update logic from main for determining admin auth
-# x TODO: Add explicit check for non-auth to return attending only
-# x TODO: Add explicit cehck for auth to return all attendees irrespective of status
-# x TODO: Add checks for test behaviour (ie number of items in return payload)
-# x TODO: Add commented tests
 # TODO: Check Swaggerized output
 # TODO: Brainstorm other tests that could be included
 RSpec.describe 'v1 Registrations API', type: :request do
@@ -44,7 +37,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
             body = JSON.parse(response.body)
-            expect(body.length).to eq(1)
+            expect(body.length).to eq(2)
           end
         end
 
@@ -159,7 +152,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           run_test! do |response|
             body = JSON.parse(response.body)
-            expect(body.length).to eq(5)
+            expect(body.length).to eq(6)
           end
         end
 
@@ -170,7 +163,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           run_test! do |response|
             body = JSON.parse(response.body)
-            expect(body.length).to eq(5)
+            expect(body.length).to eq(6)
           end
         end
 
@@ -181,7 +174,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
             run_test! do |response|
               body = JSON.parse(response.body)
-              expect(body.length).to eq(5)
+              expect(body.length).to eq(6)
             end
           end
 

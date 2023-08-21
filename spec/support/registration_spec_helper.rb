@@ -71,6 +71,7 @@ module Helpers
 
     RSpec.shared_context 'auth_tokens' do
       before do
+        @jwt_800 = fetch_jwt_token('800')
         @jwt_816 = fetch_jwt_token('158816')
         @jwt_817 = fetch_jwt_token('158817')
         @jwt_818 = fetch_jwt_token('158818')
@@ -84,13 +85,6 @@ module Helpers
         @multi_comp_organizer_token = fetch_jwt_token('2')
         @banned_user_jwt = fetch_jwt_token('209943')
         @incomplete_user_jwt = fetch_jwt_token('999999')
-      end
-    end
-
-    # Can remove this
-    RSpec.shared_context 'basic_auth_token' do
-      before do
-        @jwt_token = fetch_jwt_token('158817')
       end
     end
 
@@ -130,22 +124,35 @@ module Helpers
         @user_id_823 = "158823"
 
         # Cancel payloads
+        @bad_comp_cancellation = get_patch("816-cancel-bad-comp")
+        @cancellation_with_events = get_patch("816-cancel-and-change-events")
+        @bad_user_cancellation = get_patch("800-cancel-no-reg")
+        @cancellation_1 = get_patch("1-cancel-full-registration")
         @cancellation_816 = get_patch("816-cancel-full-registration")
+        @cancellation_816_2 = get_patch("816-cancel-full-registration_2")
         @cancellation_817 = get_patch("817-cancel-full-registration")
         @cancellation_818 = get_patch("818-cancel-full-registration")
         @cancellation_819 = get_patch("819-cancel-full-registration")
         @cancellation_823 = get_patch("823-cancel-full-registration")
+        @cancellation_073 = get_patch("073-cancel-full-registration")
         @double_cancellation = get_patch("823-cancel-full-registration")
         @cancel_wrong_lane = get_patch('823-cancel-wrong-lane')
 
         # Update payloads
         @add_444 = get_patch('CubingZANationalChampionship2023-158816')
+        @comment_update = get_patch('816-comment-update')
+        @comment_update_2 = get_patch('817-comment-update')
+        @guest_update_1 = get_patch('816-guest-update')
+        @guest_update_2 = get_patch('817-guest-update')
+        @events_update_1 = get_patch('816-events-update')
+        @events_update_2 = get_patch('817-events-update')
       end
     end
 
     RSpec.shared_context 'database seed' do
       before do
         create_registration(get_registration('CubingZANationalChampionship2023-158816', true)) # Accepted registration
+        create_registration(get_registration('CubingZANationalChampionship2023-1', true)) # Accepted registration
         create_registration(get_registration('CubingZANationalChampionship2023-158817', true)) # Pending registration
         create_registration(get_registration('CubingZANationalChampionship2023-158818', true)) # update_pending registration
         create_registration(get_registration('CubingZANationalChampionship2023-158819', true)) # waiting_list registration
@@ -165,6 +172,9 @@ module Helpers
         create_registration(get_registration('LazarilloOpen2023-158821', true))
         create_registration(get_registration('LazarilloOpen2023-158822', true))
         create_registration(get_registration('LazarilloOpen2023-158823', true))
+
+        # Create registrations for 'BrizZonSylwesterOpen2023'
+        create_registration(get_registration('BrizZonSylwesterOpen2023-15073', true))
       end
     end
 

@@ -1,8 +1,54 @@
 {
+  "800-cancel-no-reg": {
+    "user_id":"800",
+    "competition_id":"CubingZANationalChampionship2023",
+    "status":"deleted"
+  },
+  "816-cancel-bad-comp": {
+    "user_id":"158816",
+    "competition_id":"BadCompName",
+    "status":"deleted"
+  },
+  "816-comment-update": {
+    "user_id":"158816",
+    "competition_id":"CubingZANationalChampionship2023",
+    "comment":"updated registration comment"
+  },
+  "816-guest-update": {
+    "user_id":"158816",
+    "competition_id":"CubingZANationalChampionship2023",
+    "guests":2
+  },
   "816-cancel-full-registration": {
     "user_id":"158816",
     "competition_id":"CubingZANationalChampionship2023",
     "status":"deleted"
+  },
+  "816-cancel-and-change-events": {
+    "user_id":"158816",
+    "competition_id":"CubingZANationalChampionship2023",
+    "status":"deleted",
+    "event_ids":["555","666","777"]
+  },
+  "816-events-update": {
+    "user_id":"158816",
+    "competition_id":"CubingZANationalChampionship2023",
+    "event_ids":["333", "333mbf", "555","666","777"]
+  },
+  "817-comment-update": {
+    "user_id":"158817",
+    "competition_id":"CubingZANationalChampionship2023",
+    "comment":"updated registration comment - had no comment before"
+  },
+    "817-guest-update": {
+    "user_id":"158817",
+    "competition_id":"CubingZANationalChampionship2023",
+    "guests":2
+  },
+    "817-events-update": {
+    "user_id":"158817",
+    "competition_id":"CubingZANationalChampionship2023",
+    "event_ids":["555","666","777"]
   },
   "817-cancel-full-registration": {
     "user_id":"158817",
@@ -30,6 +76,22 @@
       "staffing":"cancelled"
     }
   },
+   "816-cancel-full-registration_2": {
+    "user_id":"158816",
+    "competition_id":"CubingZANationalChampionship2023",
+    "status":"deleted",
+    "admin_comment":"registration delete comment"
+  },
+   "073-cancel-full-registration": {
+    "user_id":"15073",
+    "competition_id":"BrizZonSylwesterOpen2023",
+    "status":"deleted"
+  },
+   "1-cancel-full-registration": {
+    "user_id":"1",
+    "competition_id":"CubingZANationalChampionship2023",
+    "status":"deleted"
+  },
   "816-add-event": {
     "attendee_id":"CubingZANationalChampionship2023-158816",
     "completed_steps":[1,2,3,4],
@@ -45,7 +107,5 @@
         "custom_data": {}
       }
     }]
-
   }
-
 }

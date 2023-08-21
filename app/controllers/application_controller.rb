@@ -6,6 +6,7 @@ class ApplicationController < ActionController::API
   around_action :performance_profile if Rails.env == 'development'
   def validate_token
     auth_header = request.headers["Authorization"]
+    puts request.inspect
     unless auth_header.present?
       return render json: { error: ErrorCodes::MISSING_AUTHENTICATION }, status: :unauthorized
     end

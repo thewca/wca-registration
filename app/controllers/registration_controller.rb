@@ -148,23 +148,47 @@ class RegistrationController < ApplicationController
   # You can either update your own registration or one for a competition you administer
   def validate_update_request
     @user_id, @competition_id = update_params
+    @admin_comment = params[:admin_comment]
+
+    # Check if registration exists
+    unless CompetitionApi.competition_exists?(@competition_id) == true
+      render_error(:not_found, ErrorCodes::COMPETITION_NOT_FOUND)
+      return
+    end
+
+    # Check if competition exists
+    unless registration_exists?(@user_id, @competition_id)
+      render_error(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
+      return
+    end
+
+
+    admin_fields = [@admin_comment]
+    unless UserApi.can_administer?(@current_user, @competition_id)
+      contains_admin_field = false
+      admin_fields.each do |field|
+        unless field.nil?
+          contains_admin_field = true
+        end
+      end
+      return render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :unauthorized if contains_admin_field
+    end
 
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :unauthorized
+      render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :unauthorized
     end
   end
 
   def update
     status = params[:status]
     comment = params[:comment]
-    admin_comment = params[:admin_comment]
     guests = params[:guests]
     event_ids = params[:event_ids]
 
     begin
       registration = Registration.find("#{@competition_id}-#{@user_id}")
-      updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
+      updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: @admin_comment, guests: guests })
       render json: { status: 'ok', registration: {
         user_id: updated_registration["user_id"],
         registered_event_ids: updated_registration.registered_event_ids,
@@ -305,6 +329,15 @@ class RegistrationController < ApplicationController
         admin_comment: registration.admin_comment,
         guests: registration.guests,
       }
+    end
+
+    def registration_exists?(user_id, competition_id)
+      begin
+        Registration.find("#{competition_id}-#{user_id}")
+        true
+      rescue Dynamoid::Errors::RecordNotFound
+        false
+      end
     end
 
     def render_error(status, error)
