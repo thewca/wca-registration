@@ -20,4 +20,7 @@ module ErrorCodes
 
   # Registration errors
   REGISTRATION_NOT_FOUND = -3000
+
+  # Request errors
+  INALID_REQUEST_DATA = -4000
 end

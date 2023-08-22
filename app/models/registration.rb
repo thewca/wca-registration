@@ -11,10 +11,14 @@ class Registration
     table name: "registrations", capacity_mode: nil, key: :attendee_id
   end
 
+  REGISTRATION_STATES = %w[pending waiting_list accepted deleted].freeze
+
+  # Returns all event ids irrespective of registration status
   def event_ids
     lanes.filter_map { |x| x.lane_details["event_details"].pluck("event_id") if x.lane_name == "competing" }[0]
   end
 
+  # Returns id's of the events with a non-deleted state
   def registered_event_ids
     event_ids = []
 
@@ -26,6 +30,11 @@ class Registration
       end
     end
     event_ids
+  end
+
+  def event_details
+    competing_lane = lanes.find { |x| x.lane_name == "competing" }
+    competing_lane.lane_details["event_details"]
   end
 
   def competing_status
@@ -54,26 +63,60 @@ class Registration
 
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == "competing"
-        if update_params[:status] == "deleted"
+
+        # Update status for lane and events
+        if update_params[:status].present?
+          lane.lane_state = update_params[:status] 
+
           lane.lane_details["event_details"].each do |event|
             event["event_registration_state"] = update_params[:status]
           end
         end
-        lane.lane_state = update_params[:status] if update_params[:status].present?
+
         lane.lane_details["comment"] = update_params[:comment] if update_params[:comment].present?
         lane.lane_details["guests"] = update_params[:guests] if update_params[:guests].present?
         lane.lane_details["admin_comment"] = update_params[:admin_comment] if update_params[:admin_comment].present?
-        lane.lane_details["event_details"] = update_params[:event_ids].map { |event_id| { event_id: event_id } } if update_params[:event_ids].present?
+        puts "Lane details before change#{lane.lane_details}"
+        if update_params[:event_ids].present?
+          update_events(lane, update_params[:event_ids])
+          puts "Lane details after change: #{lane.lane_details}"
+        end
       end
       lane
     end
+
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
     updated_is_attending = if update_params[:status].present?
                              update_params[:status] == "accepted"
                            else
                              is_attending
                            end
-    update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending)
+    update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+  end
+
+  def update_events(lane, new_event_ids)
+    puts "New event IDs: #{new_event_ids}"
+
+    # Update events list with new events
+    new_event_ids.each do |id|
+      next if self.event_ids.include?(id)
+      new_details = {
+        "event_id" => id,
+        "event_registration_state" => self.competing_status,
+      }
+      puts "new details: #{new_details}"
+      lane.lane_details["event_details"] << new_details
+    end
+    
+    puts "lane details after add: #{lane.lane_details['event_details']}"
+
+    # Remove events not in the new events list
+    lane.lane_details["event_details"].delete_if do |event|
+      puts "delete? #{event}"
+      !(new_event_ids.include?(event["event_id"]))
+    end
+
+    puts "lane details after delete: #{lane.lane_details['event_details']}"
   end
 
   # Fields

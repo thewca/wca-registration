@@ -162,7 +162,13 @@ class RegistrationController < ApplicationController
       return
     end
 
+    # ONly the user or an admin can update a user's registration
+    unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
+      Metrics.registration_validation_errors_counter.increment
+      render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :unauthorized
+    end
 
+    # User must be an admin if they're changing admin properties
     admin_fields = [@admin_comment]
     unless UserApi.can_administer?(@current_user, @competition_id)
       contains_admin_field = false
@@ -174,9 +180,14 @@ class RegistrationController < ApplicationController
       return render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :unauthorized if contains_admin_field
     end
 
-    unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :unauthorized
+
+    # Make sure status is a valid 
+    if params.key?(:status)
+      puts "hey weve got a status"
+      unless Registration::REGISTRATION_STATES.include?(params[:status])
+        puts "Status #{params[:status]} not in valid stats: #{Registration::REGISTRATION_STATES}"
+        render_error(:unprocessable_entity, ErrorCodes::INALID_REQUEST_DATA )
+      end
     end
   end
 
@@ -205,6 +216,7 @@ class RegistrationController < ApplicationController
              status: :internal_server_error
     end
   end
+
 
   # You can either view your own registration or one for a competition you administer
   def validate_entry_request
@@ -276,8 +288,6 @@ class RegistrationController < ApplicationController
   end
 
   private
-
-    REGISTRATION_STATUS = %w[waiting accepted deleted].freeze
 
     def registration_params
       puts params

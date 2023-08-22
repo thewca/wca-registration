@@ -81,6 +81,7 @@ module Helpers
         @jwt_201 = fetch_jwt_token('158201')
         @jwt_202 = fetch_jwt_token('158202')
         @admin_token = fetch_jwt_token('15073')
+        @admin_token_2 = fetch_jwt_token('15074')
         @organizer_token = fetch_jwt_token('1')
         @multi_comp_organizer_token = fetch_jwt_token('2')
         @banned_user_jwt = fetch_jwt_token('209943')
@@ -98,7 +99,7 @@ module Helpers
         @reg_2 = get_registration('LazarilloOpen2023-158820', false)
 
         # Failure cases
-        @admin_comp_not_open = get_registration('BrizZonSylwesterOpen2023-15073', false)
+        @admin_comp_not_open = get_registration('BrizZonSylwesterOpen2023-15074', false)
         @comp_not_open = get_registration('BrizZonSylwesterOpen2023-158817', false)
         @bad_comp_name = get_registration('InvalidCompID-158817', false)
         @banned_user_reg = get_registration('CubingZANationalChampionship2023-209943', false)
@@ -146,6 +147,14 @@ module Helpers
         @guest_update_2 = get_patch('817-guest-update')
         @events_update_1 = get_patch('816-events-update')
         @events_update_2 = get_patch('817-events-update')
+        @pending_update_1 = get_patch('817-status-update-1')
+        @pending_update_2 = get_patch('817-status-update-2')
+        @waiting_update_1 = get_patch('819-status-update-1')
+        @waiting_update_2 = get_patch('819-status-update-2')
+        @accepted_update_1 = get_patch('816-status-update-1')
+        @accepted_update_2 = get_patch('816-status-update-2')
+        @invalid_status_update = get_patch('816-status-update-3')
+
       end
     end
 

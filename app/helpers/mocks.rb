@@ -40,6 +40,18 @@ module Mocks
           "scope" => "*",
         },
       }
+    when "15074" # Test Admin
+      {
+        "can_attend_competitions" => {
+          "scope" => "*",
+        },
+        "can_organize_competitions" => {
+          "scope" => "*",
+        },
+        "can_administer_competitions" => {
+          "scope" => "*",
+        },
+      }
     when "209943" # Test banned User
       {
         "can_attend_competitions" => {

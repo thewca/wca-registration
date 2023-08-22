@@ -38,7 +38,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         response '202', '-> PASSING admin registers before registration opens' do
           let(:registration) { @admin_comp_not_open }
-          let(:Authorization) { @admin_token }
+          let(:Authorization) { @admin_token_2 }
 
           run_test! do |response|
             assert_requested :get, "#{@base_comp_url}#{@registrations_not_open}", times: 1
