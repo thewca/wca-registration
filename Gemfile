@@ -7,7 +7,7 @@ ruby '3.2.2'
 
 # Gems that are only needed by the handler not the worker
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '~> 7.0.4', '>= 7.0.4.3'
+gem 'rails', '~> 7.0.7'
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.4'
