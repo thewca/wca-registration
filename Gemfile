@@ -32,7 +32,7 @@ gem 'bootsnap', require: false
 
 # Use Redis adapter to run Action Cable in production
 gem 'hiredis'
-gem 'redis', '~> 4.0'
+gem 'redis', '~> 5.0'
 # So Redis can share connections
 gem 'connection_pool'
 
