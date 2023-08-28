@@ -23,7 +23,7 @@ jobs:
         uses: xt0rted/pull-request-comment-branch@v2
         if: steps.trigger-deployment.outputs.triggered == 'true'
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ steps.comment-branch.outputs.head_ref }}
         if: steps.trigger-deployment.outputs.triggered == 'true'
