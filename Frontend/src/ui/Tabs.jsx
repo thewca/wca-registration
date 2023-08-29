@@ -11,7 +11,7 @@ function pathMatch(name, pathname) {
   const registrationsExpression =
     /\/competitions\/[a-zA-Z0-9]+\/registrations\/edit/
   const competitorsExpression = /\/competitions\/[a-zA-Z0-9]+\/registrations/
-  const infoExpression = /\/competitions\/[a-zA-Z0-9]+\//
+  const infoExpression = /\/competitions\/[a-zA-Z0-9]+\/$/
   switch (name) {
     case 'register':
       return registerExpression.test(pathname)
