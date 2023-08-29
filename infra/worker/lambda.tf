@@ -8,8 +8,8 @@ resource "aws_lambda_function" "registration_status_lambda" {
   environment {
     variables = {
       AWS_REGION = var.region
-      QUEUE_URL = aws_sqs_queue.this.url
-      CODE_ENVIRONMENT = "staging"
+      QUEUE_URL = var.shared_resources.queue.url
+      CODE_ENVIRONMENT = "production"
     }
   }
 }
@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "lambda_policy" {
       "dynamodb:DeleteItem",
       "dynamodb:DescribeTable",
     ]
-    resources = [aws_dynamodb_table.registrations.arn, "${aws_dynamodb_table.registrations.arn}/*"]
+    resources = [var.shared_resources.dynamo_registration_table, "${var.shared_resources.dynamo_registration_table}/*"]
   }
   statement {
     effect = "Allow"
@@ -56,7 +56,7 @@ data "aws_iam_policy_document" "lambda_policy" {
       "sqs:GetQueueAttributes",
       "sqs:GetQueueUrl"
     ]
-    resources = [aws_sqs_queue.this.arn]
+    resources = [var.shared_resources.queue.arn]
   }
 }
 
@@ -66,20 +66,20 @@ resource "aws_iam_role_policy" "lambda_policy_attachment" {
 }
 
 resource "aws_api_gateway_resource" "prod" {
-  rest_api_id = var.api_gateway.id
-  parent_id   = var.api_gateway.root_resource_id
-  path_part   = "staging"
+  rest_api_id = var.shared_resources.api_gateway.id
+  parent_id   = var.shared_resources.api_gateway.root_resource_id
+  path_part   = "prod"
 }
 
 resource "aws_api_gateway_method" "poll_registration_status_method" {
-  rest_api_id   = var.api_gateway.id
+  rest_api_id   = var.shared_resources.api_gateway.id
   resource_id   = aws_api_gateway_resource.prod.id
   http_method   = "GET"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "poll_registration_integration" {
-  rest_api_id = var.api_gateway.id
+  rest_api_id = var.shared_resources.api_gateway.id
   resource_id = aws_api_gateway_resource.prod.id
   http_method = aws_api_gateway_method.poll_registration_status_method.http_method
 
@@ -89,7 +89,7 @@ resource "aws_api_gateway_integration" "poll_registration_integration" {
 }
 
 resource "aws_api_gateway_method_response" "example_method_response" {
-  rest_api_id = var.api_gateway.id
+  rest_api_id = var.shared_resources.api_gateway.id
   resource_id = aws_api_gateway_resource.prod.id
   http_method = aws_api_gateway_method.poll_registration_status_method.http_method
   status_code = "200"
@@ -100,7 +100,7 @@ resource "aws_api_gateway_method_response" "example_method_response" {
 }
 
 resource "aws_api_gateway_integration_response" "example_integration_response" {
-  rest_api_id = var.api_gateway.id
+  rest_api_id = var.shared_resources.api_gateway.id
   resource_id = aws_api_gateway_resource.prod.id
   http_method = aws_api_gateway_method.poll_registration_status_method.http_method
   status_code = aws_api_gateway_method_response.example_method_response.status_code

@@ -48,7 +48,7 @@ module "frontend" {
 
 module "staging" {
   source = "./staging"
-
+  api_gateway = module.shared_resources.api_gateway
   registration-handler-ecr-repository = module.handler.ecr_repository_url
   registration-worker-ecr-repository = module.worker.ecr_repository_url
   private_subnets = module.shared_resources.private_subnets

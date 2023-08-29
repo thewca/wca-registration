@@ -65,6 +65,10 @@ variable "shared_resources" {
     secondary_target_group: object({
       name: string,
       arn: string
+    }),
+    api_gateway: object({
+      id: string,
+      root_resource_id: string
     })
   })
 }

@@ -86,5 +86,6 @@ variable "shared_resources" {
     aws_elasticache_cluster: object({
       cache_nodes: any
     })
+    api_gateway_url: string
   })
 }

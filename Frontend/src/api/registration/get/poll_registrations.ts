@@ -6,14 +6,14 @@ export interface RegistrationStatus {
     competing: string
     payment?: string
   }
-  queueCount: number
+  queue_count: number
 }
 
 export async function pollRegistrations(): Promise<RegistrationStatus> {
-  // if (process.env.NODE_ENV === 'production') {
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-ignore inject at build time
-  //   return externalServiceFetch(process.env.POLL_URL)
-  // }
+  if (process.env.NODE_ENV === 'production') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore inject at build time
+    return externalServiceFetch(process.env.POLL_URL)
+  }
   return pollingMock()
 }

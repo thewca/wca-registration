@@ -34,7 +34,7 @@ class Registration
   end
 
   def payment_ticket
-    lanes.filter_map { |x| x.lane_details["client_secret_key"] if x.lane_name == "payment" }[0]
+    lanes.filter_map { |x| x.lane_details["payment_intent_client_secret"] if x.lane_name == "payment" }[0]
   end
 
   # TODO: Change this when we support per event payment

@@ -8,6 +8,6 @@ export default function pollingMock(): RegistrationStatus {
       competing: competingStatus,
       payment: 'none',
     },
-    queueCount: Math.round(Math.random() * 10),
+    queue_count: Math.round(Math.random() * 10),
   }
 }
