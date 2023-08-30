@@ -13,8 +13,8 @@ require_relative '../models/registration'
 
 def lambda_handler(event:, context:)
   # Parse the input event
-  event_body = JSON.parse(event['body'])
-  if event_body["attendee_id"].nil?
+  query = event['queryStringParameters']
+  if query.nil? || query["attendee_id"].nil?
     response = {
       statusCode: 400,
       body: JSON.generate({ status: 'Missing fields in request' })

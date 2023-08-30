@@ -1,13 +1,12 @@
 resource "aws_lambda_function" "registration_status_lambda" {
-  filename         = "function.zip"
+  filename         = "./lambda/registration_status.zip"
   function_name    = "${var.name_prefix}-poller-lambda-prod"
   role             = aws_iam_role.lambda_role.arn
   handler          = "registration_status.lambda_handler"
   runtime          = "ruby3.2"
-  source_code_hash = filebase64sha256("../lambda/registration_status.zip")
+  source_code_hash = filebase64sha256("./lambda/registration_status.zip")
   environment {
     variables = {
-      AWS_REGION = var.region
       QUEUE_URL = aws_sqs_queue.this.url
       CODE_ENVIRONMENT = "staging"
     }
@@ -83,7 +82,7 @@ resource "aws_api_gateway_integration" "poll_registration_integration" {
   resource_id = aws_api_gateway_resource.prod.id
   http_method = aws_api_gateway_method.poll_registration_status_method.http_method
 
-  integration_http_method = "POST"
+  integration_http_method = "GET"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.registration_status_lambda.invoke_arn
 }

@@ -42,7 +42,7 @@ locals {
     },
     {
       name = "POLL_URL"
-      value = var.shared_resources.api_gateway_url
+      value = var.api_gateway_url
     }
   ]
 }
