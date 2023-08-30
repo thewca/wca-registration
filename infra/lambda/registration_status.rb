@@ -9,7 +9,7 @@ Dynamoid.configure do |config|
 end
 # We have to require the model after we initialized dynamoid
 # This is copied over when bundling the lambda
-require_relative '../models/registration'
+require_relative './registration'
 
 def lambda_handler(event:, context:)
   # Parse the input event
@@ -29,7 +29,7 @@ def lambda_handler(event:, context:)
                                                        })
     message_count = queue_attributes.attributes["ApproximateNumberOfMessages"].to_i
 
-    registration = Registration.find(event_body["attendee_id"])
+    registration = Registration.find(query["attendee_id"])
 
     # If we are **really** busy, the lane_init function might not be run yet before we start polling
     # So while we return a 404 here, it doesn't necessarily mean the registration doesn't exist at all

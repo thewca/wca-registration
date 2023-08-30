@@ -30,6 +30,18 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_exec_policy_attach" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_lambda_permission" "this" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.registration_status_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+}
+
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
     effect = "Allow"
@@ -82,7 +94,7 @@ resource "aws_api_gateway_integration" "poll_registration_integration" {
   resource_id = aws_api_gateway_resource.prod.id
   http_method = aws_api_gateway_method.poll_registration_status_method.http_method
 
-  integration_http_method = "GET"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.registration_status_lambda.invoke_arn
 }
@@ -110,7 +122,7 @@ resource "aws_api_gateway_integration_response" "registration_status_integration
       queue_count = "Queue Count"
     })
   }
-  depends_on = [aws_api_gateway_resource.prod, aws_api_gateway_method.poll_registration_status_method, aws_api_gateway_method_response.registration_status_method]
+  depends_on = [aws_api_gateway_resource.prod, aws_api_gateway_method.poll_registration_status_method, aws_api_gateway_method_response.registration_status_method, aws_api_gateway_integration.poll_registration_integration]
 }
 resource "aws_api_gateway_deployment" "this" {
   rest_api_id = var.shared_resources.api_gateway.id
@@ -119,8 +131,4 @@ resource "aws_api_gateway_deployment" "this" {
     create_before_destroy = true
   }
   depends_on = [aws_api_gateway_method.poll_registration_status_method, aws_api_gateway_integration.poll_registration_integration]
-}
-
-output "api_gateway_url" {
-  value = aws_api_gateway_deployment.this.invoke_url
 }

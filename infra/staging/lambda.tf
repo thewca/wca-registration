@@ -30,6 +30,18 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_exec_policy_attach" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_lambda_permission" "this" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.registration_status_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+}
+
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
     effect = "Allow"
@@ -82,12 +94,12 @@ resource "aws_api_gateway_integration" "poll_registration_integration" {
   resource_id = aws_api_gateway_resource.prod.id
   http_method = aws_api_gateway_method.poll_registration_status_method.http_method
 
-  integration_http_method = "GET"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.registration_status_lambda.invoke_arn
 }
 
-resource "aws_api_gateway_method_response" "example_method_response" {
+resource "aws_api_gateway_method_response" "staging_method_response" {
   rest_api_id = var.api_gateway.id
   resource_id = aws_api_gateway_resource.prod.id
   http_method = aws_api_gateway_method.poll_registration_status_method.http_method
@@ -98,15 +110,17 @@ resource "aws_api_gateway_method_response" "example_method_response" {
   }
 }
 
-resource "aws_api_gateway_integration_response" "example_integration_response" {
+resource "aws_api_gateway_integration_response" "registration_status_integration_response" {
   rest_api_id = var.api_gateway.id
   resource_id = aws_api_gateway_resource.prod.id
   http_method = aws_api_gateway_method.poll_registration_status_method.http_method
-  status_code = aws_api_gateway_method_response.example_method_response.status_code
+  status_code = aws_api_gateway_method_response.staging_method_response.status_code
 
   response_templates = {
     "application/json" = jsonencode({
-      message = "Integration Response"
+      status = "Registration Status"
+      queue_count = "Queue Count"
     })
   }
+  depends_on = [aws_api_gateway_resource.prod, aws_api_gateway_method.poll_registration_status_method, aws_api_gateway_method_response.staging_method_response, aws_api_gateway_integration.poll_registration_integration]
 }
