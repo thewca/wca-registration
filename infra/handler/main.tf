@@ -40,10 +40,6 @@ locals {
       name = "REDIS_URL"
       value = "redis://${var.shared_resources.aws_elasticache_cluster.cache_nodes.0.address}:${var.shared_resources.aws_elasticache_cluster.cache_nodes.0.port}"
     },
-    {
-      name = "POLL_URL"
-      value = var.api_gateway_url
-    }
   ]
 }
 

@@ -22,11 +22,6 @@ variable "name_prefix" {
   default     = "wca-registration-handler"
 }
 
-variable "api_gateway_url" {
-  type = string
-  description = "The URL to invoke the API Gateway"
-}
-
 variable "region" {
   type        = string
   description = "The region to operate in"

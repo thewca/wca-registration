@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "registration_status_lambda" {
   filename         = "./lambda/registration_status.zip"
-  function_name    = "${var.name_prefix}-poller-lambda-prod"
+  function_name    = "${var.name_prefix}-poller-lambda-staging"
   role             = aws_iam_role.lambda_role.arn
   handler          = "registration_status.lambda_handler"
   runtime          = "ruby3.2"

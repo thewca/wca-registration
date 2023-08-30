@@ -49,6 +49,7 @@ if (!process.env.TYPES_ONLY) {
                 'process.env.API_URL': `"${process.env.API_URL}"`,
                 'process.env.AUTH_URL': `"${process.env.AUTH_URL}"`,
                 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+                'process.env.POLL_URL': `"${process.env.POLL_URL}"`,
             },
         })
         .catch(() => process.exit(1))

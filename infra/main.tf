@@ -39,8 +39,7 @@ module "handler" {
   source = "./handler"
 
   shared_resources = module.shared_resources
-  api_gateway_url = module.worker.api_gateway_url
-  depends_on = [module.shared_resources, module.worker]
+  depends_on = [module.shared_resources]
 }
 
 module "frontend" {
@@ -56,5 +55,5 @@ module "staging" {
   vpc_id = module.shared_resources.vpc_id
   cluster_security_id = module.shared_resources.cluster_security.id
   elasticache_subnet_group_name = module.shared_resources.elasticache_subnet_group.name
-  depends_on = [module.shared_resources, module.worker]
+  depends_on = [module.shared_resources]
 }
