@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'dynamoid'
 require 'aws-sdk-dynamodb'
@@ -9,7 +11,7 @@ Dynamoid.configure do |config|
 end
 # We have to require the model after we initialized dynamoid
 # This is copied over when bundling the lambda
-require_relative './registration'
+require_relative 'registration'
 
 def lambda_handler(event:, context:)
   # Parse the input event
@@ -17,7 +19,7 @@ def lambda_handler(event:, context:)
   if query.nil? || query["attendee_id"].nil?
     response = {
       statusCode: 400,
-      body: JSON.generate({ status: 'Missing fields in request' })
+      body: JSON.generate({ status: 'Missing fields in request' }),
     }
   else
     queue_url = ENV.fetch("QUEUE_URL", nil)
@@ -25,7 +27,7 @@ def lambda_handler(event:, context:)
 
     queue_attributes = sqs_client.get_queue_attributes({
                                                          queue_url: queue_url,
-                                                         attribute_names: ["ApproximateNumberOfMessages"]
+                                                         attribute_names: ["ApproximateNumberOfMessages"],
                                                        })
     message_count = queue_attributes.attributes["ApproximateNumberOfMessages"].to_i
 
@@ -36,14 +38,14 @@ def lambda_handler(event:, context:)
     if registration.nil?
       response = {
         statusCode: 404,
-        body: JSON.generate({ status: 'not found', queue_count: message_count  })
+        body: JSON.generate({ status: 'not found', queue_count: message_count }),
       }
     else
       competing_status = registration.competing_status
 
       response = {
         statusCode: 200,
-        body: JSON.generate({ status: competing_status, queue_count: message_count })
+        body: JSON.generate({ status: competing_status, queue_count: message_count }),
       }
     end
   end
@@ -51,12 +53,12 @@ def lambda_handler(event:, context:)
   # Return the response
   {
     statusCode: response[:statusCode],
-    body: response[:body]
+    body: response[:body],
   }
-rescue => e
+rescue StandardError => e
   # Handle any errors
   {
     statusCode: 500,
-    body: JSON.generate({ error: e.message })
+    body: JSON.generate({ error: e.message }),
   }
 end
