@@ -2,6 +2,7 @@
 
 require 'securerandom'
 require 'jwt'
+require 'time'
 require_relative '../helpers/competition_api'
 require_relative '../helpers/user_api'
 require_relative '../helpers/error_codes'
@@ -38,11 +39,12 @@ class RegistrationController < ApplicationController
 
     # This could be split out into a "validate competition exists" method
     # Validations could also be restructured to be a bunch of private methods that validators call
+    @competition = CompetitionApi.get_competition_info(@competition_id)
+
     puts CompetitionApi.competition_exists?(@competition_id)
     unless CompetitionApi.competition_exists?(@competition_id) == true
       puts "competition doesn't exist"
-      render_error(:not_found, ErrorCodes::COMPETITION_NOT_FOUND)
-      return
+      return render_error(:not_found, ErrorCodes::COMPETITION_NOT_FOUND)
     end
 
     unless @current_user == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
@@ -55,11 +57,10 @@ class RegistrationController < ApplicationController
     unless can_compete
       puts "in can't compete"
       if reasons == ErrorCodes::USER_IS_BANNED
-        render_error(:forbidden, ErrorCodes::USER_IS_BANNED)
+        return render_error(:forbidden, ErrorCodes::USER_IS_BANNED)
       else
-        render_error(:unauthorized, ErrorCodes::USER_PROFILE_INCOMPLETE)
+        return render_error(:unauthorized, ErrorCodes::USER_PROFILE_INCOMPLETE)
       end
-      return
       # status = :forbidden
       # cannot_register_reason = reasons
     end
@@ -68,15 +69,13 @@ class RegistrationController < ApplicationController
     unless CompetitionApi.competition_open?(@competition_id)
       unless UserApi.can_administer?(@current_user, @competition_id) && @current_user == @user_id.to_s
         # Admin can only pre-regiser for themselves, not for other users
-        render_error(:forbidden, ErrorCodes::COMPETITION_CLOSED)
-        return
+        return render_error(:forbidden, ErrorCodes::COMPETITION_CLOSED)
       end
     end
 
     puts "4"
     if @event_ids.empty? || !CompetitionApi.events_held?(@event_ids, @competition_id)
-      render_error(:unprocessable_entity, ErrorCodes::COMPETITION_INVALID_EVENTS)
-      return
+      return render_error(:unprocessable_entity, ErrorCodes::COMPETITION_INVALID_EVENTS)
     end
 
     puts "Cannot register reason 1: #{cannot_register_reason}"
@@ -84,6 +83,12 @@ class RegistrationController < ApplicationController
       puts "Cannot register reason 2: #{cannot_register_reason}"
       Metrics.registration_validation_errors_counter.increment
       render json: { error: cannot_register_reason }, status: status
+    end
+
+    puts 'checking guest'
+    if params.key?(:guests)
+      puts "found guests key"
+      return unless guests_valid? == true
     end
   end
 
@@ -150,22 +155,24 @@ class RegistrationController < ApplicationController
     @user_id, @competition_id = update_params
     @admin_comment = params[:admin_comment]
 
-    # Check if registration exists
-    unless CompetitionApi.competition_exists?(@competition_id) == true
-      render_error(:not_found, ErrorCodes::COMPETITION_NOT_FOUND)
-      return
+    # Check if competition exists
+    if CompetitionApi.competition_exists?(@competition_id) == true
+      @competition = CompetitionApi.get_competition_info(@competition_id)
+    else
+      return render_error(:not_found, ErrorCodes::COMPETITION_NOT_FOUND)
     end
 
     # Check if competition exists
     unless registration_exists?(@user_id, @competition_id)
-      render_error(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
-      return
+      return render_error(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
     end
+
+    @registration = Registration.find("#{@competition_id}-#{@user_id}")
 
     # ONly the user or an admin can update a user's registration
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :unauthorized
+      return render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :unauthorized
     end
 
     # User must be an admin if they're changing admin properties
@@ -180,14 +187,27 @@ class RegistrationController < ApplicationController
       return render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :unauthorized if contains_admin_field
     end
 
-
-    # Make sure status is a valid 
+    # Make sure status is a valid stats
     if params.key?(:status)
-      puts "hey weve got a status"
-      unless Registration::REGISTRATION_STATES.include?(params[:status])
-        puts "Status #{params[:status]} not in valid stats: #{Registration::REGISTRATION_STATES}"
-        render_error(:unprocessable_entity, ErrorCodes::INALID_REQUEST_DATA )
-      end
+      return unless valid_status_change? == true
+      puts "past return"
+    end
+
+    puts 'checking guest'
+    if params.key?(:guests)
+      return unless guests_valid? == true
+    end
+
+    puts 'checking comment'
+    if params.key?(:comment)
+      return unless comment_valid?(params[:comment]) == true
+    elsif @competition[:competition_info]["force_comment_in_registration"] == true
+      return render_error(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING)
+    end
+
+    puts 'checking event'
+    if params.key?(:event_ids)
+      return unless events_valid?(params[:event_ids]) == true
     end
   end
 
@@ -224,7 +244,7 @@ class RegistrationController < ApplicationController
 
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :unauthorized
+      return render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :unauthorized
     end
   end
 
@@ -354,5 +374,63 @@ class RegistrationController < ApplicationController
       puts "rendering error"
       Metrics.registration_validation_errors_counter.increment
       render json: { error: error }, status: status
+    end
+
+    def guests_valid?
+      puts "validating guests"
+      puts "Guest entry status: #{@competition[:competition_info]['guest_entry_status']}"
+      puts "Guest entry status: #{@competition[:competition_info]['guests_per_registration_limit']}"
+  
+      if @competition[:competition_info]["guest_entry_status"] == "restricted" &&
+         @competition[:competition_info]["guests_per_registration_limit"] < params[:guests]
+        return render_error(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED)
+      end
+      true
+    end
+
+    def comment_valid?(comment)
+      if comment.length > 240
+        return render_error(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG)
+      end
+      true
+    end
+
+    def events_valid?(event_ids)
+      status = params.key?(:status) ? params[:status] : @registration.competing_status
+
+      # Events list can only be empty if the status is deleted
+      if event_ids == [] && status != "deleted"
+        return render_error(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION)
+      end
+
+      if !CompetitionApi.events_held?(event_ids, @competition_id) && status != "deleted"
+        return render_error(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION)
+      end
+
+      events_edit_deadline = Time.parse(@competition[:competition_info]["event_change_deadline_date"])
+      return render_error(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
+
+      true
+    end
+
+    def valid_status_change?
+      puts "hey weve got a status"
+      unless Registration::REGISTRATION_STATES.include?(params[:status])
+        puts "Status #{params[:status]} not in valid stats: #{Registration::REGISTRATION_STATES}"
+        return render_error(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA)
+      end
+
+      if Registration::ADMIN_ONLY_STATES.include?(params[:status]) && !UserApi.can_administer?(@current_user, @competition_id)
+        puts "user trying to change state without admin permissions"
+        return render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+      end
+
+      competitor_limit = @competition[:competition_info]["competitor_limit"]
+      puts competitor_limit
+      if params[:status] == 'accepted' && Registration.count > competitor_limit
+        return render_error(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED )
+      end
+
+      true
     end
 end

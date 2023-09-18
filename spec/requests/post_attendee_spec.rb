@@ -3,6 +3,9 @@
 require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
 
+# TODO: Submits registration at guest limit
+# TODO: Submits comment at character limit
+# TODO: Submits comment over character limit
 # TODO: Validate expected vs actual output
 # TODO: Add test cases for various JWT token error codes
 # TODO: Add test cases for competition API (new file)
@@ -20,21 +23,10 @@ RSpec.describe 'v1 Registrations API', type: :request do
                 schema: { '$ref' => '#/components/schemas/submitRegistrationBody' }, required: true
 
       context '-> success registration posts' do
-        # SUCCESS CASES TO IMPLEMENT
-        # admin submits registration on competitor's behalf
         include_context 'database seed'
         include_context 'auth_tokens'
         include_context 'registration_data'
         include_context 'competition information'
-
-        response '202', '-> PASSING competitor submits basic registration' do
-          let(:registration) { @required_fields_only }
-          let(:Authorization) { @jwt_817 }
-
-          run_test! do |response|
-            assert_requested :get, "#{@base_comp_url}#{@includes_non_attending_registrations}", times: 1
-          end
-        end
 
         response '202', '-> PASSING admin registers before registration opens' do
           let(:registration) { @admin_comp_not_open }
@@ -42,6 +34,16 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           run_test! do |response|
             assert_requested :get, "#{@base_comp_url}#{@registrations_not_open}", times: 1
+          end
+        end
+
+        response '202', '-> TESTING competitor submits basic registration' do
+          registration = FactoryBot.build(:registration)
+          let!(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
+          run_test! do |response|
+            assert_requested :get, "#{@base_comp_url}#{@includes_non_attending_registrations}", times: 1
           end
         end
 
@@ -55,10 +57,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
       end
 
+      # TODO: competitor does not meet qualification requirements - will need to mock users service for this? - investigate what the monolith currently does and replicate that
       context 'fail registration posts, from USER' do
-        # FAIL CASES TO IMPLEMENT:
-        # competitor does not meet qualification requirements - will need to mock users service for this? - investigate what the monolith currently does and replicate that
-
         include_context 'database seed'
         include_context 'auth_tokens'
         include_context 'registration_data'
@@ -73,8 +73,17 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
+        response '422', 'PASSING user registration exceeds guest limit' do
+          registration_error_json = { error: ErrorCodes::GUEST_LIMIT_EXCEEDED }.to_json
+          let(:registration) { @too_many_guests }
+          let(:Authorization) { @jwt_824 }
 
-        response '403', ' -> PASSING comp not open' do
+          run_test! do |response|
+            expect(response.body).to eq(registration_error_json)
+          end
+        end
+
+        response '403', ' -> PASSING user cant register while registration is closed' do
           registration_error_json = { error: ErrorCodes::COMPETITION_CLOSED }.to_json
           let(:registration) { @comp_not_open }
           let(:Authorization) { @jwt_817 }
@@ -152,7 +161,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'registration_data'
         include_context 'competition information'
 
-        response '202', '-> admin FAILING organizer for wrong competition submits registration for competitor' do
+        response '202', '-> FAILING admin organizer for wrong competition submits registration for competitor' do
           let(:registration) { @reg_2 }
           let(:Authorization) { @organizer_token }
 

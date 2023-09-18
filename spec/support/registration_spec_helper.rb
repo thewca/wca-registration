@@ -16,6 +16,8 @@ module Helpers
         @registrations_exist_comp_500 = 'WinchesterWeeknightsIV2023'
         @registrations_exist_comp_502 = 'BangaloreCubeOpenJuly2023'
         @registrations_not_open = 'BrizZonSylwesterOpen2023'
+        @comment_mandatory = 'LazarilloOpen2024'
+        @full_competition = 'CubingZANationalChampionship2024'
 
         @base_comp_url = "https://test-registration.worldcubeassociation.org/api/v10/competitions/"
 
@@ -39,6 +41,16 @@ module Helpers
         # REGISTRATIONS NOT OPEN
         competition_details = get_competition_details(@registrations_not_open)
         stub_request(:get, "#{@base_comp_url}#{@registrations_not_open}")
+          .to_return(status: 200, body: competition_details.to_json)
+
+        # COMMENT REQUIRED
+        competition_details = get_competition_details(@comment_mandatory)
+        stub_request(:get, "#{@base_comp_url}#{@comment_mandatory}")
+          .to_return(status: 200, body: competition_details.to_json)
+
+        # COMPETITOR LIMIT REACHED
+        competition_details = get_competition_details(@full_competition)
+        stub_request(:get, "#{@base_comp_url}#{@full_competition}")
           .to_return(status: 200, body: competition_details.to_json)
 
         # 404 COMP STUB
@@ -76,7 +88,9 @@ module Helpers
         @jwt_817 = fetch_jwt_token('158817')
         @jwt_818 = fetch_jwt_token('158818')
         @jwt_819 = fetch_jwt_token('158819')
+        @jwt_820 = fetch_jwt_token('158820')
         @jwt_823 = fetch_jwt_token('158823')
+        @jwt_824 = fetch_jwt_token('158824')
         @jwt_200 = fetch_jwt_token('158200')
         @jwt_201 = fetch_jwt_token('158201')
         @jwt_202 = fetch_jwt_token('158202')
@@ -106,6 +120,7 @@ module Helpers
         @incomplete_user_reg = get_registration('CubingZANationalChampionship2023-999999', false)
         @events_not_held_reg = get_registration('CubingZANationalChampionship2023-158201', false)
         @events_not_exist_reg = get_registration('CubingZANationalChampionship2023-158202', false)
+        @too_many_guests = get_registration('CubingZANationalChampionship2023-158824', false)
 
         # For 'various optional fields'
         @with_hide_name_publicly = get_registration('CubingZANationalChampionship2023-158820', false)
@@ -143,18 +158,26 @@ module Helpers
         @add_444 = get_patch('CubingZANationalChampionship2023-158816')
         @comment_update = get_patch('816-comment-update')
         @comment_update_2 = get_patch('817-comment-update')
+        @comment_update_3 = get_patch('817-comment-update-2')
+        @comment_update_4 = get_patch('820-missing-comment')
         @guest_update_1 = get_patch('816-guest-update')
         @guest_update_2 = get_patch('817-guest-update')
+        @guest_update_3 = get_patch('817-guest-update-2')
         @events_update_1 = get_patch('816-events-update')
         @events_update_2 = get_patch('817-events-update')
+        @events_update_3 = get_patch('817-events-update-2')
+        @events_update_5 = get_patch('817-events-update-4')
+        @events_update_6 = get_patch('817-events-update-5')
+        @events_update_7 = get_patch('817-events-update-6')
         @pending_update_1 = get_patch('817-status-update-1')
         @pending_update_2 = get_patch('817-status-update-2')
+        @pending_update_3 = get_patch('819-status-update-3')
         @waiting_update_1 = get_patch('819-status-update-1')
         @waiting_update_2 = get_patch('819-status-update-2')
         @accepted_update_1 = get_patch('816-status-update-1')
         @accepted_update_2 = get_patch('816-status-update-2')
         @invalid_status_update = get_patch('816-status-update-3')
-
+        @delayed_update_1 = get_patch('820-delayed-update')
       end
     end
 
@@ -181,6 +204,15 @@ module Helpers
         create_registration(get_registration('LazarilloOpen2023-158821', true))
         create_registration(get_registration('LazarilloOpen2023-158822', true))
         create_registration(get_registration('LazarilloOpen2023-158823', true))
+
+        # Create registrations for LazarilloOpen2024 - all acceptd
+        create_registration(get_registration('LazarilloOpen2024-158820', true))
+
+        # Create registrations for CubingZANationals2024
+        create_registration(get_registration('CubingZANationalChampionship2024-158816', true))
+        create_registration(get_registration('CubingZANationalChampionship2024-158817', true))
+        create_registration(get_registration('CubingZANationalChampionship2024-158818', true))
+        create_registration(get_registration('CubingZANationalChampionship2024-158819', true))
 
         # Create registrations for 'BrizZonSylwesterOpen2023'
         create_registration(get_registration('BrizZonSylwesterOpen2023-15073', true))
@@ -258,7 +290,7 @@ module Helpers
         competing_lane = registration["lanes"].find { |l| l.lane_name == "competing" }
         event_ids = get_event_ids_from_competing_lane(competing_lane)
 
-        {
+        registration_payload = {
           user_id: registration["user_id"],
           competition_id: registration["competition_id"],
           competing: {
@@ -266,6 +298,14 @@ module Helpers
             registration_status: competing_lane.lane_state,
           },
         }
+        puts competing_lane.lane_details
+        puts competing_lane.lane_details.keys
+        if competing_lane.lane_details.key?("guests")
+          puts "has guests"
+          registration_payload[:guests] = competing_lane.lane_details["guests"] 
+        end
+        puts registration_payload
+        registration_payload
       end
 
       # Returns an array of event_ids for the given competing lane

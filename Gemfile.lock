@@ -103,6 +103,11 @@ GEM
       aws-sdk-dynamodb (~> 1.0)
       concurrent-ruby (>= 1.0)
     erubi (1.12.0)
+    factory_bot (6.2.1)
+      activesupport (>= 5.0.0)
+    factory_bot_rails (6.2.0)
+      factory_bot (~> 6.2.0)
+      railties (>= 5.0.0)
     globalid (1.1.0)
       activesupport (>= 5.0)
     hashdiff (1.0.1)
@@ -287,6 +292,7 @@ DEPENDENCIES
   connection_pool
   debug
   dynamoid (= 3.8.0)
+  factory_bot_rails
   hiredis
   httparty
   jbuilder

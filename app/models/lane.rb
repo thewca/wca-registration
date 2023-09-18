@@ -3,6 +3,8 @@
 class Lane
   attr_accessor :lane_name, :lane_state, :completed_steps, :lane_details
 
+  EVENT_IDS = %w[333 222 444 555 666 777 333bf 333oh clock minx pyram skewb sq1 444bf 555bf 333mbf 333fm].freeze
+
   def initialize(args)
     @lane_name = args["lane_name"]
     @lane_state = args["lane_state"] || "waiting"

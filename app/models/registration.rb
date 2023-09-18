@@ -12,6 +12,7 @@ class Registration
   end
 
   REGISTRATION_STATES = %w[pending waiting_list accepted deleted].freeze
+  ADMIN_ONLY_STATES = %w[pending waiting_list accepted].freeze
 
   # Returns all event ids irrespective of registration status
   def event_ids
@@ -77,7 +78,7 @@ class Registration
         lane.lane_details["guests"] = update_params[:guests] if update_params[:guests].present?
         lane.lane_details["admin_comment"] = update_params[:admin_comment] if update_params[:admin_comment].present?
         puts "Lane details before change#{lane.lane_details}"
-        if update_params[:event_ids].present?
+        if update_params[:event_ids].present? && update_params[:status] != "deleted"
           update_events(lane, update_params[:event_ids])
           puts "Lane details after change: #{lane.lane_details}"
         end
