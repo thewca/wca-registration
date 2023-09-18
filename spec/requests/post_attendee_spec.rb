@@ -23,14 +23,15 @@ RSpec.describe 'v1 Registrations API', type: :request do
                 schema: { '$ref' => '#/components/schemas/submitRegistrationBody' }, required: true
 
       context '-> success registration posts' do
-        include_context 'database seed'
+        # include_context 'database seed'
         include_context 'auth_tokens'
         include_context 'registration_data'
         include_context 'competition information'
 
-        response '202', '-> PASSING admin registers before registration opens' do
-          let(:registration) { @admin_comp_not_open }
-          let(:Authorization) { @admin_token_2 }
+        response '202', '-> TESTING admin registers before registration opens' do
+          registration = FactoryBot.build(:admin, events: ["444", "333bf"], competition_id: "BrizZonSylwesterOpen2023")
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
 
           run_test! do |response|
             assert_requested :get, "#{@base_comp_url}#{@registrations_not_open}", times: 1
@@ -47,9 +48,10 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '202', '-> PASSING admin submits registration for competitor' do
-          let(:registration) { @required_fields_only }
-          let(:Authorization) { @admin_token }
+        response '202', '-> TESTING admin submits registration for competitor' do
+          registration = FactoryBot.build(:admin_submits)
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
 
           run_test! do |response|
             assert_requested :get, "#{@base_comp_url}#{@includes_non_attending_registrations}", times: 1
