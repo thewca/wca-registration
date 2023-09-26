@@ -186,7 +186,7 @@ class RegistrationController < ApplicationController
   def payment_ticket
     refresh = params[:refresh]
     if refresh || @registration.payment_ticket.nil?
-      amount, currency_code = @registration.payment_amount
+      amount, currency_code = CompetitionApi.payment_info(@registration[:competition_id])
       ticket, account_id = PaymentApi.get_ticket(@registration[:attendee_id], amount, currency_code)
       @registration.init_payment_lane(amount, currency_code, ticket)
     else

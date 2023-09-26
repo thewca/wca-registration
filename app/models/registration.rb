@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'lane'
-require_relative '../helpers/competition_api'
 class Registration
   include Dynamoid::Document
 
@@ -34,12 +33,7 @@ class Registration
   end
 
   def payment_ticket
-    lanes.filter_map { |x| x.lane_details["client_secret_key"] if x.lane_name == "payment" }[0]
-  end
-
-  # TODO: Change this when we support per event payment
-  def payment_amount
-    CompetitionApi.payment_info(competition_id)
+    lanes.filter_map { |x| x.lane_details["payment_intent_client_secret"] if x.lane_name == "payment" }[0]
   end
 
   def competing_state

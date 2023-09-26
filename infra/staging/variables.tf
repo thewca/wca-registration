@@ -69,3 +69,10 @@ variable "elasticache_subnet_group_name" {
   type = string
   description = "The subnet group for the cache clusters"
 }
+
+variable "api_gateway" {
+  type = object({
+    id: string,
+    root_resource_id: string
+  })
+}
