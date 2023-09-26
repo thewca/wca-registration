@@ -38,7 +38,7 @@ gem 'connection_pool'
 
 # DynamoDB for storing registrations
 gem 'aws-sdk-dynamodb'
-gem 'dynamoid', '3.8.0'
+gem 'dynamoid', '3.9.0'
 
 # SQS for adding data into a queue
 gem 'aws-sdk-sqs'
