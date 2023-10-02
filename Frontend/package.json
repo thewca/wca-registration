@@ -36,7 +36,7 @@
     "moment": "2.29.4",
     "openapi-fetch": "0.6.2",
     "openapi-typescript": "6.5.4",
-    "postcss": "8.4.29",
+    "postcss": "8.4.31",
     "postcss-modules": "6.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
