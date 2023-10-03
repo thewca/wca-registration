@@ -4,7 +4,6 @@ raise "Tests should be run in 'test' environment only" if Rails.env != 'test' &&
 
 module DynamoidReset
   def self.all
-    puts "DYNAMOID RESETTING!"
     Dynamoid.adapter.list_tables.each do |table|
       # Only delete tables in our namespace
       if table =~ /^#{Dynamoid::Config.namespace}/
@@ -14,7 +13,6 @@ module DynamoidReset
     Dynamoid.adapter.tables.clear
     # Recreate all tables to avoid unexpected errors
     Dynamoid.included_models.each { |m| m.create_table(sync: true) }
-    puts Dynamoid.included_models.inspect
   end
 end
 

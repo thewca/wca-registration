@@ -75,7 +75,7 @@ class Registration
 
         # Update status for lane and events
         if update_params[:status].present?
-          lane.lane_state = update_params[:status] 
+          lane.lane_state = update_params[:status]
 
           lane.lane_details["event_details"].each do |event|
             event["event_registration_state"] = update_params[:status]
@@ -85,10 +85,8 @@ class Registration
         lane.lane_details["comment"] = update_params[:comment] if update_params[:comment].present?
         lane.lane_details["guests"] = update_params[:guests] if update_params[:guests].present?
         lane.lane_details["admin_comment"] = update_params[:admin_comment] if update_params[:admin_comment].present?
-        puts "Lane details before change#{lane.lane_details}"
         if update_params[:event_ids].present? && update_params[:status] != "deleted"
-          update_events(lane, update_params[:event_ids])
-          puts "Lane details after change: #{lane.lane_details}"
+          lane.update_events(update_params[:event_ids])
         end
       end
       lane
@@ -100,24 +98,6 @@ class Registration
                              is_attending
                            end
     update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
-  end
-
-  def update_events(lane, new_event_ids)
-    # Update events list with new events
-    new_event_ids.each do |id|
-      next if self.event_ids.include?(id)
-      new_details = {
-        "event_id" => id,
-        "event_registration_state" => self.competing_status,
-      }
-      lane.lane_details["event_details"] << new_details
-    end
-
-    # Remove events not in the new events list
-    lane.lane_details["event_details"].delete_if do |event|
-      !(new_event_ids.include?(event["event_id"]))
-    end
-    update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending, lane_states: updated_lane_states)
   end
 
   def init_payment_lane(amount, currency_code, client_secret)

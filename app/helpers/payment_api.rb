@@ -11,7 +11,6 @@ class PaymentApi < WcaApi
                              headers: { 'Authorization' => "Bearer: #{token}",
                                         "Content-Type" => "application/json" })
     unless response.ok?
-      puts response
       raise "Error from the payments service"
     end
     [response["client_secret"], response["connected_account_id"]]

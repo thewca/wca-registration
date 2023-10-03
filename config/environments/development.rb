@@ -11,7 +11,7 @@ Rails.application.configure do
   config.cache_classes = false
 
   # Do not eager load code on boot.
-  config.eager_load = true
+  config.eager_load = false
 
   # Show full error reports.
   config.consider_all_requests_local = true
@@ -20,8 +20,7 @@ Rails.application.configure do
   config.server_timing = true
 
   # Caching with Redis even in Development to speed up calls to the external services
-  # config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_URL', nil) }
-  config.cache_store = :null_store
+  config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_URL', nil) }
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local

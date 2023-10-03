@@ -24,4 +24,25 @@ class Lane
     parsed = JSON.parse serialized_str
     Lane.new(parsed)
   end
+
+  def update_events(new_event_ids)
+    if @lane_name == "competing"
+      current_event_ids = @lane_details["event_details"].pluck("event_id")
+
+      # Update events list with new events
+      new_event_ids.each do |id|
+        next if current_event_ids.include?(id)
+        new_details = {
+          "event_id" => id,
+          "event_registration_state" => @lane_state,
+        }
+        @lane_details["event_details"] << new_details
+      end
+
+      # Remove events not in the new events list
+      @lane_details["event_details"].delete_if do |event|
+        !(new_event_ids.include?(event["event_id"]))
+      end
+    end
+  end
 end
