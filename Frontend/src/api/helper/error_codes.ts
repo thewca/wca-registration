@@ -15,3 +15,6 @@ export const USER_IS_BANNED = -2001
 export const USER_PROFILE_INCOMPLETE = -2002
 export const USER_INSUFFICIENT_PERMISSIONS = -2003
 export const USER_NOT_LOGGED_IN = -2004
+
+export const PAYMENT_NOT_ENABLED = -3001
+export const PAYMENT_NOT_READY = -3002

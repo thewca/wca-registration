@@ -6,11 +6,11 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.CI_CD_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.CI_CD_AWS_SECRET_ACCESS_KEY }}
@@ -19,7 +19,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
       - name: Build and push handler
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
@@ -28,7 +28,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Build and push worker
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true

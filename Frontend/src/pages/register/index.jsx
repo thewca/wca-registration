@@ -1,13 +1,13 @@
-import { UiIcon } from '@thewca/wca-components'
 import moment from 'moment'
 import React, { useContext } from 'react'
-import { Message, Popup } from 'semantic-ui-react'
+import { Message } from 'semantic-ui-react'
 import { CAN_ATTEND_COMPETITIONS } from '../../api/auth/get_permissions'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
 import PermissionMessage from '../../ui/messages/permissionMessage'
-import RegistrationPanel from './components/RegistrationPanel'
+import RegistrationRequirements from './components/RegistrationRequirements'
+import StepPanel from './components/StepPanel'
 import styles from './index.module.scss'
 
 export default function Register() {
@@ -21,58 +21,7 @@ export default function Register() {
         <div className={styles.requirementsHeader}>
           Registration Requirements
         </div>
-        <div className={styles.requirementText}>
-          <Popup
-            position="top right"
-            content="You need a WCA Account to register"
-            trigger={
-              <span>
-                WCA Account Required <UiIcon name="circle info" />
-              </span>
-            }
-          />
-          <br />
-          <Popup
-            position="top right"
-            content="Once the competitor Limit has been reached you will be put onto the waiting list"
-            trigger={
-              <span>
-                {competitionInfo.competitor_limit} Competitor Limit{' '}
-                <UiIcon name="circle info" />
-              </span>
-            }
-          />
-          <br />
-          <Popup
-            position="top right"
-            content="You will get a full refund before this date"
-            trigger={
-              <span>
-                Full Refund before{' '}
-                {moment(
-                  competitionInfo.refund_policy_limit_date ??
-                    competitionInfo.start_date
-                ).format('ll')}
-                <UiIcon name="circle info" />
-              </span>
-            }
-          />
-          <br />
-          <Popup
-            content="You can edit your registration until this date"
-            position="top right"
-            trigger={
-              <span>
-                Edit Registration until{' '}
-                {moment(
-                  competitionInfo.event_change_deadline_date ??
-                    competitionInfo.end_date
-                ).format('ll')}
-                <UiIcon name="circle info" />
-              </span>
-            }
-          />
-        </div>
+        <RegistrationRequirements />
       </div>
       {!loggedIn ? (
         <h2>You have to log in to Register for a Competition</h2>
@@ -81,7 +30,7 @@ export default function Register() {
         <div>
           <div className={styles.registrationHeader}>Hi, {user.name}</div>
           {canAttendCompetition ? (
-            <RegistrationPanel />
+            <StepPanel />
           ) : (
             <PermissionMessage permissionLevel={CAN_ATTEND_COMPETITIONS} />
           )}

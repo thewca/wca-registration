@@ -59,6 +59,14 @@ class Registration
     lanes.filter_map { |x| x.lane_details["admin_comment"] if x.lane_name == "competing" }[0]
   end
 
+  def payment_ticket
+    lanes.filter_map { |x| x.lane_details["payment_intent_client_secret"] if x.lane_name == "payment" }[0]
+  end
+
+  def competing_state
+    lane_states[:competing]
+  end
+
   def update_competing_lane!(update_params)
     lane_states[:competing] = update_params[:status] if update_params[:status].present?
 
@@ -85,7 +93,6 @@ class Registration
       end
       lane
     end
-
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
     updated_is_attending = if update_params[:status].present?
                              update_params[:status] == "accepted"
@@ -96,8 +103,6 @@ class Registration
   end
 
   def update_events(lane, new_event_ids)
-    puts "New event IDs: #{new_event_ids}"
-
     # Update events list with new events
     new_event_ids.each do |id|
       next if self.event_ids.include?(id)
@@ -105,19 +110,19 @@ class Registration
         "event_id" => id,
         "event_registration_state" => self.competing_status,
       }
-      puts "new details: #{new_details}"
       lane.lane_details["event_details"] << new_details
     end
-    
-    puts "lane details after add: #{lane.lane_details['event_details']}"
 
     # Remove events not in the new events list
     lane.lane_details["event_details"].delete_if do |event|
-      puts "delete? #{event}"
       !(new_event_ids.include?(event["event_id"]))
     end
+    update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending, lane_states: updated_lane_states)
+  end
 
-    puts "lane details after delete: #{lane.lane_details['event_details']}"
+  def init_payment_lane(amount, currency_code, client_secret)
+    payment_lane = LaneFactory.payment_lane(amount, currency_code, client_secret)
+    update_attributes(lanes: lanes.append(payment_lane))
   end
 
   # Fields

@@ -12,6 +12,7 @@ const { get } = createClient<paths>({
 })
 
 type RegistrationStatus = 'waiting' | 'accepted' | 'deleted'
+type PaymentStatus = 'initialized' | 'waiting' | 'completed'
 
 interface Registration {
   user_id: string
@@ -23,6 +24,7 @@ export interface RegistrationAdmin {
   user_id: string
   event_ids: EventId[]
   registration_status: RegistrationStatus
+  payment_status: PaymentStatus
   registered_on: string
   comment: string
   admin_comment: string
