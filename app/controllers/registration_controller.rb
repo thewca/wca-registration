@@ -154,22 +154,15 @@ class RegistrationController < ApplicationController
 
     @registration = Registration.find("#{@competition_id}-#{@user_id}")
 
-    # ONly the user or an admin can update a user's registration
+    # Only the user or an admin can update a user's registration
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { error: ErrorCodes::USER_IMPERSONATION }, status: :unauthorized
+      return render_error(:unauthorized, ErrorCodes::USER_IMPERSONATION)
     end
 
     # User must be an admin if they're changing admin properties
     admin_fields = [@admin_comment]
-    unless UserApi.can_administer?(@current_user, @competition_id)
-      contains_admin_field = false
-      admin_fields.each do |field|
-        unless field.nil?
-          contains_admin_field = true
-        end
-      end
-      return render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :unauthorized if contains_admin_field
+    if admin_fields.any { |field| params[field].present? } && !(UserApi.can_administer?(@current_user, @competition_id))
+      return render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
     end
 
     # Make sure status is a valid stats
@@ -218,14 +211,12 @@ class RegistrationController < ApplicationController
     end
   end
 
-
   # You can either view your own registration or one for a competition you administer
   def validate_entry_request
     @user_id, @competition_id = entry_params
 
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      return render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: :unauthorized
+      return render_error(:unauthorized, ErrorCodes::USER_IMPERSONATION)
     end
   end
 
