@@ -14,6 +14,7 @@ module DynamoidReset
     Dynamoid.adapter.tables.clear
     # Recreate all tables to avoid unexpected errors
     Dynamoid.included_models.each { |m| m.create_table(sync: true) }
+    puts Dynamoid.included_models.inspect
   end
 end
 

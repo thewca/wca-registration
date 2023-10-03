@@ -24,8 +24,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
       context '-> success registration posts' do
         # include_context 'database seed'
-        include_context 'auth_tokens'
-        include_context 'registration_data'
+        # include_context 'auth_tokens'
+        # include_context 'registration_data'
         include_context 'competition information'
 
         response '202', '-> TESTING admin registers before registration opens' do
