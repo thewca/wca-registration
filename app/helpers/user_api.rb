@@ -8,7 +8,7 @@ require_relative 'wca_api'
 class UserApi < WcaApi
   def self.get_permissions(user_id)
     if Rails.env.production?
-      token = self.get_wca_token
+      self.get_wca_token
       HTTParty.get("https://test-registration.worldcubeassociation.org/api/v10/internal/users/#{user_id}/permissions", headers: { 'X-WCA-Service-Token' => "token" })
     else
       Mocks.permissions_mock(user_id)
