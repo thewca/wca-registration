@@ -8,7 +8,6 @@ require_relative '../helpers/user_api'
 require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
-  @@enable_traces = true
   skip_before_action :validate_token, only: [:list]
   # The order of the validations is important to not leak any non public info via the API
   # That's why we should always validate a request first, before taking any other before action
@@ -308,8 +307,6 @@ class RegistrationController < ApplicationController
   end
 
   private
-
-    REGISTRATION_STATUS = %w[incoming waitlist accepted deleted].freeze
 
     def registration_params
       params.require([:user_id, :competition_id])
