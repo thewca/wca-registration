@@ -248,7 +248,6 @@ class RegistrationController < ApplicationController
   def list
     competition_id = list_params
     competition_info = CompetitionApi.get_competition_info(competition_id)
-    puts "comp info in controller: #{competition_info}"
 
     if competition_info[:competition_exists?] == false
       return render json: { error: competition_info[:error] }, status: competition_info[:status]

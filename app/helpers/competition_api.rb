@@ -8,7 +8,6 @@ require_relative 'error_codes'
 require_relative 'wca_api'
 class CompetitionApi < WcaApi
   def self.fetch_competition(competition_id)
-    puts "fetching comp info"
     uri = URI("https://test-registration.worldcubeassociation.org/api/v10/competitions/#{competition_id}")
     res = Net::HTTP.get_response(uri)
     case res
@@ -25,7 +24,6 @@ class CompetitionApi < WcaApi
   end
 
   def self.get_competition_info(competition_id)
-    puts "getting info"
     competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
       self.fetch_competition(competition_id)
     end
