@@ -57,11 +57,11 @@ class RegistrationController < ApplicationController
 
     if !CompetitionApi.competition_open?(@competition_id) && !(UserApi.can_administer?(@current_user, @competition_id) && @current_user == @user_id.to_s)
       # Admin can only pre-regiser for themselves, not for other users
-      return render_error(:forbidden, ErrorCodes::COMPETITION_CLOSED)
+      return render_error(:forbidden, ErrorCodes::REGISTRATION_CLOSED)
     end
 
     if @event_ids.empty? || !CompetitionApi.events_held?(@event_ids, @competition_id)
-      return render_error(:unprocessable_entity, ErrorCodes::COMPETITION_INVALID_EVENTS)
+      return render_error(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION)
     end
 
     if params.key?(:guests) && !guests_valid?

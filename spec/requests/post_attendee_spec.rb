@@ -89,7 +89,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '403', ' -> PASSING user cant register while registration is closed' do
-          registration_error_json = { error: ErrorCodes::COMPETITION_CLOSED }.to_json
+          registration_error_json = { error: ErrorCodes::REGISTRATION_CLOSED }.to_json
           let(:registration) { @comp_not_open }
           let(:Authorization) { @jwt_817 }
           run_test! do |response|
@@ -118,7 +118,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', '-> PASSING contains event IDs which are not held at competition' do
-          registration_error_json = { error: ErrorCodes::COMPETITION_INVALID_EVENTS }.to_json
+          registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
           let(:registration) { @events_not_held_reg }
           let(:Authorization) { @jwt_201 }
 
@@ -128,7 +128,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', '-> PASSING contains event IDs which are not held at competition' do
-          registration_error_json = { error: ErrorCodes::COMPETITION_INVALID_EVENTS }.to_json
+          registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
           let(:registration) { @events_not_exist_reg }
           let(:Authorization) { @jwt_202 }
 
@@ -174,7 +174,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '403', ' -> PASSING comp not open, admin adds another user' do
-          registration_error_json = { error: ErrorCodes::COMPETITION_CLOSED }.to_json
+          registration_error_json = { error: ErrorCodes::REGISTRATION_CLOSED }.to_json
           let(:registration) { @comp_not_open }
           let(:Authorization) { @admin_token }
           run_test! do |response|
@@ -203,7 +203,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', '-> PASSING admins add other user reg which contains event IDs which are not held at competition' do
-          registration_error_json = { error: ErrorCodes::COMPETITION_INVALID_EVENTS }.to_json
+          registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
           let(:registration) { @events_not_held_reg }
           let(:Authorization) { @admin_token }
 
@@ -213,7 +213,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', '-> PASSING admin adds reg for user which contains event IDs which do not exist' do
-          registration_error_json = { error: ErrorCodes::COMPETITION_INVALID_EVENTS }.to_json
+          registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
           let(:registration) { @events_not_exist_reg }
           let(:Authorization) { @jwt_202 }
 
