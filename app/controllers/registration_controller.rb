@@ -30,8 +30,6 @@ class RegistrationController < ApplicationController
     @user_id = registration_params[:user_id]
     @competition_id = registration_params[:competition_id]
     @event_ids = registration_params[:competing]["event_ids"]
-    status = ""
-    cannot_register_reason = nil
 
     # This could be split out into a "validate competition exists" method
     # Validations could also be restructured to be a bunch of private methods that validators call
@@ -68,13 +66,8 @@ class RegistrationController < ApplicationController
       return render_error(:unprocessable_entity, ErrorCodes::COMPETITION_INVALID_EVENTS)
     end
 
-    unless cannot_register_reason.nil?
-      Metrics.registration_validation_errors_counter.increment
-      render json: { error: cannot_register_reason }, status: status
-    end
-
-    if params.key?(:guests)
-      return unless guests_valid? == true
+    if params.key?(:guests) && !guests_valid?
+      render_error(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED)
     end
   end
 
@@ -161,27 +154,29 @@ class RegistrationController < ApplicationController
 
     # User must be an admin if they're changing admin properties
     admin_fields = [@admin_comment]
-    if admin_fields.any { |field| params[field].present? } && !(UserApi.can_administer?(@current_user, @competition_id))
+    if (admin_fields.any? { |field| !(field.nil?) }) && !(UserApi.can_administer?(@current_user, @competition_id))
       return render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
     end
 
-    # Make sure status is a valid stats
     if params.key?(:status)
-      return unless valid_status_change? == true
-    end
-
-    if params.key?(:guests)
-      return unless guests_valid? == true
-    end
-
-    if params.key?(:comment)
-      return unless comment_valid?(params[:comment]) == true
-    elsif @competition[:competition_info]["force_comment_in_registration"] == true
-      return render_error(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING)
+      validate_status_or_render_error
     end
 
     if params.key?(:event_ids)
-      return unless events_valid?(params[:event_ids]) == true
+      validate_events_or_render_error
+    end
+
+    params.key?(:guests)
+    if params.key?(:guests) && !guests_valid?
+      return render_error(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED)
+    end
+
+    if params.key?(:comment) && !comment_valid?
+      return render_error(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG)
+    end
+
+    if !params.key?(:comment) && @competition[:competition_info]["force_comment_in_registration"]
+      render_error(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING)
     end
   end
 
@@ -255,6 +250,7 @@ class RegistrationController < ApplicationController
   def list
     competition_id = list_params
     competition_info = CompetitionApi.get_competition_info(competition_id)
+    puts "comp info in controller: #{competition_info}"
 
     if competition_info[:competition_exists?] == false
       return render json: { error: competition_info[:error] }, status: competition_info[:status]
@@ -359,21 +355,15 @@ class RegistrationController < ApplicationController
     end
 
     def guests_valid?
-      if @competition[:competition_info]["guest_entry_status"] == "restricted" &&
-         @competition[:competition_info]["guests_per_registration_limit"] < params[:guests]
-        return render_error(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED)
-      end
-      true
+      @competition[:competition_info]["guest_entry_status"] != "restricted" || @competition[:competition_info]["guests_per_registration_limit"] >= params[:guests]
     end
 
-    def comment_valid?(comment)
-      if comment.length > 240
-        return render_error(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG)
-      end
-      true
+    def comment_valid?
+      params[:comment].length <= 240
     end
 
-    def events_valid?(event_ids)
+    def validate_events_or_render_error
+      event_ids = params[:event_ids]
       status = params.key?(:status) ? params[:status] : @registration.competing_status
 
       # Events list can only be empty if the status is deleted
@@ -387,11 +377,9 @@ class RegistrationController < ApplicationController
 
       events_edit_deadline = Time.parse(@competition[:competition_info]["event_change_deadline_date"])
       return render_error(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
-
-      true
     end
 
-    def valid_status_change?
+    def validate_status_or_render_error
       unless Registration::REGISTRATION_STATES.include?(params[:status])
         return render_error(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA)
       end
@@ -402,9 +390,7 @@ class RegistrationController < ApplicationController
 
       competitor_limit = @competition[:competition_info]["competitor_limit"]
       if params[:status] == 'accepted' && Registration.count > competitor_limit
-        return render_error(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED )
+        render_error(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED)
       end
-
-      true
     end
 end

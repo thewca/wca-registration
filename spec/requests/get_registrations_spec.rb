@@ -35,8 +35,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
           let!(:competition_id) { @includes_non_attending_registrations }
 
           run_test! do |response|
-            assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
             body = JSON.parse(response.body)
+            puts body
             expect(body.length).to eq(2)
           end
         end

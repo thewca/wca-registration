@@ -28,7 +28,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # include_context 'registration_data'
         include_context 'competition information'
 
-        response '202', '-> TESTING admin registers before registration opens' do
+        # Failing: due to "Cannot do operations on a non-existent table" error - Finn input needed, I've done a basic check
+        response '202', '-> FAILING admin registers before registration opens' do
           registration = FactoryBot.build(:admin, events: ["444", "333bf"], competition_id: "BrizZonSylwesterOpen2023")
           let(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
@@ -38,7 +39,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '202', '-> TESTING competitor submits basic registration' do
+        # Failing: see above
+        response '202', '-> FAILING competitor submits basic registration' do
           registration = FactoryBot.build(:registration)
           let!(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
@@ -48,7 +50,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '202', '-> TESTING admin submits registration for competitor' do
+        # Failing: see above
+        response '202', '-> FAILING admin submits registration for competitor' do
           registration = FactoryBot.build(:admin_submits)
           let(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }

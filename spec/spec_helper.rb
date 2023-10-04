@@ -4,7 +4,7 @@ require 'webmock'
 require 'webmock/rspec'
 
 WebMock.disable_net_connect!(allow_localhost: true)
-WebMock.allow_net_connect! # Why is this here? 
+WebMock.allow_net_connect! # This is necesary because localstack errors out otherwise
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
@@ -83,7 +83,7 @@ RSpec.configure do |config|
   #   # as the one that triggered the failure.
   #   Kernel.srand config.seed
 
-  def logger
-    Rails::logger
-  end
+  # def logger
+  #   Rails::logger
+  # end
 end
