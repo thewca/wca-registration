@@ -56,11 +56,7 @@ class CompetitionApi < WcaApi
       self.fetch_competition(competition_id)
     end
 
-    if competition_info[:error] == false
-      true
-    else
-      competition_info
-    end
+    competition_info[:error] == false
   end
 
   def self.uses_wca_payment?(competition_id)
