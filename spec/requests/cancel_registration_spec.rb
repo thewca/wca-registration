@@ -18,7 +18,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
       context 'SUCCESS: user registration cancellations' do
         # Events can't be updated when cancelling registration
         # Refactor the registration status checks into a seaprate functionN? (not sure if this is possible but worth a try)
-      # # test removing events (I guess this is an udpate?)
+        # # test removing events (I guess this is an udpate?)
         # Other fields get left alone when cancelling registration
         include_context 'competition information'
         include_context 'PATCH payloads'
@@ -39,7 +39,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           it 'returns a 200' do |example|
             # run_test! do |response|
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            body["registration"]
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
 
@@ -78,7 +78,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            body["registration"]
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect

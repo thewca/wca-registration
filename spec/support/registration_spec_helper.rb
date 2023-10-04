@@ -302,7 +302,7 @@ module Helpers
         puts competing_lane.lane_details.keys
         if competing_lane.lane_details.key?("guests")
           puts "has guests"
-          registration_payload[:guests] = competing_lane.lane_details["guests"] 
+          registration_payload[:guests] = competing_lane.lane_details["guests"]
         end
         puts registration_payload
         registration_payload

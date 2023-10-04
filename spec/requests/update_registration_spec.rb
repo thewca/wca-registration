@@ -249,9 +249,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'database seed'
         include_context 'auth_tokens'
 
-
         response '422', 'PASSING user does not include required comment' do
-          registration_error =  { error: ErrorCodes::REQUIRED_COMMENT_MISSING }.to_json
+          registration_error = { error: ErrorCodes::REQUIRED_COMMENT_MISSING }.to_json
           let(:registration_update) { @comment_update_4 }
           let(:Authorization) { @jwt_820 }
 
@@ -261,7 +260,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', 'PASSING user submits more guests than allowed' do
-          registration_error =  { error: ErrorCodes::GUEST_LIMIT_EXCEEDED }.to_json
+          registration_error = { error: ErrorCodes::GUEST_LIMIT_EXCEEDED }.to_json
           let(:registration_update) { @guest_update_3 }
           let(:Authorization) { @jwt_817 }
 
@@ -271,7 +270,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', 'PASSING user submits longer comment than allowed' do
-          registration_error =  { error: ErrorCodes::USER_COMMENT_TOO_LONG }.to_json
+          registration_error = { error: ErrorCodes::USER_COMMENT_TOO_LONG }.to_json
           let(:registration_update) { @comment_update_3 }
           let(:Authorization) { @jwt_817 }
 
@@ -281,7 +280,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', 'PASSING user removes all events - no status provided' do
-          registration_error =  { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          registration_error = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
           let(:registration_update) { @events_update_3 }
           let(:Authorization) { @jwt_817 }
 
@@ -291,7 +290,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', 'PASSING user adds events which arent present' do
-          registration_error =  { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          registration_error = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
           let(:registration_update) { @events_update_6 }
           let(:Authorization) { @jwt_817 }
 
@@ -301,7 +300,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', 'PASSING user adds events which dont exist' do
-          registration_error =  { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          registration_error = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
           let(:registration_update) { @events_update_7 }
           let(:Authorization) { @jwt_817 }
 
@@ -311,7 +310,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '401', 'PASSING user requests invalid status change to their own reg' do
-          registration_error =  { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
+          registration_error = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let(:registration_update) { @pending_update_1 }
           let(:Authorization) { @jwt_817 }
 
@@ -334,7 +333,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '401', 'PASSING user requests status change to someone elses reg' do
-          registration_error =  { error: ErrorCodes::USER_IMPERSONATION }.to_json
+          registration_error = { error: ErrorCodes::USER_IMPERSONATION }.to_json
           let(:registration_update) { @pending_update_1 }
           let(:Authorization) { @jwt_816 }
 
@@ -357,7 +356,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '403', 'PASSING user changes events / other stuff past deadline' do
-          registration_error =  { error: ErrorCodes::EVENT_EDIT_DEADLINE_PASSED }.to_json
+          registration_error = { error: ErrorCodes::EVENT_EDIT_DEADLINE_PASSED }.to_json
           let(:registration_update) { @delayed_update_1 }
           let(:Authorization) { @jwt_820 }
 
@@ -384,7 +383,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '403', 'PASSING admin cannot advance state when registration full' do
-          registration_error =  { error: ErrorCodes::COMPETITOR_LIMIT_REACHED }.to_json
+          registration_error = { error: ErrorCodes::COMPETITOR_LIMIT_REACHED }.to_json
           let(:registration_update) { @pending_update_3 }
           let(:Authorization) { @admin_token }
 

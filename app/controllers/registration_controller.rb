@@ -55,11 +55,9 @@ class RegistrationController < ApplicationController
       # cannot_register_reason = reasons
     end
 
-    unless CompetitionApi.competition_open?(@competition_id)
-      unless UserApi.can_administer?(@current_user, @competition_id) && @current_user == @user_id.to_s
-        # Admin can only pre-regiser for themselves, not for other users
-        return render_error(:forbidden, ErrorCodes::COMPETITION_CLOSED)
-      end
+    if !CompetitionApi.competition_open?(@competition_id) && !(UserApi.can_administer?(@current_user, @competition_id) && @current_user == @user_id.to_s)
+      # Admin can only pre-regiser for themselves, not for other users
+      return render_error(:forbidden, ErrorCodes::COMPETITION_CLOSED)
     end
 
     if @event_ids.empty? || !CompetitionApi.events_held?(@event_ids, @competition_id)
@@ -211,7 +209,7 @@ class RegistrationController < ApplicationController
     @user_id, @competition_id = entry_params
 
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
-      return render_error(:unauthorized, ErrorCodes::USER_IMPERSONATION)
+      render_error(:unauthorized, ErrorCodes::USER_IMPERSONATION)
     end
   end
 
@@ -346,12 +344,10 @@ class RegistrationController < ApplicationController
     end
 
     def registration_exists?(user_id, competition_id)
-      begin
-        Registration.find("#{competition_id}-#{user_id}")
-        true
-      rescue Dynamoid::Errors::RecordNotFound
-        false
-      end
+      Registration.find("#{competition_id}-#{user_id}")
+      true
+    rescue Dynamoid::Errors::RecordNotFound
+      false
     end
 
     def guests_valid?
@@ -376,7 +372,7 @@ class RegistrationController < ApplicationController
       end
 
       events_edit_deadline = Time.parse(@competition[:competition_info]["event_change_deadline_date"])
-      return render_error(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
+      render_error(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
     end
 
     def validate_status_or_render_error

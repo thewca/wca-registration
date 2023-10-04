@@ -20,7 +20,7 @@ end
 
 FactoryBot.define do
   factory :registration, class: Hash do
-    transient do 
+    transient do
       events { ["333", "333mbf"] }
     end
 
@@ -37,7 +37,6 @@ FactoryBot.define do
     trait :admin_submits do
       jwt_token { fetch_jwt_token("15073") }
     end
-
 
     initialize_with { attributes }
 
