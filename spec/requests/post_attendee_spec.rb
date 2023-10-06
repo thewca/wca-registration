@@ -70,7 +70,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'competition information'
 
         response '401', ' -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration user_id)' do
-          registration_error_json = { error: ErrorCodes::USER_IMPERSONATION }.to_json
+          registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let(:registration) { @required_fields_only }
           let(:Authorization) { @jwt_200 }
           run_test! do |response|

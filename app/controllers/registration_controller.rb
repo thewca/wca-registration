@@ -63,7 +63,7 @@ class RegistrationController < ApplicationController
     @competition = get_competition_info_or_render_error
 
     unless user_can_change_registration?
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_IMPERSONATION)
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
     end
 
     can_compete, reasons = UserApi.can_compete?(@user_id)
@@ -81,7 +81,7 @@ class RegistrationController < ApplicationController
     validate_events_or_render_error(true)
     validate_guests_or_render_error
   rescue RegistrationError => e
-    render_error(e.status, e.error_code)
+    render_error(e.http_status, e.error)
   end
 
   # We don't know which lane the user is going to complete first, this ensures that an entry in the DB exists
@@ -152,8 +152,11 @@ class RegistrationController < ApplicationController
     #   raise RegistrationError.new(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
     # end
 
-    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_IMPERSONATION) unless user_can_change_registration?
+    puts 1
+    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless user_can_change_registration?
+    puts 2
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if admin_fields_present? && !UserApi.can_administer?(@current_user, @competition_id)
+    puts 3
     raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && !guests_valid?
 
     if params.key?(:competing)
@@ -164,9 +167,9 @@ class RegistrationController < ApplicationController
         !params["competing"].key?(:comment) && @competition[:competition_info]["force_comment_in_registration"]
     end
   rescue Dynamoid::Errors::RecordNotFound
-    render_error(e.status, e.error_code)
+    render_error(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
   rescue RegistrationError => e
-    render_error(e.status, e.error_code)
+    render_error(e.http_status, e.error)
   end
 
   # You can either view your own registration or one for a competition you administer
@@ -174,7 +177,7 @@ class RegistrationController < ApplicationController
     @user_id, @competition_id = entry_params
 
     unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_IMPERSONATION)
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
     end
   end
 
@@ -231,7 +234,7 @@ class RegistrationController < ApplicationController
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
   rescue RegistrationError => e
-    render json: { error: e.error_code }, status: e.status
+    render_error(e.http_status, e.error)
   end
 
   # To list Registrations in the admin view you need to be able to administer the competition
@@ -400,8 +403,8 @@ class RegistrationController < ApplicationController
       end
     end
 
-    def render_error(error_code, status)
+    def render_error(http_status, error)
       Metrics.registration_validation_errors_counter.increment
-      render json: { error: error_code }, status: status
+      render json: { error: error }, status: http_status
     end
 end

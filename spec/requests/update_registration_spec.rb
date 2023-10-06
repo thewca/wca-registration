@@ -333,7 +333,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '401', 'PASSING user requests status change to someone elses reg' do
-          registration_error = { error: ErrorCodes::USER_IMPERSONATION }.to_json
+          registration_error = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let(:registration_update) { @pending_update_1 }
           let(:Authorization) { @jwt_816 }
 

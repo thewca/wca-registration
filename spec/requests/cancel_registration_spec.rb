@@ -553,7 +553,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         response '401', 'PASSING admin submits cancellation for a comp they arent an admin for' do
           # This could return an insufficient permissions error instead if we want to somehow determine who should be an admin
-          error_response = { error: ErrorCodes::USER_IMPERSONATION }.to_json
+          error_response = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let(:registration_update) { @cancellation_073 }
           let(:Authorization) { @organizer_token }
 
@@ -563,7 +563,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '401', 'PASSING user submits a cancellation for a different user' do
-          error_response = { error: ErrorCodes::USER_IMPERSONATION }.to_json
+          error_response = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let(:registration_update) { @cancellation_816 }
           let(:Authorization) { @jwt_817 }
 

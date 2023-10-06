@@ -11,6 +11,9 @@ AllCops:
 Bundler/OrderedGems:
   Enabled: false
 
+Lint/MissingSuper:
+  Enabled: false
+
 Lint/EmptyWhen:
   Enabled: false
 
