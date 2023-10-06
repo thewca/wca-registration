@@ -34,6 +34,8 @@ class Lane
         next if current_event_ids.include?(id)
         new_details = {
           "event_id" => id,
+          # NOTE: Currently event_registration_state is not used - when per-event registrations are added, we need to add validation logic to support cases like
+          # limited registrations and waiting lists for certain events
           "event_registration_state" => @lane_state,
         }
         @lane_details["event_details"] << new_details

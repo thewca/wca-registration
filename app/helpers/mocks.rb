@@ -43,7 +43,7 @@ module Mocks
       {
         "can_attend_competitions" => {
           "scope" => [],
-          reasons: ErrorCodes::USER_IS_BANNED,
+          "reasons" => ErrorCodes::USER_IS_BANNED,
         },
         "can_organize_competitions" => {
           "scope" => [],
@@ -56,7 +56,7 @@ module Mocks
       {
         "can_attend_competitions" => {
           "scope" => [],
-          reasons: ErrorCodes::USER_PROFILE_INCOMPLETE,
+          "reasons" => ErrorCodes::USER_PROFILE_INCOMPLETE,
         },
         "can_organize_competitions" => {
           "scope" => [],
