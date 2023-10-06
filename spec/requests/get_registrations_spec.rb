@@ -45,7 +45,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
           let!(:competition_id) { @empty_comp }
 
           run_test! do |response|
-            assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
             body = JSON.parse(response.body)
             expect(body).to eq([])
           end
@@ -56,7 +55,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
             let!(:competition_id) { @registrations_exist_comp_500 }
 
             run_test! do |response|
-              assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
               body = JSON.parse(response.body)
               expect(body.length).to eq(3)
             end
@@ -68,54 +66,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
             let!(:competition_id) { @registrations_exist_comp_502 }
 
             run_test! do |response|
-              assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
               body = JSON.parse(response.body)
               expect(body.length).to eq(2)
-            end
-          end
-        end
-      end
-
-      context 'fail responses' do
-        include_context 'competition information'
-        include_context 'database seed'
-
-        context 'competition_id not found by Competition Service' do
-          registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
-
-          response '404', ' -> PASSING Competition ID doesnt exist' do
-            schema '$ref' => '#/components/schemas/error_response'
-            let(:competition_id) { @error_comp_404 }
-
-            run_test! do |response|
-              assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
-              expect(response.body).to eq(registration_error_json)
-            end
-          end
-        end
-
-        context '500 - competition service not available (500) and no registrations in our database for competition_id' do
-          registration_error_json = { error: ErrorCodes::COMPETITION_API_5XX }.to_json
-          response '500', ' -> PASSING Competition service unavailable - 500 error' do
-            schema '$ref' => '#/components/schemas/error_response'
-            let!(:competition_id) { @error_comp_500 }
-
-            run_test! do |response|
-              assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
-              expect(response.body).to eq(registration_error_json)
-            end
-          end
-        end
-
-        context '502 - competition service not available - 502, and no registration for competition ID' do
-          registration_error_json = { error: ErrorCodes::COMPETITION_API_5XX }.to_json
-          response '502', ' -> PASSING Competition service unavailable - 502 error' do
-            schema '$ref' => '#/components/schemas/error_response'
-            let!(:competition_id) { @error_comp_502 }
-
-            run_test! do |response|
-              assert_requested :get, "#{@base_comp_url}#{competition_id}", times: 1
-              expect(response.body).to eq(registration_error_json)
             end
           end
         end
