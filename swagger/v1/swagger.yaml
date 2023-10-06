@@ -4,6 +4,12 @@ info:
   title: API V1
   version: v1
 components:
+  securitySchemes:
+    Bearer:
+      description: "..."
+      type: apiKey
+      name: Authorization
+      in: header
   schemas:
     error_response:
       type: object
@@ -47,10 +53,15 @@ components:
             format: EventId
         comment:
           type: string
+          nullable: true
         admin_comment:
           type: string
+          nullable: true
         guests:
           type: number
+          nullable: true
+        email:
+          type: string
       required:
       - user_id
       - event_ids
@@ -97,7 +108,7 @@ components:
 paths:
   "/api/v1/registrations/{competition_id}":
     get:
-      summary: List registrations for a given competition_id
+      summary: 'Public: list registrations for a given competition_id'
       parameters:
       - name: competition_id
         in: path
@@ -106,7 +117,7 @@ paths:
           type: string
       responses:
         '200':
-          description: Valid competition_id but no registrations for it
+          description: PASSING comp service down but registrations exist
           content:
             application/json:
               schema:
@@ -114,49 +125,67 @@ paths:
                 items:
                   "$ref": "#/components/schemas/registration"
         '404':
-          description: Competition ID doesnt exist
+          description: PASSING Competition ID doesnt exist
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
         '500':
-          description: Competition service unavailable - 500 error
+          description: PASSING Competition service unavailable - 500 error
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
         '502':
-          description: Competition service unavailable - 502 error
+          description: PASSING Competition service unavailable - 502 error
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
-  "/api/v1/register":
-    post:
-      summary: Add an attendee registration
+  "/api/v1/registrations/{competition_id}/admin":
+    get:
+      summary: 'Public: list registrations for a given competition_id'
+      security:
+      - Bearer: {}
       parameters:
-      - name: Authorization
-        in: header
+      - name: competition_id
+        in: path
+        required: true
         schema:
           type: string
       responses:
+        '200':
+          description: PASSING organizer has access to comp 2
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/registrationAdmin"
+        '401':
+          description: PASSING organizer cannot access registrations for comps they
+            arent organizing - multi comp auth
+  "/api/v1/register":
+    post:
+      summary: Add an attendee registration
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
         '202':
-          description: only required fields included
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/success_response"
+          description: PASSING only required fields included
+        '401':
+          description: PASSING user impersonation (no admin permission, JWWT token
+            user_id does not match registration user_id)
         '403':
-          description: user impersonation attempt
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/error_response"
+          description: PASSING comp not open
+        '400':
+          description: PASSING empty payload provided
       requestBody:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/submitRegistrationBody"
+              "$ref": "#/components/schemas/registration"
         required: true
 servers:
 - url: https://{defaultHost}

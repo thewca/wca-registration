@@ -46,3 +46,7 @@ We use [RSwag](https://github.com/rswag/RSwag) to generate the API docs from the
 Tests are grouped by "context" into success/fail groups. Add the `-e` flag to run tests matching search terms. So:
 - To run success tests only: `bundle exec rspec -e success`
 - To run failure tests only: `bundle exec rspec -e failure`
+
+### Resources for Generating Hashes with FactoryBot
+
+https://medium.com/@josisusan/factorygirl-as-json-response-a70f4a4e92a0

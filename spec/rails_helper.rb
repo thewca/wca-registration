@@ -2,6 +2,7 @@
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require_relative '../config/environment'
+require 'factory_bot'
 require 'spec_helper'
 require 'rspec/rails'
 
@@ -24,7 +25,7 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 # of increasing the boot-up time by auto-requiring all files in the support
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
-#
+
 Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each { |f| require f }
 
 # Checks for pending migrations and applies them before tests are run.

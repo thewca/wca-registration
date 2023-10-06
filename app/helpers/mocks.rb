@@ -9,13 +9,25 @@ module Mocks
           "scope" => "*",
         },
         "can_organize_competitions" => {
-          "scope" => %w[BanjaLukaCubeDay2023],
+          "scope" => %w[CubingZANationalChampionship2023],
         },
         "can_administer_competitions" => {
-          "scope" => %w[BanjaLukaCubeDay2023],
+          "scope" => %w[CubingZANationalChampionship2023],
         },
       }
-    when "15073" # Test Admin
+    when "2" # Test Multi-Comp Organizer
+      {
+        "can_attend_competitions" => {
+          "scope" => "*",
+        },
+        "can_organize_competitions" => {
+          "scope" => %w[LazarilloOpen2023 CubingZANationalChampionship2023],
+        },
+        "can_administer_competitions" => {
+          "scope" => %w[LazarilloOpen2023 CubingZANationalChampionship2023],
+        },
+      }
+    when "15073", "15074" # Test Admin
       {
         "can_attend_competitions" => {
           "scope" => "*",
@@ -31,7 +43,7 @@ module Mocks
       {
         "can_attend_competitions" => {
           "scope" => [],
-          reasons: USER_IS_BANNED,
+          "reasons" => ErrorCodes::USER_IS_BANNED,
         },
         "can_organize_competitions" => {
           "scope" => [],
@@ -44,7 +56,7 @@ module Mocks
       {
         "can_attend_competitions" => {
           "scope" => [],
-          reasons: USER_PROFILE_INCOMPLETE,
+          "reasons" => ErrorCodes::USER_PROFILE_INCOMPLETE,
         },
         "can_organize_competitions" => {
           "scope" => [],

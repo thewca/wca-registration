@@ -59,6 +59,9 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri mingw x64_mingw]
 
+  # run pre-commit hooks
+  gem 'overcommit'
+
   # rspec-rails for creating tests
   gem 'rspec-rails'
 
@@ -72,6 +75,9 @@ group :development, :test do
   gem 'webmock', require: false
 
   gem 'rubocop', require: false
+
+  # Use factories instead of fixtures
+  gem "factory_bot_rails"
 end
 
 group :development do

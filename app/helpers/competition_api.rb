@@ -23,6 +23,25 @@ class CompetitionApi < WcaApi
     end
   end
 
+  def self.get_competition_info(competition_id)
+    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+      self.fetch_competition(competition_id)
+    end
+
+    if competition_info.key?(:error)
+      if competition_info[:error] == ErrorCodes::COMPETITION_NOT_FOUND
+        competition_info[:competition_exists?] = false
+      else
+        # If there's any other kind of error we don't know whether the competition exists or not
+        competition_info[:competition_exists?] = nil
+      end
+    else
+      competition_info[:competition_exists?] = true
+      competition_info[:competition_open?] = competition_info[:competition_info]["registration_opened?"]
+    end
+    competition_info
+  end
+
   def self.competition_open?(competition_id)
     competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
       self.fetch_competition(competition_id)
@@ -31,9 +50,11 @@ class CompetitionApi < WcaApi
   end
 
   def self.competition_exists?(competition_id)
-    Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
       self.fetch_competition(competition_id)
     end
+
+    competition_info[:error] == false
   end
 
   def self.uses_wca_payment?(competition_id)
