@@ -261,7 +261,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
             expect(updated_registration.competing_status).to eq("deleted")
             expect(updated_registration[:lane_states][:competing]).to eq("deleted")
 
-            expect(updated_registration.admin_comment).to eq(registration_update["admin_comment"])
+            expect(updated_registration.admin_comment).to eq(registration_update["competing"]["admin_comment"])
           end
         end
 
@@ -431,7 +431,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
             expect(updated_registration.competing_status).to eq("deleted")
             expect(updated_registration[:lane_states][:competing]).to eq("deleted")
 
-            expect(updated_registration.admin_comment).to eq(registration_update["admin_comment"])
+            expect(updated_registration.admin_comment).to eq(registration_update["competing"]["admin_comment"])
           end
         end
 

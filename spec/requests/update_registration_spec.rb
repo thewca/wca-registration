@@ -74,7 +74,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           run_test! do |response|
             target_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
-            expect(target_registration.event_ids).to eq(registration_update['event_ids'])
+            expect(target_registration.event_ids).to eq(registration_update['competing']['event_ids'])
           end
         end
 
@@ -84,7 +84,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           run_test! do |response|
             target_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
-            expect(target_registration.event_ids).to eq(registration_update['event_ids'])
+            expect(target_registration.event_ids).to eq(registration_update['competing']['event_ids'])
           end
         end
 
