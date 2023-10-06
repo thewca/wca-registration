@@ -33,8 +33,8 @@ class ApplicationController < ActionController::API
     end
   end
 
-  # def render_error(status, error)
-  #   Metrics.registration_validation_errors_counter.increment
-  #   render json: { error: error }, status: status and return
-  # end
+  def render_error(http_status, error)
+    Metrics.registration_validation_errors_counter.increment
+    render json: { error: error }, status: http_status
+  end
 end

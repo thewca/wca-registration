@@ -21,7 +21,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'database seed'
         include_context 'auth_tokens'
 
-        response '200', 'PASSING user passes empty event_ids - with deleted status' do
+        response '200', 'PASSING user passes empty event_ids - with cancelled status' do
           let(:registration_update) { @events_update_5 }
           let(:Authorization) { @jwt_817 }
 

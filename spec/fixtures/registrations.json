@@ -4,9 +4,6 @@
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158816",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -46,9 +43,6 @@
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"1",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -86,9 +80,6 @@
     "attendee_id":"CubingZANationalChampionship2023-158817",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158817",
-    "lane_states":{
-      "competing":"pending"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"pending",
@@ -124,9 +115,6 @@
   {
     "attendee_id":"CubingZANationalChampionship2023-158818",
     "competition_id":"CubingZANationalChampionship2023",
-    "lane_states":{
-      "competitor":"update_pending"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"update_pending",
@@ -164,9 +152,6 @@
     "competition_id":"CubingZANationalChampionship2023",
     "is_attending":false,
     "user_id":"158819",
-    "lane_states":{
-      "competing":"waiting_list"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"waiting_list",
@@ -203,9 +188,6 @@
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158820",
     "hide_name_publicly": false,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -239,9 +221,6 @@
   },
   {
     "attendee_id":"CubingZANationalChampionship2023-158821",
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -276,18 +255,12 @@
   {
     "attendee_id":"CubingZANationalChampionship2023-158822",
     "competition_id":"CubingZANationalChampionship2023",
-    "user_id":"158822",
-    "lane_states":{
-      "competing":"accepted"
-    }
+    "user_id":"158822"
   },
   {
     "attendee_id":"CubingZANationalChampionship2023-158823",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158823",
-    "lane_states":{
-      "competing":"cancelled"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"cancelled",
@@ -323,9 +296,6 @@
     "attendee_id":"CubingZANationalChampionship2023-158824",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158824",
-    "lane_states":{
-      "competing":"pending"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"pending",
@@ -360,9 +330,6 @@
     "competition_id":"WinchesterWeeknightsIV2023",
     "user_id":"158816",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -401,9 +368,6 @@
     "competition_id":"WinchesterWeeknightsIV2023",
     "user_id":"158817",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -442,9 +406,6 @@
     "competition_id":"WinchesterWeeknightsIV2023",
     "user_id":"158818",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -483,9 +444,6 @@
     "competition_id":"BangaloreCubeOpenJuly2023",
     "user_id":"158818",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -524,9 +482,6 @@
     "competition_id":"BangaloreCubeOpenJuly2023",
     "user_id":"158819",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -565,9 +520,6 @@
     "competition_id":"LazarilloOpen2023",
     "user_id":"158820",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -606,9 +558,6 @@
     "competition_id":"LazarilloOpen2023",
     "user_id":"158821",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -647,9 +596,6 @@
     "competition_id":"LazarilloOpen2023",
     "user_id":"158822",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -688,9 +634,6 @@
     "competition_id":"LazarilloOpen2023",
     "user_id":"158823",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -729,9 +672,6 @@
     "competition_id":"BrizZonSylwesterOpen2023",
     "user_id":"158817",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -769,9 +709,6 @@
     "attendee_id":"InvalidCompID-158817",
     "competition_id":"InvalidCompID",
     "user_id":"158817",
-    "lane_states":{
-      "competing":"pending"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"pending",
@@ -808,9 +745,6 @@
     "attendee_id":"CubingZANationalChampionship2023-209943",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"209943",
-    "lane_states":{
-      "competing":"pending"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"pending",
@@ -847,9 +781,6 @@
     "attendee_id":"CubingZANationalChampionship2023-999999",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"999999",
-    "lane_states":{
-      "competing":"pending"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"pending",
@@ -886,9 +817,6 @@
     "attendee_id":"CubingZANationalChampionship2023-158201",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158201",
-    "lane_states":{
-      "competing":"pending"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"pending",
@@ -925,9 +853,6 @@
     "attendee_id":"CubingZANationalChampionship2023-158202",
     "competition_id":"CubingZANationalChampionship2023",
     "user_id":"158202",
-    "lane_states":{
-      "competing":"pending"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"pending",
@@ -965,9 +890,6 @@
     "competition_id":"BrizZonSylwesterOpen2023",
     "user_id":"15073",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -1006,9 +928,6 @@
     "competition_id":"BrizZonSylwesterOpen2023",
     "user_id":"15074",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -1047,9 +966,6 @@
     "competition_id":"LazarilloOpen2024",
     "user_id":"158820",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -1088,9 +1004,6 @@
     "competition_id":"CubingZANationalChampionship2024",
     "user_id":"158816",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -1130,9 +1043,6 @@
     "competition_id":"CubingZANationalChampionship2024",
     "user_id":"158817",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -1172,9 +1082,6 @@
     "competition_id":"CubingZANationalChampionship2024",
     "user_id":"158818",
     "is_attending":true,
-    "lane_states":{
-      "competing":"accepted"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"accepted",
@@ -1214,9 +1121,6 @@
     "competition_id":"CubingZANationalChampionship2024",
     "user_id":"158819",
     "is_attending":true,
-    "lane_states":{
-      "competing":"pending"
-    },
     "lanes":[{
       "lane_name":"competing",
       "lane_state":"pending",

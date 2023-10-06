@@ -13,7 +13,7 @@ class RegistrationController < ApplicationController
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
   before_action :validate_create_request, only: [:create]
-  before_action :validate_entry_request, only: [:entry]
+  before_action :validate_show_request, only: [:entry]
   before_action :ensure_lane_exists, only: [:create]
   before_action :validate_list_admin, only: [:list_admin]
   before_action :validate_update_request, only: [:update]
@@ -76,9 +76,7 @@ class RegistrationController < ApplicationController
       raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED)
     end
 
-    # NOTE: Is there a better way to handle vaiating events for both new and existing registrations?
-    # NOTE: Proposed solution: Query the registration database in the validate function, so that we aren't relying on explicitly passing properties
-    validate_events_or_render_error(true)
+    validate_events_or_render_error
     validate_guests_or_render_error
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
@@ -145,23 +143,15 @@ class RegistrationController < ApplicationController
     @user_id, @competition_id = update_params
 
     @competition = get_competition_info_or_render_error
-
-    # if registration_exists?(@user_id, @competition_id)
     @registration = Registration.find("#{@competition_id}-#{@user_id}")
-    # else
-    #   raise RegistrationError.new(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
-    # end
 
-    puts 1
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless user_can_change_registration?
-    puts 2
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if admin_fields_present? && !UserApi.can_administer?(@current_user, @competition_id)
-    puts 3
     raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && !guests_valid?
 
     if params.key?(:competing)
       validate_status_or_render_error if params["competing"].key?(:status)
-      validate_events_or_render_error(false) if params["competing"].key?(:event_ids)
+      validate_events_or_render_error if params["competing"].key?(:event_ids)
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if params["competing"].key?(:comment) && !comment_valid?
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if
         !params["competing"].key?(:comment) && @competition[:competition_info]["force_comment_in_registration"]
@@ -172,33 +162,17 @@ class RegistrationController < ApplicationController
     render_error(e.http_status, e.error)
   end
 
-  # You can either view your own registration or one for a competition you administer
-  def validate_entry_request
-    @user_id, @competition_id = entry_params
-
-    unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
-    end
-  end
-
-  def entry
+  def show
     registration = get_single_registration(@user_id, @competition_id)
     render json: { registration: registration, status: 'ok' }
   rescue Dynamoid::Errors::RecordNotFound
     render json: { registration: {}, status: 'ok' }
   end
 
-  def validate_payment_ticket_request
-    competition_id = params[:competition_id]
-    unless CompetitionApi.uses_wca_payment?(competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::PAYMENT_NOT_ENABLED }, status: :forbidden
-    end
-    @registration = Registration.find("#{competition_id}-#{@current_user}")
-    if @registration.competing_state.nil?
-      Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::PAYMENT_NOT_READY }, status: :forbidden
-    end
+  # You can either view your own registration or one for a competition you administer
+  def validate_show_registration
+    @user_id, @competition_id = entry_params
+    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
   end
 
   def payment_ticket
@@ -213,19 +187,20 @@ class RegistrationController < ApplicationController
     render json: { client_secret_id: ticket, connected_account_id: account_id }
   end
 
+  def validate_payment_ticket_request
+    competition_id = params[:competition_id]
+    unless CompetitionApi.uses_wca_payment?(competition_id)
+      render_error(:forbidden, ErrorCodes::PAYMENT_NOT_ENABLED)
+    end
+    @registration = Registration.find("#{competition_id}-#{@current_user}")
+    if @registration.competing_state.nil?
+      render_error(:forbidden, ErrorCodes::PAYMENT_NOT_READY)
+    end
+  end
+
   def list
     competition_id = list_params
-    # competition_info = CompetitionApi.get_competition_info(competition_id)
-
-    # if competition_info[:competition_exists?] == false
-    #   render json: { error: competition_info[:error] }, status: competition_info[:status] and return
-    # end
-
     registrations = get_registrations(competition_id, only_attending: true)
-
-    # if registrations.count == 0 && competition_info[:error] == ErrorCodes::COMPETITION_API_5XX
-    #   render json: { error: competition_info[:error] }, status: competition_info[:status] and return
-    # end
     render json: registrations
   rescue StandardError => e
     # Render an error response
@@ -242,19 +217,16 @@ class RegistrationController < ApplicationController
     @competition_id = list_params
 
     unless UserApi.can_administer?(@current_user, @competition_id)
-      Metrics.registration_validation_errors_counter.increment
-      render json: { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }, status: 401
+      render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
     end
   end
 
   def list_admin
     registrations = get_registrations(@competition_id)
-
-    # Render a success response
     render json: registrations
   rescue StandardError => e
-    # Render an error response
     puts e
+    # Is there a reason we aren't using an error code here?
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
@@ -268,7 +240,7 @@ class RegistrationController < ApplicationController
       params
     end
 
-    def entry_params
+    def show_params
       params.require([:user_id, :competition_id, :competing])
     end
 
@@ -320,10 +292,7 @@ class RegistrationController < ApplicationController
     end
 
     def validate_guests_or_render_error
-      puts "guests: #{params[:guests]}"
-      if params.key?(:guests) && !guests_valid?
-        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED)
-      end
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && !guests_valid?
     end
 
     def guests_valid?
@@ -334,28 +303,25 @@ class RegistrationController < ApplicationController
       params["competing"][:comment].length <= 240
     end
 
-    def validate_events_or_render_error(new_registration)
+    def validate_events_or_render_error
       event_ids = params["competing"][:event_ids]
 
-      # New registration doesn't have an @registration property, so we need to manually set the status.
-      # There might be a cleaner way of doing this? One thought is to have an is_deleted boolean - but booleans aren't always the anwser :P
-      if new_registration
-        status = "pending" # Assign it a status so that we don't throw errors when querying status
-      else
+      if defined?(@registration)
         status = params["competing"].key?(:status) ? params["competing"][:status] : @registration.competing_status
+      else
+        status = "pending" # Assign it a placeholder status so that we don't throw errors when querying status
       end
 
-      # Events list can only be empty if the status is deleted
-      puts event_ids
-      puts status
-      if event_ids == [] && status != "deleted"
+      # Events list can only be empty if the status is cancelled - this allows for edge cases where an API user might send an empty event list,
+      # or admin might want to remove events
+      if event_ids == [] && status != "cancelled"
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION)
       end
 
-      # Event submitted must be held at the competition (unless the status is deleted)
-      # TODO: Do we have an edge case where someone can submit events not held at the competition if their status is deleted? Shouldn't we say the events be a subset or empty?
+      # Event submitted must be held at the competition (unless the status is cancelled)
+      # TODO: Do we have an edge case where someone can submit events not held at the competition if their status is cancelled? Shouldn't we say the events be a subset or empty?
       # like this: if !CompetitionApi.events_held?(event_ids, @competition_id) && event_ids != []
-      if !CompetitionApi.events_held?(event_ids, @competition_id) && status != "deleted"
+      if !CompetitionApi.events_held?(event_ids, @competition_id) && status != "cancelled"
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION)
       end
 
@@ -366,7 +332,7 @@ class RegistrationController < ApplicationController
     end
 
     def admin_fields_present?
-      # There could be different admin fields in different lanes
+      # There could be different admin fields in different lanes - define the admin fields per lane and check each
       competing_admin_fields = ["admin_comment"]
 
       if params.key?("competing") && params["competing"].keys.any? { |key| competing_admin_fields.include?(key) }
@@ -381,30 +347,20 @@ class RegistrationController < ApplicationController
     end
 
     def validate_status_or_render_error
-      unless Registration::REGISTRATION_STATES.include?(params["competing"][:status])
-        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA)
-      end
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(params["competing"][:status])
 
-      if Registration::ADMIN_ONLY_STATES.include?(params["competing"][:status]) && !UserApi.can_administer?(@current_user, @competition_id)
-        raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
-      end
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if
+        Registration::ADMIN_ONLY_STATES.include?(params["competing"][:status]) && !UserApi.can_administer?(@current_user, @competition_id)
 
       competitor_limit = @competition[:competition_info]["competitor_limit"]
-      if params["competing"][:status] == 'accepted' && Registration.count > competitor_limit
-        raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED)
-      end
+      raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if params["competing"][:status] == 'accepted' && Registration.count > competitor_limit
     end
 
     def get_competition_info_or_render_error
-      if CompetitionApi.competition_exists?(@competition_id) == true
+      if CompetitionApi.competition_exists?(@competition_id)
         CompetitionApi.get_competition_info(@competition_id)
       else
         raise RegistrationError.new(:not_found, ErrorCodes::COMPETITION_NOT_FOUND)
       end
-    end
-
-    def render_error(http_status, error)
-      Metrics.registration_validation_errors_counter.increment
-      render json: { error: error }, status: http_status
     end
 end

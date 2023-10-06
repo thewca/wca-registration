@@ -65,8 +65,6 @@ class CompetitionApi < WcaApi
   end
 
   def self.events_held?(event_ids, competition_id)
-    puts "event ids: #{event_ids}"
-    puts "competition_id: #{competition_id}"
     competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
       self.fetch_competition(competition_id)
     end
