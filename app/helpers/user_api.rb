@@ -21,7 +21,7 @@ class UserApi < WcaApi
     permissions = Rails.cache.fetch("#{user_id}-permissions", expires_in: 5.minutes) do
       self.get_permissions(user_id)
     end
-    [permissions["can_attend_competitions"]["scope"] == "*", permissions["can_attend_competitions"][:reasons]]
+    [permissions["can_attend_competitions"]["scope"] == "*", permissions["can_attend_competitions"]["reasons"]]
   end
 
   def self.can_administer?(user_id, competition_id)
