@@ -12,7 +12,8 @@ Bundler/OrderedGems:
   Enabled: false
 
 Lint/MissingSuper:
-  Enabled: false
+  Disabled: 
+    - 'lib/registration_error.rb'
 
 Lint/EmptyWhen:
   Enabled: false
