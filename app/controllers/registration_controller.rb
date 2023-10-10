@@ -62,17 +62,16 @@ class RegistrationController < ApplicationController
 
     @competition = get_competition_info!
 
-    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless user_can_change_registration?
+    user_can_create_registration!
 
     can_compete, reasons = UserApi.can_compete?(@user_id)
     raise RegistrationError.new(:unauthorized, reasons) unless can_compete
 
-    # Only admins can register when registration is closed
-    raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) if
-      !CompetitionApi.competition_open?(@competition_id) && !(UserApi.can_administer?(@current_user, @competition_id) && @current_user == @user_id.to_s)
-
+    puts 0
     validate_events!
+    puts 1
     validate_guests!
+    puts 2
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
   end
@@ -106,12 +105,10 @@ class RegistrationController < ApplicationController
 
   def update
     guests = params[:guests]
-    if params.key?(:competing)
-      status = params["competing"][:status]
-      comment = params["competing"][:comment]
-      event_ids = params["competing"][:event_ids]
-      admin_comment = params["competing"][:admin_comment]
-    end
+    status = params.dig("competing", "status")
+    comment = params.dig("competing", "comment")
+    event_ids = params.dig("competing", "event_ids")
+    admin_comment = params.dig("competing", "admin_comment")
 
     begin
       registration = Registration.find("#{@competition_id}-#{@user_id}")
@@ -135,12 +132,13 @@ class RegistrationController < ApplicationController
 
   # You can either update your own registration or one for a competition you administer
   def validate_update_request
-    @user_id, @competition_id = update_params
+    @user_id = params[:user_id]
+    @competition_id = params[:competition_id]
 
     @competition = get_competition_info!
     @registration = Registration.find("#{@competition_id}-#{@user_id}")
 
-    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless user_can_change_registration?
+    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if admin_fields_present? && !UserApi.can_administer?(@current_user, @competition_id)
     raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && !guests_valid?
 
@@ -201,8 +199,6 @@ class RegistrationController < ApplicationController
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
-  rescue RegistrationError => e
-    render_error(e.http_status, e.error)
   end
 
   # To list Registrations in the admin view you need to be able to administer the competition
@@ -239,6 +235,7 @@ class RegistrationController < ApplicationController
 
     def update_params
       params.require([:user_id, :competition_id])
+      params.permit(:guests, competing: [:status, :comment, { event_ids: [] }, :admin_comment])
     end
 
     def list_params
@@ -312,7 +309,7 @@ class RegistrationController < ApplicationController
       # Event submitted must be held at the competition (unless the status is cancelled)
       # TODO: Do we have an edge case where someone can submit events not held at the competition if their status is cancelled? Shouldn't we say the events be a subset or empty?
       # like this: if !CompetitionApi.events_held?(event_ids, @competition_id) && event_ids != []
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if !CompetitionApi.events_held?(event_ids, @competition_id) && status != "cancelled"
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if !CompetitionApi.events_held?(event_ids, @competition_id)
 
       # Events can't be changed outside the edit_events deadline
       # TODO: Should an admin be able to override this?
@@ -327,8 +324,23 @@ class RegistrationController < ApplicationController
       params.key?("competing") && params["competing"].keys.any? { |key| competing_admin_fields.include?(key) }
     end
 
-    def user_can_change_registration?
-      @current_user == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
+    def user_can_create_registration!
+      # Only an admin or the user themselves can create a registration for the user
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
+
+      # Only admins can register when registration is closed, and they can only register for themselves - not for other users
+      raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless CompetitionApi.competition_open?(@competition_id) || admin_modifying_own_registration?
+    end
+
+    def admin_modifying_own_registration?
+      UserApi.can_administer?(@current_user, @competition_id) && (@current_user == @user_id.to_s)
+    end
+
+    def is_admin_or_current_user?
+      # Only an admin or the user themselves can create a registration for the user
+      # One case where admins need to create registrations for users is if a 3rd-party registration system is being used, and registration data is being
+      # passed to the Registration Service from it
+      (@current_user == @user_id.to_s) || UserApi.can_administer?(@current_user, @competition_id)
     end
 
     def validate_status!

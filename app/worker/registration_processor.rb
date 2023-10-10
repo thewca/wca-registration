@@ -46,9 +46,9 @@ class RegistrationProcessor
       registration = Registration.find("#{competition_id}-#{user_id}")
       competing_lane = LaneFactory.competing_lane(event_ids, comment, guests)
       if registration.lanes.nil?
-        registration.update(lanes: [competing_lane])
+        registration.update_attributes(lanes: [competing_lane])
       else
-        registration.update(lanes: registration.lanes.append(competing_lane))
+        registration.update_attributes(lanes: registration.lanes.append(competing_lane))
       end
     end
 end

@@ -6,7 +6,7 @@ require 'factory_bot'
 require 'spec_helper'
 require 'rspec/rails'
 
-ENV['RAILS_ENV'] ||= 'test' # Not sure what this code is doing / if we need it
+ENV['RAILS_ENV'] = 'test' # TODO: Figure out why this isn't working? (We have to manually say RAILS_ENV=test when running rspec)
 
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
@@ -69,7 +69,7 @@ RSpec.configure do |config|
   # config.filter_gems_from_backtrace("gem name")
 
   # Reset dynamodb before each test
-  unless Rails.env.production?
+  if Rails.env.test?
     config.before(:each) do
       DynamoidReset.all
     end

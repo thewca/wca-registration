@@ -28,19 +28,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # include_context 'registration_data'
         include_context 'competition information'
 
-        # Failing: due to "Cannot do operations on a non-existent table" error - Finn input needed, I've done a basic check
-        response '202', '-> FAILING admin registers before registration opens' do
-          registration = FactoryBot.build(:admin, events: ["444", "333bf"], competition_id: "BrizZonSylwesterOpen2023")
-          let(:registration) { registration }
-          let(:Authorization) { registration[:jwt_token] }
-
-          run_test! do |response|
-            assert_requested :get, "#{@base_comp_url}#{@registrations_not_open}", times: 1
-          end
-        end
-
         # Failing: see above
-        response '202', '-> FAILING competitor submits basic registration' do
+        response '202', '-> PASSING competitor submits basic registration' do
           registration = FactoryBot.build(:registration)
           let!(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
@@ -50,8 +39,20 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
+        # Failing: due to "Cannot do operations on a non-existent table" error - Finn input needed, I've done a basic check
+        response '202', '-> PASSING admin registers before registration opens' do
+          registration = FactoryBot.build(:admin, events: ["444", "333bf"], competition_id: "BrizZonSylwesterOpen2023")
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
+          run_test! do |response|
+            # TODO: Do a better assertion here
+            assert_requested :get, "#{@base_comp_url}#{@registrations_not_open}", times: 1
+          end
+        end
+
         # Failing: see above
-        response '202', '-> FAILING admin submits registration for competitor' do
+        response '202', '-> PASSING admin submits registration for competitor' do
           registration = FactoryBot.build(:admin_submits)
           let(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
@@ -138,10 +139,13 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '400', ' -> PASSING empty payload provided' do # getting a long error on this - not sure why it fails
+          registration_error_json = { error: ErrorCodes::INVALID_REQUEST_DATA }.to_json
           let(:registration) { @empty_payload }
           let(:Authorization) { @jwt_817 }
 
-          run_test!
+          run_test! do |response|
+            expect(response.body).to eq(registration_error_json)
+          end
         end
 
         response '404', ' -> PASSING competition does not exist' do
@@ -223,10 +227,13 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '400', ' -> PASSING admin adds registration with empty payload provided' do # getting a long error on this - not sure why it fails
+          registration_error_json = { error: ErrorCodes::INVALID_REQUEST_DATA }.to_json
           let(:registration) { @empty_payload }
           let(:Authorization) { @admin_token }
 
-          run_test!
+          run_test! do |response|
+            expect(response.body).to eq(registration_error_json)
+          end
         end
 
         response '404', ' -> PASSING admin adds reg for competition which does not exist' do
