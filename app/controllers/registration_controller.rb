@@ -60,24 +60,19 @@ class RegistrationController < ApplicationController
     @competition_id = registration_params[:competition_id]
     @event_ids = registration_params[:competing]["event_ids"]
 
-    @competition = get_competition_info_or_render_error
+    @competition = get_competition_info!
 
-    unless user_can_change_registration?
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
-    end
+    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless user_can_change_registration?
 
     can_compete, reasons = UserApi.can_compete?(@user_id)
-    unless can_compete
-      raise RegistrationError.new(:unauthorized, reasons)
-    end
+    raise RegistrationError.new(:unauthorized, reasons) unless can_compete
 
     # Only admins can register when registration is closed
-    if !CompetitionApi.competition_open?(@competition_id) && !(UserApi.can_administer?(@current_user, @competition_id) && @current_user == @user_id.to_s)
-      raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED)
-    end
+    raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) if
+      !CompetitionApi.competition_open?(@competition_id) && !(UserApi.can_administer?(@current_user, @competition_id) && @current_user == @user_id.to_s)
 
-    validate_events_or_render_error
-    validate_guests_or_render_error
+    validate_events!
+    validate_guests!
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
   end
@@ -142,7 +137,7 @@ class RegistrationController < ApplicationController
   def validate_update_request
     @user_id, @competition_id = update_params
 
-    @competition = get_competition_info_or_render_error
+    @competition = get_competition_info!
     @registration = Registration.find("#{@competition_id}-#{@user_id}")
 
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless user_can_change_registration?
@@ -150,8 +145,8 @@ class RegistrationController < ApplicationController
     raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && !guests_valid?
 
     if params.key?(:competing)
-      validate_status_or_render_error if params["competing"].key?(:status)
-      validate_events_or_render_error if params["competing"].key?(:event_ids)
+      validate_status! if params["competing"].key?(:status)
+      validate_events! if params["competing"].key?(:event_ids)
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if params["competing"].key?(:comment) && !comment_valid?
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if
         !params["competing"].key?(:comment) && @competition[:competition_info]["force_comment_in_registration"]
@@ -172,7 +167,8 @@ class RegistrationController < ApplicationController
   # You can either view your own registration or one for a competition you administer
   def validate_show_registration
     @user_id, @competition_id = entry_params
-    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
+    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
+      @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
   end
 
   def payment_ticket
@@ -189,13 +185,10 @@ class RegistrationController < ApplicationController
 
   def validate_payment_ticket_request
     competition_id = params[:competition_id]
-    unless CompetitionApi.uses_wca_payment?(competition_id)
-      render_error(:forbidden, ErrorCodes::PAYMENT_NOT_ENABLED)
-    end
+    render_error(:forbidden, ErrorCodes::PAYMENT_NOT_ENABLED) unless CompetitionApi.uses_wca_payment?(competition_id)
+
     @registration = Registration.find("#{competition_id}-#{@current_user}")
-    if @registration.competing_state.nil?
-      render_error(:forbidden, ErrorCodes::PAYMENT_NOT_READY)
-    end
+    render_error(:forbidden, ErrorCodes::PAYMENT_NOT_READY) if @registration.competing_state.nil?
   end
 
   def list
@@ -291,7 +284,7 @@ class RegistrationController < ApplicationController
       false
     end
 
-    def validate_guests_or_render_error
+    def validate_guests!
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && !guests_valid?
     end
 
@@ -303,7 +296,7 @@ class RegistrationController < ApplicationController
       params["competing"][:comment].length <= 240
     end
 
-    def validate_events_or_render_error
+    def validate_events!
       event_ids = params["competing"][:event_ids]
 
       if defined?(@registration)
@@ -314,16 +307,12 @@ class RegistrationController < ApplicationController
 
       # Events list can only be empty if the status is cancelled - this allows for edge cases where an API user might send an empty event list,
       # or admin might want to remove events
-      if event_ids == [] && status != "cancelled"
-        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION)
-      end
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if event_ids == [] && status != "cancelled"
 
       # Event submitted must be held at the competition (unless the status is cancelled)
       # TODO: Do we have an edge case where someone can submit events not held at the competition if their status is cancelled? Shouldn't we say the events be a subset or empty?
       # like this: if !CompetitionApi.events_held?(event_ids, @competition_id) && event_ids != []
-      if !CompetitionApi.events_held?(event_ids, @competition_id) && status != "cancelled"
-        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION)
-      end
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if !CompetitionApi.events_held?(event_ids, @competition_id) && status != "cancelled"
 
       # Events can't be changed outside the edit_events deadline
       # TODO: Should an admin be able to override this?
@@ -335,18 +324,14 @@ class RegistrationController < ApplicationController
       # There could be different admin fields in different lanes - define the admin fields per lane and check each
       competing_admin_fields = ["admin_comment"]
 
-      if params.key?("competing") && params["competing"].keys.any? { |key| competing_admin_fields.include?(key) }
-        true
-      else
-        false
-      end
+      params.key?("competing") && params["competing"].keys.any? { |key| competing_admin_fields.include?(key) }
     end
 
     def user_can_change_registration?
       @current_user == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
     end
 
-    def validate_status_or_render_error
+    def validate_status!
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(params["competing"][:status])
 
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if
@@ -356,7 +341,7 @@ class RegistrationController < ApplicationController
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if params["competing"][:status] == 'accepted' && Registration.count > competitor_limit
     end
 
-    def get_competition_info_or_render_error
+    def get_competition_info!
       if CompetitionApi.competition_exists?(@competition_id)
         CompetitionApi.get_competition_info(@competition_id)
       else
