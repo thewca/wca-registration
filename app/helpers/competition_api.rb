@@ -34,16 +34,14 @@ class CompetitionInfo
     @competition_json["registration_opened?"]
   end
 
-  def use_wca_payment?
+  def using_wca_payment?
     @competition_json["using_stripe_payments?"]
   end
-end
 
-#   def self.competition_open?(competition_id)
-#       self.fetch_competition(competition_id)
-#     end
-#     competition_info[:competition_info]["registration_opened?"]
-#   end
+  def events_held?(event_ids)
+    @competition_json["event_ids"].to_set.superset?(event_ids.to_set)
+  end
+end
 
 #   def self.competition_exists?(competition_id)
 #     competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
@@ -51,19 +49,6 @@ end
 #     end
 
 #     competition_info[:error] == false
-#   end
-
-#   def self.uses_wca_payment?(competition_id)
-#     competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-#       self.fetch_competition(competition_id)
-#     end
-#   end
-
-#   def self.events_held?(event_ids, competition_id)
-#     competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-#       self.fetch_competition(competition_id)
-#     end
-#     competition_info[:competition_info]["event_ids"].to_set.superset?(event_ids.to_set)
 #   end
 
 #   def self.payment_info(competition_id)
