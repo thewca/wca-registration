@@ -3,9 +3,6 @@
   "competition_id":"CubingZANationalChampionship2023",
   "user_id":"158816",
   "is_attending":"True",
-  "lane_states":{
-    "competitor":"accepted",
-  },
   "lanes":[{
     "lane_name":"competitor",
     "lane_state":"Accepted",

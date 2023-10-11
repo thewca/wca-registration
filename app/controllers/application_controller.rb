@@ -33,8 +33,12 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def render_error(status, error)
+  def render_error(http_status, error)
     Metrics.registration_validation_errors_counter.increment
-    render json: { error: error }, status: status
+    render json: { error: error }, status: http_status
+  end
+
+  rescue_from ActionController::ParameterMissing do |e|
+    render json: { error: ErrorCodes::INVALID_REQUEST_DATA }, status: :bad_request
   end
 end

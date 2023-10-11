@@ -11,22 +11,22 @@ class Registration
     table name: "registrations", capacity_mode: nil, key: :attendee_id
   end
 
-  REGISTRATION_STATES = %w[pending waiting_list accepted deleted].freeze
-  ADMIN_ONLY_STATES = %w[pending waiting_list accepted].freeze
+  REGISTRATION_STATES = %w[pending waiting_list accepted cancelled].freeze
+  ADMIN_ONLY_STATES = %w[pending waiting_list accepted].freeze # Only admins are allowed to change registration state to one of these states
 
   # Returns all event ids irrespective of registration status
   def event_ids
     lanes.filter_map { |x| x.lane_details["event_details"].pluck("event_id") if x.lane_name == "competing" }[0]
   end
 
-  # Returns id's of the events with a non-deleted state
+  # Returns id's of the events with a non-cancelled state
   def registered_event_ids
     event_ids = []
 
     competing_lane = lanes.find { |x| x.lane_name == "competing" }
 
     competing_lane.lane_details["event_details"].each do |event|
-      if event["event_registration_state"] != "deleted"
+      if event["event_registration_state"] != "cancelled"
         event_ids << event["event_id"]
       end
     end
@@ -63,13 +63,7 @@ class Registration
     lanes.filter_map { |x| x.lane_details["payment_intent_client_secret"] if x.lane_name == "payment" }[0]
   end
 
-  def competing_state
-    lane_states[:competing]
-  end
-
   def update_competing_lane!(update_params)
-    lane_states[:competing] = update_params[:status] if update_params[:status].present?
-
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == "competing"
 
@@ -87,7 +81,7 @@ class Registration
         lane.lane_details["comment"] = update_params[:comment] if update_params[:comment].present?
         lane.lane_details["guests"] = update_params[:guests] if update_params[:guests].present?
         lane.lane_details["admin_comment"] = update_params[:admin_comment] if update_params[:admin_comment].present?
-        if update_params[:event_ids].present? && update_params[:status] != "deleted"
+        if update_params[:event_ids].present? && update_params[:status] != "cancelled"
           lane.update_events(update_params[:event_ids])
         end
       end
@@ -112,7 +106,6 @@ class Registration
   field :competition_id, :string
   field :is_attending, :boolean
   field :hide_name_publicly, :boolean
-  field :lane_states, :map
   field :lanes, :array, of: Lane
 
   global_secondary_index hash_key: :user_id, projected_attributes: :all
