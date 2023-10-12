@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class WcaApi
+  WCA_API_HEADER = 'X-WCA-Service-Token'
   # Uses Vault ID Tokens: see https://developer.hashicorp.com/vault/docs/secrets/identity/identity-token
   def self.get_wca_token
     Vault.with_retries(Vault::HTTPConnectionError) do
