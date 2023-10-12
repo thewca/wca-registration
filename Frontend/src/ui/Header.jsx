@@ -9,13 +9,13 @@ const DROPDOWNS = [
     title: 'Registration System',
     items: [
       {
-        path: '/competitions/BanjaLukaCubeDay2023',
+        path: '/competitions/KoelnerKubing2023',
         icon: 'frog',
         title: 'Open Competition',
         reactRoute: true,
       },
       {
-        path: '/competitions/DarmstadtDodecahedronDays2023',
+        path: '/competitions/RheinNeckarAutumn2023',
         icon: 'fish',
         title: 'Open Competition with Payments',
         reactRoute: true,
@@ -27,7 +27,7 @@ const DROPDOWNS = [
         reactRoute: true,
       },
       {
-        path: '/competitions/BrizZonSylwesterOpen2023',
+        path: '/competitions/ManchesterSpring2024',
         icon: 'time',
         title: 'Not yet open Competition',
         reactRoute: true,
