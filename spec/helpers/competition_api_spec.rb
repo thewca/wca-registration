@@ -5,31 +5,27 @@ require_relative '../../app/helpers/competition_api'
 
 describe CompetitionInfo do
   context 'competition object' do
-    # TODO: Refactor tests to use a factory, not explicitly defined JSON
-    describe "#competition_open?" do
-      it "true when open" do
-        # Create a sample competition JSON (adjust as needed)
-        competition_json = { "registration_opened?" => true }
+    competition_json = FactoryBot.build(:competition_details)
 
+    # TODO: Refactor tests to use a factory, not explicitly defined JSON
+    describe "#registration_open?" do
+      it "true when open" do
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
 
         # Call the method being tested
-        result = competition_info.competition_open?
+        result = competition_info.registration_open?
 
         # Expect the result to be true
         expect(result).to be true
       end
 
       it "false when closed" do
-        # Create a sample competition JSON (adjust as needed)
-        competition_json = { "registration_opened?" => false }
-
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
 
         # Call the method being tested
-        result = competition_info.competition_open?
+        result = competition_info.registration_open?
 
         # Expect the result to be true
         expect(result).to be false
@@ -37,10 +33,7 @@ describe CompetitionInfo do
     end
 
     describe "#using_wca_payment?" do
-      it "PASSING true if the competition uses WCA paymet" do
-        # Create a sample competition JSON (adjust as needed)
-        competition_json = { "using_stripe_payments?" => true }
-
+      it "PASSING true if the competition uses WCA payment" do
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
 
@@ -52,11 +45,8 @@ describe CompetitionInfo do
       end
 
       it "PASSING false if the competition doesn't use WCA paymet" do
-        # Create a sample competition JSON (adjust as needed)
-        competition_json = { "using_stripe_payments?" => false }
-
         # Instantiate a CompetitionInfo object with the sample data
-        competition_info = CompetitionInfo.new(competition_json)
+        competition_info = CompetitionInfo.new(FactoryBot.build(:competition_details, using_stripe_payments?: false))
 
         # Call the method being tested
         result = competition_info.using_wca_payment?
@@ -81,7 +71,7 @@ describe CompetitionInfo do
         expect(result).to be true
       end
 
-      it 'PASSING true if events list is empty' do
+      it 'PASSING false if events list is empty' do
         # Create a sample competition JSON (adjust as needed)
         competition_json = { "event_ids" => ["333", "444", "555"] }
 
@@ -92,7 +82,7 @@ describe CompetitionInfo do
         result = competition_info.events_held?([])
 
         # Expect the outcome
-        expect(result).to be true
+        expect(result).to be false
       end
 
       it 'PASSING false if one of the events is not being hosted' do

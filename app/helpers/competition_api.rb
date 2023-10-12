@@ -62,13 +62,14 @@ class CompetitionInfo
     @competition_json['guests_per_registration_limit']
   end
 
-  def competition_open?
+  def registration_open?
     puts @competition_json
     @competition_json["registration_opened?"]
   end
 
   def using_wca_payment?
-    @competition_json["using_stripe_payments?"]
+    puts @competition_json
+    @competition_json[:using_stripe_payments?]
   end
 
   def force_comment?
@@ -76,7 +77,7 @@ class CompetitionInfo
   end
 
   def events_held?(event_ids)
-    @competition_json["event_ids"].to_set.superset?(event_ids.to_set)
+    event_ids != [] && @competition_json["event_ids"].to_set.superset?(event_ids.to_set)
   end
 
   def payment_info

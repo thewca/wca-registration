@@ -14,7 +14,7 @@ describe CompetitionInfo do
       expect(competition_info.class).to eq(CompetitionInfo)
     end
 
-    it 'TESTING errors when competition_id doesnt exist' do
+    it 'PASSING errors when competition_id doesnt exist' do
       wca_error_json = { error: 'Competition with id InvalidCompId not found' }.to_json
       stub_request(:get, "#{BASE_COMP_URL}InvalidCompId").to_return(status: 404, body: wca_error_json)
 

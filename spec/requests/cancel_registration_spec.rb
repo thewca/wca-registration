@@ -25,30 +25,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'database seed'
         include_context 'auth_tokens'
 
-        response '200', 'PASSING new events are ignored when reg is cancelled' do
-          # This test is passing, but the expect/to eq logic is wronng. old_event_ids is showing the updated event ids
-          let(:registration_update) { @cancellation_with_events }
-          let(:Authorization) { @jwt_816 }
-
-          # Use separate before/it so that we can read the old event IDs before Registration object is updated
-          before do |example|
-            @old_event_ids = Registration.find("#{registration_update['competition_id']}-#{registration_update["user_id"]}").event_ids
-            @response = submit_request(example.metadata)
-          end
-
-          it 'returns a 200' do |example|
-            # run_test! do |response|
-            body = JSON.parse(response.body)
-            body["registration"]
-
-            updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
-
-            # Make sure that event_ids from old and update registration match
-            expect(updated_registration.event_ids).to eq(@old_event_ids)
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-
         response '200', 'PASSING cancel accepted registration' do
           let(:registration_update) { @cancellation_816 }
           let(:Authorization) { @jwt_816 }
@@ -569,6 +545,32 @@ RSpec.describe 'v1 Registrations API', type: :request do
           let(:Authorization) { @jwt_800 }
 
           run_test! do |reponse|
+            expect(response.body).to eq(registration_error_json)
+          end
+        end
+
+        response '422', 'PASSING reject cancel with changed event ids' do
+          # This test is passing, but the expect/to eq logic is wronng. old_event_ids is showing the updated event ids
+          registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          let(:registration_update) { @cancellation_with_events }
+          let(:Authorization) { @jwt_816 }
+
+          # Use separate before/it so that we can read the old event IDs before Registration object is updated
+          before do |example|
+            @old_event_ids = Registration.find("#{registration_update['competition_id']}-#{registration_update["user_id"]}").event_ids
+            @response = submit_request(example.metadata)
+          end
+
+          it 'returns a 422' do |example|
+            # run_test! do |response|
+            body = JSON.parse(response.body)
+            body["registration"]
+
+            updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
+
+            # Make sure that event_ids from old and update registration match
+            expect(updated_registration.event_ids).to eq(@old_event_ids)
+            assert_response_matches_metadata(example.metadata)
             expect(response.body).to eq(registration_error_json)
           end
         end
