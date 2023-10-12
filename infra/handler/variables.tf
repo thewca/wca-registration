@@ -42,8 +42,8 @@ variable "host" {
 
 variable "wca_host" {
   type        = string
-  description = "The host for generating absolute URLs in the application"
-  default     = "worldcubeassociation.org"
+  description = "The host for generating URLs to the monolith"
+  default     = "https://worldcubeassociation.org"
 }
 
 variable "shared_resources" {

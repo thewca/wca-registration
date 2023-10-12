@@ -6,7 +6,7 @@
 
 export interface paths {
   "/api/v1/registrations/{competition_id}": {
-    /** List registrations for a given competition_id */
+    /** Public: list registrations for a given competition_id */
     get: {
       parameters: {
         path: {
@@ -14,25 +14,25 @@ export interface paths {
         };
       };
       responses: {
-        /** @description Valid competition_id but no registrations for it */
+        /** @description PASSING comp service down but registrations exist */
         200: {
           content: {
             "application/json": components["schemas"]["registration"][];
           };
         };
-        /** @description Competition ID doesnt exist */
+        /** @description PASSING Competition ID doesnt exist */
         404: {
           content: {
             "application/json": components["schemas"]["error_response"];
           };
         };
-        /** @description Competition service unavailable - 500 error */
+        /** @description PASSING Competition service unavailable - 500 error */
         500: {
           content: {
             "application/json": components["schemas"]["error_response"];
           };
         };
-        /** @description Competition service unavailable - 502 error */
+        /** @description PASSING Competition service unavailable - 502 error */
         502: {
           content: {
             "application/json": components["schemas"]["error_response"];
@@ -41,31 +41,52 @@ export interface paths {
       };
     };
   };
-  "/api/v1/register": {
-    /** Add an attendee registration */
-    post: {
+  "/api/v1/registrations/{competition_id}/admin": {
+    /** Public: list registrations for a given competition_id */
+    get: {
       parameters: {
-        header?: {
-          Authorization?: string;
-        };
-      };
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["submitRegistrationBody"];
+        path: {
+          competition_id: string;
         };
       };
       responses: {
-        /** @description only required fields included */
-        202: {
+        /** @description PASSING organizer has access to comp 2 */
+        200: {
           content: {
-            "application/json": components["schemas"]["success_response"];
+            "application/json": components["schemas"]["registrationAdmin"][];
           };
         };
-        /** @description user impersonation attempt */
+        /** @description PASSING organizer cannot access registrations for comps they arent organizing - multi comp auth */
+        401: {
+          content: never;
+        };
+      };
+    };
+  };
+  "/api/v1/register": {
+    /** Add an attendee registration */
+    post: {
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["registration"];
+        };
+      };
+      responses: {
+        /** @description PASSING only required fields included */
+        202: {
+          content: never;
+        };
+        /** @description PASSING empty payload provided */
+        400: {
+          content: never;
+        };
+        /** @description PASSING user impersonation (no admin permission, JWWT token user_id does not match registration user_id) */
+        401: {
+          content: never;
+        };
+        /** @description PASSING comp not open */
         403: {
-          content: {
-            "application/json": components["schemas"]["error_response"];
-          };
+          content: never;
         };
       };
     };
@@ -90,9 +111,10 @@ export interface components {
     registrationAdmin: {
       user_id: string;
       event_ids: EventId[];
-      comment?: string;
-      admin_comment?: string;
-      guests?: number;
+      comment?: string | null;
+      admin_comment?: string | null;
+      guests?: number | null;
+      email?: string;
     };
     submitRegistrationBody: {
       user_id: string;
@@ -117,6 +139,8 @@ export interface components {
   headers: never;
   pathItems: never;
 }
+
+export type $defs = Record<string, never>;
 
 export type external = Record<string, never>;
 

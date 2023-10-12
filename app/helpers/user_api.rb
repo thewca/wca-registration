@@ -8,8 +8,7 @@ require_relative 'wca_api'
 class UserApi < WcaApi
   def self.get_permissions(user_id)
     if Rails.env.production?
-      token = self.get_wca_token("users.worldcubeassociation.org")
-      HTTParty.get("https://test-registration.worldcubeassociation.org/api/v10/internal/users/#{user_id}/permissions", headers: { 'Authorization' => "Bearer: #{token}" })
+      HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.get_wca_token })
     else
       Mocks.permissions_mock(user_id)
     end
@@ -30,4 +29,10 @@ class UserApi < WcaApi
     end
     permissions["can_administer_competitions"]["scope"] == "*" || permissions["can_administer_competitions"]["scope"].include?(competition_id)
   end
+
+  private
+
+    def permissions_path(user_id)
+      "#{WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
+    end
 end
