@@ -13,7 +13,6 @@ class CompetitionApi < WcaApi
   attr_accessor :competition_info, :error, :status
 
   def initialize(competition_id)
-    super
     fetch_competition(competition_id)
   end
 
