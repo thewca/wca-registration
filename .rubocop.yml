@@ -11,6 +11,10 @@ AllCops:
 Bundler/OrderedGems:
   Enabled: false
 
+Lint/MissingSuper:
+  Exclude: 
+    - 'lib/registration_error.rb'
+
 Lint/EmptyWhen:
   Enabled: false
 

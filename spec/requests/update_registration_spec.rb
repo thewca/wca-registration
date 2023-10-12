@@ -21,7 +21,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'database seed'
         include_context 'auth_tokens'
 
-        response '200', 'PASSING user passes empty event_ids - with deleted status' do
+        response '200', 'PASSING user passes empty event_ids - with cancelled status' do
           let(:registration_update) { @events_update_5 }
           let(:Authorization) { @jwt_817 }
 
@@ -74,7 +74,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           run_test! do |response|
             target_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
-            expect(target_registration.event_ids).to eq(registration_update['event_ids'])
+            expect(target_registration.event_ids).to eq(registration_update['competing']['event_ids'])
           end
         end
 
@@ -84,7 +84,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           run_test! do |response|
             target_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
-            expect(target_registration.event_ids).to eq(registration_update['event_ids'])
+            expect(target_registration.event_ids).to eq(registration_update['competing']['event_ids'])
           end
         end
 
@@ -333,7 +333,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '401', 'PASSING user requests status change to someone elses reg' do
-          registration_error = { error: ErrorCodes::USER_IMPERSONATION }.to_json
+          registration_error = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let(:registration_update) { @pending_update_1 }
           let(:Authorization) { @jwt_816 }
 

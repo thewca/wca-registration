@@ -62,16 +62,15 @@ RSpec.describe 'v1 Registrations API', type: :request do
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
-        response '200', 'PASSING cancel accepted registration, event statuses change to "deleted"' do
+        response '200', 'PASSING cancel accepted registration, event statuses change to "cancelled"' do
           let(:registration_update) { @cancellation_816 }
           let(:Authorization) { @jwt_816 }
 
@@ -83,7 +82,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
             updated_registration.event_details.each do |event|
-              expect(event["event_registration_state"]).to eq("deleted")
+              expect(event["event_registration_state"]).to eq("cancelled")
             end
           end
         end
@@ -103,12 +102,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -127,12 +125,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -151,12 +148,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -175,12 +171,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
       end
@@ -206,12 +201,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -230,12 +224,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -254,14 +247,13 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
 
-            expect(updated_registration.admin_comment).to eq(registration_update["admin_comment"])
+            expect(updated_registration.admin_comment).to eq(registration_update["competing"]["admin_comment"])
           end
         end
 
@@ -280,12 +272,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -304,12 +295,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -328,12 +318,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -352,12 +341,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -376,12 +364,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -400,12 +387,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -424,14 +410,13 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
 
-            expect(updated_registration.admin_comment).to eq(registration_update["admin_comment"])
+            expect(updated_registration.admin_comment).to eq(registration_update["competing"]["admin_comment"])
           end
         end
 
@@ -450,12 +435,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -474,12 +458,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -498,12 +481,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
 
@@ -522,12 +504,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
             puts updated_registration.inspect
 
             expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("deleted")
+            expect(response_data["registration_status"]).to eq("cancelled")
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("deleted")
-            expect(updated_registration[:lane_states][:competing]).to eq("deleted")
+            expect(updated_registration.competing_status).to eq("cancelled")
           end
         end
       end
@@ -553,7 +534,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
         response '401', 'PASSING admin submits cancellation for a comp they arent an admin for' do
           # This could return an insufficient permissions error instead if we want to somehow determine who should be an admin
-          error_response = { error: ErrorCodes::USER_IMPERSONATION }.to_json
+          error_response = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let(:registration_update) { @cancellation_073 }
           let(:Authorization) { @organizer_token }
 
@@ -563,7 +544,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '401', 'PASSING user submits a cancellation for a different user' do
-          error_response = { error: ErrorCodes::USER_IMPERSONATION }.to_json
+          error_response = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let(:registration_update) { @cancellation_816 }
           let(:Authorization) { @jwt_817 }
 
