@@ -6,22 +6,39 @@ require 'json'
 
 require_relative 'error_codes'
 require_relative 'wca_api'
+
+BASE_COMP_URL = "https://test-registration.worldcubeassociation.org/api/v10/competitions/"
+
 class CompetitionApi < WcaApi
-  def self.fetch_competition(competition_id)
+  attr_accessor :competition_info, :error, :status
+
+  def initialize(competition_id)
+    super
+    fetch_competition(competition_id)
+  end
+
+  def fetch_competition(competition_id)
     Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      uri = URI("https://test-registration.worldcubeassociation.org/api/v10/competitions/#{competition_id}")
+      uri = URI("#{BASE_COMP_URL}#{competition_id}")
       res = Net::HTTP.get_response(uri)
-      case res # Why do we have a case statement if there's only one case?
+      case res
       when Net::HTTPSuccess
-        JSON.parse res.body
+        @status = 200
+        @competition_info = CompetitionInfo.new(JSON.parse(res.body))
       when Net::HTTPNotFound
         Metrics.registration_competition_api_error_counter.increment
-        { error: ErrorCodes::COMPETITION_NOT_FOUND, status: 404 }
+        @error = ErrorCodes::COMPETITION_NOT_FOUND
+        @status = 404
       else
         Metrics.registration_competition_api_error_counter.increment
-        { error: ErrorCodes::COMPETITION_API_5XX, status: res.code }
+        @error = ErrorCodes::COMPETITION_API_5XX
+        @status = res.code.to_i
       end
     end
+  end
+
+  def competition_exists?
+    @error.nil?
   end
 end
 
@@ -30,7 +47,24 @@ class CompetitionInfo
     @competition_json = competition_json
   end
 
+  def event_change_deadline
+    @competition_json['event_change_deadline_date']
+  end
+
+  def competitor_limit
+    @competition_json['competitor_limit']
+  end
+
+  def guest_entry_status
+    @competition_json['guest_entry_status']
+  end
+
+  def guest_limit
+    @competition_json['guests_per_registration_limit']
+  end
+
   def competition_open?
+    puts @competition_json
     @competition_json["registration_opened?"]
   end
 
@@ -38,23 +72,23 @@ class CompetitionInfo
     @competition_json["using_stripe_payments?"]
   end
 
+  def force_comment?
+    @competition_json['force_comment_in_registration']
+  end
+
   def events_held?(event_ids)
     @competition_json["event_ids"].to_set.superset?(event_ids.to_set)
   end
+
+  def payment_info
+    [@competition_json["base_entry_fee_lowest_denomination"], @competition_json["currency_code"]]
+  end
+
+  def json
+    @competition_json
+  end
+
+  def name
+    @competition_json["name"]
+  end
 end
-
-#   def self.competition_exists?(competition_id)
-#     competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-#       self.fetch_competition(competition_id)
-#     end
-
-#     competition_info[:error] == false
-#   end
-
-#   def self.payment_info(competition_id)
-#     competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-#       self.fetch_competition(competition_id)
-#     end
-#     [competition_info[:competition_info]["base_entry_fee_lowest_denomination"], competition_info[:competition_info]["currency_code"]]
-#   end
-# end
