@@ -3,6 +3,7 @@ import { sassPlugin, postcssModules } from 'esbuild-sass-plugin'
 import statsPlugin from './statsplugin.js'
 import openapiTS from "openapi-typescript";
 import fs from "fs";
+import process from "node:process";
 const localPath = new URL('/swagger/v1/swagger.yaml', import.meta.url) // may be YAML or JSON format
 const output = await openapiTS(localPath, {
   transform(schemaObject) {
@@ -38,6 +39,8 @@ const context = await esbuild.context({
     statsPlugin(),
   ],
   define: {
+    // Make sure you are running a version of the Monolith on port 3000 if needed
+    // 'process.env.WCA_URL': `"http://localhost:3000"`,
     'process.env.API_URL': '"http://localhost:3001/api/v1"',
     'process.env.AUTH_URL': '"http://localhost:3001/jwt"',
     'process.env.NODE_ENV': '"development"',

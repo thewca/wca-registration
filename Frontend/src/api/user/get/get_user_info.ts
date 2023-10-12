@@ -1,4 +1,5 @@
 import externalServiceFetch from '../../helper/external_service_fetch'
+import { userInfoRoute } from '../../helper/routes'
 
 export interface User {
   id: string
@@ -18,7 +19,5 @@ export interface UserInfo {
 export default async function getCompetitorInfo(
   userId: string
 ): Promise<UserInfo> {
-  return externalServiceFetch(
-    `https://api.worldcubeassociation.org/users/${userId}`
-  )
+  return externalServiceFetch(userInfoRoute(userId))
 }

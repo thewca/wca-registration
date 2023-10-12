@@ -15,8 +15,8 @@
   "scripts": {
     "build:types": "TYPES_ONLY=true node src/build.mjs",
     "build:dev": "NODE_ENV=\"development\" ASSET_PATH=\"/dist\" API_URL=\"http://localhost:3001/api/v1\" AUTH_URL=\"http://localhost:3001/jwt\" node src/build.mjs",
-    "build:staging": "POLL_URL=\"https://1rq8d7dif3.execute-api.us-west-2.amazonaws.com/v1/staging\" NODE_ENV=\"staging\" ASSET_PATH=\"https://d1qizdh27al0a7.cloudfront.net/staging/dist\" API_URL=\"https://staging.registration.worldcubeassociation.org/api/v1\" AUTH_URL=\"https://staging.registration.worldcubeassociation.org/jwt\" node src/build.mjs",
-    "build:prod": "POLL_URL=\"https://1rq8d7dif3.execute-api.us-west-2.amazonaws.com/v1/prod\" NODE_ENV=\"production\" ASSET_PATH=\"https://d1qizdh27al0a7.cloudfront.net/dist\" API_URL=\"https://registration.worldcubeassociation.org/api/v1\" AUTH_URL=\"https://test-registration.worldcubeassociation.org/api/v10/auth/jwt\" node src/build.mjs",
+    "build:staging": "POLL_URL=\"https://1rq8d7dif3.execute-api.us-west-2.amazonaws.com/v1/staging\" NODE_ENV=\"staging\" ASSET_PATH=\"https://d1qizdh27al0a7.cloudfront.net/staging/dist\" API_URL=\"https://staging.registration.worldcubeassociation.org/api/v1\" WCA_URL=\"https://staging.worldcubeassociation.org\" node src/build.mjs",
+    "build:prod":    "POLL_URL=\"https://1rq8d7dif3.execute-api.us-west-2.amazonaws.com/v1/prod\" NODE_ENV=\"production\" ASSET_PATH=\"https://d1qizdh27al0a7.cloudfront.net/dist\" API_URL=\"https://registration.worldcubeassociation.org/api/v1\" WCA_URL=\"https://worldcubeassociation.org\" node src/build.mjs",
     "watch": "node src/watch.mjs",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix"
