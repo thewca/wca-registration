@@ -31,6 +31,7 @@ class UserApi < WcaApi
   end
 
   private
+
     def permissions_path(user_id)
       "#{WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
     end
