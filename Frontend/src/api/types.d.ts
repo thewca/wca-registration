@@ -60,18 +60,12 @@ interface CompetitionInfo {
   'using_stripe_payments?': boolean
   'external_registration_page'?: string
   'event_ids': EventId[]
-  'events_with_rounds': Event[]
   'main_event_id': EventId
   'guests_per_registration_limit'?: number
   'guest_entry_status': 'free' | 'restricted' | 'unclear'
   'allow_registration_edits': boolean
   'allow_registration_without_qualification': boolean
   'allow_registration_self_delete_after_acceptance': boolean
-  'schedule_wcif': {
-    startDate: string
-    numberOfDays: number
-    venues: Venue[]
-  }
   'delegates': UserFull[]
   'organizers': UserFull[]
   'contact': string
