@@ -9,7 +9,7 @@ class WcaApi
       if data.present?
         data.data[:data][:token]
       else # TODO: should we hard error out here?
-        puts "Tried to get identity token, but got error"
+        puts 'Tried to get identity token, but got error'
       end
     end
   end
