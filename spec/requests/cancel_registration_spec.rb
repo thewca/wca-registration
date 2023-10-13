@@ -3,7 +3,7 @@
 require 'swagger_helper'
 require_relative '../../app/helpers/error_codes'
 
-RSpec.describe 'v1 Registrations API', type: :request do
+RSpec.describe 'v1 Registrations API', type: :request, document: false do
   include Helpers::RegistrationHelper
 
   path '/api/v1/register' do

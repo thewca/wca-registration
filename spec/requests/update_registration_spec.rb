@@ -3,7 +3,7 @@
 require 'swagger_helper'
 require_relative '../../app/helpers/error_codes'
 
-RSpec.describe 'v1 Registrations API', type: :request do
+RSpec.describe 'v1 Registrations API', type: :request, document: false do
   include Helpers::RegistrationHelper
 
   path '/api/v1/register' do
@@ -28,7 +28,12 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test!
         end
 
-        response '200', 'PASSING user changes comment' do
+        response '200', 'PASSING user changes comment', document: true do
+          schema type: :object,
+                 properties: {
+                   status: { type: :string },
+                   registration: { "$ref" => '#/components/schemas/registrationAdmin' }
+                 }
           let(:registration_update) { @comment_update }
           let(:Authorization) { @jwt_816 }
 
@@ -249,7 +254,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'database seed'
         include_context 'auth_tokens'
 
-        response '422', 'PASSING user does not include required comment' do
+        response '422', 'PASSING user does not include required comment', document: true do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_error = { error: ErrorCodes::REQUIRED_COMMENT_MISSING }.to_json
           let(:registration_update) { @comment_update_4 }
           let(:Authorization) { @jwt_820 }
@@ -309,7 +315,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '401', 'PASSING user requests invalid status change to their own reg' do
+        response '401', 'PASSING user requests invalid status change to their own reg', document: true do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_error = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let(:registration_update) { @pending_update_1 }
           let(:Authorization) { @jwt_817 }
@@ -355,7 +362,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '403', 'PASSING user changes events / other stuff past deadline' do
+        response '403', 'PASSING user changes events / other stuff past deadline', document: true do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_error = { error: ErrorCodes::EVENT_EDIT_DEADLINE_PASSED }.to_json
           let(:registration_update) { @delayed_update_1 }
           let(:Authorization) { @jwt_820 }

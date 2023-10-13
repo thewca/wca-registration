@@ -108,7 +108,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        # TODO: user has competition-specific auth and can get all registrations
         response '200', ' -> PASSING organizer can access admin list for their competition' do
           let!(:competition_id) { @includes_non_attending_registrations }
           let(:Authorization) { @organizer_token }
@@ -148,6 +147,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'auth_tokens'
 
         response '401', ' -> PASSING Attending user cannot get admin registration list' do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let!(:competition_id) { @attending_registrations_only }
           let(:Authorization) { @jwt_817 }

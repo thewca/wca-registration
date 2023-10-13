@@ -58,15 +58,21 @@ RSpec.configure do |config|
               user_id: {
                 type: :string,
               },
-              event_ids: {
-                type: :array,
-                items: {
-                  type: :string,
-                  format: :EventId,
+              competing:{
+                type: :object,
+                properties: {
+                  event_ids: {
+                    type: :array,
+                    items: {
+                      type: :string,
+                      format: :EventId,
+                    },
+                  },
                 },
-              },
+                required: [:event_ids]
+              }
             },
-            required: [:user_id, :event_ids],
+            required: [:user_id, :competing],
           },
           registrationAdmin: {
             type: :object,
@@ -74,30 +80,39 @@ RSpec.configure do |config|
               user_id: {
                 type: :string,
               },
-              event_ids: {
-                type: :array,
-                items: {
-                  type: :string,
-                  format: :EventId,
+              competing:{
+                type: :object,
+                properties:{
+                  event_ids: {
+                    type: :array,
+                    items: {
+                      type: :string,
+                      format: :EventId,
+                    },
+                  },
+                  registered_on: {
+                    type: :string,
+                  },
+                  registration_status: {
+                    type: :string,
+                  },
+                  comment: {
+                    type: :string,
+                    nullable: true,
+                  },
+                  admin_comment: {
+                    type: :string,
+                    nullable: true,
+                  },
                 },
-              },
-              comment: {
-                type: :string,
-                nullable: true,
-              },
-              admin_comment: {
-                type: :string,
-                nullable: true,
+                required: [:event_ids, :registered_on, :registration_status]
               },
               guests: {
                 type: :number,
                 nullable: true,
               },
-              email: {
-                type: :string,
-              },
             },
-            required: [:user_id, :event_ids],
+            required: [:user_id, :competing],
           },
           submitRegistrationBody: {
             properties: {

@@ -115,13 +115,14 @@ class RegistrationController < ApplicationController
       updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
       render json: { status: 'ok', registration: {
         user_id: updated_registration["user_id"],
-        registered_event_ids: updated_registration.registered_event_ids,
-        registration_status: updated_registration.competing_status,
-        registered_on: updated_registration["created_at"],
-        comment: updated_registration.competing_comment,
-        admin_comment: updated_registration.admin_comment,
         guests: updated_registration.guests,
-      } }
+        competing: {
+          event_ids: updated_registration.registered_event_ids,
+          status: updated_registration.competing_status,
+          registered_on: updated_registration["created_at"],
+          comment: updated_registration.competing_comment,
+          admin_comment: updated_registration.admin_comment,
+        } } }
     rescue StandardError => e
       puts e
       Metrics.registration_dynamodb_errors_counter.increment
@@ -246,17 +247,21 @@ class RegistrationController < ApplicationController
       if only_attending
         Registration.where(competition_id: competition_id, is_attending: true).all.map do |x|
           { user_id: x["user_id"],
-            event_ids: x.event_ids }
+            competing: {
+              event_ids: x.event_ids
+            } }
         end
       else
         Registration.where(competition_id: competition_id).all.map do |x|
           { user_id: x["user_id"],
-            event_ids: x.event_ids,
-            registration_status: x.competing_status,
-            registered_on: x["created_at"],
-            comment: x.competing_comment,
-            guests: x.guests,
-            admin_comment: x.admin_comment }
+            competing:{
+              event_ids: x.event_ids,
+              registration_status: x.competing_status,
+              registered_on: x["created_at"],
+              comment: x.competing_comment,
+              admin_comment: x.admin_comment
+            },
+            guests: x.guests, }
         end
       end
     end
@@ -265,12 +270,14 @@ class RegistrationController < ApplicationController
       registration = Registration.find("#{competition_id}-#{user_id}")
       {
         user_id: registration["user_id"],
-        event_ids: registration.event_ids,
-        registration_status: registration.competing_status,
-        registered_on: registration["created_at"],
-        comment: registration.competing_comment,
-        admin_comment: registration.admin_comment,
         guests: registration.guests,
+        competing: {
+          event_ids: registration.event_ids,
+          registration_status: registration.competing_status,
+          registered_on: registration["created_at"],
+          comment: registration.competing_comment,
+          admin_comment: registration.admin_comment,
+        },
       }
     end
 

@@ -15,8 +15,6 @@ export default async function submitEventRegistration(
 ): Promise<components['schemas']['success_response']> {
   const token = await getJWT()
   const { data, error, response } = await post('/api/v1/register', {
-    // TODO: I think this is a bug in open-api fetch https://github.com/drwpow/openapi-typescript/issues/1230
-    params: { header: { Authorization: token } },
     headers: { Authorization: token },
     body,
   })
