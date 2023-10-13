@@ -6,14 +6,18 @@ import React, { useContext, useEffect, useState } from 'react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PAYMENT_NOT_READY } from '../../../api/helper/error_codes'
 import getStripeConfig from '../../../api/payment/get/get_stripe_config'
+import getPaymentId from '../../../api/registration/get/get_payment_intent'
 import { setMessage } from '../../../ui/events/messages'
 import PaymentStep from './PaymentStep'
-import getPaymentId from '../../../api/registration/get/get_payment_intent'
 
 export default function StripeWrapper() {
   const [stripePromise, setStripePromise] = useState(null)
   const { competitionInfo } = useContext(CompetitionContext)
-  const { data, isLoading, isError } = useQuery({
+  const {
+    data,
+    isLoading: isPaymentIdLoading,
+    isError,
+  } = useQuery({
     queryKey: ['payment-secret', competitionInfo.id],
     queryFn: () => getPaymentId(competitionInfo.id),
     refetchOnWindowFocus: false,
@@ -36,7 +40,7 @@ export default function StripeWrapper() {
     queryKey: ['payment-config', competitionInfo.id, data.payment_id],
     queryFn: () => getStripeConfig(competitionInfo.id, data.payment_id),
     onError: (err) => setMessage(err.error, 'error'),
-    enabled: !isLoading && !isError,
+    enabled: !isPaymentIdLoading && !isError,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
@@ -44,7 +48,7 @@ export default function StripeWrapper() {
   })
 
   useEffect(() => {
-    if (!configLoading) {
+    if (!isConfigLoading) {
       setStripePromise(
         loadStripe(config.stripe_publishable_key, {
           stripeAccount: config.connected_account_id,
@@ -54,13 +58,13 @@ export default function StripeWrapper() {
   }, [
     config?.connected_account_id,
     config?.stripe_publishable_key,
-    configLoading,
+    isConfigLoading,
   ])
 
   return (
     <>
       <h1>Payment</h1>
-      {!isLoading && stripePromise && !isError && (
+      {!isPaymentIdLoading && stripePromise && !isError && (
         <Elements
           stripe={stripePromise}
           options={{
