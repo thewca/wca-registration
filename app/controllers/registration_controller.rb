@@ -133,7 +133,6 @@ class RegistrationController < ApplicationController
     @competition_id = params[:competition_id]
 
     @competition = CompetitionApi.find!(@competition_id)
-    # @competition = get_competition_info!
     @registration = Registration.find("#{@competition_id}-#{@user_id}")
 
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
@@ -340,14 +339,5 @@ class RegistrationController < ApplicationController
         Registration::ADMIN_ONLY_STATES.include?(params['competing'][:status]) && !UserApi.can_administer?(@current_user, @competition_id)
 
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if params['competing'][:status] == 'accepted' && Registration.count > @competition.competitor_limit
-    end
-
-    def get_competition_info!
-      competition_response = CompetitionApi.new(@competition_id)
-      if competition_response.competition_exists?
-        competition_response.competition_info
-      else
-        raise RegistrationError.new(competition_response.status, competition_response.error)
-      end
     end
 end
