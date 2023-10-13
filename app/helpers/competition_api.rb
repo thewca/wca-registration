@@ -2,7 +2,6 @@
 
 require 'httparty'
 require 'uri'
-# require 'net/http'
 require 'json'
 
 require_relative 'error_codes'
@@ -26,6 +25,7 @@ class CompetitionApi < WcaApi
     CompetitionInfo.new(competition_json)
   end
 
+  # This is how you make a private class method
   class << self
     def fetch_competition(competition_id)
       Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
