@@ -29,9 +29,7 @@ export default function Schedule() {
     queryKey: ['wcif', competitionInfo.id],
     queryFn: () => getCompetitionWcif(competitionInfo.id),
     retry: false,
-    onError: (err) => {
-      setMessage(err.message, 'error')
-    },
+    onError: (err) => setMessage(err.message, 'error'),
   })
 
   return isLoading ? (
