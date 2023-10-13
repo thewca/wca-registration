@@ -8,8 +8,8 @@ describe CompetitionInfo do
     competition_json = FactoryBot.build(:competition_details)
 
     # TODO: Refactor tests to use a factory, not explicitly defined JSON
-    describe "#registration_open?" do
-      it "true when open" do
+    describe '#registration_open?' do
+      it 'true when open' do
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
 
@@ -20,8 +20,9 @@ describe CompetitionInfo do
         expect(result).to be true
       end
 
-      it "false when closed" do
+      it 'false when closed' do
         # Instantiate a CompetitionInfo object with the sample data
+        competition_json = FactoryBot.build(:competition_details, registration_opened?: false)
         competition_info = CompetitionInfo.new(competition_json)
 
         # Call the method being tested
@@ -32,8 +33,8 @@ describe CompetitionInfo do
       end
     end
 
-    describe "#using_wca_payment?" do
-      it "PASSING true if the competition uses WCA payment" do
+    describe '#using_wca_payment?' do
+      it 'PASSING true if the competition uses WCA payment' do
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
 
@@ -56,16 +57,16 @@ describe CompetitionInfo do
       end
     end
 
-    describe "#events_held?" do
+    describe '#events_held?' do
       it 'PASSING true if competition is hosting given events' do
         # Create a sample competition JSON (adjust as needed)
-        competition_json = { "event_ids" => ["333", "444", "555"] }
+        competition_json = { 'event_ids' => ['333', '444', '555'] }
 
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
 
         # Call the method being tested
-        result = competition_info.events_held?(["333", "444"])
+        result = competition_info.events_held?(['333', '444'])
 
         # Expect the outcome
         expect(result).to be true
@@ -73,7 +74,7 @@ describe CompetitionInfo do
 
       it 'PASSING false if events list is empty' do
         # Create a sample competition JSON (adjust as needed)
-        competition_json = { "event_ids" => ["333", "444", "555"] }
+        competition_json = { 'event_ids' => ['333', '444', '555'] }
 
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
@@ -87,13 +88,13 @@ describe CompetitionInfo do
 
       it 'PASSING false if one of the events is not being hosted' do
         # Create a sample competition JSON (adjust as needed)
-        competition_json = { "event_ids" => ["333", "444", "555"] }
+        competition_json = { 'event_ids' => ['333', '444', '555'] }
 
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
 
         # Call the method being tested
-        result = competition_info.events_held?(["666"])
+        result = competition_info.events_held?(['666'])
 
         # Expect the outcome
         expect(result).to be false
@@ -102,8 +103,8 @@ describe CompetitionInfo do
       it 'PASSING returns competition payment info' do
         # Create a sample competition JSON (adjust as needed)
         competition_json = {
-          "base_entry_fee_lowest_denomination" => 1500,
-          "currency_code" => "EUR",
+          'base_entry_fee_lowest_denomination' => 1500,
+          'currency_code' => 'EUR',
         }
 
         # Instantiate a CompetitionInfo object with the sample data
@@ -113,7 +114,7 @@ describe CompetitionInfo do
         result = competition_info.payment_info
 
         # Expect the outcome
-        expect(result).to eq [1500, "EUR"]
+        expect(result).to eq [1500, 'EUR']
       end
     end
   end

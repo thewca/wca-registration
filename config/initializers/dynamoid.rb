@@ -3,7 +3,7 @@
 require 'dynamoid'
 
 Dynamoid.configure do |config|
-  config.region = ENV.fetch("AWS_REGION", 'us-west-2')
+  config.region = ENV.fetch('AWS_REGION', 'us-west-2')
   config.namespace = nil
   if Rails.env.production?
     config.credentials = Aws::ECSCredentials.new(retries: 3)

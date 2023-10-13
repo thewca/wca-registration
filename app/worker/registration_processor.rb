@@ -8,9 +8,9 @@ require_relative '../helpers/lane_factory'
 class RegistrationProcessor
   def initialize
     Dynamoid.configure do |config|
-      config.region = ENV.fetch("AWS_REGION", 'us-west-2')
+      config.region = ENV.fetch('AWS_REGION', 'us-west-2')
       config.namespace = nil
-      if ENV.fetch("CODE_ENVIRONMENT", "development") == "development"
+      if ENV.fetch('CODE_ENVIRONMENT', 'development') == 'development'
         config.endpoint = ENV.fetch('LOCALSTACK_ENDPOINT', nil)
       else
         config.credentials = Aws::ECSCredentials.new(retries: 3)

@@ -21,21 +21,21 @@ end
 FactoryBot.define do
   factory :registration, class: Hash do
     transient do
-      events { ["333", "333mbf"] }
+      events { ['333', '333mbf'] }
     end
 
-    user_id { "158817" }
-    competition_id { "CubingZANationalChampionship2023" }
-    competing { { event_ids: events, lane_state: "pending" } }
+    user_id { '158817' }
+    competition_id { 'CubingZANationalChampionship2023' }
+    competing { { event_ids: events, lane_state: 'pending' } }
     jwt_token { fetch_jwt_token(user_id) }
 
     trait :admin do
-      user_id { "15073" }
+      user_id { '15073' }
       jwt_token { fetch_jwt_token(user_id) }
     end
 
     trait :admin_submits do
-      jwt_token { fetch_jwt_token("15073") }
+      jwt_token { fetch_jwt_token('15073') }
     end
 
     initialize_with { attributes }

@@ -19,7 +19,7 @@ module Helpers
         @comment_mandatory = 'LazarilloOpen2024'
         @full_competition = 'CubingZANationalChampionship2024'
 
-        @base_comp_url = "https://test-registration.worldcubeassociation.org/api/v10/competitions/"
+        @base_comp_url = 'https://test-registration.worldcubeassociation.org/api/v10/competitions/'
 
         # TODO: Refctor these to be single lines that call a "stub competition" method?(how do I customise bodys and codes?)
 
@@ -135,23 +135,23 @@ module Helpers
     RSpec.shared_context 'PATCH payloads' do
       before do
         # URL parameters
-        @competiton_id = "CubingZANationalChampionship2023"
-        @user_id_816 = "158816"
-        @user_id_823 = "158823"
+        @competiton_id = 'CubingZANationalChampionship2023'
+        @user_id_816 = '158816'
+        @user_id_823 = '158823'
 
         # Cancel payloads
-        @bad_comp_cancellation = get_patch("816-cancel-bad-comp")
-        @cancellation_with_events = get_patch("816-cancel-and-change-events")
-        @bad_user_cancellation = get_patch("800-cancel-no-reg")
-        @cancellation_1 = get_patch("1-cancel-full-registration")
-        @cancellation_816 = get_patch("816-cancel-full-registration")
-        @cancellation_816_2 = get_patch("816-cancel-full-registration_2")
-        @cancellation_817 = get_patch("817-cancel-full-registration")
-        @cancellation_818 = get_patch("818-cancel-full-registration")
-        @cancellation_819 = get_patch("819-cancel-full-registration")
-        @cancellation_823 = get_patch("823-cancel-full-registration")
-        @cancellation_073 = get_patch("073-cancel-full-registration")
-        @double_cancellation = get_patch("823-cancel-full-registration")
+        @bad_comp_cancellation = get_patch('816-cancel-bad-comp')
+        @cancellation_with_events = get_patch('816-cancel-and-change-events')
+        @bad_user_cancellation = get_patch('800-cancel-no-reg')
+        @cancellation_1 = get_patch('1-cancel-full-registration')
+        @cancellation_816 = get_patch('816-cancel-full-registration')
+        @cancellation_816_2 = get_patch('816-cancel-full-registration_2')
+        @cancellation_817 = get_patch('817-cancel-full-registration')
+        @cancellation_818 = get_patch('818-cancel-full-registration')
+        @cancellation_819 = get_patch('819-cancel-full-registration')
+        @cancellation_823 = get_patch('823-cancel-full-registration')
+        @cancellation_073 = get_patch('073-cancel-full-registration')
+        @double_cancellation = get_patch('823-cancel-full-registration')
         @cancel_wrong_lane = get_patch('823-cancel-wrong-lane')
 
         # Update payloads
@@ -257,9 +257,9 @@ module Helpers
         registrations = JSON.parse(f.read)
 
         # Retrieve the competition details when attendee_id matches
-        registration = registrations.find { |r| r["attendee_id"] == attendee_id }
+        registration = registrations.find { |r| r['attendee_id'] == attendee_id }
         begin
-          registration["lanes"] = registration["lanes"].map { |lane| Lane.new(lane) }
+          registration['lanes'] = registration['lanes'].map { |lane| Lane.new(lane) }
           if raw
             return registration
           end
@@ -287,19 +287,19 @@ module Helpers
 
       # Converts a raw registration object (database-like format) to a payload which can be sent to the registration API
       def convert_registration_object_to_payload(registration)
-        competing_lane = registration["lanes"].find { |l| l.lane_name == "competing" }
+        competing_lane = registration['lanes'].find { |l| l.lane_name == 'competing' }
         event_ids = get_event_ids_from_competing_lane(competing_lane)
 
         registration_payload = {
-          user_id: registration["user_id"],
-          competition_id: registration["competition_id"],
+          user_id: registration['user_id'],
+          competition_id: registration['competition_id'],
           competing: {
             event_ids: event_ids,
             registration_status: competing_lane.lane_state,
           },
         }
-        if competing_lane.lane_details.key?("guests")
-          registration_payload[:guests] = competing_lane.lane_details["guests"]
+        if competing_lane.lane_details.key?('guests')
+          registration_payload[:guests] = competing_lane.lane_details['guests']
         end
         registration_payload
       end
@@ -308,9 +308,9 @@ module Helpers
       # NOTE: Assumes that the given lane is a competing lane - it doesn't validate this
       def get_event_ids_from_competing_lane(competing_lane)
         event_ids = []
-        competing_lane.lane_details["event_details"].each do |event|
+        competing_lane.lane_details['event_details'].each do |event|
           # Add the event["event_id"] to the list of event_ids
-          event_ids << event["event_id"]
+          event_ids << event['event_id']
         end
         event_ids
       end

@@ -32,17 +32,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            puts body
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -53,12 +54,12 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            body["registration"]
+            body['registration']
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
             updated_registration.event_details.each do |event|
-              expect(event["event_registration_state"]).to eq("cancelled")
+              expect(event['event_registration_state']).to eq('cancelled')
             end
           end
         end
@@ -71,18 +72,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -94,18 +95,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -117,18 +118,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -140,18 +141,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
       end
@@ -170,18 +171,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -193,18 +194,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -216,20 +217,20 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
 
-            expect(updated_registration.admin_comment).to eq(registration_update["competing"]["admin_comment"])
+            expect(updated_registration.admin_comment).to eq(registration_update['competing']['admin_comment'])
           end
         end
 
@@ -241,18 +242,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -264,18 +265,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -287,18 +288,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -310,18 +311,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -333,18 +334,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -356,18 +357,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -379,20 +380,20 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
 
-            expect(updated_registration.admin_comment).to eq(registration_update["competing"]["admin_comment"])
+            expect(updated_registration.admin_comment).to eq(registration_update['competing']['admin_comment'])
           end
         end
 
@@ -404,18 +405,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -427,18 +428,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -450,18 +451,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
 
@@ -473,18 +474,18 @@ RSpec.describe 'v1 Registrations API', type: :request do
           run_test! do |response|
             # Make sure body contains the values we expect
             body = JSON.parse(response.body)
-            response_data = body["registration"]
+            response_data = body['registration']
             puts "response_data: #{response_data}"
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
             puts updated_registration.inspect
 
-            expect(response_data["registered_event_ids"]).to eq([])
-            expect(response_data["registration_status"]).to eq("cancelled")
+            expect(response_data['registered_event_ids']).to eq([])
+            expect(response_data['registration_status']).to eq('cancelled')
 
             # Make sure the registration stored in the dabatase contains teh values we expect
             expect(updated_registration.registered_event_ids).to eq([])
-            expect(updated_registration.competing_status).to eq("cancelled")
+            expect(updated_registration.competing_status).to eq('cancelled')
           end
         end
       end
@@ -564,7 +565,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           it 'returns a 422' do |example|
             # run_test! do |response|
             body = JSON.parse(response.body)
-            body["registration"]
+            body['registration']
 
             updated_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
 
