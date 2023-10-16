@@ -32,7 +32,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           schema type: :object,
                  properties: {
                    status: { type: :string },
-                   registration: { "$ref" => '#/components/schemas/registrationAdmin' }
+                   registration: { '$ref' => '#/components/schemas/registrationAdmin' },
                  }
           let(:registration_update) { @comment_update }
           let(:Authorization) { @jwt_816 }

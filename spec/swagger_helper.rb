@@ -58,7 +58,7 @@ RSpec.configure do |config|
               user_id: {
                 type: :string,
               },
-              competing:{
+              competing: {
                 type: :object,
                 properties: {
                   event_ids: {
@@ -69,8 +69,8 @@ RSpec.configure do |config|
                     },
                   },
                 },
-                required: [:event_ids]
-              }
+                required: [:event_ids],
+              },
             },
             required: [:user_id, :competing],
           },
@@ -80,9 +80,9 @@ RSpec.configure do |config|
               user_id: {
                 type: :string,
               },
-              competing:{
+              competing: {
                 type: :object,
-                properties:{
+                properties: {
                   event_ids: {
                     type: :array,
                     items: {
@@ -105,7 +105,7 @@ RSpec.configure do |config|
                     nullable: true,
                   },
                 },
-                required: [:event_ids, :registered_on, :registration_status]
+                required: [:event_ids, :registered_on, :registration_status],
               },
               guests: {
                 type: :number,
@@ -149,11 +149,11 @@ RSpec.configure do |config|
                 type: :string,
               },
               competition_id: {
-                type: :string
+                type: :string,
               },
               competing: {
                 type: :object,
-                properties:{
+                properties: {
                   event_ids: {
                     type: :array,
                     items: {
@@ -162,7 +162,7 @@ RSpec.configure do |config|
                     },
                   },
                   status: {
-                    type: :string
+                    type: :string,
                   },
                   comment: {
                     type: :string,
@@ -170,7 +170,7 @@ RSpec.configure do |config|
                   admin_comment: {
                     type: :string,
                   },
-                }
+                },
               },
               guests: {
                 type: :number,
