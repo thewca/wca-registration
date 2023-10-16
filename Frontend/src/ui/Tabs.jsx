@@ -11,7 +11,9 @@ function pathMatch(name, pathname) {
   const registrationsExpression =
     /\/competitions\/[a-zA-Z0-9]+\/registrations\/edit/
   const competitorsExpression = /\/competitions\/[a-zA-Z0-9]+\/registrations/
-  const infoExpression = /\/competitions\/[a-zA-Z0-9]+\/$/
+  const eventsExpressions = /\/competitions\/[a-zA-Z0-9]+\/events/
+  const scheduleExpressions = /\/competitions\/[a-zA-Z0-9]+\/schedule/
+  const infoExpression = /\/competitions\/[a-zA-Z0-9]+$/
   switch (name) {
     case 'register':
       return registerExpression.test(pathname)
@@ -19,8 +21,12 @@ function pathMatch(name, pathname) {
       return registrationsExpression.test(pathname)
     case 'competitors':
       return competitorsExpression.test(pathname)
+    case 'schedule':
+      return scheduleExpressions.test(pathname)
     case 'info':
       return infoExpression.test(pathname)
+    case 'events':
+      return eventsExpressions.test(pathname)
     default: {
       // We are in a custom tab
       const tabId = name.slice(5)
@@ -110,6 +116,7 @@ export default function PageTabs() {
         menuItem: (
           <Menu.Item
             key="tab-events"
+            name="events"
             className={styles.tabItem}
             onClick={() =>
               navigate(`/competitions/${competitionInfo.id}/events`)
@@ -125,6 +132,7 @@ export default function PageTabs() {
         menuItem: (
           <Menu.Item
             key="tab-schedule"
+            name="schedule"
             className={styles.tabItem}
             onClick={() =>
               navigate(`/competitions/${competitionInfo.id}/schedule`)

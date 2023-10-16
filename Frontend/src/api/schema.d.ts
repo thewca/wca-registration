@@ -17,7 +17,7 @@ export interface paths {
         /** @description  -> PASSING comp service down but registrations exist */
         200: {
           content: {
-            "application/json": (components["schemas"]["registration"])[];
+            "application/json": components["schemas"]["registration"][];
           };
         };
       };
@@ -35,7 +35,7 @@ export interface paths {
         /** @description  -> PASSING organizer has access to comp 2 */
         200: {
           content: {
-            "application/json": (components["schemas"]["registrationAdmin"])[];
+            "application/json": components["schemas"]["registrationAdmin"][];
           };
         };
         /** @description  -> PASSING organizer cannot access registrations for comps they arent organizing - multi comp auth */
@@ -148,13 +148,13 @@ export interface components {
     registration: {
       user_id: string;
       competing: {
-        event_ids: (EventId)[];
+        event_ids: EventId[];
       };
     };
     registrationAdmin: {
       user_id: string;
       competing: {
-        event_ids: (EventId)[];
+        event_ids: EventId[];
         registered_on: string;
         registration_status: string;
         comment?: string | null;
@@ -166,14 +166,14 @@ export interface components {
       user_id: string;
       competition_id: string;
       competing: {
-        event_ids?: (EventId)[];
+        event_ids?: EventId[];
         comment?: string;
         guests?: number;
       };
     };
     updateRegistrationBody: {
       user_id: string;
-      event_ids: (EventId)[];
+      event_ids: EventId[];
       comment?: string;
       admin_comment?: string;
       guests?: number;
@@ -185,6 +185,8 @@ export interface components {
   headers: never;
   pathItems: never;
 }
+
+export type $defs = Record<string, never>;
 
 export type external = Record<string, never>;
 

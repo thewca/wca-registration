@@ -71,10 +71,10 @@ export default function Schedule() {
               </Table.Header>
               <Table.Body>
                 {activitiesForDay.map((activity) => {
-                  const round = competitionInfo.events_with_rounds
+                  const round = wcif.events
                     .flatMap((events) => events.rounds)
                     .find((round) => round.id === activity.activityCode)
-                  const room = competitionInfo.schedule_wcif.venues
+                  const room = wcif.schedule.venues
                     .flatMap((venue) => venue.rooms)
                     .find((room) =>
                       room.activities.some(
