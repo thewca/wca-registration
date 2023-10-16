@@ -3,7 +3,7 @@ import backendFetch, { BackendError } from '../../helper/backend_fetch'
 import { components, paths } from '../../schema'
 import getCompetitorInfo from '../../user/get/get_user_info'
 
-const { get } = createClient<paths>({
+const { GET } = createClient<paths>({
   // TODO: Change this once we are fully migrated from backend fetch
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -14,7 +14,7 @@ export async function getConfirmedRegistrations(
   competitionID: string
 ): Promise<components['schemas']['registration'][]> {
   //TODO: Because there is currently no bulk user fetch route we need to manually add user data here
-  const { data, response } = await get(
+  const { data, response } = await GET(
     '/api/v1/registrations/{competition_id}',
     {
       params: { path: { competition_id: competitionID } },
@@ -39,7 +39,7 @@ export async function getAllRegistrations(
   competitionID: string
 ): Promise<components['schemas']['registrationAdmin'][]> {
   //TODO: Because there is currently no bulk user fetch route we need to manually add user data here
-  const { data, response } = await get(
+  const { data, response } = await GET(
     '/api/v1/registrations/{competition_id}/admin',
     {
       params: { path: { competition_id: competitionID } },

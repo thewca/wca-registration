@@ -4,7 +4,7 @@ import { EXPIRED_TOKEN } from '../../helper/error_codes'
 import { getJWT } from '../../auth/get_jwt'
 import { BackendError } from '../../helper/backend_fetch'
 
-const { patch } = createClient<paths>({
+const { PATCH } = createClient<paths>({
   // TODO: Change this once we are fully migrated from backend fetch
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -17,7 +17,7 @@ export async function updateRegistration(
   status?: string
   registration?: components['schemas']['registrationAdmin']
 }> {
-  const { data, error, response } = await patch('/api/v1/register', {
+  const { data, error, response } = await PATCH('/api/v1/register', {
     body,
   })
   if (error) {
