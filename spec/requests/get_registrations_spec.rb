@@ -36,7 +36,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           run_test! do |response|
             body = JSON.parse(response.body)
-            puts body
             expect(body.length).to eq(2)
           end
         end

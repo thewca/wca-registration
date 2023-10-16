@@ -115,7 +115,7 @@ class RegistrationController < ApplicationController
         guests: updated_registration.guests,
         competing: {
           event_ids: updated_registration.registered_event_ids,
-          status: updated_registration.competing_status,
+          registration_status: updated_registration.competing_status,
           registered_on: updated_registration['created_at'],
           comment: updated_registration.competing_comment,
           admin_comment: updated_registration.admin_comment,
