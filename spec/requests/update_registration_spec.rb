@@ -34,7 +34,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           run_test! do |response|
             target_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
-            expect(target_registration.competing_comment).to eq("updated registration comment")
+            expect(target_registration.competing_comment).to eq('updated registration comment')
           end
         end
 
@@ -44,7 +44,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
           run_test! do |response|
             target_registration = Registration.find("#{registration_update['competition_id']}-#{registration_update['user_id']}")
-            expect(target_registration.competing_comment).to eq("updated registration comment - had no comment before")
+            expect(target_registration.competing_comment).to eq('updated registration comment - had no comment before')
           end
         end
 
@@ -99,7 +99,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
             registration_status = target_registration.competing_status
             event_details.each do |event|
               puts "event: #{event}"
-              expect(event["event_registration_state"]).to eq(registration_status)
+              expect(event['event_registration_state']).to eq(registration_status)
             end
           end
         end
@@ -115,7 +115,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
             registration_status = target_registration.competing_status
             event_details.each do |event|
               puts "event: #{event}"
-              expect(event["event_registration_state"]).to eq(registration_status)
+              expect(event['event_registration_state']).to eq(registration_status)
             end
           end
         end
@@ -142,7 +142,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
             # Check that event states are correct
             event_details.each do |event|
-              expect(event["event_registration_state"]).to eq('accepted')
+              expect(event['event_registration_state']).to eq('accepted')
             end
           end
         end
@@ -161,7 +161,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
             # Check that event states are correct
             event_details.each do |event|
-              expect(event["event_registration_state"]).to eq('waiting_list')
+              expect(event['event_registration_state']).to eq('waiting_list')
             end
           end
         end
@@ -180,7 +180,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
             # Check that event states are correct
             event_details.each do |event|
-              expect(event["event_registration_state"]).to eq('accepted')
+              expect(event['event_registration_state']).to eq('accepted')
             end
           end
         end
@@ -199,7 +199,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
             # Check that event states are correct
             event_details.each do |event|
-              expect(event["event_registration_state"]).to eq('pending')
+              expect(event['event_registration_state']).to eq('pending')
             end
           end
         end
@@ -218,7 +218,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
             # Check that event states are correct
             event_details.each do |event|
-              expect(event["event_registration_state"]).to eq('pending')
+              expect(event['event_registration_state']).to eq('pending')
             end
           end
         end
@@ -237,7 +237,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
             # Check that event states are correct
             event_details.each do |event|
-              expect(event["event_registration_state"]).to eq('waiting_list')
+              expect(event['event_registration_state']).to eq('waiting_list')
             end
           end
         end
@@ -327,7 +327,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
             # Check that event states are correct
             event_details.each do |event|
-              expect(event["event_registration_state"]).to eq('pending')
+              expect(event['event_registration_state']).to eq('pending')
             end
           end
         end
@@ -350,7 +350,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
             # Check that event states are correct
             event_details.each do |event|
-              expect(event["event_registration_state"]).to eq('pending')
+              expect(event['event_registration_state']).to eq('pending')
             end
           end
         end
@@ -399,7 +399,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
             # Check that event states are correct
             event_details.each do |event|
-              expect(event["event_registration_state"]).to eq('pending')
+              expect(event['event_registration_state']).to eq('pending')
             end
           end
         end

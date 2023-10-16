@@ -32,9 +32,9 @@ RSpec.describe 'v1 Registrations API', type: :request do
             reg_for_444 = false
 
             # NOTE: Breaks if we have more than 1 lane
-            events = registration[:lanes][0].lane_details["event_details"]
+            events = registration[:lanes][0].lane_details['event_details']
             events.each do |event|
-              if event["event_id"] == "444"
+              if event['event_id'] == '444'
                 reg_for_444 = true
               end
             end

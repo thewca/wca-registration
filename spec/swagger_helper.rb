@@ -24,7 +24,7 @@ RSpec.configure do |config|
       components: {
         securitySchemes: {
           Bearer: {
-            description: "...",
+            description: '...',
             type: :apiKey,
             name: 'Authorization',
             in: :header,

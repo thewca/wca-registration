@@ -15,13 +15,13 @@ Vault.configure do |vault|
   # prefixed with this application name. If you change the name of the
   # application, you will need to migrate the encrypted data to the new
   # key namespace. Default: ENV["VAULT_RAILS_APPLICATION"].
-  env = ENV.fetch("CODE_ENVIRONMENT", "development")
-  if env == "production"
-    @vault_application = "wca-registration"
-  elsif env == "staging"
-    @vault_application = "wca-registration-staging"
+  env = ENV.fetch('CODE_ENVIRONMENT', 'development')
+  if env == 'production'
+    @vault_application = 'wca-registration'
+  elsif env == 'staging'
+    @vault_application = 'wca-registration-staging'
   else
-    @vault_application = "wca-registration-development"
+    @vault_application = 'wca-registration-development'
   end
 
   vault.application = @vault_application
