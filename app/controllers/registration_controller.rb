@@ -162,7 +162,6 @@ class RegistrationController < ApplicationController
   # You can either view your own registration or one for a competition you administer
   def validate_show_registration
     @user_id, @competition_id = show_params
-    puts @user_id, @competition_id
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
       @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
   end

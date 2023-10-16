@@ -36,7 +36,7 @@ export default function RegistrationEditor() {
     mutationFn: updateRegistration,
     onError: (data) => {
       setMessage(
-        'Registration update failed with error: ' + data.error,
+        'Registration update failed with error: ' + data.errorCode,
         'negative'
       )
     },
@@ -51,16 +51,18 @@ export default function RegistrationEditor() {
   useEffect(() => {
     if (serverRegistration) {
       setRegistration(serverRegistration.registration)
-      setComment(serverRegistration.registration.comment ?? '')
-      setStatus(serverRegistration.registration.registration_status)
-      setSelectedEvents(serverRegistration.registration.event_ids)
-      setAdminComment(serverRegistration.registration.admin_comment ?? '')
+      setComment(serverRegistration.registration.competing.comment ?? '')
+      setStatus(serverRegistration.registration.competing.registration_status)
+      setSelectedEvents(serverRegistration.registration.competing.event_ids)
+      setAdminComment(
+        serverRegistration.registration.competing.admin_comment ?? ''
+      )
     }
   }, [serverRegistration])
 
   return (
     <div className={styles.editor}>
-      {!registration.registration_status || isLoading ? (
+      {!registration?.competing?.registration_status || isLoading ? (
         <LoadingMessage />
       ) : (
         <div>
@@ -95,6 +97,15 @@ export default function RegistrationEditor() {
           <div className={styles.registrationStatus}>
             <Checkbox
               radio
+              label="Pending"
+              name="checkboxRadioGroup"
+              value="pending"
+              checked={status === 'pending'}
+              onChange={(_, data) => setStatus(data.value)}
+            />
+            <br />
+            <Checkbox
+              radio
               label="Accepted"
               name="checkboxRadioGroup"
               value="accepted"
@@ -104,19 +115,19 @@ export default function RegistrationEditor() {
             <br />
             <Checkbox
               radio
-              label="Waiting"
+              label="Waiting List"
               name="checkboxRadioGroup"
-              value="waiting"
-              checked={status === 'waiting'}
+              value="waiting_list"
+              checked={status === 'waiting_list'}
               onChange={(_, data) => setStatus(data.value)}
             />
             <br />
             <Checkbox
               radio
-              label="Deleted"
+              label="Cancelled"
               name="checkboxRadioGroup"
-              value="deleted"
-              checked={status === 'deleted'}
+              value="cancelled"
+              checked={status === 'cancelled'}
               onChange={(_, data) => setStatus(data.value)}
             />
           </div>
