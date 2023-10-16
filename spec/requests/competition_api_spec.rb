@@ -6,7 +6,7 @@ require_relative '../../app/helpers/competition_api'
 describe CompetitionInfo do
   describe 'Initializing object' do
     it 'PASSING Initializes successfully with a valid competition_id' do
-      competition = FactoryBot.build(:competition_details)
+      competition = FactoryBot.build(:competition)
       stub_request(:get, comp_api_url(competition[:competition_id])).to_return(status: 200, body: competition.to_json)
 
       competition_info = CompetitionApi.find!(competition[:competition_id])

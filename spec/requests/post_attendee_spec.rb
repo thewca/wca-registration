@@ -3,7 +3,11 @@
 require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
 
-# TODO: Submits registration at guest limit
+# TODO: Figure out why RSwag isn't raising an error for the fact that we're getting a 200 not a 202 response
+# TODO: create "smoke tests" that check the values written to the database - these should probably be request tests
+# TODO: Reject a reg that tries to define lane state
+# TODO: Submit registration that doesn't have all required fields
+# TODO: Submits registration at guest limit (edge cases)
 # TODO: Submits comment at character limit
 # TODO: Submits comment over character limit
 # TODO: Validate expected vs actual output
@@ -26,40 +30,49 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # include_context 'database seed'
         # include_context 'auth_tokens'
         # include_context 'registration_data'
-        include_context 'competition information'
+        # include_context 'competition information'
 
-        # Failing: see above
         response '202', '-> PASSING competitor submits basic registration' do
+          before do
+            competition = FactoryBot.build(:competition)
+            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+          end
+
           registration = FactoryBot.build(:registration)
           let!(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
 
           run_test! do |response|
-            assert_requested :get, "#{@base_comp_url}#{@includes_non_attending_registrations}", times: 1
+            expect(response.body).to eq({ status: 'accepted', message: 'Started Registration Process' }.to_json)
           end
         end
 
-        # Failing: due to "Cannot do operations on a non-existent table" error - Finn input needed, I've done a basic check
+        # This should be a controller test, or just a normal request test (might be good to have an integration test with mis-matching JWT/user_id)
         response '202', '-> PASSING admin registers before registration opens' do
-          registration = FactoryBot.build(:admin, events: ['444', '333bf'], competition_id: 'BrizZonSylwesterOpen2023')
+          before do
+            competition = FactoryBot.build(:competition, competition_opened?: false)
+            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+          end
+
+          registration = FactoryBot.build(:registration_for_admin)
           let(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
 
-          run_test! do |response|
-            # TODO: Do a better assertion here
-            assert_requested :get, "#{@base_comp_url}#{@registrations_not_open}", times: 1
-          end
+          run_test!
         end
 
         # Failing: see above
         response '202', '-> PASSING admin submits registration for competitor' do
-          registration = FactoryBot.build(:admin_submits)
+          before do
+            competition = FactoryBot.build(:competition)
+            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+          end
+
+          registration = FactoryBot.build(:admin_submits_registration_for_user)
           let(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
 
-          run_test! do |response|
-            assert_requested :get, "#{@base_comp_url}#{@includes_non_attending_registrations}", times: 1
-          end
+          run_test!
         end
       end
 
@@ -71,28 +84,45 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'competition information'
 
         response '401', ' -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration user_id)' do
+          registration = FactoryBot.build(:impersonation)
           registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
-          let(:registration) { @required_fields_only }
-          let(:Authorization) { @jwt_200 }
+
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
           end
         end
 
         response '422', 'PASSING user registration exceeds guest limit' do
+          before do
+            competition = FactoryBot.build(:competition)
+            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+          end
+
+          registration = FactoryBot.build(:registration_with_guests, guests: 3)
           registration_error_json = { error: ErrorCodes::GUEST_LIMIT_EXCEEDED }.to_json
-          let(:registration) { @too_many_guests }
-          let(:Authorization) { @jwt_824 }
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
           end
         end
 
-        response '403', ' -> PASSING user cant register while registration is closed' do
+        response '403', ' -> TESTING user cant register while registration is closed' do
+          before do
+            competition = FactoryBot.build(:competition, competition_opened?: false)
+            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+          end
+
+          registration = FactoryBot.build(:registration)
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::REGISTRATION_CLOSED }.to_json
-          let(:registration) { @comp_not_open }
-          let(:Authorization) { @jwt_817 }
+
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
           end

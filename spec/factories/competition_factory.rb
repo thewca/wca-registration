@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'factory_bot_rails'
+require_relative '../../app/helpers/competition_api'
 
 FactoryBot.define do
-  factory :competition_details, class: Hash do
+  factory :competition, class: Hash do
     events { ['333', '222', '444', '555', '666', '777', '333bf', '333oh', 'clock', 'minx', 'pyram', 'skewb', 'sq1', '444bf', '555bf', '333mbf'] }
     registration_opened? { true }
     competition_id { 'CubingZANationalChampionship2023' }
@@ -31,5 +32,13 @@ FactoryBot.define do
     using_stripe_payments? { true }
 
     initialize_with { attributes.transform_keys(&:to_s) }
+
+    transient do
+      mock_competition { true }
+    end
+
+    after(:create) do |competition, evaluator|
+      stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: evalutor.mocked_status_code, body: competition) if evaluator.mock_competition
+    end
   end
 end

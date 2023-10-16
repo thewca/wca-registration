@@ -56,6 +56,7 @@ class RegistrationController < ApplicationController
   # 4) Register for events that are actually held at the competition
   # We need to do this in this order, so we don't leak user attributes
   def validate_create_request
+    puts params
     @user_id = registration_params[:user_id]
     @competition_id = registration_params[:competition_id]
     @event_ids = registration_params[:competing]['event_ids']

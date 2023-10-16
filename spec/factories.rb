@@ -38,9 +38,19 @@ FactoryBot.define do
       jwt_token { fetch_jwt_token('15073') }
     end
 
+    trait :impersonation do
+      jwt_token { fetch_jwt_token('1000') }
+    end
+
+    trait :guests do
+      guests { 2 }
+    end
+
     initialize_with { attributes }
 
-    factory :admin, traits: [:admin]
-    factory :admin_submits, traits: [:admin_submits]
+    factory :registration_for_admin, traits: [:admin]
+    factory :admin_submits_registration_for_user, traits: [:admin_submits]
+    factory :impersonation, traits: [:impersonation]
+    factory :registration_with_guests, traits: [:guests]
   end
 end
