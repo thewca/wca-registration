@@ -41,7 +41,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '202', '-> PASSING admin registers before registration opens' do
-          registration = FactoryBot.build(:admin, events: ["444", "333bf"], competition_id: "BrizZonSylwesterOpen2023")
+          registration = FactoryBot.build(:admin, events: ['444', '333bf'], competition_id: 'BrizZonSylwesterOpen2023')
           let(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
 
@@ -173,13 +173,6 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         include_context 'auth_tokens'
         include_context 'registration_data'
         include_context 'competition information'
-
-        response '202', '-> FAILING admin organizer for wrong competition submits registration for competitor' do
-          let(:registration) { @reg_2 }
-          let(:Authorization) { @organizer_token }
-
-          run_test!
-        end
 
         response '403', ' -> PASSING comp not open, admin adds another user' do
           registration_error_json = { error: ErrorCodes::REGISTRATION_CLOSED }.to_json

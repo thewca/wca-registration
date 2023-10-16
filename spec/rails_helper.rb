@@ -9,7 +9,7 @@ require 'rspec/rails'
 ENV['RAILS_ENV'] = 'test' # TODO: Figure out why this isn't working? (We have to manually say RAILS_ENV=test when running rspec)
 
 # Prevent database truncation if the environment is production
-abort("The Rails environment is running in production mode!") if Rails.env.production?
+abort('The Rails environment is running in production mode!') if Rails.env.production?
 
 # Add additional requires below this line. Rails is not loaded until this point!
 

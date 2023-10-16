@@ -5,10 +5,10 @@ class Registration
   include Dynamoid::Document
 
   # We autoscale dynamodb in production
-  if ENV.fetch("CODE_ENVIRONMENT", "development") == "staging"
+  if ENV.fetch('CODE_ENVIRONMENT', 'development') == 'staging'
     table name: 'registrations-staging', read_capacity: 5, write_capacity: 5, key: :attendee_id
   else
-    table name: "registrations", capacity_mode: nil, key: :attendee_id
+    table name: 'registrations', capacity_mode: nil, key: :attendee_id
   end
 
   REGISTRATION_STATES = %w[pending waiting_list accepted cancelled].freeze
@@ -16,72 +16,72 @@ class Registration
 
   # Returns all event ids irrespective of registration status
   def event_ids
-    lanes.filter_map { |x| x.lane_details["event_details"].pluck("event_id") if x.lane_name == "competing" }[0]
+    lanes.filter_map { |x| x.lane_details['event_details'].pluck('event_id') if x.lane_name == 'competing' }[0]
   end
 
   # Returns id's of the events with a non-cancelled state
   def registered_event_ids
     event_ids = []
 
-    competing_lane = lanes.find { |x| x.lane_name == "competing" }
+    competing_lane = lanes.find { |x| x.lane_name == 'competing' }
 
-    competing_lane.lane_details["event_details"].each do |event|
-      if event["event_registration_state"] != "cancelled"
-        event_ids << event["event_id"]
+    competing_lane.lane_details['event_details'].each do |event|
+      if event['event_registration_state'] != 'cancelled'
+        event_ids << event['event_id']
       end
     end
     event_ids
   end
 
   def event_details
-    competing_lane = lanes.find { |x| x.lane_name == "competing" }
-    competing_lane.lane_details["event_details"]
+    competing_lane = lanes.find { |x| x.lane_name == 'competing' }
+    competing_lane.lane_details['event_details']
   end
 
   def competing_status
-    lanes.filter_map { |x| x.lane_state if x.lane_name == "competing" }[0]
+    lanes.filter_map { |x| x.lane_state if x.lane_name == 'competing' }[0]
   end
 
   def competing_comment
-    lanes.filter_map { |x| x.lane_details["comment"] if x.lane_name == "competing" }[0]
+    lanes.filter_map { |x| x.lane_details['comment'] if x.lane_name == 'competing' }[0]
   end
 
   def competing_guests
-    lanes.filter_map { |x| x.lane_details["guests"] if x.lane_name == "competing" }[0]
+    lanes.filter_map { |x| x.lane_details['guests'] if x.lane_name == 'competing' }[0]
   end
 
   # TODO: Change this when we introduce a guest lane
   def guests
-    lanes.filter_map { |x| x.lane_details["guests"] if x.lane_name == "competing" }[0]
+    lanes.filter_map { |x| x.lane_details['guests'] if x.lane_name == 'competing' }[0]
   end
 
   def admin_comment
-    lanes.filter_map { |x| x.lane_details["admin_comment"] if x.lane_name == "competing" }[0]
+    lanes.filter_map { |x| x.lane_details['admin_comment'] if x.lane_name == 'competing' }[0]
   end
 
   def payment_ticket
-    lanes.filter_map { |x| x.lane_details["payment_intent_client_secret"] if x.lane_name == "payment" }[0]
+    lanes.filter_map { |x| x.lane_details['payment_intent_client_secret'] if x.lane_name == 'payment' }[0]
   end
 
   def update_competing_lane!(update_params)
     updated_lanes = lanes.map do |lane|
-      if lane.lane_name == "competing"
+      if lane.lane_name == 'competing'
 
         # Update status for lane and events
         if update_params[:status].present?
           lane.lane_state = update_params[:status]
 
-          lane.lane_details["event_details"].each do |event|
+          lane.lane_details['event_details'].each do |event|
             # NOTE: Currently event_registration_state is not used - when per-event registrations are added, we need to add validation logic to support cases like
             # limited registrations and waiting lists for certain events
-            event["event_registration_state"] = update_params[:status]
+            event['event_registration_state'] = update_params[:status]
           end
         end
 
-        lane.lane_details["comment"] = update_params[:comment] if update_params[:comment].present?
-        lane.lane_details["guests"] = update_params[:guests] if update_params[:guests].present?
-        lane.lane_details["admin_comment"] = update_params[:admin_comment] if update_params[:admin_comment].present?
-        if update_params[:event_ids].present? && update_params[:status] != "cancelled"
+        lane.lane_details['comment'] = update_params[:comment] if update_params[:comment].present?
+        lane.lane_details['guests'] = update_params[:guests] if update_params[:guests].present?
+        lane.lane_details['admin_comment'] = update_params[:admin_comment] if update_params[:admin_comment].present?
+        if update_params[:event_ids].present? && update_params[:status] != 'cancelled'
           lane.update_events(update_params[:event_ids])
         end
       end
@@ -89,7 +89,7 @@ class Registration
     end
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
     updated_is_attending = if update_params[:status].present?
-                             update_params[:status] == "accepted"
+                             update_params[:status] == 'accepted'
                            else
                              is_attending
                            end

@@ -1,80 +1,93 @@
 # frozen_string_literal: true
 
+require 'httparty'
 require 'uri'
-require 'net/http'
 require 'json'
 
 require_relative 'error_codes'
 require_relative 'wca_api'
+
+def comp_api_url(competition_id)
+  comp_api_baseurl = 'https://test-registration.worldcubeassociation.org/api/v10/competitions'
+  "#{comp_api_baseurl}/#{competition_id}"
+end
+
 class CompetitionApi < WcaApi
-  def self.fetch_competition(competition_id)
-    uri = URI("https://test-registration.worldcubeassociation.org/api/v10/competitions/#{competition_id}")
-    res = Net::HTTP.get_response(uri)
-    case res
-    when Net::HTTPSuccess
-      body = JSON.parse res.body
-      { error: false, competition_info: body }
-    when Net::HTTPNotFound
-      Metrics.registration_competition_api_error_counter.increment
-      { error: ErrorCodes::COMPETITION_NOT_FOUND, status: 404 }
-    else
-      Metrics.registration_competition_api_error_counter.increment
-      { error: ErrorCodes::COMPETITION_API_5XX, status: res.code }
-    end
+  def self.find(competition_id)
+    competition_json = fetch_competition(competition_id)
+    CompetitionInfo.new(competition_json)
+  rescue RegistrationError
+    nil
   end
 
-  def self.get_competition_info(competition_id)
-    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      self.fetch_competition(competition_id)
-    end
+  def self.find!(competition_id)
+    competition_json = fetch_competition(competition_id)
+    CompetitionInfo.new(competition_json)
+  end
 
-    if competition_info.key?(:error)
-      if competition_info[:error] == ErrorCodes::COMPETITION_NOT_FOUND
-        competition_info[:competition_exists?] = false
-      else
-        # If there's any other kind of error we don't know whether the competition exists or not
-        competition_info[:competition_exists?] = nil
+  # This is how you make a private class method
+  class << self
+    def fetch_competition(competition_id)
+      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+        response = HTTParty.get(comp_api_url(competition_id))
+        case response.code
+        when 200
+          @status = 200
+          JSON.parse response.body
+        when 404
+          Metrics.registration_competition_api_error_counter.increment
+          raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
+        else
+          Metrics.registration_competition_api_error_counter.increment
+          raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
+        end
       end
-    else
-      competition_info[:competition_exists?] = true
-      competition_info[:competition_open?] = competition_info[:competition_info]["registration_opened?"]
     end
-    competition_info
+  end
+end
+
+class CompetitionInfo
+  def initialize(competition_json)
+    @competition_json = competition_json
   end
 
-  def self.competition_open?(competition_id)
-    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      self.fetch_competition(competition_id)
-    end
-    competition_info[:competition_info]["registration_opened?"]
+  def event_change_deadline
+    @competition_json['event_change_deadline_date']
   end
 
-  def self.competition_exists?(competition_id)
-    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      self.fetch_competition(competition_id)
-    end
-
-    competition_info[:error] == false
+  def competitor_limit
+    @competition_json['competitor_limit']
   end
 
-  def self.uses_wca_payment?(competition_id)
-    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      self.fetch_competition(competition_id)
-    end
-    competition_info[:competition_info]["using_stripe_payments?"]
+  def guest_limit_exceeded?(guest_count)
+    @competition_json['guest_entry_status'] == 'restricted' && @competition_json['guests_per_registration_limit'] < guest_count
   end
 
-  def self.events_held?(event_ids, competition_id)
-    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      self.fetch_competition(competition_id)
-    end
-    competition_info[:competition_info]["event_ids"].to_set.superset?(event_ids.to_set)
+  def guest_limit
+    @competition_json['guests_per_registration_limit']
   end
 
-  def self.payment_info(competition_id)
-    competition_info = Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      self.fetch_competition(competition_id)
-    end
-    [competition_info[:competition_info]["base_entry_fee_lowest_denomination"], competition_info[:competition_info]["currency_code"]]
+  def registration_open?
+    @competition_json['registration_opened?']
+  end
+
+  def using_wca_payment?
+    @competition_json['using_stripe_payments?']
+  end
+
+  def force_comment?
+    @competition_json['force_comment_in_registration']
+  end
+
+  def events_held?(event_ids)
+    event_ids != [] && @competition_json['event_ids'].to_set.superset?(event_ids.to_set)
+  end
+
+  def payment_info
+    [@competition_json['base_entry_fee_lowest_denomination'], @competition_json['currency_code']]
+  end
+
+  def name
+    @competition_json['name']
   end
 end

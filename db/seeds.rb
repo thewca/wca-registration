@@ -51,7 +51,7 @@ begin
                            global_secondary_indexes: global_secondary_indexes,
                          })
 rescue Aws::DynamoDB::Errors::ResourceInUseException
-  puts "Database Already exists"
+  puts 'Database Already exists'
 end
 
 # Create SQS Queue

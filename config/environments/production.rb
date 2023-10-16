@@ -4,10 +4,10 @@ require 'active_support/core_ext/integer/time'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
-  code_env = ENV.fetch("CODE_ENVIRONMENT", nil)
-  if code_env == "production"
+  code_env = ENV.fetch('CODE_ENVIRONMENT', nil)
+  if code_env == 'production'
     config.hosts << 'registration.worldcubeassociation.org'
-  elsif code_env == "staging"
+  elsif code_env == 'staging'
     config.hosts << 'staging.registration.worldcubeassociation.org'
   end
 
