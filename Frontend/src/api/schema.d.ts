@@ -173,9 +173,13 @@ export interface components {
     };
     updateRegistrationBody: {
       user_id: string;
-      event_ids: EventId[];
-      comment?: string;
-      admin_comment?: string;
+      competition_id: string;
+      competing?: {
+        event_ids?: EventId[];
+        status?: string;
+        comment?: string;
+        admin_comment?: string;
+      };
       guests?: number;
     };
   };

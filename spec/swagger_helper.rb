@@ -148,24 +148,35 @@ RSpec.configure do |config|
               user_id: {
                 type: :string,
               },
-              event_ids: {
-                type: :array,
-                items: {
-                  type: :string,
-                  format: :EventId,
-                },
+              competition_id: {
+                type: :string
               },
-              comment: {
-                type: :string,
-              },
-              admin_comment: {
-                type: :string,
+              competing: {
+                type: :object,
+                properties:{
+                  event_ids: {
+                    type: :array,
+                    items: {
+                      type: :string,
+                      format: :EventId,
+                    },
+                  },
+                  status: {
+                    type: :string
+                  },
+                  comment: {
+                    type: :string,
+                  },
+                  admin_comment: {
+                    type: :string,
+                  },
+                }
               },
               guests: {
                 type: :number,
               },
             },
-            required: [:user_id, :event_ids],
+            required: [:user_id, :competition_id],
           },
         },
       },

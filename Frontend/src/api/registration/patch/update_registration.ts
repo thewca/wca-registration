@@ -18,6 +18,7 @@ export async function updateRegistration(
   registration?: components['schemas']['registrationAdmin']
 }> {
   const { data, error, response } = await PATCH('/api/v1/register', {
+    headers: { Authorization: await getJWT() },
     body,
   })
   if (error) {

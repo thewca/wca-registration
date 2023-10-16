@@ -223,9 +223,11 @@ export default function CompetingStep({ nextStep }) {
                   updateRegistrationMutation({
                     user_id: registration.user_id,
                     competition_id: competitionInfo.id,
-                    comment,
-                    guests,
-                    event_ids: selectedEvents,
+                    competing: {
+                      comment,
+                      guests,
+                      event_ids: selectedEvents,
+                    },
                   })
                 }}
               >
@@ -239,7 +241,9 @@ export default function CompetingStep({ nextStep }) {
                   updateRegistrationMutation({
                     user_id: registration.user_id,
                     competition_id: competitionInfo.id,
-                    status: 'deleted',
+                    competing: {
+                      status: 'deleted',
+                    },
                   })
                 }}
               >

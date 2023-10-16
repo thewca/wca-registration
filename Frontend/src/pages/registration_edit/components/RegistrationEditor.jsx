@@ -126,11 +126,13 @@ export default function RegistrationEditor() {
               setMessage('Updating Registration', 'basic')
               updateRegistrationMutation({
                 user_id,
+                competing: {
+                  status,
+                  event_id: selectedEvents,
+                  comment,
+                  admin_comment: adminComment,
+                },
                 competition_id: competitionInfo.id,
-                status,
-                event_id: selectedEvents,
-                comment,
-                admin_comment: adminComment,
               })
             }}
           >

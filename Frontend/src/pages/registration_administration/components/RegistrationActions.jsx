@@ -33,8 +33,10 @@ export default function RegistrationActions({ selected, refresh }) {
       updateRegistrationMutation(
         {
           user_id: attendee,
+          competing: {
+            status,
+          },
           competition_id: competitionInfo.id,
-          status,
         },
         {
           onSuccess: () => {
