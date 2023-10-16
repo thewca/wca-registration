@@ -74,6 +74,7 @@ export default function RegistrationEditor() {
           <h3> Comment </h3>
           <div className={styles.commentWrapper}>
             <TextArea
+              id="competitor-comment"
               maxLength={180}
               value={comment}
               onChange={(_, data) => {
@@ -84,6 +85,7 @@ export default function RegistrationEditor() {
           <h3> Administrative Notes </h3>
           <div className={styles.commentWrapper}>
             <TextArea
+              id="admin-comment"
               maxLength={180}
               value={adminComment}
               onChange={(_, data) => {
