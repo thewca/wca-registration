@@ -59,8 +59,8 @@ class CompetitionInfo
     @competition_json['competitor_limit']
   end
 
-  def guest_entry_status
-    @competition_json['guest_entry_status']
+  def guest_limit_exceeded?(guest_count)
+    @competition_json['guest_entry_status'] == 'restricted' && @competition_json['guests_per_registration_limit'] < guest_count
   end
 
   def guest_limit

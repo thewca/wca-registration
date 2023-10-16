@@ -29,7 +29,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'competition information'
 
         # Failing: see above
-        response '202', '-> TESTING competitor submits basic registration' do
+        response '202', '-> PASSING competitor submits basic registration' do
           registration = FactoryBot.build(:registration)
           let!(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }

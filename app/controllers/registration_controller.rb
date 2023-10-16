@@ -68,7 +68,7 @@ class RegistrationController < ApplicationController
     raise RegistrationError.new(:unauthorized, reasons) unless can_compete
 
     validate_events!
-    validate_guests!
+    raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && @competition.guest_limit_exceeded?(params[:guests])
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
   end
@@ -137,7 +137,7 @@ class RegistrationController < ApplicationController
 
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if admin_fields_present? && !UserApi.can_administer?(@current_user, @competition_id)
-    raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && !guests_valid?
+    raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && @competition.guest_limit_exceeded?(params[:guests])
 
     if params.key?(:competing)
       validate_status! if params['competing'].key?(:status)
@@ -275,14 +275,6 @@ class RegistrationController < ApplicationController
       true
     rescue Dynamoid::Errors::RecordNotFound
       false
-    end
-
-    def validate_guests!
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && !guests_valid?
-    end
-
-    def guests_valid?
-      @competition.guest_entry_status != 'restricted' || @competition.guest_limit >= params[:guests]
     end
 
     def comment_valid?
