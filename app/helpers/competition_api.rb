@@ -8,7 +8,7 @@ require_relative 'error_codes'
 require_relative 'wca_api'
 
 def comp_api_url(competition_id)
-  comp_api_baseurl = 'https://test-registration.worldcubeassociation.org/api/v10/competitions'
+  comp_api_baseurl = 'https://worldcubeassociation.org/api/v0/competitions'
   "#{comp_api_baseurl}/#{competition_id}"
 end
 

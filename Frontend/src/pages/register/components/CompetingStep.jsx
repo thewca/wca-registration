@@ -40,10 +40,10 @@ export default function CompetingStep({ nextStep }) {
     },
   })
   useEffect(() => {
-    if (registrationRequest?.registration.registration_status) {
+    if (registrationRequest?.registration?.competing) {
       setRegistration(registrationRequest.registration)
-      setComment(registrationRequest.registration.comment ?? '')
-      setSelectedEvents(registrationRequest.registration.event_ids)
+      setComment(registrationRequest.registration.competing.comment ?? '')
+      setSelectedEvents(registrationRequest.registration.competing.event_ids)
       setGuests(registrationRequest.registration.guests)
     }
   }, [registrationRequest])
@@ -262,7 +262,7 @@ export default function CompetingStep({ nextStep }) {
               </div>
               <Button
                 className={styles.registrationButton}
-                disabled={isCreating}
+                disabled={isCreating || selectedEvents.length === 0}
                 onClick={async () => {
                   setMessage('Registration is being processed', 'basic')
                   createRegistrationMutation({

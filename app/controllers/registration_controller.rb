@@ -13,7 +13,7 @@ class RegistrationController < ApplicationController
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
   before_action :validate_create_request, only: [:create]
-  before_action :validate_show_request, only: [:entry]
+  before_action :validate_show_registration, only: [:show]
   before_action :ensure_lane_exists, only: [:create]
   before_action :validate_list_admin, only: [:list_admin]
   before_action :validate_update_request, only: [:update]
@@ -161,7 +161,8 @@ class RegistrationController < ApplicationController
 
   # You can either view your own registration or one for a competition you administer
   def validate_show_registration
-    @user_id, @competition_id = entry_params
+    @user_id, @competition_id = show_params
+    puts @user_id, @competition_id
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
       @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
   end
@@ -227,7 +228,7 @@ class RegistrationController < ApplicationController
     end
 
     def show_params
-      params.require([:user_id, :competition_id, :competing])
+      params.require([:user_id, :competition_id])
     end
 
     def update_params

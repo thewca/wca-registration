@@ -1,5 +1,7 @@
 import createClient from 'openapi-fetch'
+import { getJWT } from '../../auth/get_jwt'
 import backendFetch, { BackendError } from '../../helper/backend_fetch'
+import { EXPIRED_TOKEN } from '../../helper/error_codes'
 import { components, paths } from '../../schema'
 import getCompetitorInfo from '../../user/get/get_user_info'
 
@@ -39,15 +41,20 @@ export async function getAllRegistrations(
   competitionID: string
 ): Promise<components['schemas']['registrationAdmin'][]> {
   //TODO: Because there is currently no bulk user fetch route we need to manually add user data here
-  const { data, response } = await GET(
+  const { data, error, response } = await GET(
     '/api/v1/registrations/{competition_id}/admin',
     {
       params: { path: { competition_id: competitionID } },
+      headers: { Authorization: await getJWT() },
     }
   )
   const regList = []
-  if (!response.ok) {
-    throw new BackendError(500, response.status)
+  if (error) {
+    if (error.error === EXPIRED_TOKEN) {
+      await getJWT(true)
+      return getAllRegistrations(competitionID)
+    }
+    throw new BackendError(error.error, response.status)
   }
   for (const registration of data!) {
     const user = (await getCompetitorInfo(registration.user_id)).user

@@ -13,9 +13,8 @@ const { POST } = createClient<paths>({
 export default async function submitEventRegistration(
   body: components['schemas']['submitRegistrationBody']
 ): Promise<components['schemas']['success_response']> {
-  const token = await getJWT()
   const { data, error, response } = await POST('/api/v1/register', {
-    headers: { Authorization: token },
+    headers: { Authorization: await getJWT() },
     body,
   })
   if (error) {
