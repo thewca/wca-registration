@@ -81,8 +81,8 @@ const reducer = (state, action) => {
 const partitionRegistrations = (registrations) => {
   return registrations.reduce(
     (result, registration) => {
-      switch (registration.registration_status) {
-        case 'waiting':
+      switch (registration.competing.registration_status) {
+        case 'incoming':
           result.waiting.push(registration)
           break
         case 'accepted':
@@ -135,7 +135,6 @@ export default function RegistrationAdministrationList() {
     () => partitionRegistrations(registrations ?? []),
     [registrations]
   )
-
   return isLoading ? (
     <div className={styles.listContainer}>
       <LoadingMessage />
@@ -259,24 +258,26 @@ function RegistrationAdministrationTable({
                 <Table.Cell>
                   <Popup
                     content={new Date(
-                      registration.registered_on
+                      registration.competing.registered_on
                     ).toTimeString()}
                     trigger={
                       <span>
                         {new Date(
-                          registration.registered_on
+                          registration.competing.registered_on
                         ).toLocaleDateString()}
                       </span>
                     }
                   />
                 </Table.Cell>
-                <Table.Cell>{registration.event_ids.length}</Table.Cell>
-                <Table.Cell>{registration.guests}</Table.Cell>
-                <Table.Cell title={registration.comment}>
-                  {truncateComment(registration.comment)}
+                <Table.Cell>
+                  {registration.competing.event_ids.length}
                 </Table.Cell>
-                <Table.Cell title={registration.admin_comment}>
-                  {truncateComment(registration.admin_comment)}
+                <Table.Cell>{registration.guests}</Table.Cell>
+                <Table.Cell title={registration.competing.comment}>
+                  {truncateComment(registration.competing.comment)}
+                </Table.Cell>
+                <Table.Cell title={registration.competing.admin_comment}>
+                  {truncateComment(registration.competing.admin_comment)}
                 </Table.Cell>
                 <Table.Cell>
                   <a
