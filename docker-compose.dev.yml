@@ -105,16 +105,6 @@ services:
     networks:
       - wca-registration
 
-  wca_vault:
-    container_name: vault
-    image: hashicorp/vault
-    environment:
-      - VAULT_DEV_ROOT_TOKEN_ID=aDGdUASDGIUASGDKI
-    ports:
-      - "8200:8200"
-    networks:
-      - wca-registration
-
   # Frontend
   frontend:
     container_name: frontend

@@ -28,14 +28,6 @@ services:
       - wca_vault
       - prometheus_exporter
 
-  wca_vault:
-    image: hashicorp/vault
-    environment:
-      - VAULT_DEV_ROOT_TOKEN_ID=aDGdUASDGIUASGDKI
-    ports:
-      - "8200:8200"
-    networks:
-      - wca-registration
 
   prometheus_exporter:
     build:

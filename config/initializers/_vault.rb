@@ -17,7 +17,7 @@ Vault.configure do |vault|
   # key namespace. Default: ENV["VAULT_RAILS_APPLICATION"].
   env = ENV.fetch('CODE_ENVIRONMENT', 'development')
   if env == 'production'
-    @vault_application = 'wca-registration'
+    @vault_application = 'wca-registration-production'
   elsif env == 'staging'
     @vault_application = 'wca-registration-staging'
   else
@@ -60,7 +60,7 @@ def read_secret(secret_name)
     if e
       puts "Received exception #{e} from Vault - attempt #{attempt}"
     end
-    secret = Vault.logical.read("secret/data/#{@vault_application}/#{secret_name}")
+    secret = Vault.logical.read("kv/data/#{@vault_application}/#{secret_name}")
     if secret.present?
       secret.data[:data][:value]
     else # TODO: should we hard error out here?
@@ -68,20 +68,3 @@ def read_secret(secret_name)
     end
   end
 end
-
-def create_secret(secret_name, value)
-  Vault.with_retries(Vault::HTTPConnectionError) do
-    Vault.logical.write("secret/data/#{@vault_application}/#{secret_name}", data: { value: value })
-  end
-end
-
-# Initialize secrets for dev and test
-def init
-  create_secret('SECRET_KEY_BASE',
-                'a003fdc6f113ff7d295596a02192c7116a76724ba6d3071043eefdd16f05971be0dc58f244e67728757b2fb55ae7a41e1eb97c1fe247ddaeb6caa97cea32120c')
-  # Make sure this development secret is the same across this and the monolith
-  create_secret('JWT_SECRET',
-                'jwt-test-secret')
-end
-
-init unless Rails.env.production?
