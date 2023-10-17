@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "superconfig"
+require 'superconfig'
 
-require_relative "env_config"
+require_relative 'env_config'
 
 SuperConfig::Base.class_eval do
   # The skeleton is stolen from the source code of the `superconfig` gem, file lib/superconfig.rb:104
@@ -10,9 +10,9 @@ SuperConfig::Base.class_eval do
   def vault(secret_name, &block)
     define_singleton_method(secret_name) do
       @__cache__["_vault_#{secret_name}".to_sym] ||= begin
-                                                       value = self.vault_read(secret_name)[:value]
-                                                       block ? block.call(value) : value
-                                                     end
+        value = self.vault_read(secret_name)[:value]
+        block ? block.call(value) : value
+      end
     end
   end
 
@@ -30,7 +30,7 @@ end
 
 AppSecrets = SuperConfig.new do
   if Rails.env.production?
-    require_relative "vault_config"
+    require_relative 'vault_config'
 
     vault :JWT_SECRET
     vault :SECRET_KEY_BASE
