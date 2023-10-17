@@ -42,6 +42,10 @@ FactoryBot.define do
       jwt_token { fetch_jwt_token('1000') }
     end
 
+    trait :banned do
+      jwt_token { fetch_jwt_token('209943') }
+    end
+
     trait :guests do
       guests { 2 }
     end
@@ -52,5 +56,6 @@ FactoryBot.define do
     factory :admin_submits_registration_for_user, traits: [:admin_submits]
     factory :impersonation, traits: [:impersonation]
     factory :registration_with_guests, traits: [:guests]
+    factory :banned_competitor, traits: [:banned]
   end
 end

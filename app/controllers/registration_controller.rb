@@ -307,6 +307,9 @@ class RegistrationController < ApplicationController
     end
 
     def user_can_create_registration!
+      # Banned user can't compete
+      # raise RegistrationError.new(:unauthorized, ErrorCodes::USER_IS_BANNED) if
+
       # Only an admin or the user themselves can create a registration for the user
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
 

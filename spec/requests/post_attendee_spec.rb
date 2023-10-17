@@ -78,10 +78,10 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
       # TODO: competitor does not meet qualification requirements - will need to mock users service for this? - investigate what the monolith currently does and replicate that
       context 'fail registration posts, from USER' do
-        include_context 'database seed'
-        include_context 'auth_tokens'
-        include_context 'registration_data'
-        include_context 'competition information'
+        # include_context 'database seed'
+        # include_context 'auth_tokens'
+        # include_context 'registration_data'
+        # include_context 'competition information'
 
         response '401', ' -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration user_id)' do
           registration = FactoryBot.build(:impersonation)
@@ -111,9 +111,9 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '403', ' -> TESTING user cant register while registration is closed' do
+        response '403', ' -> PASSING user cant register while registration is closed' do
           before do
-            competition = FactoryBot.build(:competition, competition_opened?: false)
+            competition = FactoryBot.build(:competition, registration_opened?: false)
             stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
           end
 
@@ -128,10 +128,17 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '401', '-> PASSING attendee is banned' do
+        response '401', '-> TESTING attendee is banned' do
+          before do
+            competition = FactoryBot.build(:competition)
+            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+          end
+
+          registration = FactoryBot.build(:banned_competitor)
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::USER_IS_BANNED }.to_json
-          let(:registration) { @banned_user_reg }
-          let(:Authorization) { @banned_user_jwt }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
