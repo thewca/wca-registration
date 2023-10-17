@@ -34,7 +34,7 @@ FactoryBot.define do
     initialize_with { attributes.transform_keys(&:to_s) }
 
     transient do
-      mock_competition { true }
+      mock_competition { false }
     end
 
     after(:create) do |competition, evaluator|

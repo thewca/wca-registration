@@ -2,6 +2,7 @@
 
 require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
+require_relative '../../app/helpers/competition_api'
 
 # TODO: Figure out why RSwag isn't raising an error for the fact that we're getting a 200 not a 202 response
 # TODO: create "smoke tests" that check the values written to the database - these should probably be request tests
@@ -152,7 +153,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '422', '-> TESTING contains event IDs which are not held at competition' do
+        response '422', '-> PASSING contains event IDs which are not held at competition' do
           registration = FactoryBot.build(:registration, events: ['333', '333fm'])
           let(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
@@ -164,20 +165,12 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '422', '-> PASSING contains event IDs which are not held at competition' do
-          registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
-          let(:registration) { @events_not_exist_reg }
-          let(:Authorization) { @jwt_202 }
-
-          run_test! do |response|
-            expect(response.body).to eq(registration_error_json)
-          end
-        end
-
         response '400', ' -> PASSING empty payload provided' do # getting a long error on this - not sure why it fails
+          registration = FactoryBot.build(:registration)
+          let(:registration) { {}.to_json }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::INVALID_REQUEST_DATA }.to_json
-          let(:registration) { @empty_payload }
-          let(:Authorization) { @jwt_817 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -185,9 +178,17 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '404', ' -> PASSING competition does not exist' do
+          before do
+            wca_error_json = { error: 'Competition with id CompDoesntExist not found' }.to_json
+            competition = FactoryBot.build(:competition, competition_id: 'CompDoesntExist')
+            stub_request(:get, comp_api_url('CompDoesntExist')).to_return(status: 404, body: wca_error_json)
+          end
+
+          registration = FactoryBot.build(:registration, competition_id: 'CompDoesntExist')
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
-          let(:registration) { @bad_comp_name }
-          let(:Authorization) { @jwt_817 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -255,7 +256,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '400', ' -> PASSING admin adds registration with empty payload provided' do # getting a long error on this - not sure why it fails
+        response '400', ' -> TESTING admin adds registration with empty payload provided' do # getting a long error on this - not sure why it fails
           registration_error_json = { error: ErrorCodes::INVALID_REQUEST_DATA }.to_json
           let(:registration) { @empty_payload }
           let(:Authorization) { @admin_token }
