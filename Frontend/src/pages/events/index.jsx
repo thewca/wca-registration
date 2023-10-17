@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getEventName, getFormatName } from '@wca/helpers'
 import React, { useContext } from 'react'
 import {
+  Message,
   Table,
   TableBody,
   TableCell,
@@ -17,7 +18,11 @@ import styles from './index.module.scss'
 
 export default function Events() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { isLoading, data: wcif } = useQuery({
+  const {
+    isLoading,
+    isError,
+    data: wcif,
+  } = useQuery({
     queryKey: ['wcif', competitionInfo.id],
     queryFn: () => getCompetitionWcif(competitionInfo.id),
     retry: false,
@@ -25,6 +30,11 @@ export default function Events() {
       setMessage(err.message, 'error')
     },
   })
+
+  if (isError) {
+    return <Message>Loading Events failed, please try again</Message>
+  }
+
   return isLoading ? (
     <LoadingMessage />
   ) : (

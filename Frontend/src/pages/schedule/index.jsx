@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getFormatName } from '@wca/helpers'
 import moment from 'moment'
 import React, { useContext } from 'react'
-import { Table, TableCell } from 'semantic-ui-react'
+import { Message, Table, TableCell } from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { setMessage } from '../../ui/events/messages'
@@ -25,12 +25,19 @@ const activitiesByDate = (activities, date) => {
 
 export default function Schedule() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { isLoading, data: wcif } = useQuery({
+  const {
+    isLoading,
+    isError,
+    data: wcif,
+  } = useQuery({
     queryKey: ['wcif', competitionInfo.id],
     queryFn: () => getCompetitionWcif(competitionInfo.id),
     retry: false,
     onError: (err) => setMessage(err.message, 'error'),
   })
+  if (isError) {
+    return <Message>Loading the schedule failed, please try again</Message>
+  }
 
   return isLoading ? (
     <LoadingMessage />
