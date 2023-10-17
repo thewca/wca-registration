@@ -78,6 +78,10 @@ RSpec.describe 'v1 Registrations API', type: :request do
 
       # TODO: competitor does not meet qualification requirements - will need to mock users service for this? - investigate what the monolith currently does and replicate that
       context 'fail registration posts, from USER' do
+        before do
+          competition = FactoryBot.build(:competition)
+          stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+        end
         # include_context 'database seed'
         # include_context 'auth_tokens'
         # include_context 'registration_data'
@@ -96,15 +100,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', 'PASSING user registration exceeds guest limit' do
-          before do
-            competition = FactoryBot.build(:competition)
-            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
-          end
-
           registration = FactoryBot.build(:registration_with_guests, guests: 3)
-          registration_error_json = { error: ErrorCodes::GUEST_LIMIT_EXCEEDED }.to_json
           let(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
+
+          registration_error_json = { error: ErrorCodes::GUEST_LIMIT_EXCEEDED }.to_json
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -128,12 +128,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '401', '-> TESTING attendee is banned' do
-          before do
-            competition = FactoryBot.build(:competition)
-            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
-          end
-
+        response '401', '-> PASSING attendee is banned' do
           registration = FactoryBot.build(:banned_competitor)
           let(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
@@ -146,19 +141,23 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '401', '-> PASSING competitor has incomplete profile' do
+          registration = FactoryBot.build(:incomplete_profile)
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::USER_PROFILE_INCOMPLETE }.to_json
-          let(:registration) { @incomplete_user_reg }
-          let(:Authorization) { @incomplete_user_jwt }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
           end
         end
 
-        response '422', '-> PASSING contains event IDs which are not held at competition' do
+        response '422', '-> TESTING contains event IDs which are not held at competition' do
+          registration = FactoryBot.build(:registration, events: ['333', '333fm'])
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
-          let(:registration) { @events_not_held_reg }
-          let(:Authorization) { @jwt_201 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)

@@ -43,7 +43,11 @@ FactoryBot.define do
     end
 
     trait :banned do
-      jwt_token { fetch_jwt_token('209943') }
+      user_id { '209943' }
+    end
+
+    trait :incomplete do
+      user_id { '999999' }
     end
 
     trait :guests do
@@ -57,5 +61,6 @@ FactoryBot.define do
     factory :impersonation, traits: [:impersonation]
     factory :registration_with_guests, traits: [:guests]
     factory :banned_competitor, traits: [:banned]
+    factory :incomplete_profile, traits: [:incomplete]
   end
 end
