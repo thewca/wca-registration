@@ -21,12 +21,16 @@ locals {
       value = var.vault_address
     },
     {
+      name = "REGISTRATION_LIVE_SITE",
+      value = true
+    },
+    {
       name = "TASK_ROLE"
       value = aws_iam_role.task_role.name
     },
     {
-      name = "CODE_ENVIRONMENT"
-      value = "production"
+      name = "DYNAMO_REGISTRATIONS_TABLE",
+      value = var.shared_resources.dynamo_registration_table.name
     },
     {
       name = "QUEUE_URL",
@@ -90,7 +94,7 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:DeleteItem",
       "dynamodb:DescribeTable",
     ]
-    resources = [var.shared_resources.dynamo_registration_table, "${var.shared_resources.dynamo_registration_table}/*"]
+    resources = [var.shared_resources.dynamo_registration_table.arn, "${var.shared_resources.dynamo_registration_table.arn}/*"]
   }
   statement {
     effect = "Allow"

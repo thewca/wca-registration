@@ -45,7 +45,7 @@ resource "aws_dynamodb_table" "registrations" {
 }
 
 output "dynamo_registration_table" {
-  value = aws_dynamodb_table.registrations.arn
+  value = aws_dynamodb_table.registrations
 }
 
 # Add autoscaling
