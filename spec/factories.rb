@@ -58,6 +58,8 @@ FactoryBot.define do
 
     factory :registration_for_admin, traits: [:admin]
     factory :admin_submits_registration_for_user, traits: [:admin_submits]
+    factory :admin_submits_registration_for_banned_user, traits: [:admin_submits, :banned]
+    factory :admin_submits_registration_for_incomplete_user, traits: [:admin_submits, :incomplete]
     factory :impersonation, traits: [:impersonation]
     factory :registration_with_guests, traits: [:guests]
     factory :banned_competitor, traits: [:banned]

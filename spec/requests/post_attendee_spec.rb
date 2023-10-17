@@ -202,24 +202,38 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # convert all existing cases
         # user has insufficient permissions (admin of different comp trying to add reg)
 
-        include_context 'database seed'
-        include_context 'auth_tokens'
-        include_context 'registration_data'
-        include_context 'competition information'
+        # include_context 'database seed'
+        # include_context 'auth_tokens'
+        # include_context 'registration_data'
+        # include_context 'competition information'
+        before do
+          competition = FactoryBot.build(:competition)
+          stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+        end
 
         response '403', ' -> PASSING comp not open, admin adds another user' do
+          before do
+            competition = FactoryBot.build(:competition, registration_opened?: false)
+            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+          end
+
+          registration = FactoryBot.build(:admin_submits_registration_for_user)
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::REGISTRATION_CLOSED }.to_json
-          let(:registration) { @comp_not_open }
-          let(:Authorization) { @admin_token }
+
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
           end
         end
 
         response '401', '-> PASSING admin adds banned user' do
+          registration = FactoryBot.build(:admin_submits_registration_for_banned_user)
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::USER_IS_BANNED }.to_json
-          let(:registration) { @banned_user_reg }
-          let(:Authorization) { @admin_token }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -227,9 +241,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '401', '-> PASSING admin adds competitor who has incomplete profile' do
+          registration = FactoryBot.build(:admin_submits_registration_for_incomplete_user)
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::USER_PROFILE_INCOMPLETE }.to_json
-          let(:registration) { @incomplete_user_reg }
-          let(:Authorization) { @admin_token }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -237,9 +253,11 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', '-> PASSING admins add other user reg which contains event IDs which are not held at competition' do
+          registration = FactoryBot.build(:admin_submits_registration_for_user, events: ['333', '333fm'])
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
-          let(:registration) { @events_not_held_reg }
-          let(:Authorization) { @admin_token }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -247,19 +265,23 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', '-> PASSING admin adds reg for user which contains event IDs which do not exist' do
+          registration = FactoryBot.build(:admin_submits_registration_for_user, events: ['888'])
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
-          let(:registration) { @events_not_exist_reg }
-          let(:Authorization) { @jwt_202 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
           end
         end
 
-        response '400', ' -> TESTING admin adds registration with empty payload provided' do # getting a long error on this - not sure why it fails
+        response '400', ' -> PASSING admin adds registration with empty payload provided' do # getting a long error on this - not sure why it fails
+          registration = FactoryBot.build(:admin_submits_registration_for_user)
+          let(:registration) { {}.to_json }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::INVALID_REQUEST_DATA }.to_json
-          let(:registration) { @empty_payload }
-          let(:Authorization) { @admin_token }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
@@ -267,9 +289,17 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '404', ' -> PASSING admin adds reg for competition which does not exist' do
+          before do
+            wca_error_json = { error: 'Competition with id CompDoesntExist not found' }.to_json
+            competition = FactoryBot.build(:competition, competition_id: 'CompDoesntExist')
+            stub_request(:get, comp_api_url('CompDoesntExist')).to_return(status: 404, body: wca_error_json)
+          end
+
+          registration = FactoryBot.build(:admin_submits_registration_for_user, competition_id: 'CompDoesntExist')
+          let(:registration) { registration }
+          let(:Authorization) { registration[:jwt_token] }
+
           registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
-          let(:registration) { @bad_comp_name }
-          let(:Authorization) { @jwt_817 }
 
           run_test! do |response|
             expect(response.body).to eq(registration_error_json)
