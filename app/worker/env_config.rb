@@ -3,10 +3,10 @@
 require "superconfig"
 
 EnvConfig = SuperConfig.new do
+  # We don't have RAILS_ENV in ruby
   if ENV.fetch("CODE_ENVIRONMENT", "development") != "development"
     mandatory :QUEUE_URL, :string
     mandatory :WCA_HOST, :string
-    # We don't have RAILS_ENV in ruby
     mandatory :CODE_ENVIRONMENT, :string
   else
     mandatory :LOCALSTACK_ENDPOINT, :string
