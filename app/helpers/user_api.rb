@@ -5,12 +5,19 @@ require 'json'
 require_relative 'mocks'
 require_relative 'wca_api'
 
+# This would generate a user_json, which is then used to create a User object - similar to how ocmpetition_api works
 class UserApi < WcaApi
-  def self.get_permissions(user_id)
-    if Rails.env.production?
-      HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.get_wca_token })
-    else
-      Mocks.permissions_mock(user_id)
+  def self.find!(user_id)
+    User.new(fetch_user(user_id))
+  end
+
+  class << self
+    def fetch_user(user_id)
+      if Rails.env.production?
+        HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.get_wca_token })
+      else
+        Mocks.permissions_mock(user_id)
+      end
     end
   end
 
