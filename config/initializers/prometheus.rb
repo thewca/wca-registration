@@ -16,7 +16,7 @@ else
   suffix = ''
 end
 
-if Rails.env.test?
+unless Rails.env.test?
   require 'prometheus_exporter/middleware'
 
   # This reports stats per request like HTTP status and timings
