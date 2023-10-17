@@ -4,12 +4,7 @@ require 'active_support/core_ext/integer/time'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
-  code_env = ENV.fetch('CODE_ENVIRONMENT', nil)
-  if code_env == 'production'
-    config.hosts << 'registration.worldcubeassociation.org'
-  elsif code_env == 'staging'
-    config.hosts << 'staging.registration.worldcubeassociation.org'
-  end
+  config.hosts = EnvConfig.HOST
 
   # Exclude requests for the /healthcheck/ path from host checking
   Rails.application.config.host_authorization = {
@@ -63,7 +58,7 @@ Rails.application.configure do
 
   # Use a different cache store in production.
   config.cache_store = :redis_cache_store, {
-    url: ENV.fetch('REDIS_URL', nil),
+    url: EnvConfig.REDIS_URL,
     connect_timeout: 30, # Defaults to 20 seconds
     read_timeout: 0.2, # Defaults to 1 second
     write_timeout: 0.2, # Defaults to 1 second

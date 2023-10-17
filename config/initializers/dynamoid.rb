@@ -3,11 +3,11 @@
 require 'dynamoid'
 
 Dynamoid.configure do |config|
-  config.region = ENV.fetch('AWS_REGION', 'us-west-2')
+  config.region = EnvConfig.AWS_REGION
   config.namespace = nil
   if Rails.env.production?
     config.credentials = Aws::ECSCredentials.new(retries: 3)
   else
-    config.endpoint = ENV.fetch('LOCALSTACK_ENDPOINT', nil)
+    config.endpoint = EnvConfig.LOCALSTACK_ENDPOINT
   end
 end
