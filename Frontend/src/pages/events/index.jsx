@@ -1,6 +1,8 @@
+import { useQuery } from '@tanstack/react-query'
 import { getEventName, getFormatName } from '@wca/helpers'
 import React, { useContext } from 'react'
 import {
+  Message,
   Table,
   TableBody,
   TableCell,
@@ -8,12 +10,34 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'semantic-ui-react'
+import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
+import { setMessage } from '../../ui/events/messages'
+import LoadingMessage from '../../ui/messages/loadingMessage'
 import styles from './index.module.scss'
 
 export default function Events() {
   const { competitionInfo } = useContext(CompetitionContext)
-  return (
+  const {
+    isLoading,
+    isError,
+    data: wcif,
+  } = useQuery({
+    queryKey: ['wcif', competitionInfo.id],
+    queryFn: () => getCompetitionWcif(competitionInfo.id),
+    retry: false,
+    onError: (err) => {
+      setMessage(err.message, 'error')
+    },
+  })
+
+  if (isError) {
+    return <Message>Loading Events failed, please try again</Message>
+  }
+
+  return isLoading ? (
+    <LoadingMessage />
+  ) : (
     <div style={styles.eventsWrapper}>
       <Table striped>
         <TableHeader>
@@ -33,7 +57,7 @@ export default function Events() {
         </TableHeader>
 
         <TableBody>
-          {competitionInfo.events_with_rounds.map((event) => {
+          {wcif.events.map((event) => {
             return event.rounds.map((round, i) => {
               return (
                 <TableRow key={round.id}>

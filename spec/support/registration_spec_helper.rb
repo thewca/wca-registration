@@ -19,7 +19,7 @@ module Helpers
         @comment_mandatory = 'LazarilloOpen2024'
         @full_competition = 'CubingZANationalChampionship2024'
 
-        @base_comp_url = 'https://test-registration.worldcubeassociation.org/api/v10/competitions/'
+        @base_comp_url = comp_api_url('')
 
         # TODO: Refctor these to be single lines that call a "stub competition" method?(how do I customise bodys and codes?)
 

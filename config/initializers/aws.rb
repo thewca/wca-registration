@@ -7,6 +7,6 @@ if Rails.env.production?
   $sqs = Aws::SQS::Client.new
 else
   # We are using localstack to emulate AWS in dev
-  $dynamodb = Aws::DynamoDB::Client.new(endpoint: ENV.fetch('LOCALSTACK_ENDPOINT', nil))
-  $sqs = Aws::SQS::Client.new(endpoint: ENV.fetch('LOCALSTACK_ENDPOINT', nil))
+  $dynamodb = Aws::DynamoDB::Client.new(endpoint: EnvConfig.LOCALSTACK_ENDPOINT)
+  $sqs = Aws::SQS::Client.new(endpoint: EnvConfig.LOCALSTACK_ENDPOINT)
 end

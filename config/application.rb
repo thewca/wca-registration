@@ -7,6 +7,8 @@ require 'rails/all'
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
+require_relative '../env_config'
+require_relative '../app_secrets'
 
 module WcaRegistration
   class Application < Rails::Application

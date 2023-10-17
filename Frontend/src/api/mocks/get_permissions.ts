@@ -1,6 +1,5 @@
 import { USER_KEY } from '../../ui/providers/UserProvider'
 import { Permissions } from '../auth/get_permissions'
-import { USER_IS_BANNED, USER_PROFILE_INCOMPLETE } from '../helper/error_codes'
 
 export default function getPermissionsMock(): Permissions {
   const userId = localStorage.getItem(USER_KEY)
@@ -57,7 +56,6 @@ export default function getPermissionsMock(): Permissions {
       return {
         can_attend_competitions: {
           scope: [],
-          reasons: USER_IS_BANNED,
         },
         can_organize_competitions: {
           scope: [],
@@ -70,7 +68,6 @@ export default function getPermissionsMock(): Permissions {
       return {
         can_attend_competitions: {
           scope: [],
-          reasons: USER_PROFILE_INCOMPLETE,
         },
         can_organize_competitions: {
           scope: [],

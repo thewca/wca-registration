@@ -4,12 +4,8 @@ require_relative 'lane'
 class Registration
   include Dynamoid::Document
 
-  # We autoscale dynamodb in production
-  if ENV.fetch('CODE_ENVIRONMENT', 'development') == 'staging'
-    table name: 'registrations-staging', read_capacity: 5, write_capacity: 5, key: :attendee_id
-  else
-    table name: 'registrations', capacity_mode: nil, key: :attendee_id
-  end
+  # We autoscale dynamodb
+  table name: EnvConfig.DYNAMO_REGISTRATIONS_TABLE, capacity_mode: nil, key: :attendee_id
 
   REGISTRATION_STATES = %w[pending waiting_list accepted cancelled].freeze
   ADMIN_ONLY_STATES = %w[pending waiting_list accepted].freeze # Only admins are allowed to change registration state to one of these states

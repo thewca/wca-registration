@@ -1,16 +1,17 @@
+import { useQuery } from '@tanstack/react-query'
 import { getFormatName } from '@wca/helpers'
 import moment from 'moment'
 import React, { useContext } from 'react'
-import { Table, TableCell } from 'semantic-ui-react'
+import { Message, Table, TableCell } from 'semantic-ui-react'
+import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
+import { setMessage } from '../../ui/events/messages'
+import LoadingMessage from '../../ui/messages/loadingMessage'
 import styles from './index.module.scss'
 
-const getDatesBetween = (startDate, endDate) => {
-  const fromDate = moment(startDate)
-  const toDate = moment(endDate)
-  const diff = toDate.diff(fromDate, 'days') + 1
+const getDatesStartingOn = (startDate, numberOfDays) => {
   const range = []
-  for (let i = 0; i < diff; i++) {
+  for (let i = 0; i < numberOfDays; i++) {
     range.push(moment(startDate).add(i, 'days').toDate())
   }
   return range
@@ -24,15 +25,30 @@ const activitiesByDate = (activities, date) => {
 
 export default function Schedule() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const competitionDays = getDatesBetween(
-    competitionInfo.start_date,
-    competitionInfo.end_date
-  )
-  return (
+  const {
+    isLoading,
+    isError,
+    data: wcif,
+  } = useQuery({
+    queryKey: ['wcif', competitionInfo.id],
+    queryFn: () => getCompetitionWcif(competitionInfo.id),
+    retry: false,
+    onError: (err) => setMessage(err.message, 'error'),
+  })
+  if (isError) {
+    return <Message>Loading the schedule failed, please try again</Message>
+  }
+
+  return isLoading ? (
+    <LoadingMessage />
+  ) : (
     <div className={styles.scheduleWrapper}>
-      {competitionDays.map((date, index) => {
+      {getDatesStartingOn(
+        wcif.schedule.startDate,
+        wcif.schedule.numberOfDays
+      ).map((date, index) => {
         const activitiesForDay = activitiesByDate(
-          competitionInfo.schedule_wcif.venues.flatMap((venue) =>
+          wcif.schedule.venues.flatMap((venue) =>
             venue.rooms.flatMap((room) => room.activities)
           ),
           date
@@ -41,7 +57,9 @@ export default function Schedule() {
           <div
             key={date.toLocaleString()}
             className={`${
-              index === competitionDays.length - 1 ? styles.scheduleTable : ''
+              index === wcif.schedule.numberOfDays - 1
+                ? styles.scheduleTable
+                : ''
             }`}
           >
             <h2>Schedule for {moment(date).format('ll')}</h2>
@@ -60,10 +78,10 @@ export default function Schedule() {
               </Table.Header>
               <Table.Body>
                 {activitiesForDay.map((activity) => {
-                  const round = competitionInfo.events_with_rounds
+                  const round = wcif.events
                     .flatMap((events) => events.rounds)
                     .find((round) => round.id === activity.activityCode)
-                  const room = competitionInfo.schedule_wcif.venues
+                  const room = wcif.schedule.venues
                     .flatMap((venue) => venue.rooms)
                     .find((room) =>
                       room.activities.some(
