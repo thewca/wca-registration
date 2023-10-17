@@ -3,7 +3,7 @@ resource "aws_cloudwatch_log_group" "this" {
 }
 
 locals {
-  work_environment = [
+  worker_environment = [
     {
       name = "PROMETHEUS_EXPORTER"
       value = var.prometheus_address
@@ -234,7 +234,7 @@ resource "aws_ecs_task_definition" "this" {
           awslogs-stream-prefix = "${var.name_prefix}-worker"
         }
       }
-      environment = local.app_environment
+      environment = local.worker_environment
       healthCheck       = {
         command            = ["CMD-SHELL", "pgrep ruby || exit 1"]
         interval           = 30
