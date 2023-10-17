@@ -1,19 +1,17 @@
 import backendFetch from '../../helper/backend_fetch'
-import getPaymentIntentMock from '../../mocks/get_payment_intent'
+import { paymentIdRoute } from '../../helper/routes'
 
 export interface PaymentInfo {
-  client_secret_id: string
+  // This is the MySQL payment id that can be give to the payment service
+  // to get the relevant data, not the Stripe ID!
+  payment_id: string
 }
 // We get the user_id out of the JWT key, which is why we only send the
 // competition_id
-export default async function getPaymentIntent(
+export default async function getPaymentId(
   competitionId: string
 ): Promise<PaymentInfo> {
-  if (process.env.NODE_ENV === 'production') {
-    // This should live in the payment service?
-    return backendFetch(`/${competitionId}/payment`, 'GET', {
-      needsAuthentication: true,
-    }) as Promise<PaymentInfo>
-  }
-  return getPaymentIntentMock()
+  return backendFetch(paymentIdRoute(competitionId), 'GET', {
+    needsAuthentication: true,
+  }) as Promise<PaymentInfo>
 }

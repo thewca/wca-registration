@@ -19,16 +19,38 @@ const reducer = (state, action) => {
   // Make sure no one adds an attendee twice
   if (
     type.startsWith('add') &&
-    [...state.waiting, ...state.accepted, ...state.deleted].includes(attendee)
+    [
+      ...state.waiting,
+      ...state.accepted,
+      ...state.cancelled,
+      ...state.pending,
+    ].includes(attendee)
   ) {
     return state
   }
   switch (type) {
+    case 'add-pending':
+      return {
+        pending: [...state.pending, attendee],
+        accepted: state.accepted,
+        cancelled: state.cancelled,
+        waiting: state.waiting,
+      }
+    case 'remove-pending':
+      return {
+        pending: state.pending.filter(
+          (selectedAttendee) => selectedAttendee !== attendee
+        ),
+        accepted: state.accepted,
+        cancelled: state.cancelled,
+        waiting: state.waiting,
+      }
     case 'add-waiting':
       return {
         waiting: [...state.waiting, attendee],
         accepted: state.accepted,
-        deleted: state.deleted,
+        cancelled: state.cancelled,
+        pending: state.pending,
       }
     case 'remove-waiting':
       return {
@@ -36,13 +58,15 @@ const reducer = (state, action) => {
           (selectedAttendee) => selectedAttendee !== attendee
         ),
         accepted: state.accepted,
-        deleted: state.deleted,
+        cancelled: state.cancelled,
+        pending: state.pending,
       }
     case 'add-accepted':
       return {
         accepted: [...state.accepted, attendee],
         waiting: state.waiting,
-        deleted: state.deleted,
+        cancelled: state.cancelled,
+        pending: state.pending,
       }
     case 'remove-accepted':
       return {
@@ -50,27 +74,31 @@ const reducer = (state, action) => {
           (selectedAttendee) => selectedAttendee !== attendee
         ),
         waiting: state.waiting,
-        deleted: state.deleted,
+        cancelled: state.cancelled,
+        pending: state.pending,
       }
-    case 'add-deleted':
+    case 'add-cancelled':
       return {
-        deleted: [...state.deleted, attendee],
+        cancelled: [...state.cancelled, attendee],
         accepted: state.accepted,
-        waiting: state.deleted,
+        waiting: state.waiting,
+        pending: state.pending,
       }
-    case 'remove-deleted':
+    case 'remove-cancelled':
       return {
-        deleted: state.deleted.filter(
+        cancelled: state.cancelled.filter(
           (selectedAttendee) => selectedAttendee !== attendee
         ),
         accepted: state.accepted,
-        waiting: state.deleted,
+        waiting: state.waiting,
+        pending: state.pending,
       }
     case 'clear-selected': {
       return {
         waiting: [],
         accepted: [],
-        deleted: [],
+        cancelled: [],
+        pending: [],
       }
     }
     default:
@@ -81,22 +109,25 @@ const reducer = (state, action) => {
 const partitionRegistrations = (registrations) => {
   return registrations.reduce(
     (result, registration) => {
-      switch (registration.registration_status) {
-        case 'waiting':
+      switch (registration.competing.registration_status) {
+        case 'pending':
+          result.pending.push(registration)
+          break
+        case 'waiting_list':
           result.waiting.push(registration)
           break
         case 'accepted':
           result.accepted.push(registration)
           break
-        case 'deleted':
-          result.deleted.push(registration)
+        case 'cancelled':
+          result.cancelled.push(registration)
           break
         default:
           break
       }
       return result
     },
-    { waiting: [], accepted: [], deleted: [] }
+    { pending: [], waiting: [], accepted: [], cancelled: [] }
   )
 }
 
@@ -126,16 +157,16 @@ export default function RegistrationAdministrationList() {
     },
   })
   const [selected, dispatch] = useReducer(reducer, {
-    waiting: [],
+    pending: [],
     accepted: [],
-    deleted: [],
+    cancelled: [],
+    waiting: [],
   })
 
-  const { waiting, accepted, deleted } = useMemo(
+  const { waiting, accepted, cancelled, pending } = useMemo(
     () => partitionRegistrations(registrations ?? []),
     [registrations]
   )
-
   return isLoading ? (
     <div className={styles.listContainer}>
       <LoadingMessage />
@@ -143,13 +174,13 @@ export default function RegistrationAdministrationList() {
   ) : (
     <>
       <div className={styles.listContainer}>
-        <div className={styles.listHeader}> Incoming registrations </div>
+        <div className={styles.listHeader}> Pending registrations </div>
         <RegistrationAdministrationTable
-          registrations={waiting}
-          add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
-          remove={(attendee) => dispatch({ type: 'remove-waiting', attendee })}
+          registrations={pending}
+          add={(attendee) => dispatch({ type: 'add-pending', attendee })}
+          remove={(attendee) => dispatch({ type: 'remove-pending', attendee })}
           competition_id={competitionInfo.id}
-          selected={selected.waiting}
+          selected={selected.pending}
         />
         <div className={styles.listHeader}> Approved registrations </div>
         <RegistrationAdministrationTable
@@ -159,13 +190,23 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.accepted}
         />
-        <div className={styles.listHeader}> Deleted registrations </div>
+        <div className={styles.listHeader}> Waitlisted registrations </div>
         <RegistrationAdministrationTable
-          registrations={deleted}
-          add={(attendee) => dispatch({ type: 'add-deleted', attendee })}
-          remove={(attendee) => dispatch({ type: 'remove-deleted', attendee })}
+          registrations={waiting}
+          add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
+          remove={(attendee) => dispatch({ type: 'remove-waiting', attendee })}
           competition_id={competitionInfo.id}
-          selected={selected.deleted}
+          selected={selected.waiting}
+        />
+        <div className={styles.listHeader}> Cancelled registrations </div>
+        <RegistrationAdministrationTable
+          registrations={cancelled}
+          add={(attendee) => dispatch({ type: 'add-cancelled', attendee })}
+          remove={(attendee) =>
+            dispatch({ type: 'remove-cancelled', attendee })
+          }
+          competition_id={competitionInfo.id}
+          selected={selected.cancelled}
         />
       </div>
       <RegistrationActions
@@ -259,24 +300,26 @@ function RegistrationAdministrationTable({
                 <Table.Cell>
                   <Popup
                     content={new Date(
-                      registration.registered_on
+                      registration.competing.registered_on
                     ).toTimeString()}
                     trigger={
                       <span>
                         {new Date(
-                          registration.registered_on
+                          registration.competing.registered_on
                         ).toLocaleDateString()}
                       </span>
                     }
                   />
                 </Table.Cell>
-                <Table.Cell>{registration.event_ids.length}</Table.Cell>
-                <Table.Cell>{registration.guests}</Table.Cell>
-                <Table.Cell title={registration.comment}>
-                  {truncateComment(registration.comment)}
+                <Table.Cell>
+                  {registration.competing.event_ids.length}
                 </Table.Cell>
-                <Table.Cell title={registration.admin_comment}>
-                  {truncateComment(registration.admin_comment)}
+                <Table.Cell>{registration.guests}</Table.Cell>
+                <Table.Cell title={registration.competing.comment}>
+                  {truncateComment(registration.competing.comment)}
+                </Table.Cell>
+                <Table.Cell title={registration.competing.admin_comment}>
+                  {truncateComment(registration.competing.admin_comment)}
                 </Table.Cell>
                 <Table.Cell>
                   <a

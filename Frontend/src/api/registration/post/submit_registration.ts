@@ -4,7 +4,7 @@ import { BackendError } from '../../helper/backend_fetch'
 import { EXPIRED_TOKEN } from '../../helper/error_codes'
 import { components, paths } from '../../schema'
 
-const { post } = createClient<paths>({
+const { POST } = createClient<paths>({
   // TODO: Change this once we are fully migrated from backend fetch
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -13,11 +13,8 @@ const { post } = createClient<paths>({
 export default async function submitEventRegistration(
   body: components['schemas']['submitRegistrationBody']
 ): Promise<components['schemas']['success_response']> {
-  const token = await getJWT()
-  const { data, error, response } = await post('/api/v1/register', {
-    // TODO: I think this is a bug in open-api fetch https://github.com/drwpow/openapi-typescript/issues/1230
-    params: { header: { Authorization: token } },
-    headers: { Authorization: token },
+  const { data, error, response } = await POST('/api/v1/register', {
+    headers: { Authorization: await getJWT() },
     body,
   })
   if (error) {

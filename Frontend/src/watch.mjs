@@ -38,8 +38,9 @@ const context = await esbuild.context({
     statsPlugin(),
   ],
   define: {
+    // Make sure you are running a version of the Monolith on port 3000 if needed
+    'process.env.WCA_URL': `"http://localhost:3000"`,
     'process.env.API_URL': '"http://localhost:3001/api/v1"',
-    'process.env.AUTH_URL': '"http://localhost:3001/jwt"',
     'process.env.NODE_ENV': '"development"',
   },
 })

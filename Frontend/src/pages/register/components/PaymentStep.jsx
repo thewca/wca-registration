@@ -1,6 +1,8 @@
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import React, { useContext, useState } from 'react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import { UserContext } from '../../../api/helper/context/user_context'
+import { paymentFinishRoute } from '../../../api/helper/routes'
 import { setMessage } from '../../../ui/events/messages'
 
 export default function PaymentStep() {
@@ -8,6 +10,7 @@ export default function PaymentStep() {
   const elements = useElements()
   const [isLoading, setIsLoading] = useState(false)
   const { competitionInfo } = useContext(CompetitionContext)
+  const { userInfo } = useContext(UserContext)
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -22,8 +25,7 @@ export default function PaymentStep() {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        // Just for testing, the actual route will probably live somewhere else
-        return_url: `${window.location.origin}/api/v10/payment/${competitionInfo.id}/finish`,
+        return_url: paymentFinishRoute(competitionInfo.id, userInfo.id),
       },
     })
 

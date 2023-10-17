@@ -12,7 +12,7 @@ require_relative '../support/registration_spec_helper'
 # TODO: Add test cases for users API (new file)
 # TODO: Add test cases for competition info being returned from endpoint (check that we respond appropriately to different values/conditionals)
 # TODO: Check Swaggerized output
-RSpec.describe 'v1 Registrations API', type: :request do
+RSpec.describe 'v1 Registrations API', type: :request, document: false do
   include Helpers::RegistrationHelper
 
   path '/api/v1/register' do
@@ -21,6 +21,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
       consumes 'application/json'
       parameter name: :registration, in: :body,
                 schema: { '$ref' => '#/components/schemas/submitRegistrationBody' }, required: true
+      produces 'application/json'
 
       context '-> success registration posts' do
         # include_context 'database seed'
@@ -28,8 +29,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
         # include_context 'registration_data'
         include_context 'competition information'
 
-        # Failing: see above
-        response '202', '-> PASSING competitor submits basic registration' do
+        response '202', '-> PASSING competitor submits basic registration', document: true do
+          schema '$ref' => '#/components/schemas/success_response'
           registration = FactoryBot.build(:registration)
           let!(:registration) { registration }
           let(:Authorization) { registration[:jwt_token] }
@@ -39,7 +40,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        # Failing: due to "Cannot do operations on a non-existent table" error - Finn input needed, I've done a basic check
         response '202', '-> PASSING admin registers before registration opens' do
           registration = FactoryBot.build(:admin, events: ['444', '333bf'], competition_id: 'BrizZonSylwesterOpen2023')
           let(:registration) { registration }
@@ -51,7 +51,6 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        # Failing: see above
         response '202', '-> PASSING admin submits registration for competitor' do
           registration = FactoryBot.build(:admin_submits)
           let(:registration) { registration }
@@ -70,7 +69,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
         include_context 'registration_data'
         include_context 'competition information'
 
-        response '401', ' -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration user_id)' do
+        response '401', ' -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration user_id)', document: true do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
           let(:registration) { @required_fields_only }
           let(:Authorization) { @jwt_200 }
@@ -79,7 +79,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '422', 'PASSING user registration exceeds guest limit' do
+        response '422', 'PASSING user registration exceeds guest limit', document: true do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_error_json = { error: ErrorCodes::GUEST_LIMIT_EXCEEDED }.to_json
           let(:registration) { @too_many_guests }
           let(:Authorization) { @jwt_824 }
@@ -89,7 +90,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '403', ' -> PASSING user cant register while registration is closed' do
+        response '403', ' -> PASSING user cant register while registration is closed', document: true do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_error_json = { error: ErrorCodes::REGISTRATION_CLOSED }.to_json
           let(:registration) { @comp_not_open }
           let(:Authorization) { @jwt_817 }
@@ -138,7 +140,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '400', ' -> PASSING empty payload provided' do # getting a long error on this - not sure why it fails
+        response '400', ' -> PASSING empty payload provided', document: true do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_error_json = { error: ErrorCodes::INVALID_REQUEST_DATA }.to_json
           let(:registration) { @empty_payload }
           let(:Authorization) { @jwt_817 }
@@ -148,7 +151,8 @@ RSpec.describe 'v1 Registrations API', type: :request do
           end
         end
 
-        response '404', ' -> PASSING competition does not exist' do
+        response '404', ' -> PASSING competition does not exist', document: true do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
           let(:registration) { @bad_comp_name }
           let(:Authorization) { @jwt_817 }

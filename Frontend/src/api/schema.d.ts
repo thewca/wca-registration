@@ -14,28 +14,10 @@ export interface paths {
         };
       };
       responses: {
-        /** @description PASSING comp service down but registrations exist */
+        /** @description  -> PASSING comp service down but registrations exist */
         200: {
           content: {
             "application/json": components["schemas"]["registration"][];
-          };
-        };
-        /** @description PASSING Competition ID doesnt exist */
-        404: {
-          content: {
-            "application/json": components["schemas"]["error_response"];
-          };
-        };
-        /** @description PASSING Competition service unavailable - 500 error */
-        500: {
-          content: {
-            "application/json": components["schemas"]["error_response"];
-          };
-        };
-        /** @description PASSING Competition service unavailable - 502 error */
-        502: {
-          content: {
-            "application/json": components["schemas"]["error_response"];
           };
         };
       };
@@ -50,15 +32,17 @@ export interface paths {
         };
       };
       responses: {
-        /** @description PASSING organizer has access to comp 2 */
+        /** @description  -> PASSING organizer has access to comp 2 */
         200: {
           content: {
             "application/json": components["schemas"]["registrationAdmin"][];
           };
         };
-        /** @description PASSING organizer cannot access registrations for comps they arent organizing - multi comp auth */
+        /** @description  -> PASSING organizer cannot access registrations for comps they arent organizing - multi comp auth */
         401: {
-          content: never;
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
         };
       };
     };
@@ -68,25 +52,82 @@ export interface paths {
     post: {
       requestBody: {
         content: {
-          "application/json": components["schemas"]["registration"];
+          "application/json": components["schemas"]["submitRegistrationBody"];
         };
       };
       responses: {
-        /** @description PASSING only required fields included */
+        /** @description -> PASSING competitor submits basic registration */
         202: {
-          content: never;
+          content: {
+            "application/json": components["schemas"]["success_response"];
+          };
         };
-        /** @description PASSING empty payload provided */
+        /** @description  -> PASSING empty payload provided */
         400: {
-          content: never;
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
         };
-        /** @description PASSING user impersonation (no admin permission, JWWT token user_id does not match registration user_id) */
+        /** @description  -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration user_id) */
         401: {
-          content: never;
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
         };
-        /** @description PASSING comp not open */
+        /** @description  -> PASSING user cant register while registration is closed */
         403: {
-          content: never;
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+        /** @description  -> PASSING competition does not exist */
+        404: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+        /** @description PASSING user registration exceeds guest limit */
+        422: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+      };
+    };
+    /** update or cancel an attendee registration */
+    patch: {
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["updateRegistrationBody"];
+        };
+      };
+      responses: {
+        /** @description PASSING user changes comment */
+        200: {
+          content: {
+            "application/json": {
+              status?: string;
+              registration?: components["schemas"]["registrationAdmin"];
+            };
+          };
+        };
+        /** @description PASSING user requests invalid status change to their own reg */
+        401: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+        /** @description PASSING user changes events / other stuff past deadline */
+        403: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+        /** @description PASSING user does not include required comment */
+        422: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
         };
       };
     };
@@ -106,15 +147,20 @@ export interface components {
     };
     registration: {
       user_id: string;
-      event_ids: EventId[];
+      competing: {
+        event_ids: EventId[];
+      };
     };
     registrationAdmin: {
       user_id: string;
-      event_ids: EventId[];
-      comment?: string | null;
-      admin_comment?: string | null;
+      competing: {
+        event_ids: EventId[];
+        registered_on: string;
+        registration_status: string;
+        comment?: string | null;
+        admin_comment?: string | null;
+      };
       guests?: number | null;
-      email?: string;
     };
     submitRegistrationBody: {
       user_id: string;
@@ -127,9 +173,13 @@ export interface components {
     };
     updateRegistrationBody: {
       user_id: string;
-      event_ids: EventId[];
-      comment?: string;
-      admin_comment?: string;
+      competition_id: string;
+      competing?: {
+        event_ids?: EventId[];
+        status?: string;
+        comment?: string;
+        admin_comment?: string;
+      };
       guests?: number;
     };
   };
