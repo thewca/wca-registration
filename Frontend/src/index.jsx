@@ -21,7 +21,7 @@ import PageTabs from './ui/Tabs'
 
 const router = createBrowserRouter([
   {
-    path: '/competitions',
+    path: '/competitions/v2',
     element: (
       <App>
         <FlashMessage />
@@ -32,7 +32,7 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: '/competitions/:competition_id',
+        path: '/competitions/v2/:competition_id',
         element: (
           <Container>
             <Competition>
@@ -45,35 +45,35 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            path: '/competitions/:competition_id',
+            path: '/competitions/v2/:competition_id',
             element: <HomePage />,
           },
           {
-            path: '/competitions/:competition_id/events',
+            path: '/competitions/v2/:competition_id/events',
             element: <Events />,
           },
           {
-            path: '/competitions/:competition_id/schedule',
+            path: '/competitions/v2/:competition_id/schedule',
             element: <Schedule />,
           },
           {
-            path: '/competitions/:competition_id/register',
+            path: '/competitions/v2/:competition_id/register',
             element: <Register />,
           },
           {
-            path: '/competitions/:competition_id/tabs/:tab_id',
+            path: '/competitions/v2/:competition_id/tabs/:tab_id',
             element: <CustomTab />,
           },
           {
-            path: '/competitions/:competition_id/registrations',
+            path: '/competitions/v2/:competition_id/registrations',
             element: <Registrations />,
           },
           {
-            path: '/competitions/:competition_id/:user_id/edit',
+            path: '/competitions/v2/:competition_id/:user_id/edit',
             element: <RegistrationEdit />,
           },
           {
-            path: '/competitions/:competition_id/registrations/edit',
+            path: '/competitions/v2/:competition_id/registrations/edit',
             element: <RegistrationAdministration />,
           },
         ],
