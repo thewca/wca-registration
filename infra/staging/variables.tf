@@ -5,7 +5,7 @@ variable "env" {
 }
 
 variable "host" {
-  type = string,
+  type = string
   description = "The address of the service"
   default = "staging.registration.worldcubeassociation.org"
 }

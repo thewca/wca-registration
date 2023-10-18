@@ -11,6 +11,7 @@ EnvConfig = SuperConfig.new do
     mandatory :QUEUE_URL, :string
     mandatory :WCA_HOST, :string
     mandatory :REDIS_URL, :string
+    mandatory :VAULT_APPLICATION, :string
   else
     mandatory :LOCALSTACK_ENDPOINT, :string
     # Have to be the same as in localstack to simulate authentication

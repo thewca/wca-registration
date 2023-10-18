@@ -21,8 +21,12 @@ locals {
       value = var.vault_address
     },
     {
+      name = "VAULT_APPLICATION",
+      value = "wca-registration-production"
+    },
+    {
       name = "REGISTRATION_LIVE_SITE",
-      value = true
+      value = "true"
     },
     {
       name = "TASK_ROLE"
@@ -152,9 +156,9 @@ resource "aws_ecs_task_definition" "this" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = "${aws_cloudwatch_log_group.this.name}"
-          awslogs-region        = "${var.region}"
-          awslogs-stream-prefix = "${var.name_prefix}"
+          awslogs-group         = aws_cloudwatch_log_group.this.name
+          awslogs-region        = var.region
+          awslogs-stream-prefix = var.name_prefix
         }
       }
       environment = local.app_environment

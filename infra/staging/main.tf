@@ -32,7 +32,11 @@ locals {
     },
     {
       name = "REGISTRATION_LIVE_SITE",
-      value = false
+      value = "false"
+    },
+    {
+      name = "VAULT_APPLICATION",
+      value = "wca-registration-staging"
     },
     {
       name = "HOST",

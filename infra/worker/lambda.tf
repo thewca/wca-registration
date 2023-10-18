@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "lambda_policy" {
       "dynamodb:DeleteItem",
       "dynamodb:DescribeTable",
     ]
-    resources = [var.shared_resources.dynamo_registration_table, "${var.shared_resources.dynamo_registration_table}/*"]
+    resources = [var.shared_resources.dynamo_registration_table.arn, "${var.shared_resources.dynamo_registration_table.arn}/*"]
   }
   statement {
     effect = "Allow"
