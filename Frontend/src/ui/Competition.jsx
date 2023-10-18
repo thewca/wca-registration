@@ -10,6 +10,7 @@ import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import styles from './competition.module.scss'
 import LoadingMessage from './messages/loadingMessage'
+import { BASE_ROUTE } from '../routes'
 
 export default function Competition({ children }) {
   const { competition_id } = useParams()
@@ -64,7 +65,7 @@ export default function Competition({ children }) {
                   onClick={(_, data) => {
                     if (!data.disabled) {
                       if (competitionInfo.use_wca_registration) {
-                        navigate(`/competitions/${competitionInfo.id}/register`)
+                        navigate(`${BASE_ROUTE}/${competitionInfo.id}/register`)
                       } else {
                         window.location =
                           competitionInfo.external_registration_page

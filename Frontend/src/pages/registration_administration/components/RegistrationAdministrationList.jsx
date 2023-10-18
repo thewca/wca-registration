@@ -9,6 +9,7 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
+import { BASE_ROUTE } from '../../../routes'
 
 // Currently it is at the developer's discretion to make sure
 // an attendee is added to the right list.
@@ -276,7 +277,7 @@ function RegistrationAdministrationTable({
                 </Table.Cell>
                 <Table.Cell>
                   <Link
-                    to={`/competitions/${competition_id}/${registration.user.id}/edit`}
+                    to={`${BASE_ROUTE}/${competition_id}/${registration.user.id}/edit`}
                   >
                     Edit
                   </Link>
