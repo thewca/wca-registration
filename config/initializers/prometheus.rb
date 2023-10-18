@@ -8,7 +8,7 @@ require_relative '../../app/helpers/metrics'
 
 PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV.fetch('PROMETHEUS_EXPORTER'), port: 9091)
 
-if Rails.env.production? && !EnvConfig.REGISTRATION_LIVE_SITE
+if Rails.env.production? && !EnvConfig.REGISTRATION_LIVE_SITE?
   PrometheusExporter::Instrumentation::Process.start(type: 'wca-registration-handler-staging', labels: { process: '1' })
   suffix = '-staging'
 else
