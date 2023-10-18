@@ -20,7 +20,7 @@ class UserApi < WcaApi
     permissions = Rails.cache.fetch("#{user_id}-permissions", expires_in: 5.minutes) do
       self.get_permissions(user_id)
     end
-    [permissions['can_attend_competitions']['scope'] == '*', permissions['can_attend_competitions']['reasons']]
+    permissions['can_attend_competitions']['scope'] == '*'
   end
 
   def self.can_administer?(user_id, competition_id)
@@ -30,9 +30,9 @@ class UserApi < WcaApi
     permissions['can_administer_competitions']['scope'] == '*' || permissions['can_administer_competitions']['scope'].include?(competition_id)
   end
 
-  private
-
+  class << self
     def permissions_path(user_id)
       "#{WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
     end
+  end
 end

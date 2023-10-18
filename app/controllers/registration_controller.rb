@@ -64,8 +64,8 @@ class RegistrationController < ApplicationController
 
     user_can_create_registration!
 
-    can_compete, reasons = UserApi.can_compete?(@user_id)
-    raise RegistrationError.new(:unauthorized, reasons) unless can_compete
+    can_compete = UserApi.can_compete?(@user_id)
+    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_PROFILE_INCOMPLETE) unless can_compete
 
     validate_events!
     raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && @competition.guest_limit_exceeded?(params[:guests])
