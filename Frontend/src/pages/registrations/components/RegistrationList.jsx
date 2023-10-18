@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, FlagIcon } from '@thewca/wca-components'
-import React, { useContext, useEffect, useMemo, useReducer } from 'react'
+import React, { useContext, useMemo, useReducer } from 'react'
 import { Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
@@ -40,7 +40,8 @@ function sortReducer(state, action) {
         return {
           column: action.column,
           data: state.data.sort(
-            (a, b) => a.event_ids.length - b.event_ids.length
+            (a, b) =>
+              a.competing.event_ids.length - b.event_ids.competing.length
           ),
           direction: 'ascending',
         }
