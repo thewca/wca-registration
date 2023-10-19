@@ -129,8 +129,11 @@ class RegistrationController < ApplicationController
 
   # You can either update your own registration or one for a competition you administer
   def validate_update_request
+    puts "params: #{params}"
     @user_id = params[:user_id]
+    puts @user_id
     @competition_id = params[:competition_id]
+    puts @competition_id
 
     @competition = CompetitionApi.find!(@competition_id)
     @registration = Registration.find("#{@competition_id}-#{@user_id}")

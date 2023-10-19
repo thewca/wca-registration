@@ -104,6 +104,7 @@ class Registration
   # Fields
   field :user_id, :string
   field :competition_id, :string
+  # field :guests, :integer
   field :is_attending, :boolean
   field :hide_name_publicly, :boolean
   field :lanes, :array, of: Lane
