@@ -6,7 +6,7 @@ require 'factory_bot_rails'
 # TODO: Refactor Lane model to be a helper class? Discuss with Finn how this should work
 FactoryBot.define do
   factory :registration do
-    transient do 
+    transient do
       events { ['333', '333mbf'] }
       comment { '' }
       guests { 0 }
@@ -15,7 +15,7 @@ FactoryBot.define do
     end
     user_id { '158817' }
     competition_id { 'CubingZANationalChampionship2023' }
-    attendee_id { "#{competition_id}-#{user_id}"}
+    attendee_id { "#{competition_id}-#{user_id}" }
     lanes { [LaneFactory.competing_lane(events, comment, guests, lane_state)] }
   end
 
@@ -32,11 +32,11 @@ FactoryBot.define do
 
   after(:create) do |registration, evaluator|
     if evaluator.admin_comment.nil?
-      puts "admin comment is nil"
-    else 
+      puts 'admin comment is nil'
+    else
       attendee_id = "#{evaluator.competition_id}-#{evaluator.user_id}"
       registration = Registration.find(attendee_id)
-      registration.update_competing_lane!( {admin_comment: evaluator.admin_comment} )
+      registration.update_competing_lane!({ admin_comment: evaluator.admin_comment })
     end
   end
 end

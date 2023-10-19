@@ -28,7 +28,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
                    registration: { '$ref' => '#/components/schemas/registrationAdmin' },
                  }
 
-          before { registration = FactoryBot.create(:registration, comment: 'starting comment') }
+          before { FactoryBot.create(:registration, comment: 'starting comment') }
 
           update = FactoryBot.build(:update_payload, update_details: { 'comment' => 'updated registration comment' })
           let(:registration_update) { update }
@@ -41,12 +41,11 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING user adds comment to reg with no comment' do
-          before { registration = FactoryBot.create(:registration) }
+          before { FactoryBot.create(:registration) }
 
           update = FactoryBot.build(:update_payload, update_details: { 'comment' => 'updated registration comment - had no comment before' })
           let(:registration_update) { update }
           let(:Authorization) { update[:jwt_token] }
-
 
           run_test! do |response|
             target_registration = Registration.find("#{registration_update[:competition_id]}-#{registration_update[:user_id]}")
@@ -55,7 +54,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'FAILING user adds guests, none existed before' do
-          before { registration = FactoryBot.create(:registration) }
+          before { FactoryBot.create(:registration) }
 
           update = FactoryBot.build(:update_payload, update_details: { 'guests' => 2 })
           let(:registration_update) { update }
@@ -78,7 +77,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING user adds events: events list updates' do
-          before { registration = FactoryBot.create(:registration) }
+          before { FactoryBot.create(:registration) }
 
           update = FactoryBot.build(:update_payload, update_details: { 'event_ids' => ['333', '333mbf', '555', '666', '777'] })
           let(:registration_update) { update }
@@ -92,7 +91,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING user removes events: events list updates' do
-          before { registration = FactoryBot.create(:registration) }
+          before { FactoryBot.create(:registration) }
 
           update = FactoryBot.build(:update_payload, update_details: { 'event_ids' => ['333'] })
           let(:registration_update) { update }
@@ -105,7 +104,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING user adds events: statuses update' do
-          before { registration = FactoryBot.create(:registration, lane_state: 'accepted') }
+          before { FactoryBot.create(:registration, lane_state: 'accepted') }
 
           update = FactoryBot.build(:update_payload, update_details: { 'event_ids' => ['333', '333mbf', '555', '666', '777'] })
           let(:registration_update) { update }
@@ -124,7 +123,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING user removes events: statuses update' do
-          before { registration = FactoryBot.create(:registration) }
+          before { FactoryBot.create(:registration) }
 
           update = FactoryBot.build(:update_payload, update_details: { 'event_ids' => ['333'] })
           let(:registration_update) { update }
@@ -150,7 +149,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING admin state pending -> accepted' do
-          before { registration = FactoryBot.create(:registration, lane_state: 'pending') }
+          before { FactoryBot.create(:registration, lane_state: 'pending') }
 
           update = FactoryBot.build(:update_payload, :admin_for_user, update_details: { 'status' => 'accepted' })
           let(:registration_update) { update }
@@ -172,7 +171,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING admin state pending -> waiting_list' do
-          before { registration = FactoryBot.create(:registration, lane_state: 'pending') }
+          before { FactoryBot.create(:registration, lane_state: 'pending') }
 
           update = FactoryBot.build(:update_payload, :admin_for_user, update_details: { 'status' => 'waiting_list' })
           let(:registration_update) { update }
@@ -194,7 +193,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING admin state waiting_list -> accepted' do
-          before { registration = FactoryBot.create(:registration, lane_state: 'pending') }
+          before { FactoryBot.create(:registration, lane_state: 'pending') }
 
           update = FactoryBot.build(:update_payload, :admin_for_user, update_details: { 'status' => 'accepted' })
           let(:registration_update) { update }
@@ -216,7 +215,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING admin state waiting_list -> pending' do
-          before { registration = FactoryBot.create(:registration, lane_state: 'waiting_list') }
+          before { FactoryBot.create(:registration, lane_state: 'waiting_list') }
 
           update = FactoryBot.build(:update_payload, :admin_for_user, update_details: { 'status' => 'pending' })
           let(:registration_update) { update }
@@ -238,7 +237,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING admin state accepted -> pending' do
-          before { registration = FactoryBot.create(:registration, lane_state: 'accepted') }
+          before { FactoryBot.create(:registration, lane_state: 'accepted') }
 
           update = FactoryBot.build(:update_payload, :admin_for_user, update_details: { 'status' => 'pending' })
           let(:registration_update) { update }
@@ -260,7 +259,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '200', 'PASSING admin state accepted -> waiting_list' do
-          before { registration = FactoryBot.create(:registration, lane_state: 'accepted') }
+          before { FactoryBot.create(:registration, lane_state: 'accepted') }
 
           update = FactoryBot.build(:update_payload, :admin_for_user, update_details: { 'status' => 'waiting_list' })
           let(:registration_update) { update }
@@ -291,9 +290,9 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         response '422', 'PASSING user does not include required comment' do
           schema '$ref' => '#/components/schemas/error_response'
           before do
-            competition = FactoryBot.build(:competition, force_comment_in_registration: true )
+            competition = FactoryBot.build(:competition, force_comment_in_registration: true)
             stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
-            registration = FactoryBot.create(:registration) 
+            FactoryBot.create(:registration)
           end
 
           update = FactoryBot.build(:update_payload, update_details: { 'event_ids' => ['333', '333mbf', '555', '666', '777'] })
@@ -318,9 +317,10 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '422', 'PASSING user submits longer comment than allowed' do
-          before { registration = FactoryBot.create(:registration) }
+          before { FactoryBot.create(:registration) }
 
-          long_comment = 'comment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characters'
+          long_comment = 'comment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer
+            than 240 characterscomment longer than 240 characters'
           update = FactoryBot.build(:update_payload, update_details: { 'comment' => long_comment })
           let(:registration_update) { update }
           let(:Authorization) { update[:jwt_token] }
@@ -333,7 +333,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '422', 'PASSING user removes all events - no status provided' do
-          before { registration = FactoryBot.create(:registration) }
+          before { FactoryBot.create(:registration) }
 
           update = FactoryBot.build(:update_payload, update_details: { 'event_ids' => [] })
           let(:registration_update) { update }
@@ -347,7 +347,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '422', 'PASSING user adds events which arent present' do
-          before { registration = FactoryBot.create(:registration) }
+          before { FactoryBot.create(:registration) }
 
           update = FactoryBot.build(:update_payload, update_details: { 'event_ids' => ['333fm', '333'] })
           let(:registration_update) { update }
@@ -361,7 +361,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '422', 'PASSING user adds events which dont exist' do
-          before { registration = FactoryBot.create(:registration) }
+          before { FactoryBot.create(:registration) }
 
           update = FactoryBot.build(:update_payload, update_details: { 'event_ids' => ['333', '888'] })
           let(:registration_update) { update }
@@ -376,7 +376,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
 
         response '401', 'PASSING user requests invalid status change to their own reg' do
           schema '$ref' => '#/components/schemas/error_response'
-          before { registration = FactoryBot.create(:registration, lane_state: 'pending') }
+          before { FactoryBot.create(:registration, lane_state: 'pending') }
 
           update = FactoryBot.build(:update_payload, update_details: { 'status' => 'accepted' })
           let(:registration_update) { update }
@@ -403,7 +403,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '401', 'PASSING user requests status change to someone elses reg' do
-          before { registration = FactoryBot.create(:registration, lane_state: 'pending') }
+          before { FactoryBot.create(:registration, lane_state: 'pending') }
 
           update = FactoryBot.build(:update_payload, :for_another_user, update_details: { 'status' => 'accepted' })
           let(:registration_update) { update }
@@ -432,9 +432,9 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         response '403', 'PASSING user changes events / other stuff past deadline' do
           schema '$ref' => '#/components/schemas/error_response'
           before do
-            competition = FactoryBot.build(:competition, event_change_deadline_date: '2023-06-14T00:00:00.000Z' )
+            competition = FactoryBot.build(:competition, event_change_deadline_date: '2023-06-14T00:00:00.000Z')
             stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
-            registration = FactoryBot.create(:registration) 
+            FactoryBot.create(:registration)
           end
 
           update = FactoryBot.build(:update_payload, update_details: { 'event_ids' => ['333', '333mbf', '555', '666', '777'] })
@@ -456,7 +456,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '422', 'PASSING admin changes to status which doesnt exist' do
-          before { registration = FactoryBot.create(:registration, lane_state: 'waiting_list') }
+          before { FactoryBot.create(:registration, lane_state: 'waiting_list') }
 
           update = FactoryBot.build(:update_payload, :admin_for_user, update_details: { 'status' => 'random_status' })
           let(:registration_update) { update }
@@ -469,21 +469,20 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           end
         end
 
-        response '403', 'TESTING admin cannot advance state when registration full' do
+        response '403', 'PASSING admin cannot advance state when registration full' do
           before do
-            competition = FactoryBot.build(:competition, competitor_limit: 2 )
+            competition = FactoryBot.build(:competition, competitor_limit: 2)
             stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
-            registration = FactoryBot.create(:registration, lane_state: 'accepted') 
-            registration = FactoryBot.create(:registration, user_id: '110888', lane_state: 'accepted') 
-            registration = FactoryBot.create(:registration, user_id: '200000', lane_state: 'pending') 
+            FactoryBot.create(:registration, lane_state: 'accepted')
+            FactoryBot.create(:registration, user_id: '110888', lane_state: 'accepted')
+            FactoryBot.create(:registration, user_id: '200000', lane_state: 'pending')
           end
 
           registration_error = { error: ErrorCodes::COMPETITOR_LIMIT_REACHED }.to_json
 
-          update = FactoryBot.build(:update_payload, :admin_for_user, user_id: 200000, update_details: { 'status' => 'accepted' })
+          update = FactoryBot.build(:update_payload, :admin_for_user, user_id: 200_000, update_details: { 'status' => 'accepted' })
           let(:registration_update) { update }
           let(:Authorization) { update[:jwt_token] }
-
 
           run_test! do |response|
             expect(response.body).to eq(registration_error)

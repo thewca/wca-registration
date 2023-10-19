@@ -24,16 +24,11 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
     post 'Add an attendee registration' do
       security [Bearer: {}]
       consumes 'application/json'
-      parameter name: :registration, in: :body,
+      parameter name: :registration_payload, in: :body,
                 schema: { '$ref' => '#/components/schemas/submitRegistrationBody' }, required: true
       produces 'application/json'
 
       context '-> success registration_payload posts' do
-        # include_context 'database seed'
-        # include_context 'auth_tokens'
-        # include_context 'registration_payload_data'
-        # include_context 'competition information'
-
         response '202', '-> PASSING competitor submits basic registration_payload' do
           schema '$ref' => '#/components/schemas/success_response'
           before do
@@ -186,7 +181,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           schema '$ref' => '#/components/schemas/error_response'
           before do
             wca_error_json = { error: 'Competition with id CompDoesntExist not found' }.to_json
-            competition = FactoryBot.build(:competition, competition_id: 'CompDoesntExist')
+            FactoryBot.build(:competition, competition_id: 'CompDoesntExist')
             stub_request(:get, comp_api_url('CompDoesntExist')).to_return(status: 404, body: wca_error_json)
           end
 
@@ -297,7 +292,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         response '404', ' -> PASSING admin adds reg for competition which does not exist' do
           before do
             wca_error_json = { error: 'Competition with id CompDoesntExist not found' }.to_json
-            competition = FactoryBot.build(:competition, competition_id: 'CompDoesntExist')
+            FactoryBot.build(:competition, competition_id: 'CompDoesntExist')
             stub_request(:get, comp_api_url('CompDoesntExist')).to_return(status: 404, body: wca_error_json)
           end
 

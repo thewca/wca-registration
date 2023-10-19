@@ -15,7 +15,6 @@ end
 # TODOS
 # 3 Create a separate competing lane and add that to the registration_payload?
 
-
 FactoryBot.define do
   factory :registration_payload, class: Hash do
     transient do
@@ -67,10 +66,6 @@ end
 
 FactoryBot.define do
   factory :update_payload, class: Hash do
-    transient do
-      update_details {  }
-    end
-
     user_id { '158817' }
     jwt_token { fetch_jwt_token(user_id) }
     competition_id { 'CubingZANationalChampionship2023' }
@@ -101,5 +96,3 @@ FactoryBot.define do
     initialize_with { attributes }
   end
 end
-
-
