@@ -21,12 +21,20 @@ locals {
       value = var.vault_address
     },
     {
+      name = "VAULT_APPLICATION",
+      value = "wca-registration-production"
+    },
+    {
+      name = "REGISTRATION_LIVE_SITE",
+      value = "true"
+    },
+    {
       name = "TASK_ROLE"
       value = aws_iam_role.task_role.name
     },
     {
-      name = "CODE_ENVIRONMENT"
-      value = "production"
+      name = "DYNAMO_REGISTRATIONS_TABLE",
+      value = var.shared_resources.dynamo_registration_table.name
     },
     {
       name = "QUEUE_URL",
@@ -90,7 +98,7 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:DeleteItem",
       "dynamodb:DescribeTable",
     ]
-    resources = [var.shared_resources.dynamo_registration_table, "${var.shared_resources.dynamo_registration_table}/*"]
+    resources = [var.shared_resources.dynamo_registration_table.arn, "${var.shared_resources.dynamo_registration_table.arn}/*"]
   }
   statement {
     effect = "Allow"
@@ -148,9 +156,9 @@ resource "aws_ecs_task_definition" "this" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = "${aws_cloudwatch_log_group.this.name}"
-          awslogs-region        = "${var.region}"
-          awslogs-stream-prefix = "${var.name_prefix}"
+          awslogs-group         = aws_cloudwatch_log_group.this.name
+          awslogs-region        = var.region
+          awslogs-stream-prefix = var.name_prefix
         }
       }
       environment = local.app_environment

@@ -37,7 +37,7 @@ variable "availability_zones" {
 variable "host" {
   type        = string
   description = "The host for generating absolute URLs in the application"
-  default     = "register.worldcubeassociation.org"
+  default     = "registration.worldcubeassociation.org"
 }
 
 variable "wca_host" {
@@ -49,7 +49,10 @@ variable "wca_host" {
 variable "shared_resources" {
   description = "All the resources that the two Modules both use"
   type = object({
-    dynamo_registration_table: string,
+    dynamo_registration_table: object({
+      name: string,
+      arn: string
+    }),
     queue: object({
       arn: string,
       url: string

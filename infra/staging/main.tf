@@ -3,10 +3,44 @@ resource "aws_cloudwatch_log_group" "this" {
 }
 
 locals {
+  worker_environment = [
+    {
+      name = "PROMETHEUS_EXPORTER"
+      value = var.prometheus_address
+    },
+    {
+      name = "AWS_REGION"
+      value = var.region
+    },
+    {
+      name = "DYNAMO_REGISTRATIONS_TABLE",
+      value = aws_dynamodb_table.registrations.name
+    },
+    {
+      name = "QUEUE_URL",
+      value = aws_sqs_queue.this.url
+    },
+    { # We don't have access to RAILS_ENV as the worker uses plain ruby
+      name = "CODE_ENVIRONMENT",
+      value = "staging"
+    }
+  ]
   app_environment = [
     {
       name  = "WCA_HOST"
       value = var.wca_host
+    },
+    {
+      name = "REGISTRATION_LIVE_SITE",
+      value = "false"
+    },
+    {
+      name = "VAULT_APPLICATION",
+      value = "wca-registration-staging"
+    },
+    {
+      name = "HOST",
+      value = var.host
     },
     {
       name = "AWS_REGION"
@@ -25,8 +59,8 @@ locals {
       value = aws_iam_role.task_role.name
     },
     {
-      name = "CODE_ENVIRONMENT"
-      value = "staging"
+      name = "DYNAMO_REGISTRATIONS_TABLE",
+      value = aws_dynamodb_table.registrations.name
     },
     {
       name = "PROMETHEUS_EXPORTER"
@@ -204,7 +238,7 @@ resource "aws_ecs_task_definition" "this" {
           awslogs-stream-prefix = "${var.name_prefix}-worker"
         }
       }
-      environment = local.app_environment
+      environment = local.worker_environment
       healthCheck       = {
         command            = ["CMD-SHELL", "pgrep ruby || exit 1"]
         interval           = 30

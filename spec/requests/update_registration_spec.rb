@@ -3,7 +3,7 @@
 require 'swagger_helper'
 require_relative '../../app/helpers/error_codes'
 
-RSpec.describe 'v1 Registrations API', type: :request do
+RSpec.describe 'v1 Registrations API', type: :request, document: false do
   include Helpers::RegistrationHelper
 
   path '/api/v1/register' do
@@ -22,6 +22,12 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '200', 'PASSING user changes comment' do
+          schema type: :object,
+                 properties: {
+                   status: { type: :string },
+                   registration: { '$ref' => '#/components/schemas/registrationAdmin' },
+                 }
+
           before { registration = FactoryBot.create(:registration, comment: 'starting comment') }
 
           update = FactoryBot.build(:update_payload, update_details: { 'comment' => 'updated registration comment' })
@@ -283,6 +289,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '422', 'PASSING user does not include required comment' do
+          schema '$ref' => '#/components/schemas/error_response'
           before do
             competition = FactoryBot.build(:competition, force_comment_in_registration: true )
             stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
@@ -368,6 +375,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '401', 'PASSING user requests invalid status change to their own reg' do
+          schema '$ref' => '#/components/schemas/error_response'
           before { registration = FactoryBot.create(:registration, lane_state: 'pending') }
 
           update = FactoryBot.build(:update_payload, update_details: { 'status' => 'accepted' })
@@ -422,6 +430,7 @@ RSpec.describe 'v1 Registrations API', type: :request do
         end
 
         response '403', 'PASSING user changes events / other stuff past deadline' do
+          schema '$ref' => '#/components/schemas/error_response'
           before do
             competition = FactoryBot.build(:competition, event_change_deadline_date: '2023-06-14T00:00:00.000Z' )
             stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)

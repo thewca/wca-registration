@@ -10,15 +10,15 @@ import styles from './actions.module.scss'
 export default function RegistrationActions({ selected, refresh }) {
   const { competitionInfo } = useContext(CompetitionContext)
   const anySelected =
-    selected.waiting.length > 0 ||
+    selected.pending.length > 0 ||
     selected.accepted.length > 0 ||
-    selected.deleted.length > 0
+    selected.cancelled.length > 0
   const anyApprovable =
-    selected.waiting.length > 0 || selected.deleted.length > 0
+    selected.pending.length > 0 || selected.cancelled.length > 0
   const anyRejectable =
-    selected.accepted.length > 0 || selected.deleted.length > 0
+    selected.accepted.length > 0 || selected.cancelled.length > 0
   const anyDeletable =
-    selected.waiting.length > 0 || selected.accepted.length > 0
+    selected.pending.length > 0 || selected.accepted.length > 0
   const { mutate: updateRegistrationMutation } = useMutation({
     mutationFn: updateRegistration,
     onError: (data) => {
@@ -33,8 +33,10 @@ export default function RegistrationActions({ selected, refresh }) {
       updateRegistrationMutation(
         {
           user_id: attendee,
+          competing: {
+            status,
+          },
           competition_id: competitionInfo.id,
-          status,
         },
         {
           onSuccess: () => {
@@ -55,9 +57,9 @@ export default function RegistrationActions({ selected, refresh }) {
         <Button>
           <a
             href={`mailto:?bcc=${[
-              ...selected.waiting,
+              ...selected.pending,
               ...selected.accepted,
-              ...selected.deleted,
+              ...selected.cancelled,
             ]
               .map((user) => user + '@worldcubeassociation.org')
               .join(',')}`}
@@ -73,7 +75,7 @@ export default function RegistrationActions({ selected, refresh }) {
             positive
             onClick={() =>
               changeStatus(
-                [...selected.waiting, ...selected.deleted],
+                [...selected.pending, ...selected.cancelled],
                 'accepted'
               )
             }
@@ -85,8 +87,8 @@ export default function RegistrationActions({ selected, refresh }) {
           <Button
             onClick={() =>
               changeStatus(
-                [...selected.accepted, ...selected.deleted],
-                'waiting'
+                [...selected.accepted, ...selected.cancelled],
+                'pending'
               )
             }
           >
@@ -98,8 +100,8 @@ export default function RegistrationActions({ selected, refresh }) {
             negative
             onClick={() =>
               changeStatus(
-                [...selected.waiting, ...selected.accepted],
-                'deleted'
+                [...selected.pending, ...selected.cancelled],
+                'cancelled'
               )
             }
           >

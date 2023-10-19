@@ -53,7 +53,11 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'prometheus_exporter'
 
 # vault for secrets management
-gem 'vault-rails'
+gem 'vault'
+
+# for environment variable management
+gem 'dotenv-rails', require: 'dotenv/rails-now'
+gem 'superconfig'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

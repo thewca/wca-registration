@@ -47,7 +47,7 @@ if (!process.env.TYPES_ONLY) {
             ],
             define: {
                 'process.env.API_URL': `"${process.env.API_URL}"`,
-                'process.env.AUTH_URL': `"${process.env.AUTH_URL}"`,
+                'process.env.WCA_URL': `"${process.env.WCA_URL}"`,
                 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
                 'process.env.POLL_URL': `"${process.env.POLL_URL}"`,
             },

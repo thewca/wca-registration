@@ -6,23 +6,20 @@ import React, { useContext, useEffect, useState } from 'react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PAYMENT_NOT_READY } from '../../../api/helper/error_codes'
 import getStripeConfig from '../../../api/payment/get/get_stripe_config'
-import getPaymentIntent from '../../../api/registration/get/get_payment_intent'
+import getPaymentId from '../../../api/registration/get/get_payment_intent'
 import { setMessage } from '../../../ui/events/messages'
 import PaymentStep from './PaymentStep'
 
 export default function StripeWrapper() {
   const [stripePromise, setStripePromise] = useState(null)
   const { competitionInfo } = useContext(CompetitionContext)
-  const { data: config, isLoading: configLoading } = useQuery({
-    queryKey: ['payment-config', competitionInfo.id],
-    queryFn: () => getStripeConfig(competitionInfo.id),
-    onError: (err) => {
-      setMessage(err.error, 'error')
-    },
-  })
-  const { data, isLoading, isError } = useQuery({
+  const {
+    data,
+    isLoading: isPaymentIdLoading,
+    isError,
+  } = useQuery({
     queryKey: ['payment-secret', competitionInfo.id],
-    queryFn: () => getPaymentIntent(competitionInfo.id),
+    queryFn: () => getPaymentId(competitionInfo.id),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
@@ -39,8 +36,19 @@ export default function StripeWrapper() {
     },
   })
 
+  const { data: config, isLoading: isConfigLoading } = useQuery({
+    queryKey: ['payment-config', competitionInfo.id, data.payment_id],
+    queryFn: () => getStripeConfig(competitionInfo.id, data.payment_id),
+    onError: (err) => setMessage(err.error, 'error'),
+    enabled: !isPaymentIdLoading && !isError,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+    refetchOnMount: 'always',
+  })
+
   useEffect(() => {
-    if (!configLoading) {
+    if (!isConfigLoading) {
       setStripePromise(
         loadStripe(config.stripe_publishable_key, {
           stripeAccount: config.connected_account_id,
@@ -50,17 +58,17 @@ export default function StripeWrapper() {
   }, [
     config?.connected_account_id,
     config?.stripe_publishable_key,
-    configLoading,
+    isConfigLoading,
   ])
 
   return (
     <>
       <h1>Payment</h1>
-      {!isLoading && stripePromise && !isError && (
+      {!isPaymentIdLoading && stripePromise && !isError && (
         <Elements
           stripe={stripePromise}
           options={{
-            clientSecret: data.client_secret_id,
+            clientSecret: config.client_secret,
           }}
         >
           <PaymentStep />

@@ -6,6 +6,7 @@ require 'prometheus_exporter/client'
 require 'prometheus_exporter/instrumentation'
 require 'prometheus_exporter/metric'
 require_relative 'registration_processor'
+require_relative 'env_config'
 
 class QueuePoller
   # Wait for 1 second so we can start work on 10 messages at at time
@@ -16,15 +17,9 @@ class QueuePoller
   def self.perform
     PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV.fetch('PROMETHEUS_EXPORTER'), port: 9091)
     # Instrumentation of the worker process is currently disabled per https://github.com/discourse/prometheus_exporter/issues/282
-    if ENV.fetch('CODE_ENVIRONMENT', 'dev') == 'staging'
-      # PrometheusExporter::Instrumentation::Process.start(type: "wca-registration-worker-staging", labels: { process: "1" })
-      @suffix = '-staging'
-    else
-      # PrometheusExporter::Instrumentation::Process.start(type: "wca-registration-worker", labels: { process: "1" })
-      @suffix = ''
-    end
-    registrations_counter = PrometheusExporter::Client.default.register('counter', "registrations_counter-#{@suffix}", 'The number of Registrations processed')
-    error_counter = PrometheusExporter::Client.default.register('counter', "worker_error_counter-#{@suffix}", 'The number of Errors in the worker')
+    suffix = "-#{ENV.fetch("CODE_ENVIRONMENT", "development")}"
+    registrations_counter = PrometheusExporter::Client.default.register('counter', "registrations_counter-#{suffix}", 'The number of Registrations processed')
+    error_counter = PrometheusExporter::Client.default.register('counter', "worker_error_counter-#{suffix}", 'The number of Errors in the worker')
 
     @sqs ||= if ENV['LOCALSTACK_ENDPOINT']
                Aws::SQS::Client.new(endpoint: ENV['LOCALSTACK_ENDPOINT'])

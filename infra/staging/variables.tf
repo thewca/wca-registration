@@ -4,6 +4,12 @@ variable "env" {
   default     = "staging"
 }
 
+variable "host" {
+  type = string
+  description = "The address of the service"
+  default = "staging.registration.worldcubeassociation.org"
+}
+
 variable "name_prefix" {
   type        = string
   description = "Prefix for naming resources"
@@ -36,7 +42,7 @@ variable "availability_zones" {
 
 variable "wca_host" {
   type        = string
-  description = "The host for generating absolute URLs in the application"
+  description = "The host for the WCA Monolith"
   default     = "staging.worldcubeassociation.org"
 }
 

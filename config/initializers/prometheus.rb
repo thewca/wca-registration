@@ -8,12 +8,12 @@ require_relative '../../app/helpers/metrics'
 
 PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV.fetch('PROMETHEUS_EXPORTER'), port: 9091)
 
-if ENV.fetch('CODE_ENVIRONMENT', 'dev') == 'staging'
+if Rails.env.production? && !EnvConfig.REGISTRATION_LIVE_SITE?
   PrometheusExporter::Instrumentation::Process.start(type: 'wca-registration-handler-staging', labels: { process: '1' })
-  @suffix = '-staging'
+  suffix = '-staging'
 else
   PrometheusExporter::Instrumentation::Process.start(type: 'wca-registration-handler', labels: { process: '1' })
-  @suffix = ''
+  suffix = ''
 end
 
 unless Rails.env.test?
@@ -24,9 +24,9 @@ unless Rails.env.test?
 end
 
 # Create our Metric Counters
-Metrics.registration_dynamodb_errors_counter = PrometheusExporter::Client.default.register('counter', "registration_dynamodb_errors_counter#{@suffix}", 'The number of times interacting with dynamodb fails')
-Metrics.registration_competition_api_error_counter = PrometheusExporter::Client.default.register('counter', "registration_competition_api_error_counter#{@suffix}", 'The number of times interacting with the competition API failed')
-Metrics.registration_competitor_api_error_counter = PrometheusExporter::Client.default.register('counter', "registration_competitor_api_error_counter#{@suffix}", 'The number of times interacting with the user API failed')
-Metrics.registration_validation_errors_counter = PrometheusExporter::Client.default.register('counter', "registration_validation_errors_counter#{@suffix}", 'The number of times validation fails when an attendee tries to register')
-Metrics.jwt_verification_error_counter = PrometheusExporter::Client.default.register('counter', "jwt_verification_error_counter#{@suffix}", 'The number of times JWT verification failed')
-Metrics.registration_impersonation_attempt_counter = PrometheusExporter::Client.default.register('counter', "registration_impersonation_attempt_counter#{@suffix}", 'The number of times a Person tries to register as someone else')
+Metrics.registration_dynamodb_errors_counter = PrometheusExporter::Client.default.register('counter', "registration_dynamodb_errors_counter#{suffix}", 'The number of times interacting with dynamodb fails')
+Metrics.registration_competition_api_error_counter = PrometheusExporter::Client.default.register('counter', "registration_competition_api_error_counter#{suffix}", 'The number of times interacting with the competition API failed')
+Metrics.registration_competitor_api_error_counter = PrometheusExporter::Client.default.register('counter', "registration_competitor_api_error_counter#{suffix}", 'The number of times interacting with the user API failed')
+Metrics.registration_validation_errors_counter = PrometheusExporter::Client.default.register('counter', "registration_validation_errors_counter#{suffix}", 'The number of times validation fails when an attendee tries to register')
+Metrics.jwt_verification_error_counter = PrometheusExporter::Client.default.register('counter', "jwt_verification_error_counter#{suffix}", 'The number of times JWT verification failed')
+Metrics.registration_impersonation_attempt_counter = PrometheusExporter::Client.default.register('counter', "registration_impersonation_attempt_counter#{suffix}", 'The number of times a Person tries to register as someone else')

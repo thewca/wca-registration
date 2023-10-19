@@ -13,7 +13,7 @@ class RegistrationController < ApplicationController
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
   before_action :validate_create_request, only: [:create]
-  before_action :validate_show_request, only: [:entry]
+  before_action :validate_show_registration, only: [:show]
   before_action :ensure_lane_exists, only: [:create]
   before_action :validate_list_admin, only: [:list_admin]
   before_action :validate_update_request, only: [:update]
@@ -112,12 +112,14 @@ class RegistrationController < ApplicationController
       updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
       render json: { status: 'ok', registration: {
         user_id: updated_registration['user_id'],
-        registered_event_ids: updated_registration.registered_event_ids,
-        registration_status: updated_registration.competing_status,
-        registered_on: updated_registration['created_at'],
-        comment: updated_registration.competing_comment,
-        admin_comment: updated_registration.admin_comment,
         guests: updated_registration.guests,
+        competing: {
+          event_ids: updated_registration.registered_event_ids,
+          registration_status: updated_registration.competing_status,
+          registered_on: updated_registration['created_at'],
+          comment: updated_registration.competing_comment,
+          admin_comment: updated_registration.admin_comment,
+        },
       } }
     rescue StandardError => e
       puts e
@@ -163,7 +165,7 @@ class RegistrationController < ApplicationController
 
   # You can either view your own registration or one for a competition you administer
   def validate_show_registration
-    @user_id, @competition_id = entry_params
+    @user_id, @competition_id = show_params
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
       @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
   end
@@ -229,7 +231,7 @@ class RegistrationController < ApplicationController
     end
 
     def show_params
-      params.require([:user_id, :competition_id, :competing])
+      params.require([:user_id, :competition_id])
     end
 
     def update_params
@@ -245,17 +247,21 @@ class RegistrationController < ApplicationController
       if only_attending
         Registration.where(competition_id: competition_id, is_attending: true).all.map do |x|
           { user_id: x['user_id'],
-            event_ids: x.event_ids }
+            competing: {
+              event_ids: x.event_ids,
+            } }
         end
       else
         Registration.where(competition_id: competition_id).all.map do |x|
           { user_id: x['user_id'],
-            event_ids: x.event_ids,
-            registration_status: x.competing_status,
-            registered_on: x['created_at'],
-            comment: x.competing_comment,
-            guests: x.guests,
-            admin_comment: x.admin_comment }
+            competing: {
+              event_ids: x.event_ids,
+              registration_status: x.competing_status,
+              registered_on: x['created_at'],
+              comment: x.competing_comment,
+              admin_comment: x.admin_comment,
+            },
+            guests: x.guests }
         end
       end
     end
@@ -264,12 +270,14 @@ class RegistrationController < ApplicationController
       registration = Registration.find("#{competition_id}-#{user_id}")
       {
         user_id: registration['user_id'],
-        event_ids: registration.event_ids,
-        registration_status: registration.competing_status,
-        registered_on: registration['created_at'],
-        comment: registration.competing_comment,
-        admin_comment: registration.admin_comment,
         guests: registration.guests,
+        competing: {
+          event_ids: registration.event_ids,
+          registration_status: registration.competing_status,
+          registered_on: registration['created_at'],
+          comment: registration.competing_comment,
+          admin_comment: registration.admin_comment,
+        },
       }
     end
 

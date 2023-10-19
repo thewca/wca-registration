@@ -17,15 +17,16 @@ require_relative '../../app/helpers/competition_api'
 # TODO: Add test cases for users API (new file)
 # TODO: Add test cases for competition info being returned from endpoint (check that we respond appropriately to different values/conditionals)
 # TODO: Check Swaggerized output
-RSpec.describe 'v1 registration API', type: :request do
+RSpec.describe 'v1 Registrations API', type: :request, document: false do
   include Helpers::RegistrationHelper
 
   path '/api/v1/register' do
     post 'Add an attendee registration' do
       security [Bearer: {}]
       consumes 'application/json'
-      parameter name: :registration_payload, in: :body,
-                schema: { '$ref' => '#/components/schemas/submitregistrationBody' }, required: true
+      parameter name: :registration, in: :body,
+                schema: { '$ref' => '#/components/schemas/submitRegistrationBody' }, required: true
+      produces 'application/json'
 
       context '-> success registration_payload posts' do
         # include_context 'database seed'
@@ -34,6 +35,7 @@ RSpec.describe 'v1 registration API', type: :request do
         # include_context 'competition information'
 
         response '202', '-> PASSING competitor submits basic registration_payload' do
+          schema '$ref' => '#/components/schemas/success_response'
           before do
             competition = FactoryBot.build(:competition)
             stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
@@ -62,7 +64,6 @@ RSpec.describe 'v1 registration API', type: :request do
           run_test!
         end
 
-        # Failing: see above
         response '202', '-> PASSING admin submits registration_payload for competitor' do
           before do
             competition = FactoryBot.build(:competition)
@@ -89,6 +90,7 @@ RSpec.describe 'v1 registration API', type: :request do
         # include_context 'competition information'
 
         response '401', ' -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration_payload user_id)' do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_payload = FactoryBot.build(:impersonation)
           registration_payload_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
 
@@ -101,6 +103,7 @@ RSpec.describe 'v1 registration API', type: :request do
         end
 
         response '422', 'PASSING user registration_payload exceeds guest limit' do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_payload = FactoryBot.build(:registration_payload_with_guests, guests: 3)
           let(:registration_payload) { registration_payload }
           let(:Authorization) { registration_payload[:jwt_token] }
@@ -113,6 +116,7 @@ RSpec.describe 'v1 registration API', type: :request do
         end
 
         response '403', ' -> PASSING user cant register while registration is closed' do
+          schema '$ref' => '#/components/schemas/error_response'
           before do
             competition = FactoryBot.build(:competition, registration_opened?: false)
             stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
@@ -165,7 +169,8 @@ RSpec.describe 'v1 registration API', type: :request do
           end
         end
 
-        response '400', ' -> PASSING empty payload provided' do # getting a long error on this - not sure why it fails
+        response '400', ' -> PASSING empty payload provided' do
+          schema '$ref' => '#/components/schemas/error_response'
           registration_payload = FactoryBot.build(:registration_payload)
           let(:registration_payload) { {}.to_json }
           let(:Authorization) { registration_payload[:jwt_token] }
@@ -178,6 +183,7 @@ RSpec.describe 'v1 registration API', type: :request do
         end
 
         response '404', ' -> PASSING competition does not exist' do
+          schema '$ref' => '#/components/schemas/error_response'
           before do
             wca_error_json = { error: 'Competition with id CompDoesntExist not found' }.to_json
             competition = FactoryBot.build(:competition, competition_id: 'CompDoesntExist')
