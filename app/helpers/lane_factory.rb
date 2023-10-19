@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class LaneFactory
-  def self.competing_lane(event_ids = [], comment = '', guests = 0, lane_state = 'pending')
+  def self.competing_lane(event_ids: [], comment: '', guests: 0, lane_state: 'pending')
     competing_lane = Lane.new({})
     competing_lane.lane_name = 'competing'
     competing_lane.completed_steps = ['Event Registration']
