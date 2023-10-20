@@ -60,6 +60,7 @@ class RegistrationController < ApplicationController
     @competition_id = registration_params[:competition_id]
     @event_ids = registration_params[:competing]['event_ids']
 
+    # TODO: Rename @comeptition to competition_info - make it clear that it's a DataClass, not a model object
     @competition = CompetitionApi.find!(@competition_id)
 
     user_can_create_registration!

@@ -1,4 +1,4 @@
-import createClient from 'openapi-fetch'
+iport createClient from 'openapi-fetch'
 import { getJWT } from '../../auth/get_jwt'
 import { BackendError } from '../../helper/backend_fetch'
 import { EXPIRED_TOKEN } from '../../helper/error_codes'

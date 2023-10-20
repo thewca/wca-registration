@@ -22,9 +22,10 @@ FactoryBot.define do
     end
 
     user_id { '158817' }
+    submitted_by { user_id }
     competition_id { 'CubingZANationalChampionship2023' }
     competing { { event_ids: events, lane_state: 'pending' } }
-    jwt_token { fetch_jwt_token(user_id) }
+    jwt_token { fetch_jwt_token(submitted_by) }
 
     trait :admin do
       user_id { '15073' }
@@ -32,11 +33,11 @@ FactoryBot.define do
     end
 
     trait :admin_submits do
-      jwt_token { fetch_jwt_token('15073') }
+      submitted_by { '15073' }
     end
 
     trait :impersonation do
-      jwt_token { fetch_jwt_token('1000') }
+      submitted_by { '158810' }
     end
 
     trait :banned do

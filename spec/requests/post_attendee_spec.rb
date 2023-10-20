@@ -32,6 +32,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         response '202', '-> PASSING competitor submits basic registration_payload' do
           schema '$ref' => '#/components/schemas/success_response'
           before do
+            # TODO: Call it comeptition_json if we're not returning a CompetitionInfo object -> competition
             competition = FactoryBot.build(:competition)
             stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
           end

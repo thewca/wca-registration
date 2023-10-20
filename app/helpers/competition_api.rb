@@ -30,7 +30,6 @@ class CompetitionApi < WcaApi
     def fetch_competition(competition_id)
       Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
         response = HTTParty.get(comp_api_url(competition_id))
-        puts response
         case response.code
         when 200
           @status = 200

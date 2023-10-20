@@ -13,7 +13,8 @@ FactoryBot.define do
       lane_state { 'incoming' }
       admin_comment { nil }
     end
-    user_id { '158817' }
+    # user_id { '158817' }
+    user_id { rand(100000..200000).to_s }
     competition_id { 'CubingZANationalChampionship2023' }
     attendee_id { "#{competition_id}-#{user_id}" }
     lanes { [LaneFactory.competing_lane(event_ids: events, comment: comment, guests: guests, lane_state: lane_state)] }
