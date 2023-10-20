@@ -12,7 +12,7 @@ class ApplicationController < ActionController::API
     token = request.headers['Authorization'].split[1]
     begin
       decoded_token = (JWT.decode token, JwtOptions.secret, true, { algorithm: JwtOptions.algorithm })[0]
-      @current_user = decoded_token['data']['user_id']
+      @current_user = decoded_token['user_id']
     rescue JWT::VerificationError, JWT::InvalidJtiError
       Metrics.jwt_verification_error_counter.increment
       render json: { error: ErrorCodes::INVALID_TOKEN }, status: :unauthorized
