@@ -56,7 +56,7 @@ class Registration
   end
 
   def payment_ticket
-    lanes.filter_map { |x| x.lane_details['payment_intent_client_secret'] if x.lane_name == 'payment' }[0]
+    lanes.filter_map { |x| x.lane_details['payment_id'] if x.lane_name == 'payment' }[0]
   end
 
   def update_competing_lane!(update_params)

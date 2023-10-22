@@ -8,7 +8,7 @@ export default async function getJWTMock(): Promise<string> {
   const secret = new TextEncoder().encode('jwt-test-secret')
   const alg = 'HS256'
   const issuedAt = Date.now()
-  const jwt = await new jose.SignJWT({ data: { user_id: user } })
+  const jwt = await new jose.SignJWT({ user_id: user })
     .setProtectedHeader({ alg })
     .setIssuedAt(issuedAt)
     .setJti(Base64.stringify(md5(`${secret}:${issuedAt}`)))

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Menu, Tab } from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
+import { BASE_ROUTE } from '../routes'
 import styles from './tabs.module.scss'
 
 function pathMatch(name, pathname) {
@@ -50,7 +51,7 @@ export default function PageTabs() {
             name="register"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/register`)
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/register`)
             }
           >
             <UiIcon name="sign in alt" />
@@ -68,7 +69,7 @@ export default function PageTabs() {
             name="registrations"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/registrations/edit`)
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations/edit`)
             }
           >
             <UiIcon name="list ul" />
@@ -86,7 +87,7 @@ export default function PageTabs() {
             name="competitors"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/registrations`)
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations`)
             }
           >
             <UiIcon name="users" />
@@ -103,7 +104,7 @@ export default function PageTabs() {
             key="tab-info"
             name="info"
             className={styles.tabItem}
-            onClick={() => navigate(`/competitions/${competitionInfo.id}`)}
+            onClick={() => navigate(`${BASE_ROUTE}/${competitionInfo.id}`)}
           >
             <UiIcon name="info" />
             General Info
@@ -119,7 +120,7 @@ export default function PageTabs() {
             name="events"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/events`)
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/events`)
             }
           >
             <CubingIcon event={competitionInfo.main_event_id} selected />
@@ -135,7 +136,7 @@ export default function PageTabs() {
             name="schedule"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/schedule`)
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/schedule`)
             }
           >
             <UiIcon name="calendar" />
@@ -152,7 +153,7 @@ export default function PageTabs() {
               name={`tabs-${tab.id}`}
               className={styles.tabItem}
               onClick={() =>
-                navigate(`/competitions/${competitionInfo.id}/tabs/${tab.id}`)
+                navigate(`${BASE_ROUTE}/${competitionInfo.id}/tabs/${tab.id}`)
               }
             >
               {tab.name}

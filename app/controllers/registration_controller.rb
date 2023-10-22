@@ -64,8 +64,8 @@ class RegistrationController < ApplicationController
 
     user_can_create_registration!
 
-    can_compete, reasons = UserApi.can_compete?(@user_id)
-    raise RegistrationError.new(:unauthorized, reasons) unless can_compete
+    can_compete = UserApi.can_compete?(@user_id)
+    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_PROFILE_INCOMPLETE) unless can_compete
 
     validate_events!
     raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && @competition.guest_limit_exceeded?(params[:guests])
@@ -171,12 +171,12 @@ class RegistrationController < ApplicationController
     refresh = params[:refresh]
     if refresh || @registration.payment_ticket.nil?
       amount, currency_code = @competition.payment_info
-      ticket, account_id = PaymentApi.get_ticket(@registration[:attendee_id], amount, currency_code)
+      ticket = PaymentApi.get_ticket(@registration[:attendee_id], amount, currency_code)
       @registration.init_payment_lane(amount, currency_code, ticket)
     else
       ticket = @registration.payment_ticket
     end
-    render json: { client_secret_id: ticket, connected_account_id: account_id }
+    render json: { id: ticket }
   end
 
   def validate_payment_ticket_request
