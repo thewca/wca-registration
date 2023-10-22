@@ -101,7 +101,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '401', '-> PASSING attendee is banned' do
-          registration_error_json = { error: ErrorCodes::USER_IS_BANNED }.to_json
+          registration_error_json = { error: ErrorCodes::USER_PROFILE_INCOMPLETE }.to_json
           let(:registration) { @banned_user_reg }
           let(:Authorization) { @banned_user_jwt }
 
@@ -184,7 +184,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         end
 
         response '401', '-> PASSING admin adds banned user' do
-          registration_error_json = { error: ErrorCodes::USER_IS_BANNED }.to_json
+          registration_error_json = { error: ErrorCodes::USER_PROFILE_INCOMPLETE }.to_json
           let(:registration) { @banned_user_reg }
           let(:Authorization) { @admin_token }
 
