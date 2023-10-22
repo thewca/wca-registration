@@ -4,8 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Menu, Tab } from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
-import styles from './tabs.module.scss'
 import { BASE_ROUTE } from '../routes'
+import styles from './tabs.module.scss'
 
 function pathMatch(name, pathname) {
   const registerExpression = /\/competitions\/[a-zA-Z0-9]+\/register/

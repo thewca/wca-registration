@@ -8,9 +8,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Button, Image } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import { CompetitionContext } from '../api/helper/context/competition_context'
+import { BASE_ROUTE } from '../routes'
 import styles from './competition.module.scss'
 import LoadingMessage from './messages/loadingMessage'
-import { BASE_ROUTE } from '../routes'
 
 export default function Competition({ children }) {
   const { competition_id } = useParams()
