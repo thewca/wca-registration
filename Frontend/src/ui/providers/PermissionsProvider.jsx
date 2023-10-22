@@ -27,10 +27,11 @@ export default function PermissionsProvider({ children }) {
     <PermissionsContext.Provider
       value={{
         permissions,
-        canAttendCompetition: permissions.can_attend_competitions.scope === '*',
+        canAttendCompetition:
+          permissions?.can_attend_competitions.scope === '*',
         canAdminCompetition:
-          permissions.can_administer_competitions.scope === '*' ||
-          permissions.can_administer_competitions.scope.includes(
+          permissions?.can_administer_competitions.scope === '*' ||
+          permissions?.can_administer_competitions.scope.includes(
             competitionInfo.id
           ),
       }}

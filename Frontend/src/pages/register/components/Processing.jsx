@@ -19,7 +19,7 @@ export default function Processing({ onProcessingComplete }) {
     if (
       data &&
       (data.status.payment === 'initialized' ||
-        data.status.competing === 'incoming')
+        data.status.competing === 'pending')
     ) {
       onProcessingComplete()
     }
