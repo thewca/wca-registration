@@ -5,6 +5,10 @@ require 'json'
 require_relative 'mocks'
 require_relative 'wca_api'
 
+def permissions_path(user_id)
+  "https://#{EnvConfig.WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
+end
+
 class UserApi < WcaApi
   def self.get_permissions(user_id)
     if Rails.env.production?
@@ -28,11 +32,5 @@ class UserApi < WcaApi
       self.get_permissions(user_id)
     end
     permissions['can_administer_competitions']['scope'] == '*' || permissions['can_administer_competitions']['scope'].include?(competition_id)
-  end
-
-  class << self
-    def permissions_path(user_id)
-      "#{WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
-    end
   end
 end

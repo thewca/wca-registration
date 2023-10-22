@@ -5,9 +5,9 @@ class WcaApi
   # Uses Vault ID Tokens: see https://developer.hashicorp.com/vault/docs/secrets/identity/identity-token
   def self.get_wca_token
     Vault.with_retries(Vault::HTTPConnectionError) do
-      data = Vault.logical.read("identity/oidc/token/#{@vault_application}")
+      data = Vault.logical.read("identity/oidc/token/#{EnvConfig.VAULT_APPLICATION}")
       if data.present?
-        data.data[:data][:token]
+        data.data[:token]
       else # TODO: should we hard error out here?
         puts 'Tried to get identity token, but got error'
       end
