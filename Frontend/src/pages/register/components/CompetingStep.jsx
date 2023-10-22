@@ -203,10 +203,11 @@ export default function CompetingStep({ nextStep }) {
           </div>
         </div>
         <div className={styles.registrationRow}>
-          {registration.registration_status ? (
+          {registration?.competing?.registration_status ? (
             <div className={styles.registrationButtonWrapper}>
               <div className={styles.registrationWarning}>
-                Your Registration Status: {registration.registration_status}
+                Your Registration Status:
+                {registration.competing.registration_status}
                 <br />
                 {competitionInfo.allow_registration_edits
                   ? 'Update Your Registration below'
@@ -242,7 +243,7 @@ export default function CompetingStep({ nextStep }) {
                     user_id: registration.user_id,
                     competition_id: competitionInfo.id,
                     competing: {
-                      status: 'deleted',
+                      status: 'cancelled',
                     },
                   })
                 }}
