@@ -13,6 +13,10 @@ locals {
       value = var.region
     },
     {
+      name  = "WCA_HOST"
+      value = var.wca_host
+    },
+    {
       name = "DYNAMO_REGISTRATIONS_TABLE",
       value = aws_dynamodb_table.registrations.name
     },

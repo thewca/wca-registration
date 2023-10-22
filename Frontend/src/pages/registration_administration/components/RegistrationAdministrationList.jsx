@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { Checkbox, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
+import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
@@ -276,7 +277,7 @@ function RegistrationAdministrationTable({
                 </Table.Cell>
                 <Table.Cell>
                   <Link
-                    to={`/competitions/${competition_id}/${registration.user.id}/edit`}
+                    to={`${BASE_ROUTE}/${competition_id}/${registration.user.id}/edit`}
                   >
                     Edit
                   </Link>

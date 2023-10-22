@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Button, Image } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import { CompetitionContext } from '../api/helper/context/competition_context'
+import { BASE_ROUTE } from '../routes'
 import styles from './competition.module.scss'
 import LoadingMessage from './messages/loadingMessage'
 
@@ -64,7 +65,7 @@ export default function Competition({ children }) {
                   onClick={(_, data) => {
                     if (!data.disabled) {
                       if (competitionInfo.use_wca_registration) {
-                        navigate(`/competitions/${competitionInfo.id}/register`)
+                        navigate(`${BASE_ROUTE}/${competitionInfo.id}/register`)
                       } else {
                         window.location =
                           competitionInfo.external_registration_page
