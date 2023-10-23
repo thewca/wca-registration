@@ -1,4 +1,4 @@
-// import externalServiceFetch from '../../helper/external_service_fetch'
+import externalServiceFetch from '../../helper/external_service_fetch'
 import pollingMock from '../../mocks/polling_mock'
 
 export interface RegistrationStatus {
