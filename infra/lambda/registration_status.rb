@@ -54,6 +54,11 @@ def lambda_handler(event:, context:)
   {
     statusCode: response[:statusCode],
     body: response[:body],
+    headers: {
+         "Access-Control-Allow-Headers" : "*",
+         "Access-Control-Allow-Origin": "*",
+         "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+     }
   }
 rescue StandardError => e
   # Handle any errors
