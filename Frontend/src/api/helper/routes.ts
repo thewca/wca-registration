@@ -12,10 +12,9 @@ export const usersInfoRoute = (ids: string[]) =>
   `${process.env.WCA_URL}/api/v0/users?${ids
     .map((id) => 'ids[]=' + id)
     .join('&')}`
-// Hardcoded because these are currently not mocked
 export const competitionInfoRoute = (id: string) =>
-  `https://api.worldcubeassociation.org/competitions/${id}`
+  `${process.env.WCA_URL}/api/v0/competitions/${id}`
 export const competitionWCIFRoute = (id: string) =>
-  `https://api.worldcubeassociation.org/competitions/${id}/wcif/public`
+  `${process.env.WCA_URL}/api/v0/competitions/${id}/wcif/public`
 export const userInfoRoute = (id: string) =>
-  `https://api.worldcubeassociation.org/users/${id}`
+  `${process.env.WCA_URL}/api/v0/users/${id}`
