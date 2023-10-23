@@ -8,13 +8,14 @@ import { BASE_ROUTE } from '../routes'
 import styles from './tabs.module.scss'
 
 function pathMatch(name, pathname) {
-  const registerExpression = /\/competitions\/[a-zA-Z0-9]+\/register/
+  const registerExpression = /\/competitions\/v2\/[a-zA-Z0-9]+\/register/
   const registrationsExpression =
-    /\/competitions\/[a-zA-Z0-9]+\/registrations\/edit/
-  const competitorsExpression = /\/competitions\/[a-zA-Z0-9]+\/registrations/
-  const eventsExpressions = /\/competitions\/[a-zA-Z0-9]+\/events/
-  const scheduleExpressions = /\/competitions\/[a-zA-Z0-9]+\/schedule/
-  const infoExpression = /\/competitions\/[a-zA-Z0-9]+$/
+    /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations\/edit/
+  const competitorsExpression =
+    /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations/
+  const eventsExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/events/
+  const scheduleExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/schedule/
+  const infoExpression = /\/competitions\/v2\/[a-zA-Z0-9]+$/
   switch (name) {
     case 'register':
       return registerExpression.test(pathname)
