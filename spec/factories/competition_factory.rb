@@ -42,6 +42,10 @@ FactoryBot.define do
       registration_opened? { false }
     end
 
+    trait :no_guests do
+      guest_entry_status { '' }
+    end
+
     # TODO: Create a flag that returns either the raw JSON (for mocking) or a CompetitionInfo object
     after(:create) do |competition, evaluator|
       stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: evalutor.mocked_status_code, body: competition) if evaluator.mock_competition

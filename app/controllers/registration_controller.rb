@@ -63,13 +63,15 @@ class RegistrationController < ApplicationController
     # TODO: Rename @comeptition to competition_info - make it clear that it's a DataClass, not a model object
     @competition = CompetitionApi.find!(@competition_id)
 
-    user_can_create_registration!
+    RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find!(@competition_id), @current_user)
 
-    can_compete, reasons = UserApi.can_compete?(@user_id)
-    raise RegistrationError.new(:unauthorized, reasons) unless can_compete
+    # user_can_create_registration!
 
-    validate_events!
-    raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && @competition.guest_limit_exceeded?(params[:guests])
+    # can_compete, reasons = UserApi.can_compete?(@user_id)
+    # raise RegistrationError.new(:unauthorized, reasons) unless can_compete
+
+    # validate_events!
+    # raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && @competition.guest_limit_exceeded?(params[:guests])
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
   end

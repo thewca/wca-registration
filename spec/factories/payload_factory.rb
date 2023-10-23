@@ -13,10 +13,10 @@ def fetch_jwt_token(user_id)
 end
 
 # TODOS
-# 3 Create a separate competing lane and add that to the registration_payload?
+# 3 Create a separate competing lane and add that to the registration_request?
 
 FactoryBot.define do
-  factory :registration_payload, class: Hash do
+  factory :registration_request, class: Hash do
     transient do
       events { ['333', '333mbf'] }
     end
@@ -26,6 +26,7 @@ FactoryBot.define do
     competition_id { 'CubingZANationalChampionship2023' }
     competing { { event_ids: events, lane_state: 'pending' } }
     jwt_token { fetch_jwt_token(submitted_by) }
+    guests { 0 }
 
     trait :admin do
       user_id { '15073' }
@@ -48,18 +49,13 @@ FactoryBot.define do
       user_id { '999999' }
     end
 
-    trait :guests do
-      guests { 2 }
-    end
-
     initialize_with { attributes }
 
-    factory :registration_payload_for_admin, traits: [:admin]
-    factory :admin_submits_registration_payload_for_user, traits: [:admin_submits]
-    factory :admin_submits_registration_payload_for_banned_user, traits: [:admin_submits, :banned]
-    factory :admin_submits_registration_payload_for_incomplete_user, traits: [:admin_submits, :incomplete]
+    factory :registration_request_for_admin, traits: [:admin]
+    factory :admin_submits_registration_request_for_user, traits: [:admin_submits]
+    factory :admin_submits_registration_request_for_banned_user, traits: [:admin_submits, :banned]
+    factory :admin_submits_registration_request_for_incomplete_user, traits: [:admin_submits, :incomplete]
     factory :impersonation, traits: [:impersonation]
-    factory :registration_payload_with_guests, traits: [:guests]
     factory :banned_competitor, traits: [:banned]
     factory :incomplete_profile, traits: [:incomplete]
   end

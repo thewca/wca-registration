@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
 class RegistrationChecker
-  def self.create_registration_allowed!(registration, competition, current_user)
-    @registration_request = registration
-    @competition_info = competition
-    @requester_user_id = current_user
+  def self.create_registration_allowed!(registration_request, competition_info, requesting_user)
+    @registration_request = registration_request
+    @competition_info = competition_info
+    @requester_user_id = requesting_user
 
     user_can_create_registration!
     validate_events!
+    validate_guests!
+    # validate_comment!
+    # TODO: Should we allow admin comments upon registration? Check my slack convo w/ Finn
+    true
   end
 
   class << self
@@ -51,8 +55,12 @@ class RegistrationChecker
       # TODO: Allow an admin to edit past the deadline
       # events_edit_deadline = Time.parse(@competition_info.event_change_deadline)
       # raise RegistrationError.new(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
+    end
 
-      true
+    def validate_guests!
+      defined?(@registration) ? request = @update_request : request = @registration_request
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if request.key?(:guests) && request[:guests] < 0
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if request.key?(:guests) && @competition_info.guest_limit_exceeded?(request[:guests])
     end
   end
 end
