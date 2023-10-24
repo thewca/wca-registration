@@ -18,18 +18,8 @@ function sortReducer(state, action) {
       }
     }
     switch (action.sortColumn) {
-      case 'name': {
-        return {
-          sortColumn: action.sortColumn,
-          sortDirection: 'ascending',
-        }
-      }
-      case 'country': {
-        return {
-          sortColumn: action.sortColumn,
-          sortDirection: 'ascending',
-        }
-      }
+      case 'name':
+      case 'country':
       case 'total': {
         return {
           sortColumn: action.sortColumn,
