@@ -10,40 +10,30 @@ import styles from './list.module.scss'
 
 function sortReducer(state, action) {
   if (action.type === 'CHANGE_SORT') {
-    if (state.column === action.column) {
+    if (state.sortColumn === action.sortColumn) {
       return {
         ...state,
-        data: state.data.slice().reverse(),
-        direction: state.direction === 'ascending' ? 'descending' : 'ascending',
+        sortDirection:
+          state.sortDirection === 'ascending' ? 'descending' : 'ascending',
       }
     }
-    switch (action.column) {
+    switch (action.sortColumn) {
       case 'name': {
         return {
-          column: action.column,
-          data: state.data.sort((a, b) =>
-            a.user.name.localeCompare(b.user.name)
-          ),
-          direction: 'ascending',
+          sortColumn: action.sortColumn,
+          sortDirection: 'ascending',
         }
       }
       case 'country': {
         return {
-          column: action.column,
-          data: state.data.sort((a, b) =>
-            a.user.country.name.localeCompare(b.user.country.name)
-          ),
-          direction: 'ascending',
+          sortColumn: action.sortColumn,
+          sortDirection: 'ascending',
         }
       }
       case 'total': {
         return {
-          column: action.column,
-          data: state.data.sort(
-            (a, b) =>
-              a.competing.event_ids.length - b.event_ids.competing.length
-          ),
-          direction: 'ascending',
+          sortColumn: action.sortColumn,
+          sortDirection: 'ascending',
         }
       }
       default: {
@@ -66,11 +56,28 @@ export default function RegistrationList() {
   })
 
   const [state, dispatch] = useReducer(sortReducer, {
-    column: '',
-    data: registrations,
-    direction: undefined,
+    sortColumn: '',
+    sortDirection: undefined,
   })
-  const { column, data, direction } = state
+  const { sortColumn, sortDirection } = state
+  const data = useMemo(() => {
+    const sorted = registrations.sort((a, b) => {
+      if (sortColumn === 'name') {
+        return a.user.name.localeCompare(b.user.name)
+      }
+      if (sortColumn === 'country') {
+        return a.user.country.name.localeCompare(b.user.country.name)
+      }
+      if (sortColumn === 'total') {
+        return a.competing.event_ids.length - b.competing.event_ids.length
+      }
+      return 0
+    })
+    if (sortDirection === 'descending') {
+      return sorted.reverse()
+    }
+    return sorted
+  }, [registrations, sortColumn, sortDirection])
   const { newcomers, totalEvents, countrySet, eventCounts } = useMemo(() => {
     if (!data) {
       return {
@@ -119,18 +126,18 @@ export default function RegistrationList() {
               <Table.Row>
                 <Table.HeaderCell
                   className="registrations-table-header-item"
-                  sorted={column === 'name' ? direction : undefined}
+                  sorted={sortColumn === 'name' ? sortDirection : undefined}
                   onClick={() =>
-                    dispatch({ type: 'CHANGE_SORT', column: 'name' })
+                    dispatch({ type: 'CHANGE_SORT', sortColumn: 'name' })
                   }
                 >
                   Name
                 </Table.HeaderCell>
                 <Table.HeaderCell
                   className="registrations-table-header-item"
-                  sorted={column === 'country' ? direction : undefined}
+                  sorted={sortColumn === 'country' ? sortDirection : undefined}
                   onClick={() =>
-                    dispatch({ type: 'CHANGE_SORT', column: 'country' })
+                    dispatch({ type: 'CHANGE_SORT', sortColumn: 'country' })
                   }
                 >
                   Citizen Of
@@ -145,9 +152,9 @@ export default function RegistrationList() {
                 ))}
                 <Table.HeaderCell
                   className="registrations-table-header-item"
-                  sorted={column === 'total' ? direction : undefined}
+                  sorted={sortColumn === 'total' ? sortDirection : undefined}
                   onClick={() =>
-                    dispatch({ type: 'CHANGE_SORT', column: 'total' })
+                    dispatch({ type: 'CHANGE_SORT', sortColumn: 'total' })
                   }
                 >
                   Total
