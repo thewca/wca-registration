@@ -3,9 +3,6 @@ export const permissionsRoute = `${process.env.WCA_URL}/api/v0/users/me/permissi
 export const paymentConfigRoute = `${process.env.WCA_URL}/payment/config`
 export const paymentFinishRoute = (competitionId: string, userId: string) =>
   `${process.env.WCA_URL}/payment/${competitionId}-${userId}/finish`
-// TODO: Move this to swagger once finalised
-export const paymentIdRoute = (id: string) =>
-  `${process.env.API_URL}/${id}/payment`
 export const pollingRoute = (userId: string, competitionId: string) =>
   `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`
 export const meRoute = `${process.env.WCA_URL}/api/v0/users/me`

@@ -1,5 +1,4 @@
 import backendFetch from '../../helper/backend_fetch'
-import { paymentIdRoute } from '../../helper/routes'
 
 export interface PaymentInfo {
   // This is the MySQL payment id that can be give to the payment service
@@ -11,7 +10,7 @@ export interface PaymentInfo {
 export default async function getPaymentId(
   competitionId: string
 ): Promise<PaymentInfo> {
-  return backendFetch(paymentIdRoute(competitionId), 'GET', {
+  return backendFetch(`/${competitionId}/payment`, 'GET', {
     needsAuthentication: true,
   }) as Promise<PaymentInfo>
 }
