@@ -20,6 +20,11 @@ def lambda_handler(event:, context:)
     response = {
       statusCode: 400,
       body: JSON.generate({ status: 'Missing fields in request' }),
+      headers: {
+        "Access-Control-Allow-Headers" => "*",
+        "Access-Control-Allow-Origin" => "*",
+        "Access-Control-Allow-Methods" => "OPTIONS,POST,GET"
+      }
     }
   else
     queue_url = ENV.fetch('QUEUE_URL', nil)
@@ -40,9 +45,9 @@ def lambda_handler(event:, context:)
         statusCode: 404,
         body: JSON.generate({ status: 'not found', queue_count: message_count }),
         headers: {
-                 "Access-Control-Allow-Headers" : "*",
-                 "Access-Control-Allow-Origin": "*",
-                 "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+                 "Access-Control-Allow-Headers" => "*",
+                 "Access-Control-Allow-Origin" => "*",
+                 "Access-Control-Allow-Methods" => "OPTIONS,POST,GET"
              }
       }
     else
@@ -52,9 +57,9 @@ def lambda_handler(event:, context:)
         statusCode: 200,
         body: JSON.generate({ status: competing_status, queue_count: message_count }),
         headers: {
-                 "Access-Control-Allow-Headers" : "*",
-                 "Access-Control-Allow-Origin": "*",
-                 "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+                 "Access-Control-Allow-Headers" => "*",
+                 "Access-Control-Allow-Origin" => "*",
+                 "Access-Control-Allow-Methods" => "OPTIONS,POST,GET"
              }
       }
     end
@@ -65,9 +70,9 @@ def lambda_handler(event:, context:)
     statusCode: response[:statusCode],
     body: response[:body],
     headers: {
-         "Access-Control-Allow-Headers" : "*",
-         "Access-Control-Allow-Origin": "*",
-         "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+         "Access-Control-Allow-Headers" => "*",
+         "Access-Control-Allow-Origin" => "*",
+         "Access-Control-Allow-Methods" => "OPTIONS,POST,GET"
      }
   }
 rescue StandardError => e
@@ -76,9 +81,9 @@ rescue StandardError => e
     statusCode: 500,
     body: JSON.generate({ error: e.message }),
     headers: {
-             "Access-Control-Allow-Headers" : "*",
-             "Access-Control-Allow-Origin": "*",
-             "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+             "Access-Control-Allow-Headers" => "*",
+             "Access-Control-Allow-Origin" => "*",
+             "Access-Control-Allow-Methods" => "OPTIONS,POST,GET"
          }
   }
 end
