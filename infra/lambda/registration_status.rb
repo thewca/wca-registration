@@ -62,7 +62,7 @@ def lambda_handler(event:, context:)
 
       response = {
         statusCode: 200,
-        body: JSON.generate({ status: competing_status, queue_count: message_count }),
+        body: JSON.generate({ status: { competing: competing_status }, queue_count: message_count }),
         headers: {
                  "Access-Control-Allow-Headers" => "*",
                  "Access-Control-Allow-Origin" => "*",
