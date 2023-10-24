@@ -39,6 +39,11 @@ def lambda_handler(event:, context:)
       response = {
         statusCode: 404,
         body: JSON.generate({ status: 'not found', queue_count: message_count }),
+        headers: {
+                 "Access-Control-Allow-Headers" : "*",
+                 "Access-Control-Allow-Origin": "*",
+                 "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+             }
       }
     else
       competing_status = registration.competing_status
@@ -46,6 +51,11 @@ def lambda_handler(event:, context:)
       response = {
         statusCode: 200,
         body: JSON.generate({ status: competing_status, queue_count: message_count }),
+        headers: {
+                 "Access-Control-Allow-Headers" : "*",
+                 "Access-Control-Allow-Origin": "*",
+                 "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+             }
       }
     end
   end
@@ -65,5 +75,10 @@ rescue StandardError => e
   {
     statusCode: 500,
     body: JSON.generate({ error: e.message }),
+    headers: {
+             "Access-Control-Allow-Headers" : "*",
+             "Access-Control-Allow-Origin": "*",
+             "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+         }
   }
 end
