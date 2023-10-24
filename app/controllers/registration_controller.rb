@@ -302,8 +302,10 @@ class RegistrationController < ApplicationController
 
       # Events can't be changed outside the edit_events deadline
       # TODO: Should an admin be able to override this?
-      events_edit_deadline = Time.parse(@competition.event_change_deadline)
-      raise RegistrationError.new(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
+      if @competition.event_change_deadline.present?
+        events_edit_deadline = Time.parse(@competition.event_change_deadline)
+        raise RegistrationError.new(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
+      end
     end
 
     def admin_fields_present?
