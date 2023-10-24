@@ -14,7 +14,6 @@ export async function pollRegistrations(
   competitionId: string
 ): Promise<RegistrationStatus> {
   if (process.env.NODE_ENV === 'production') {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     return externalServiceFetch(
       `${process.env.POLL_URL}?attendee_id=${userId}-${competitionId}`
     )
