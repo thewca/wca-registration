@@ -1,4 +1,5 @@
 import externalServiceFetch from '../../helper/external_service_fetch'
+import { pollingRoute } from '../../helper/routes'
 import pollingMock from '../../mocks/polling_mock'
 
 export interface RegistrationStatus {
@@ -14,9 +15,7 @@ export async function pollRegistrations(
   competitionId: string
 ): Promise<RegistrationStatus> {
   if (process.env.NODE_ENV === 'production') {
-    return externalServiceFetch(
-      `${process.env.POLL_URL}?attendee_id=${userId}-${competitionId}`
-    )
+    return externalServiceFetch(pollingRoute(userId, competitionId))
   }
   return pollingMock()
 }

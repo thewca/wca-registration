@@ -4,11 +4,18 @@ require 'json'
 require 'dynamoid'
 require 'aws-sdk-dynamodb'
 require 'aws-sdk-sqs'
+require 'superconfig'
 
 Dynamoid.configure do |config|
   config.region = ENV.fetch('AWS_REGION', 'us-west-2')
   config.namespace = nil
 end
+
+EnvConfig = SuperConfig.new do
+  mandatory :QUEUE_URL, :string
+  mandatory :DYNAMO_REGISTRATIONS_TABLE, :string
+end
+
 # We have to require the model after we initialized dynamoid
 # This is copied over when bundling the lambda
 require_relative 'registration'

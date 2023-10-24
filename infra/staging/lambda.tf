@@ -8,7 +8,7 @@ resource "aws_lambda_function" "registration_status_lambda" {
   environment {
     variables = {
       QUEUE_URL = aws_sqs_queue.this.url
-      CODE_ENVIRONMENT = "staging"
+      DYNAMO_REGISTRATIONS_TABLE = aws_dynamodb_table.registrations.name
     }
   }
 }

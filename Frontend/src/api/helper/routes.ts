@@ -6,6 +6,8 @@ export const paymentFinishRoute = (competitionId: string, userId: string) =>
 // TODO: Move this to swagger once finalised
 export const paymentIdRoute = (id: string) =>
   `${process.env.API_URL}/${id}/payment`
+export const pollingRoute = (userId: string, competitionId: string) =>
+  `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`
 export const meRoute = `${process.env.WCA_URL}/api/v0/users/me`
 // This will break when urls get really big, maybe we should switch to POST?
 export const usersInfoRoute = (ids: string[]) =>
