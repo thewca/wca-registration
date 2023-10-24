@@ -185,7 +185,7 @@ class RegistrationController < ApplicationController
     render_error(:forbidden, ErrorCodes::PAYMENT_NOT_ENABLED) unless @competition.using_wca_payment?
 
     @registration = Registration.find("#{competition_id}-#{@current_user}")
-    render_error(:forbidden, ErrorCodes::PAYMENT_NOT_READY) if @registration.competing_state.nil?
+    render_error(:forbidden, ErrorCodes::PAYMENT_NOT_READY) if @registration.nil? || @registration.competing_status.nil?
   end
 
   def list
