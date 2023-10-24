@@ -37,8 +37,8 @@ export default function StripeWrapper() {
   })
 
   const { data: config, isLoading: isConfigLoading } = useQuery({
-    queryKey: ['payment-config', competitionInfo.id, data.payment_id],
-    queryFn: () => getStripeConfig(competitionInfo.id, data.payment_id),
+    queryKey: ['payment-config', competitionInfo.id, data?.payment_id],
+    queryFn: () => getStripeConfig(competitionInfo.id, data?.payment_id),
     onError: (err) => setMessage(err.error, 'error'),
     enabled: !isPaymentIdLoading && !isError,
     refetchOnWindowFocus: false,
