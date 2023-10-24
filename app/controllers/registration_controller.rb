@@ -181,6 +181,7 @@ class RegistrationController < ApplicationController
 
   def validate_payment_ticket_request
     competition_id = params[:competition_id]
+    @competition = CompetitionApi.find!(competition_id)
     render_error(:forbidden, ErrorCodes::PAYMENT_NOT_ENABLED) unless @competition.using_wca_payment?
 
     @registration = Registration.find("#{competition_id}-#{@current_user}")
