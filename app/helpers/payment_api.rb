@@ -16,7 +16,7 @@ class PaymentApi < WcaApi
 
   class << self
     def payment_init_path
-      "#{WCA_HOST}/api/internal/v1/payment/init"
+      "#{EnvConfig.WCA_HOST}/api/internal/v1/payment/init"
     end
   end
 end
