@@ -15,8 +15,8 @@ export default async function getStripeConfig(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      competitionId,
-      paymentId,
+      competition_id: competitionId,
+      payment_id: paymentId,
     }),
   })
 }
