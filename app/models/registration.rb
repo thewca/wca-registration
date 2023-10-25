@@ -61,7 +61,7 @@ class Registration
   end
 
   def payment_status
-    lanes.filter_map { |x| x.lane_details['payment_status'] if x.lane_name == 'payment' }[0]
+    lanes.filter_map { |x| x.lane_state if x.lane_name == 'payment' }[0]
   end
 
   def payment_date
