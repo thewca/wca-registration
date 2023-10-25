@@ -40,7 +40,8 @@ export default function StripeWrapper() {
     queryKey: ['payment-config', competitionInfo.id, paymentInfo?.id],
     queryFn: () => getStripeConfig(competitionInfo.id, paymentInfo?.id),
     onError: (err) => setMessage(err.error, 'error'),
-    enabled: !isPaymentIdLoading && !isError,
+    enabled:
+      !isPaymentIdLoading && !isError && paymentInfo?.status !== 'succeeded',
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
@@ -64,6 +65,9 @@ export default function StripeWrapper() {
   return (
     <>
       <h1>Payment</h1>
+      {paymentInfo?.status === 'succeeded' && (
+        <div>Your payment has been successfully processed.</div>
+      )}
       {!isPaymentIdLoading && stripePromise && !isError && (
         <Elements
           stripe={stripePromise}

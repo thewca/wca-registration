@@ -176,7 +176,7 @@ class RegistrationController < ApplicationController
     else
       ticket = @registration.payment_ticket
     end
-    render json: { id: ticket }
+    render json: { id: ticket, status: @registration.payment_status }
   end
 
   def validate_payment_ticket_request
