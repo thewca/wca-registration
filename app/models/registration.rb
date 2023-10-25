@@ -92,8 +92,8 @@ class Registration
     update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
   end
 
-  def init_payment_lane(amount, currency_code, client_secret)
-    payment_lane = LaneFactory.payment_lane(amount, currency_code, client_secret)
+  def init_payment_lane(amount, currency_code, id)
+    payment_lane = LaneFactory.payment_lane(amount, currency_code, id)
     update_attributes(lanes: lanes.append(payment_lane))
   end
 
