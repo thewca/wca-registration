@@ -2,7 +2,7 @@ export const tokenRoute = `${process.env.WCA_URL}/api/v0/users/token`
 export const permissionsRoute = `${process.env.WCA_URL}/api/v0/users/me/permissions`
 export const paymentConfigRoute = `${process.env.WCA_URL}/payment/config`
 export const paymentFinishRoute = (competitionId: string, userId: string) =>
-  `${process.env.WCA_URL}/payment/${competitionId}-${userId}/finish`
+  `${process.env.WCA_URL}/payment/finish?attendee_id=${competitionId}-${userId}`
 export const pollingRoute = (userId: string, competitionId: string) =>
   `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`
 export const meRoute = `${process.env.WCA_URL}/api/v0/users/me`
