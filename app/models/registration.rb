@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'lane'
+require 'time'
 class Registration
   include Dynamoid::Document
 
@@ -95,6 +96,28 @@ class Registration
   def init_payment_lane(amount, currency_code, id)
     payment_lane = LaneFactory.payment_lane(amount, currency_code, id)
     update_attributes(lanes: lanes.append(payment_lane))
+  end
+
+  def update_payment_lane(id, iso_amount, currency_iso, status)
+    updated_lanes = lanes.map do |lane|
+      if lane.lane_name == 'payment'
+        old_details = lane.lane_details
+        lane.lane_details['payment_history'].append({
+        status: lane.lane_state,
+        payment_id: old_details["payment_id"],
+        currency_code: old_details["currency_code"],
+        amount_lowest_denominator: old_details["amount_lowest_denominator"],
+        last_updated: old_details["last_updated"]
+        })
+        lane.lane_state = status
+        lane.lane_details["payment_id"] = id
+        lane.lane_details["amount_lowest_denominator"] = iso_amount
+        lane.lane_details["currency_code"] = currency_iso
+        lane.lane_details["last_updated"] = Time.now
+      end
+      lane
+    end
+    update_attributes!(lanes: updated_lanes)
   end
 
   # Fields
