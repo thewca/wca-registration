@@ -117,17 +117,17 @@ class Registration
         # TODO: Should we only add payments to the payment_history
         # if there is a new payment_id?
         lane.lane_details['payment_history'].append({
-          status: lane.lane_state,
-          payment_id: old_details["payment_id"],
-          currency_code: old_details["currency_code"],
-          amount_lowest_denominator: old_details["amount_lowest_denominator"],
-          last_updated: old_details["last_updated"]
-        })
+                                                      status: lane.lane_state,
+                                                      payment_id: old_details['payment_id'],
+                                                      currency_code: old_details['currency_code'],
+                                                      amount_lowest_denominator: old_details['amount_lowest_denominator'],
+                                                      last_updated: old_details['last_updated'],
+                                                    })
         lane.lane_state = status
-        lane.lane_details["payment_id"] = id
-        lane.lane_details["amount_lowest_denominator"] = iso_amount
-        lane.lane_details["currency_code"] = currency_iso
-        lane.lane_details["last_updated"] = Time.now
+        lane.lane_details['payment_id'] = id
+        lane.lane_details['amount_lowest_denominator'] = iso_amount
+        lane.lane_details['currency_code'] = currency_iso
+        lane.lane_details['last_updated'] = Time.now
       end
       lane
     end

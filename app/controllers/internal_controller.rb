@@ -8,7 +8,7 @@ class InternalController < ApplicationController
   def validate_token
     service_token = request.headers['X-WCA-Service-Token']
     unless service_token.present?
-      return render json: { error: "Missing Authentication" }, status: :forbidden
+      return render json: { error: 'Missing Authentication' }, status: :forbidden
     end
     # The Vault CLI can't parse the response from identity/oidc/introspect so
     # we need to request it instead see https://github.com/hashicorp/vault/issues/9080
@@ -25,8 +25,8 @@ class InternalController < ApplicationController
                              headers: { 'X-Vault-Token' => vault_token_data[:id],
                                         'Content-Type' => 'application/json' })
     if response.ok?
-      unless response["active"]
-        render json: { error: "Authentication Expired or Token Invalid" }, status: :forbidden
+      unless response['active']
+        render json: { error: 'Authentication Expired or Token Invalid' }, status: :forbidden
       end
     else
       raise "Introspection failed with the following error: #{response.status}, #{response.body}"
@@ -41,6 +41,6 @@ class InternalController < ApplicationController
     payment_status = params.require(:payment_status)
     registration = Registration.find(attendee_id)
     registration.update_payment_lane(payment_id, iso_amount, currency_iso, payment_status)
-    render json: { status: "ok" }
+    render json: { status: 'ok' }
   end
 end

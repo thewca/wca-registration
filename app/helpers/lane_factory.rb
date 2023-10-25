@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'time'
 
 class LaneFactory
@@ -25,7 +26,7 @@ class LaneFactory
       payment_id: payment_id,
       currency_code: currency_code,
       last_updated: Time.now,
-      payment_history: []
+      payment_history: [],
     }
     payment_lane
   end
