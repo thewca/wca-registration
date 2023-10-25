@@ -60,6 +60,18 @@ class Registration
     lanes.filter_map { |x| x.lane_details['payment_id'] if x.lane_name == 'payment' }[0]
   end
 
+  def payment_status
+    lanes.filter_map { |x| x.lane_details['payment_status'] if x.lane_name == 'payment' }[0]
+  end
+
+  def payment_date
+    lanes.filter_map { |x| x.lane_details['updated_at'] if x.lane_name == 'payment' }[0]
+  end
+
+  def payment_history
+    lanes.filter_map { |x| x.lane_details['payment_history'] if x.lane_name == 'payment' }[0]
+  end
+
   def update_competing_lane!(update_params)
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'competing'
@@ -102,12 +114,14 @@ class Registration
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'payment'
         old_details = lane.lane_details
+        # TODO: Should we only add payments to the payment_history
+        # if there is a new payment_id?
         lane.lane_details['payment_history'].append({
-        status: lane.lane_state,
-        payment_id: old_details["payment_id"],
-        currency_code: old_details["currency_code"],
-        amount_lowest_denominator: old_details["amount_lowest_denominator"],
-        last_updated: old_details["last_updated"]
+          status: lane.lane_state,
+          payment_id: old_details["payment_id"],
+          currency_code: old_details["currency_code"],
+          amount_lowest_denominator: old_details["amount_lowest_denominator"],
+          last_updated: old_details["last_updated"]
         })
         lane.lane_state = status
         lane.lane_details["payment_id"] = id

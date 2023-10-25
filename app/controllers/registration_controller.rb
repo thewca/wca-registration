@@ -259,6 +259,10 @@ class RegistrationController < ApplicationController
               comment: x.competing_comment,
               admin_comment: x.admin_comment,
             },
+            payment: {
+              payment_status: x.payment_status,
+              updated_at: x.payment_date,
+            },
             guests: x.guests }
         end
       end
@@ -275,6 +279,10 @@ class RegistrationController < ApplicationController
           registered_on: registration['created_at'],
           comment: registration.competing_comment,
           admin_comment: registration.admin_comment,
+        },
+        payment: {
+          payment_status: registration.payment_status,
+          updated_at: registration.payment_date,
         },
       }
     end
