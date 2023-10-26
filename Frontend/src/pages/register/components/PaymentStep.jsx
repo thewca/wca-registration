@@ -10,7 +10,7 @@ export default function PaymentStep() {
   const elements = useElements()
   const [isLoading, setIsLoading] = useState(false)
   const { competitionInfo } = useContext(CompetitionContext)
-  const { userInfo } = useContext(UserContext)
+  const { user } = useContext(UserContext)
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -25,7 +25,7 @@ export default function PaymentStep() {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: paymentFinishRoute(competitionInfo.id, userInfo.id),
+        return_url: paymentFinishRoute(competitionInfo.id, user.id),
       },
     })
 

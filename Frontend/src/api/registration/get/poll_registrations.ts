@@ -1,4 +1,5 @@
-// import externalServiceFetch from '../../helper/external_service_fetch'
+import externalServiceFetch from '../../helper/external_service_fetch'
+import { pollingRoute } from '../../helper/routes'
 import pollingMock from '../../mocks/polling_mock'
 
 export interface RegistrationStatus {
@@ -9,11 +10,12 @@ export interface RegistrationStatus {
   queue_count: number
 }
 
-export async function pollRegistrations(): Promise<RegistrationStatus> {
+export async function pollRegistrations(
+  userId: string,
+  competitionId: string
+): Promise<RegistrationStatus> {
   if (process.env.NODE_ENV === 'production') {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore inject at build time
-    return externalServiceFetch(process.env.POLL_URL)
+    return externalServiceFetch(pollingRoute(userId, competitionId))
   }
   return pollingMock()
 }

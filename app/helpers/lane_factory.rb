@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'time'
+
 class LaneFactory
   def self.competing_lane(event_ids = [], comment = '', guests = 0)
     competing_lane = Lane.new({})
@@ -21,8 +23,10 @@ class LaneFactory
     payment_lane.lane_state = 'initialized'
     payment_lane.lane_details = {
       amount_lowest_denominator: fee_lowest_denominator,
-      payment_intent_client_secret: payment_id,
+      payment_id: payment_id,
       currency_code: currency_code,
+      last_updated: Time.now,
+      payment_history: [],
     }
     payment_lane
   end

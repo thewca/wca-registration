@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'lane'
+require 'time'
 class Registration
   include Dynamoid::Document
 
@@ -59,6 +60,18 @@ class Registration
     lanes.filter_map { |x| x.lane_details['payment_id'] if x.lane_name == 'payment' }[0]
   end
 
+  def payment_status
+    lanes.filter_map { |x| x.lane_state if x.lane_name == 'payment' }[0]
+  end
+
+  def payment_date
+    lanes.filter_map { |x| x.lane_details['updated_at'] if x.lane_name == 'payment' }[0]
+  end
+
+  def payment_history
+    lanes.filter_map { |x| x.lane_details['payment_history'] if x.lane_name == 'payment' }[0]
+  end
+
   def update_competing_lane!(update_params)
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'competing'
@@ -92,9 +105,33 @@ class Registration
     update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
   end
 
-  def init_payment_lane(amount, currency_code, client_secret)
-    payment_lane = LaneFactory.payment_lane(amount, currency_code, client_secret)
+  def init_payment_lane(amount, currency_code, id)
+    payment_lane = LaneFactory.payment_lane(amount, currency_code, id)
     update_attributes(lanes: lanes.append(payment_lane))
+  end
+
+  def update_payment_lane(id, iso_amount, currency_iso, status)
+    updated_lanes = lanes.map do |lane|
+      if lane.lane_name == 'payment'
+        old_details = lane.lane_details
+        # TODO: Should we only add payments to the payment_history
+        # if there is a new payment_id?
+        lane.lane_details['payment_history'].append({
+                                                      status: lane.lane_state,
+                                                      payment_id: old_details['payment_id'],
+                                                      currency_code: old_details['currency_code'],
+                                                      amount_lowest_denominator: old_details['amount_lowest_denominator'],
+                                                      last_updated: old_details['last_updated'],
+                                                    })
+        lane.lane_state = status
+        lane.lane_details['payment_id'] = id
+        lane.lane_details['amount_lowest_denominator'] = iso_amount
+        lane.lane_details['currency_code'] = currency_iso
+        lane.lane_details['last_updated'] = Time.now
+      end
+      lane
+    end
+    update_attributes!(lanes: updated_lanes)
   end
 
   # Fields

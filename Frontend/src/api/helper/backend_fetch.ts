@@ -1,10 +1,7 @@
 import { getJWT } from '../auth/get_jwt'
-import { UpdateRegistrationBody } from '../types'
 import { EXPIRED_TOKEN } from './error_codes'
 
 type Method = 'POST' | 'GET' | 'PATCH' | 'DELETE'
-
-type Body = UpdateRegistrationBody
 
 export class BackendError extends Error {
   errorCode: number
@@ -46,8 +43,6 @@ export default async function backendFetch(
       headers,
     }
   }
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore This is injected at build time
   const response = await fetch(`${process.env.API_URL}/${route}`, init)
   // We always return a json error message, even on error
   const body = await response.json()

@@ -4,11 +4,18 @@ require 'json'
 require 'dynamoid'
 require 'aws-sdk-dynamodb'
 require 'aws-sdk-sqs'
+require 'superconfig'
 
 Dynamoid.configure do |config|
   config.region = ENV.fetch('AWS_REGION', 'us-west-2')
   config.namespace = nil
 end
+
+EnvConfig = SuperConfig.new do
+  mandatory :QUEUE_URL, :string
+  mandatory :DYNAMO_REGISTRATIONS_TABLE, :string
+end
+
 # We have to require the model after we initialized dynamoid
 # This is copied over when bundling the lambda
 require_relative 'registration'
@@ -20,6 +27,11 @@ def lambda_handler(event:, context:)
     response = {
       statusCode: 400,
       body: JSON.generate({ status: 'Missing fields in request' }),
+      headers: {
+        "Access-Control-Allow-Headers" => "*",
+        "Access-Control-Allow-Origin" => "*",
+        "Access-Control-Allow-Methods" => "OPTIONS,POST,GET"
+      }
     }
   else
     queue_url = ENV.fetch('QUEUE_URL', nil)
@@ -39,13 +51,23 @@ def lambda_handler(event:, context:)
       response = {
         statusCode: 404,
         body: JSON.generate({ status: 'not found', queue_count: message_count }),
+        headers: {
+                 "Access-Control-Allow-Headers" => "*",
+                 "Access-Control-Allow-Origin" => "*",
+                 "Access-Control-Allow-Methods" => "OPTIONS,POST,GET"
+             }
       }
     else
       competing_status = registration.competing_status
 
       response = {
         statusCode: 200,
-        body: JSON.generate({ status: competing_status, queue_count: message_count }),
+        body: JSON.generate({ status: { competing: competing_status }, queue_count: message_count }),
+        headers: {
+                 "Access-Control-Allow-Headers" => "*",
+                 "Access-Control-Allow-Origin" => "*",
+                 "Access-Control-Allow-Methods" => "OPTIONS,POST,GET"
+             }
       }
     end
   end
@@ -54,11 +76,21 @@ def lambda_handler(event:, context:)
   {
     statusCode: response[:statusCode],
     body: response[:body],
+    headers: {
+         "Access-Control-Allow-Headers" => "*",
+         "Access-Control-Allow-Origin" => "*",
+         "Access-Control-Allow-Methods" => "OPTIONS,POST,GET"
+     }
   }
 rescue StandardError => e
   # Handle any errors
   {
     statusCode: 500,
     body: JSON.generate({ error: e.message }),
+    headers: {
+             "Access-Control-Allow-Headers" => "*",
+             "Access-Control-Allow-Origin" => "*",
+             "Access-Control-Allow-Methods" => "OPTIONS,POST,GET"
+         }
   }
 end

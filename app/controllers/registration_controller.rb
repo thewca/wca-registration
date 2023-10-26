@@ -176,15 +176,16 @@ class RegistrationController < ApplicationController
     else
       ticket = @registration.payment_ticket
     end
-    render json: { id: ticket }
+    render json: { id: ticket, status: @registration.payment_status }
   end
 
   def validate_payment_ticket_request
     competition_id = params[:competition_id]
+    @competition = CompetitionApi.find!(competition_id)
     render_error(:forbidden, ErrorCodes::PAYMENT_NOT_ENABLED) unless @competition.using_wca_payment?
 
     @registration = Registration.find("#{competition_id}-#{@current_user}")
-    render_error(:forbidden, ErrorCodes::PAYMENT_NOT_READY) if @registration.competing_state.nil?
+    render_error(:forbidden, ErrorCodes::PAYMENT_NOT_READY) if @registration.nil? || @registration.competing_status.nil?
   end
 
   def list
@@ -258,6 +259,10 @@ class RegistrationController < ApplicationController
               comment: x.competing_comment,
               admin_comment: x.admin_comment,
             },
+            payment: {
+              payment_status: x.payment_status,
+              updated_at: x.payment_date,
+            },
             guests: x.guests }
         end
       end
@@ -274,6 +279,10 @@ class RegistrationController < ApplicationController
           registered_on: registration['created_at'],
           comment: registration.competing_comment,
           admin_comment: registration.admin_comment,
+        },
+        payment: {
+          payment_status: registration.payment_status,
+          updated_at: registration.payment_date,
         },
       }
     end
@@ -302,8 +311,10 @@ class RegistrationController < ApplicationController
 
       # Events can't be changed outside the edit_events deadline
       # TODO: Should an admin be able to override this?
-      events_edit_deadline = Time.parse(@competition.event_change_deadline)
-      raise RegistrationError.new(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
+      if @competition.event_change_deadline.present?
+        events_edit_deadline = Time.parse(@competition.event_change_deadline)
+        raise RegistrationError.new(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
+      end
     end
 
     def admin_fields_present?
