@@ -129,7 +129,7 @@ export default function RegistrationActions({ selected, refresh }) {
               )
             }
           >
-            <UiIcon name="hourglass" /> Delete
+            <UiIcon name="hourglass" /> Move to Waiting List
           </Button>
         )}
         {anyCancellable && (
