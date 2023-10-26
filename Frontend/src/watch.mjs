@@ -39,7 +39,7 @@ const context = await esbuild.context({
   ],
   define: {
     // Make sure you are running a version of the Monolith on port 3000 if needed
-    'process.env.WCA_URL': `"http://localhost:3000"`,
+    'process.env.WCA_URL': `"https://staging.worldcubeassociation.org"`,
     'process.env.API_URL': '"http://localhost:3001/api/v1"',
     'process.env.NODE_ENV': '"development"',
   },
