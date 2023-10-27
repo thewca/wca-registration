@@ -51,22 +51,25 @@ export default function RegistrationList() {
   })
   const { sortColumn, sortDirection } = state
   const data = useMemo(() => {
-    const sorted = registrations.sort((a, b) => {
-      if (sortColumn === 'name') {
-        return a.user.name.localeCompare(b.user.name)
+    if (registrations) {
+      const sorted = registrations.sort((a, b) => {
+        if (sortColumn === 'name') {
+          return a.user.name.localeCompare(b.user.name)
+        }
+        if (sortColumn === 'country') {
+          return a.user.country.name.localeCompare(b.user.country.name)
+        }
+        if (sortColumn === 'total') {
+          return a.competing.event_ids.length - b.competing.event_ids.length
+        }
+        return 0
+      })
+      if (sortDirection === 'descending') {
+        return sorted.reverse()
       }
-      if (sortColumn === 'country') {
-        return a.user.country.name.localeCompare(b.user.country.name)
-      }
-      if (sortColumn === 'total') {
-        return a.competing.event_ids.length - b.competing.event_ids.length
-      }
-      return 0
-    })
-    if (sortDirection === 'descending') {
-      return sorted.reverse()
+      return sorted
     }
-    return sorted
+    return []
   }, [registrations, sortColumn, sortDirection])
   const { newcomers, totalEvents, countrySet, eventCounts } = useMemo(() => {
     if (!data) {
