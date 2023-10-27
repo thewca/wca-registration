@@ -112,12 +112,12 @@ export default function RegistrationActions({ selected, refresh }) {
               )
             }
           >
-            <UiIcon name="times" /> Reject
+            <UiIcon name="times" /> Move to Pending
           </Button>
         )}
         {anyWaitlistable && (
           <Button
-            basic
+            color="yellow"
             onClick={() =>
               changeStatus(
                 [
@@ -146,7 +146,7 @@ export default function RegistrationActions({ selected, refresh }) {
               )
             }
           >
-            <UiIcon name="trash" /> Delete
+            <UiIcon name="trash" /> Cancel Registration
           </Button>
         )}
       </Button.Group>
