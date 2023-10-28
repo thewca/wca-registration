@@ -1,21 +1,20 @@
 import { UiIcon } from '@thewca/wca-components'
 import moment from 'moment/moment'
 import React, { useContext } from 'react'
-import { Popup } from 'semantic-ui-react'
+import { Header, Popup, Segment } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
-import styles from './requirements.module.scss'
 
 export default function RegistrationRequirements() {
   const { competitionInfo } = useContext(CompetitionContext)
   return (
-    <div className={styles.requirementText}>
+    <Segment padded="very" inverted color="orange" attached size="big">
       <Popup
         position="top right"
         content="You need a WCA Account to register"
         trigger={
-          <span>
+          <Header>
             WCA Account Required <UiIcon name="circle info" />
-          </span>
+          </Header>
         }
       />
       <br />
@@ -23,10 +22,10 @@ export default function RegistrationRequirements() {
         position="top right"
         content="Once the competitor Limit has been reached you will be put onto the waiting list"
         trigger={
-          <span>
+          <Header>
             {competitionInfo.competitor_limit} Competitor Limit{' '}
             <UiIcon name="circle info" />
-          </span>
+          </Header>
         }
       />
       <br />
@@ -34,14 +33,14 @@ export default function RegistrationRequirements() {
         position="top right"
         content="You will get a full refund before this date"
         trigger={
-          <span>
+          <Header>
             Full Refund before{' '}
             {moment(
               competitionInfo.refund_policy_limit_date ??
                 competitionInfo.start_date
             ).format('ll')}
             <UiIcon name="circle info" />
-          </span>
+          </Header>
         }
       />
       <br />
@@ -49,16 +48,16 @@ export default function RegistrationRequirements() {
         content="You can edit your registration until this date"
         position="top right"
         trigger={
-          <span>
+          <Header>
             Edit Registration until{' '}
             {moment(
               competitionInfo.event_change_deadline_date ??
                 competitionInfo.end_date
             ).format('ll')}
             <UiIcon name="circle info" />
-          </span>
+          </Header>
         }
       />
-    </div>
+    </Segment>
   )
 }
