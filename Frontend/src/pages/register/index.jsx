@@ -1,7 +1,6 @@
 import moment from 'moment'
 import React, { useContext } from 'react'
-import { Message } from 'semantic-ui-react'
-import { CAN_ATTEND_COMPETITIONS } from '../../api/auth/get_permissions'
+import { Header, Message } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
@@ -18,21 +17,26 @@ export default function Register() {
   return (
     <div>
       <div className={styles.requirements}>
-        <div className={styles.requirementsHeader}>
+        <Header as="h1" attached="top">
           Registration Requirements
-        </div>
+        </Header>
         <RegistrationRequirements />
       </div>
       {!loggedIn ? (
-        <h2>You have to log in to Register for a Competition</h2>
+        <PermissionMessage>
+          You need to log in to Register for a competition
+        </PermissionMessage>
       ) : // eslint-disable-next-line unicorn/no-nested-ternary
       competitionInfo['registration_opened?'] ? (
         <div>
-          <div className={styles.registrationHeader}>Hi, {user.name}</div>
+          <Header>Hi, {user.name}</Header>
           {canAttendCompetition ? (
             <StepPanel />
           ) : (
-            <PermissionMessage permissionLevel={CAN_ATTEND_COMPETITIONS} />
+            <PermissionMessage>
+              You are not allowed to Register for a competition, make sure your
+              profile is complete and you are not banned
+            </PermissionMessage>
           )}
         </div>
       ) : (

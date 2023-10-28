@@ -15,7 +15,3 @@ export async function getPermissions(): Promise<Permissions> {
   }
   return getPermissionsMock()
 }
-
-// TODO: move these to I18n
-export const CAN_ADMINISTER_COMPETITIONS = 'Can Administer Competitions'
-export const CAN_ATTEND_COMPETITIONS = 'Can attend Competitions'
