@@ -17,9 +17,6 @@ export default function Register() {
   return (
     <div>
       <div className={styles.requirements}>
-        <Header as="h1" attached="top">
-          Registration Requirements
-        </Header>
         <RegistrationRequirements />
       </div>
       {!loggedIn ? (
@@ -29,7 +26,6 @@ export default function Register() {
       ) : // eslint-disable-next-line unicorn/no-nested-ternary
       competitionInfo['registration_opened?'] ? (
         <div>
-          <Header>Hi, {user.name}</Header>
           {canAttendCompetition ? (
             <StepPanel />
           ) : (

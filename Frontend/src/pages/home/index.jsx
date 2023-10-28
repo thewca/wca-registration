@@ -5,37 +5,27 @@ import React, { useContext, useState } from 'react'
 import { Button, Container, Grid, Header, Segment } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import RegistrationRequirements from '../register/components/RegistrationRequirements'
-import styles from './index.module.scss'
 
 export default function HomePage() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const [showAllRequirements, setShowAllRequirements] = useState(false)
   return (
     <Container>
-      <Header as="h2" attached="top">
-        Registration Requirements:
-        <Header.Subheader>
-          [INSERT ORGANIZER MESSAGE REGARDING REQUIREMENTS]
-        </Header.Subheader>
-      </Header>
-      {showAllRequirements && <RegistrationRequirements />}
-      <Button onClick={() => setShowAllRequirements(!showAllRequirements)}>
-        View All
-      </Button>
+      <div>
+        <RegistrationRequirements />
+      </div>
       {competitionInfo.information && (
-        <div className={styles.information}>
-          <div className={styles.informationHeader}>Information:</div>
+        <>
+          <Header as="h3">Information:</Header>
           <div
-            className={styles.informationText}
             dangerouslySetInnerHTML={{
               __html: marked(competitionInfo.information),
             }}
           />
-        </div>
+        </>
       )}
-      <div className={styles.registrationPeriod}>
-        <div className={styles.registrationHeader}>Registration Period:</div>
-        <div className={styles.registrationPeriodText}>
+      <Header as="h3">
+        Registration Period:
+        <Header.Subheader>
           {new Date(competitionInfo.registration_open) < new Date()
             ? `Registration opened ${moment(
                 competitionInfo.registration_open
@@ -45,8 +35,8 @@ export default function HomePage() {
             : `Registration will open ${moment(
                 competitionInfo.registration_open
               ).calendar()}`}
-        </div>
-      </div>
+        </Header.Subheader>
+      </Header>
       <Segment padded attached>
         <Grid>
           <Grid.Column width={3}>
@@ -63,7 +53,13 @@ export default function HomePage() {
             <Header>Delegates</Header>
           </Grid.Column>
           <Grid.Column width={12}>
-            <Header>{moment(competitionInfo.start_date).format('ll')}</Header>
+            <Header>
+              {competitionInfo.start_date === competitionInfo.end_date
+                ? `${moment(competitionInfo.start_date).format('ll')}`
+                : `${moment(competitionInfo.start_date).format(
+                    'll'
+                  )} to ${moment(competitionInfo.end_date).format('ll')}`}
+            </Header>
             <Header>
               {competitionInfo.city}, {competitionInfo.country_iso2}
             </Header>
@@ -89,7 +85,6 @@ export default function HomePage() {
               ) : (
                 <a
                   href={`https://www.worldcubeassociation.org/contact/website?competitionId=${competitionInfo.id}`}
-                  className={styles.delegateLink}
                 >
                   Organization Team
                 </a>

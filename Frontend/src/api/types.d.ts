@@ -29,6 +29,7 @@ interface CompetitionInfo {
   'on_the_spot_registration': boolean
   'on_the_spot_entry_fee_lowest_denomination': string
   'extra_registration_requirements': string
+  'guests_entry_fee_lowest_denomination': number
   'url': string
   'website': string
   'short_name': string
