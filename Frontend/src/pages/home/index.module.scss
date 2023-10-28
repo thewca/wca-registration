@@ -36,26 +36,3 @@
   width: 90%;
   line-height: 3em;
 }
-.details{
-  font-size: $sub-header-size;
-  line-height: $header-size;
-  background-color: #EBEBEB;
-  margin-top: $triple-margin;
-  border-radius: 28px;
-  padding: 30px;
-  ul{
-    margin: 0;
-  }
-  .detailHeader{
-    font-weight: bold;
-  }
-  p{
-    display: inline;
-  }
-  .delegateLink{
-    margin-right: $single-margin;
-    &::after{
-      content: ',';
-    }
-  }
-}

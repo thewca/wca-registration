@@ -36,7 +36,7 @@ export default function Competition({ children }) {
       ) : (
         <>
           <Container>
-            <Segment padded>
+            <Segment padded raised>
               <Grid>
                 <Grid.Column width={12}>
                   <Header as="h1">
