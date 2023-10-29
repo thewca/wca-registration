@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import React, { useContext, useEffect, useState } from 'react'
-import { Message } from 'semantic-ui-react'
+import { Message, Modal } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { UserContext } from '../../../api/helper/context/user_context'
 import { pollRegistrations } from '../../../api/registration/get/poll_registrations'
@@ -29,23 +29,20 @@ export default function Processing({ onProcessingComplete }) {
     }
   }, [data, onProcessingComplete])
   return (
-    <div>
-      <div>Your registration is processing...</div>
-      <div>{data && `Registration status: ${data.status.competing}`}</div>
-      <div>
+    <Modal dimmer="blurring">
+      <Modal.Header>Your registration is processing...</Modal.Header>
+      <Modal.Content>
         {pollCounter > 3 && (
           <Message warning>
             Processing is taking longer than usual, don't go away!
           </Message>
         )}
-      </div>
-      <div>
         {data && data.queueCount > 500 && (
           <Message warning>
             Lots of Registrations being processed, hang tight!
           </Message>
         )}
-      </div>
-    </div>
+      </Modal.Content>
+    </Modal>
   )
 }

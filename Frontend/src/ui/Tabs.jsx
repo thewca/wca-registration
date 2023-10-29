@@ -176,6 +176,7 @@ export default function PageTabs() {
 
   return (
     <Tab
+      className={styles.tabs}
       panes={panes}
       renderActiveOnly={true}
       menu={{ secondary: true, pointing: true }}

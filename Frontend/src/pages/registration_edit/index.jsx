@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import { CAN_ADMINISTER_COMPETITIONS } from '../../api/auth/get_permissions'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import RegistrationEditor from './components/RegistrationEditor'
@@ -12,7 +11,9 @@ export default function RegistrationEdit() {
       {canAdminCompetition ? (
         <RegistrationEditor />
       ) : (
-        <PermissionMessage permissionLevel={CAN_ADMINISTER_COMPETITIONS} />
+        <PermissionMessage>
+          You are not allowed to administrate this competition
+        </PermissionMessage>
       )}
     </div>
   )
