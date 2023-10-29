@@ -99,7 +99,7 @@ export default function CompetingStep({ nextStep }) {
           />
         </div>
       )}
-      <div className={processing ? styles.panelProcessing : styles.panel}>
+      <div className={styles.panel}>
         {registration.registration_status ? (
           <>
             <div className={styles.registrationGreeting}>
