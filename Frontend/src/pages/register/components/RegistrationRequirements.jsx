@@ -6,6 +6,7 @@ import moment from 'moment/moment'
 import React, { useContext, useState } from 'react'
 import { Accordion, Header, Segment } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import styles from './requirements.module.scss'
 
 export default function RegistrationRequirements() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -15,7 +16,7 @@ export default function RegistrationRequirements() {
     setActiveIndex(activeIndex === index ? -1 : index)
   }
   return (
-    <>
+    <div className={styles.requirements}>
       <Header as="h1" attached="top">
         Registration Requirements
         <Header.Subheader>
@@ -163,6 +164,6 @@ export default function RegistrationRequirements() {
           )}
         </Accordion>
       </Segment>
-    </>
+    </div>
   )
 }
