@@ -5,6 +5,7 @@ import React, { useContext } from 'react'
 import { Container, Grid, Header, Segment } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import RegistrationRequirements from '../register/components/RegistrationRequirements'
+import styles from './index.module.scss'
 
 export default function HomePage() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -14,14 +15,15 @@ export default function HomePage() {
         <RegistrationRequirements />
       </div>
       {competitionInfo.information && (
-        <>
+        <div>
           <Header as="h3">Information:</Header>
           <div
+            className={styles.information}
             dangerouslySetInnerHTML={{
               __html: marked(competitionInfo.information),
             }}
           />
-        </>
+        </div>
       )}
       <Header as="h3">
         Registration Period:

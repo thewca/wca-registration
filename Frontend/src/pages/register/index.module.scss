@@ -1,24 +1,4 @@
 @import '../../style/font-sizes';
-@import '../../style/margins';
-@import '../../style/colors';
-.registration-header{
-    margin-top: $single-margin;
-    margin-bottom: $double-margin;
-    text-align: center;
-    font-size: $sub-header-size;
-    font-weight: 700;
-    line-height: normal;
-}
-.requirements{
-    margin-top: $single-margin;
-    margin-bottom: $double-margin;
-    .requirements-header{
-        font-size: $header-size;
-        text-align: center;
-        margin-top: $triple-margin;
-        font-weight: 700;
-    }
-}
 .competition-not-open{
     font-size: $sub-header-size;
     padding: 30px;
