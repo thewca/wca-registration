@@ -35,7 +35,7 @@ export default function RegistrationRequirements() {
           <Accordion.Content active={activeIndex === 0}>
             <p>
               You need a WCA Account to register, click{' '}
-              <a href="/users/sign_up">here</a> to create One
+              <a href="/users/sign_up">here</a> to create one.
             </p>
           </Accordion.Content>
           <Accordion.Title
@@ -49,7 +49,7 @@ export default function RegistrationRequirements() {
           <Accordion.Content active={activeIndex === 1}>
             <p>
               Once the competitor Limit has been reached you will be put onto
-              the waiting list
+              the waiting list.
             </p>
           </Accordion.Content>
           <Accordion.Title
@@ -69,8 +69,10 @@ export default function RegistrationRequirements() {
           </Accordion.Title>
           <Accordion.Content active={activeIndex === 2}>
             <p>
-              You will get a {competitionInfo.refund_policy_percent}% refund
-              before this date.
+              {competitionInfo.refund_policy_percent === 0
+                ? "Registration fees won't be refunded under any circumstance."
+                : `You will get a ${competitionInfo.refund_policy_percent}% refund
+              before this date.`}
             </p>
           </Accordion.Content>
           <Accordion.Title
@@ -86,7 +88,7 @@ export default function RegistrationRequirements() {
             ).format('ll')}
           </Accordion.Title>
           <Accordion.Content active={activeIndex === 3}>
-            <p>You can edit your registration until this date</p>
+            <p>You can edit your registration until this date.</p>
           </Accordion.Content>
           <Accordion.Title
             active={activeIndex === 4}
@@ -109,8 +111,8 @@ export default function RegistrationRequirements() {
               {competitionInfo.base_entry_fee_lowest_denomination
                 ? // eslint-disable-next-line unicorn/no-nested-ternary
                   competitionInfo['using_stripe_payments?']
-                  ? 'You will have to pay the registration fee on stripe after registering'
-                  : 'Check the Additional Registration Requirements about how to pay'
+                  ? 'You will have to pay the registration fee on stripe after registering.'
+                  : 'Check the Additional Registration Requirements about how to pay.'
                 : 'This competition is free'}
             </p>
           </Accordion.Content>
@@ -134,8 +136,8 @@ export default function RegistrationRequirements() {
           <Accordion.Content active={activeIndex === 5}>
             <p>
               {competitionInfo.guests_entry_fee_lowest_denomination
-                ? 'Guests have to pay this amount to attend'
-                : 'Guests attend for free'}
+                ? 'Guests have to pay this amount to attend.'
+                : 'Guests attend for free.'}
             </p>
           </Accordion.Content>
           {competitionInfo.extra_registration_requirements && (
@@ -156,7 +158,7 @@ export default function RegistrationRequirements() {
                     ),
                   }}
                 />
-              </Accordion.Content>{' '}
+              </Accordion.Content>
             </>
           )}
         </Accordion>

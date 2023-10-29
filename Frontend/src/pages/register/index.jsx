@@ -1,6 +1,6 @@
 import moment from 'moment'
 import React, { useContext } from 'react'
-import { Header, Message } from 'semantic-ui-react'
+import { Message } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
