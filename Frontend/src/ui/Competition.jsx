@@ -2,8 +2,9 @@ import * as currencies from '@dinero.js/currencies'
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { dinero, toDecimal } from 'dinero.js'
+import { marked } from 'marked'
 import moment from 'moment'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Button,
@@ -17,6 +18,7 @@ import {
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { BASE_ROUTE } from '../routes'
+import logo from '../static/wca2020.svg'
 import styles from './competition.module.scss'
 import LoadingMessage from './messages/loadingMessage'
 
@@ -27,6 +29,15 @@ export default function Competition({ children }) {
     queryKey: [competition_id],
     queryFn: () => getCompetitionInfo(competition_id),
   })
+  // Hack before we have an image Icon field in the DB
+  const src = useMemo(() => {
+    if (competitionInfo) {
+      const div = document.createElement('DIV')
+      div.innerHTML = marked(competitionInfo.information)
+      return div.querySelector('img')?.src ?? logo
+    }
+    return ''
+  }, [competitionInfo])
   return (
     <CompetitionContext.Provider
       value={{ competitionInfo: competitionInfo ?? {} }}
@@ -105,7 +116,7 @@ export default function Competition({ children }) {
                   </Label>
                 </Grid.Column>
                 <Grid.Column width={4}>
-                  <Image href={competitionInfo.url} className={styles.image} />
+                  <Image src={src} href={src} centered />
                 </Grid.Column>
               </Grid>
             </Segment>
