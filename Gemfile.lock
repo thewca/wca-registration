@@ -85,7 +85,7 @@ GEM
     aws-sigv4 (1.6.1)
       aws-eventstream (~> 1, >= 1.0.2)
     base64 (0.1.1)
-    bootsnap (1.16.0)
+    bootsnap (1.17.0)
       msgpack (~> 1.2)
     builder (3.2.4)
     childprocess (4.1.0)
@@ -152,7 +152,7 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.5)
     minitest (5.20.0)
-    msgpack (1.7.1)
+    msgpack (1.7.2)
     multi_xml (0.6.0)
     net-imap (0.3.7)
       date
