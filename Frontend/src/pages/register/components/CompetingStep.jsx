@@ -3,7 +3,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
 import { dinero, toDecimal } from 'dinero.js'
 import React, { useContext, useEffect, useState } from 'react'
-import { Button, Divider, Dropdown, Popup, TextArea } from 'semantic-ui-react'
+import {
+  Button,
+  Divider,
+  Dropdown,
+  Message,
+  Popup,
+  TextArea,
+} from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { UserContext } from '../../../api/helper/context/user_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
@@ -128,6 +135,12 @@ export default function CompetingStep({ nextStep }) {
           </>
         ) : (
           <>
+            {!competitionInfo['registration_opened?'] && (
+              <Message warning>
+                The Competition is not open yet, you can still register as a
+                competition organizer
+              </Message>
+            )}
             <div className={styles.registrationGreeting}>
               You can register for {competitionInfo.name}
             </div>

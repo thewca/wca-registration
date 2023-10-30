@@ -12,7 +12,8 @@ import styles from './index.module.scss'
 export default function Register() {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
-  const { canAttendCompetition } = useContext(PermissionsContext)
+  const { canAttendCompetition, canAdminCompetition } =
+    useContext(PermissionsContext)
   const loggedIn = user !== null
   return (
     <div>
@@ -24,7 +25,7 @@ export default function Register() {
           You need to log in to Register for a competition
         </PermissionMessage>
       ) : // eslint-disable-next-line unicorn/no-nested-ternary
-      competitionInfo['registration_opened?'] ? (
+      competitionInfo['registration_opened?'] || canAdminCompetition ? (
         <div>
           {canAttendCompetition ? (
             <StepPanel />
