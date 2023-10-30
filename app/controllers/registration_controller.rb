@@ -8,7 +8,7 @@ require_relative '../helpers/user_api'
 require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
-  skip_before_action :validate_token, only: [:list]
+  skip_before_action :validate_token, only: [:list, :list_waiting]
   # The order of the validations is important to not leak any non public info via the API
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
@@ -192,6 +192,30 @@ class RegistrationController < ApplicationController
     competition_id = list_params
     registrations = get_registrations(competition_id, only_attending: true)
     render json: registrations
+  rescue StandardError => e
+    # Render an error response
+    puts e
+    Metrics.registration_dynamodb_errors_counter.increment
+    render json: { error: "Error getting registrations #{e}" },
+           status: :internal_server_error
+  end
+
+  def mine
+    my_registrations = Registration.where(user_id: @current_user).map {|x| {competition_id: x.competition_id, status: x.competing_status}}
+    render json: { registrations: my_registrations }
+  rescue StandardError => e
+    # Render an error response
+    puts e
+    Metrics.registration_dynamodb_errors_counter.increment
+    render json: { error: "Error getting registrations #{e}" },
+           status: :internal_server_error
+  end
+
+  def list_waiting
+    competition_id = list_params
+    registrations = get_registrations(competition_id)
+    waiting = registrations.filter_map { |r| { user_id: r['user_id'], competing: { event_ids: r.competing.event_ids } } if r.competing.registration_status == 'waiting_list' }
+    render json: waiting
   rescue StandardError => e
     # Render an error response
     puts e
