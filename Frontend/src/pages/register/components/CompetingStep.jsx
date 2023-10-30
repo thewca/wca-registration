@@ -137,8 +137,8 @@ export default function CompetingStep({ nextStep }) {
           <>
             {!competitionInfo['registration_opened?'] && (
               <Message warning>
-                The Competition is not open yet, you can still register as a
-                competition organizer
+                Registration is not open yet, but you can still register as a
+                competition organizer or delegate.
               </Message>
             )}
             <div className={styles.registrationGreeting}>
