@@ -216,7 +216,10 @@ export default function CompetingStep({ nextStep }) {
               </div>
               <Button
                 disabled={
-                  isUpdating || !competitionInfo.allow_registration_edits
+                  isUpdating ||
+                  !competitionInfo.allow_registration_edits ||
+                  (competitionInfo.force_comment_in_registration &&
+                    comment === '')
                 }
                 color="blue"
                 onClick={() => {
