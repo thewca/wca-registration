@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import React, { useContext } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Modal, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import getAvailableRefunds from '../../../api/payment/get/get_available_refunds'
 import refundPayment from '../../../api/payment/get/refund_payment'
+import { setMessage } from '../../../ui/events/messages'
 
 export default function Refunds({ onExit }) {
   const { user_id } = useParams()
@@ -16,6 +17,19 @@ export default function Refunds({ onExit }) {
     refetchOnReconnect: false,
     staleTime: Infinity,
     refetchOnMount: 'always',
+  })
+  const { mutate: refundMutation } = useMutation({
+    mutationFn: refundPayment,
+    onError: (data) => {
+      setMessage(
+        'Refund payment failed with error: ' + data.errorCode,
+        'negative'
+      )
+    },
+    onSuccess: () => {
+      setMessage('Refund succeeded', 'positive')
+      onExit()
+    },
   })
   return (
     <Modal dimmer="blurring">
@@ -32,7 +46,7 @@ export default function Refunds({ onExit }) {
               <Table.Cell>
                 <Button
                   onClick={() =>
-                    refundPayment(
+                    refundMutation(
                       competitionInfo.id,
                       user_id,
                       refund.payment_id
