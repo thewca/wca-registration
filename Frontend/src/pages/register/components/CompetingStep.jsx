@@ -196,24 +196,26 @@ export default function CompetingStep({ nextStep }) {
           <div className={styles.eventSelectionText}>
             <div className={styles.eventSelectionHeading}>Guests</div>
           </div>
-          <div className={styles.commentWrapper}>
-            <Dropdown
-              value={guests}
-              onChange={(e, data) => setGuests(data.value)}
-              selection
-              options={[
-                ...new Array(
-                  (competitionInfo.guests_per_registration_limit ?? 99) + 1 // Arrays start at 0
-                ),
-              ].map((_, index) => {
-                return {
-                  key: `registration-guest-dropdown-${index}`,
-                  text: index,
-                  value: index,
-                }
-              })}
-            />
-          </div>
+          {competitionInfo.guest_entry_status !== 'restricted' && (
+            <div className={styles.commentWrapper}>
+              <Dropdown
+                value={guests}
+                onChange={(e, data) => setGuests(data.value)}
+                selection
+                options={[
+                  ...new Array(
+                    (competitionInfo.guests_per_registration_limit ?? 99) + 1 // Arrays start at 0
+                  ),
+                ].map((_, index) => {
+                  return {
+                    key: `registration-guest-dropdown-${index}`,
+                    text: index,
+                    value: index,
+                  }
+                })}
+              />
+            </div>
+          )}
         </div>
         <div className={styles.registrationRow}>
           {registration?.competing?.registration_status ? (
