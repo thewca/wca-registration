@@ -2,7 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Button, Checkbox, TextArea } from 'semantic-ui-react'
+import {
+  Button,
+  Checkbox,
+  Header,
+  Modal,
+  Segment,
+  TextArea,
+} from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
@@ -10,6 +17,7 @@ import getCompetitorInfo from '../../../api/user/get/get_user_info'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
+import Refunds from './Refunds'
 
 export default function RegistrationEditor() {
   const { user_id } = useParams()
@@ -19,6 +27,7 @@ export default function RegistrationEditor() {
   const [status, setStatus] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
+  const [isCheckingRefunds, setIsCheckingRefunds] = useState(false)
   const queryClient = useQueryClient()
   const { data: serverRegistration } = useQuery({
     queryKey: ['registration', competitionInfo.id, user_id],
@@ -61,30 +70,28 @@ export default function RegistrationEditor() {
   }, [serverRegistration])
 
   return (
-    <div className={styles.editor}>
+    <Segment>
       {!registration?.competing?.registration_status || isLoading ? (
         <LoadingMessage />
       ) : (
         <div>
-          <h2>{competitorInfo.user.name}</h2>
+          <Header>{competitorInfo.user.name}</Header>
           <EventSelector
             handleEventSelection={setSelectedEvents}
             selected={selectedEvents}
             events={competitionInfo.event_ids}
             size="2x"
           />
-          <h3> Comment </h3>
-          <div className={styles.commentWrapper}>
-            <TextArea
-              id="competitor-comment"
-              maxLength={180}
-              value={comment}
-              onChange={(_, data) => {
-                setComment(data.value)
-              }}
-            />
-          </div>
-          <h3> Administrative Notes </h3>
+          <Header> Comment </Header>
+          <TextArea
+            id="competitor-comment"
+            maxLength={180}
+            value={comment}
+            onChange={(_, data) => {
+              setComment(data.value)
+            }}
+          />
+          <Header> Administrative Notes </Header>
           <div className={styles.commentWrapper}>
             <TextArea
               id="admin-comment"
@@ -95,7 +102,7 @@ export default function RegistrationEditor() {
               }}
             />
           </div>
-          <h3> Status </h3>
+          <Header> Status </Header>
           <div className={styles.registrationStatus}>
             <Checkbox
               radio
@@ -151,8 +158,23 @@ export default function RegistrationEditor() {
           >
             Update Registration
           </Button>
+          {competitionInfo['using_stripe_payments?'] && (
+            <>
+              <Header>Payment status</Header>
+              {registration.payment_status}
+              {registration.payment_status === 'paid' && (
+                <Button onClick={() => setIsCheckingRefunds(true)}>
+                  {' '}
+                  Show Available Refunds
+                </Button>
+              )}
+            </>
+          )}
+          {isCheckingRefunds && (
+            <Refunds onExit={() => setIsCheckingRefunds(false)} />
+          )}
         </div>
       )}
-    </div>
+    </Segment>
   )
 }
