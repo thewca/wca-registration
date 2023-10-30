@@ -86,6 +86,10 @@ class CompetitionInfo
     [@competition_json['base_entry_fee_lowest_denomination'], @competition_json['currency_code']]
   end
 
+  def is_organizer_or_delegate?(user_id)
+    (@competition_json['delegates'] + @competition_json['organizers']).any? { |p| p.id == user_id }
+  end
+
   def name
     @competition_json['name']
   end

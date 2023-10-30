@@ -329,11 +329,11 @@ class RegistrationController < ApplicationController
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
 
       # Only admins can register when registration is closed, and they can only register for themselves - not for other users
-      raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition.registration_open? || admin_modifying_own_registration?
+      raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition.registration_open? || organizer_signing_up_themselves?
     end
 
-    def admin_modifying_own_registration?
-      UserApi.can_administer?(@current_user, @competition_id) && (@current_user == @user_id.to_s)
+    def organizer_signing_up_themselves?
+      @competition.is_organizer_or_delegate?(@current_user) && (@current_user == @user_id.to_s)
     end
 
     def is_admin_or_current_user?
