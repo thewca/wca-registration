@@ -170,12 +170,13 @@ export default function PageTabs() {
       }),
     ]
   }, [
-    canAdminCompetition,
-    competitionInfo.id,
     competitionInfo.use_wca_registration,
-    competitionInfo.main_event_id,
     competitionInfo.registration_open,
+    competitionInfo.main_event_id,
+    competitionInfo.event_ids,
     competitionInfo.tabs,
+    competitionInfo.id,
+    canAdminCompetition,
     navigate,
   ])
 
