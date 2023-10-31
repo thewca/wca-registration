@@ -103,7 +103,6 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
             event_details = target_registration.event_details
             registration_status = target_registration.competing_status
             event_details.each do |event|
-              puts "event: #{event}"
               expect(event['event_registration_state']).to eq(registration_status)
             end
           end
@@ -119,7 +118,6 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
             event_details = target_registration.event_details
             registration_status = target_registration.competing_status
             event_details.each do |event|
-              puts "event: #{event}"
               expect(event['event_registration_state']).to eq(registration_status)
             end
           end
