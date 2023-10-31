@@ -87,8 +87,20 @@ interface UserFull {
   senior_delegate_id?: number
   class: string
   url: string
-  //TODO
-  teams: object[]
+  teams: {
+    id: number
+    friendly_id: string
+    leader: boolean
+    name: string
+    senior_member: boolean
+    wca_id: string
+    avatar: {
+      url: string
+      thumb: {
+        url: string
+      }
+    }
+  }[]
   wca_id?: string
   country: {
     continentId: string

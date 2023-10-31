@@ -125,7 +125,7 @@ export default function Competition({ children }) {
                 <span className={styles.eventHeader}>Events:</span>
                 {competitionInfo.event_ids.map((event) => (
                   <span key={`event-header-${event}`} className={styles.event}>
-                    <CubingIcon event={event} selected={true} />
+                    <CubingIcon event={event} selected />
                   </span>
                 ))}
               </div>
@@ -135,7 +135,7 @@ export default function Competition({ children }) {
                   <span className={styles.event}>
                     <CubingIcon
                       event={competitionInfo.main_event_id}
-                      selected={true}
+                      selected
                     />
                   </span>
                 </div>
