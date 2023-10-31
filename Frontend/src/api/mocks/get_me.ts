@@ -6,7 +6,7 @@ export default function getMeMock(): UserFull | null {
   switch (userId) {
     case '1':
       return {
-        id: '1',
+        id: 1,
         created_at: '-',
         updated_at: '-',
         name: 'Ron van Bruchem',
@@ -32,7 +32,7 @@ export default function getMeMock(): UserFull | null {
       }
     case '2':
       return {
-        id: '2',
+        id: 2,
         created_at: '-',
         updated_at: '-',
         name: 'Sebastien Auroux',
@@ -58,7 +58,7 @@ export default function getMeMock(): UserFull | null {
       }
     case '6427':
       return {
-        id: '6427',
+        id: 6427,
         created_at: '-',
         updated_at: '-',
         name: 'Joey Gouly',
@@ -84,7 +84,7 @@ export default function getMeMock(): UserFull | null {
       }
     case '15073':
       return {
-        id: '15073',
+        id: 15073,
         created_at: '-',
         updated_at: '-',
         name: 'Finn Ickler',
@@ -110,7 +110,7 @@ export default function getMeMock(): UserFull | null {
       }
     case '209943':
       return {
-        id: '209943',
+        id: 209943,
         created_at: '-',
         updated_at: '-',
         name: 'Banny McBannington',
@@ -136,7 +136,7 @@ export default function getMeMock(): UserFull | null {
       }
     case '999999':
       return {
-        id: '999999',
+        id: 999999,
         created_at: '-',
         updated_at: '-',
         name: 'Baby User',

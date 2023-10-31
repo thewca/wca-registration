@@ -10,6 +10,16 @@ function loginAsTestCompetitor() {
   ).click();
 }
 
+function loginAsOrganizerCompetitor() {
+  cy.visit(LOCAL_FRONTEND_URL);
+  // Hover over Choose Test User
+  cy.get("li.dropdown:nth-child(3)").trigger("mouseover");
+  // Click on test competitor 1
+  cy.get(
+      "li.dropdown:nth-child(3) > ul:nth-child(2) > li:nth-child(3) > a:nth-child(1)"
+  ).click();
+}
+
 function loginAsAdminCompetitor() {
   cy.visit(LOCAL_FRONTEND_URL);
   // Hover over Choose Test User
