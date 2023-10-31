@@ -1,5 +1,5 @@
 import { CompetitionInfo } from '../types'
-
+/* eslint-disable sonarjs/no-duplicate-string */
 export const NOT_YET_OPEN: CompetitionInfo = {
   'id': 'ManchesterSpring2024',
   'name': 'Manchester Spring 2024',
@@ -69,7 +69,7 @@ export const NOT_YET_OPEN: CompetitionInfo = {
   'registration_opened?': false,
   'main_event_id': '333',
   'number_of_bookmarks': 100,
-  'using_stripe_payments?': true,
+  'using_stripe_payments?': false,
   'uses_qualification?': false,
   'uses_cutoff?': true,
   'delegates': [
@@ -670,7 +670,7 @@ export const OPEN_WITH_PAYMENTS: CompetitionInfo = {
   'registration_opened?': true,
   'main_event_id': '333',
   'number_of_bookmarks': 102,
-  'using_stripe_payments?': undefined,
+  'using_stripe_payments?': true,
   'uses_qualification?': false,
   'uses_cutoff?': true,
   'delegates': [
@@ -1423,7 +1423,7 @@ export const COMMENT_REQUIRED: CompetitionInfo = {
   'registration_opened?': true,
   'main_event_id': '333fm',
   'number_of_bookmarks': 20,
-  'using_stripe_payments?': true,
+  'using_stripe_payments?': false,
   'uses_qualification?': false,
   'uses_cutoff?': false,
   'delegates': [
@@ -1896,7 +1896,7 @@ export const FAVOURITES_COMPETITION: CompetitionInfo = {
   'registration_opened?': true,
   'main_event_id': undefined,
   'number_of_bookmarks': 68,
-  'using_stripe_payments?': true,
+  'using_stripe_payments?': false,
   'uses_qualification?': false,
   'uses_cutoff?': true,
   'delegates': [

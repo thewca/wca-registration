@@ -129,15 +129,17 @@ export default function Competition({ children }) {
                   </span>
                 ))}
               </div>
-              <div>
-                <span className={styles.eventHeader}>Main Event:</span>
-                <span className={styles.event}>
-                  <CubingIcon
-                    event={competitionInfo.main_event_id}
-                    selected={true}
-                  />
-                </span>
-              </div>
+              {competitionInfo.main_event_id && (
+                <div>
+                  <span className={styles.eventHeader}>Main Event:</span>
+                  <span className={styles.event}>
+                    <CubingIcon
+                      event={competitionInfo.main_event_id}
+                      selected={true}
+                    />
+                  </span>
+                </div>
+              )}
             </div>
           </Container>
           {children}

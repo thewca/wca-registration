@@ -124,7 +124,12 @@ export default function PageTabs() {
               navigate(`${BASE_ROUTE}/${competitionInfo.id}/events`)
             }
           >
-            <CubingIcon event={competitionInfo.main_event_id} selected />
+            <CubingIcon
+              event={
+                competitionInfo.main_event_id ?? competitionInfo.event_ids[0]
+              }
+              selected
+            />
             Events
           </Menu.Item>
         ),
