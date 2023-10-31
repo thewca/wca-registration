@@ -157,14 +157,14 @@ export default function RegistrationEditor() {
               {registration.payment_status}
               {registration.payment_status === 'paid' && (
                 <Button onClick={() => setIsCheckingRefunds(true)}>
-                  {' '}
                   Show Available Refunds
                 </Button>
               )}
+              <Refunds
+                open={isCheckingRefunds}
+                onExit={() => setIsCheckingRefunds(false)}
+              />
             </>
-          )}
-          {isCheckingRefunds && (
-            <Refunds onExit={() => setIsCheckingRefunds(false)} />
           )}
         </div>
       )}
