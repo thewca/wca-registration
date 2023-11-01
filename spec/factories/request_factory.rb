@@ -19,14 +19,20 @@ FactoryBot.define do
   factory :registration_request, class: Hash do
     transient do
       events { ['333', '333mbf'] }
+      raw_comment { nil }
     end
 
     user_id { '158817' }
     submitted_by { user_id }
     competition_id { 'CubingZANationalChampionship2023' }
     competing { { event_ids: events, lane_state: 'pending' } }
+
     jwt_token { fetch_jwt_token(submitted_by) }
     guests { 0 }
+
+    trait :comment do
+      competing { { event_ids: events, comment: raw_comment, lane_state: 'pending' } }
+    end
 
     trait :admin do
       user_id { '15073' }
@@ -62,34 +68,42 @@ FactoryBot.define do
 end
 
 FactoryBot.define do
-  factory :update_payload, class: Hash do
+  factory :update_request, class: Hash do
     user_id { '158817' }
-    jwt_token { fetch_jwt_token(user_id) }
+    submitted_by { user_id }
+    jwt_token { fetch_jwt_token(submitted_by) }
     competition_id { 'CubingZANationalChampionship2023' }
-    competing { update_details }
+
+    transient do
+      competing { nil }
+      guests { nil }
+    end
 
     trait :admin_as_user do
       user_id { '15073' }
-      jwt_token { fetch_jwt_token(user_id) }
     end
 
     trait :admin_for_user do
-      jwt_token { fetch_jwt_token('15073') }
+      submitted_by { '15073' }
     end
 
     trait :organizer_for_self do
       user_id { '1' }
-      jwt_token { fetch_jwt_token(user_id) }
     end
 
     trait :organizer_for_user do
-      jwt_token { fetch_jwt_token('1') }
+      submitted_by { '1' }
     end
 
     trait :for_another_user do
-      jwt_token { fetch_jwt_token('158818') }
+      submitted_by { '158818' }
     end
 
     initialize_with { attributes }
+
+    after(:build) do |instance, evaluator|
+      instance[:guests] = evaluator.guests if evaluator.guests
+      instance[:competing] = evaluator.competing if evaluator.competing
+    end
   end
 end
