@@ -44,7 +44,7 @@
     "semantic-ui-react": "2.1.4"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "4.36.0",
+    "@tanstack/eslint-plugin-query": "5.0.5",
     "@types/crypto-js": "4.1.2",
     "@types/node": "20.8.0",
     "crypto-js": "4.2.0",
