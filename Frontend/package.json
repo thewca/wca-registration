@@ -34,7 +34,7 @@
     "fomantic-ui-css": "2.9.2",
     "marked": "9.0.3",
     "moment": "2.29.4",
-    "openapi-fetch": "0.7.8",
+    "openapi-fetch": "0.8.1",
     "openapi-typescript": "6.7.0",
     "postcss": "8.4.31",
     "postcss-modules": "6.0.0",
