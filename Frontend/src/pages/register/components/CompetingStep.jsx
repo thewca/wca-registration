@@ -3,7 +3,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
 import { dinero, toDecimal } from 'dinero.js'
 import React, { useContext, useEffect, useState } from 'react'
-import { Button, Divider, Dropdown, Popup, TextArea } from 'semantic-ui-react'
+import {
+  Button,
+  Divider,
+  Dropdown,
+  Message,
+  Popup,
+  TextArea,
+} from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { UserContext } from '../../../api/helper/context/user_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
@@ -128,6 +135,12 @@ export default function CompetingStep({ nextStep }) {
           </>
         ) : (
           <>
+            {!competitionInfo['registration_opened?'] && (
+              <Message warning>
+                Registration is not open yet, but you can still register as a
+                competition organizer or delegate.
+              </Message>
+            )}
             <div className={styles.registrationGreeting}>
               You can register for {competitionInfo.name}
             </div>
@@ -183,24 +196,26 @@ export default function CompetingStep({ nextStep }) {
           <div className={styles.eventSelectionText}>
             <div className={styles.eventSelectionHeading}>Guests</div>
           </div>
-          <div className={styles.commentWrapper}>
-            <Dropdown
-              value={guests}
-              onChange={(e, data) => setGuests(data.value)}
-              selection
-              options={[
-                ...new Array(
-                  (competitionInfo.guests_per_registration_limit ?? 99) + 1 // Arrays start at 0
-                ),
-              ].map((_, index) => {
-                return {
-                  key: `registration-guest-dropdown-${index}`,
-                  text: index,
-                  value: index,
-                }
-              })}
-            />
-          </div>
+          {competitionInfo.guest_entry_status !== 'restricted' && (
+            <div className={styles.commentWrapper}>
+              <Dropdown
+                value={guests}
+                onChange={(e, data) => setGuests(data.value)}
+                selection
+                options={[
+                  ...new Array(
+                    (competitionInfo.guests_per_registration_limit ?? 99) + 1 // Arrays start at 0
+                  ),
+                ].map((_, index) => {
+                  return {
+                    key: `registration-guest-dropdown-${index}`,
+                    text: index,
+                    value: index,
+                  }
+                })}
+              />
+            </div>
+          )}
         </div>
         <div className={styles.registrationRow}>
           {registration?.competing?.registration_status ? (
@@ -216,7 +231,10 @@ export default function CompetingStep({ nextStep }) {
               </div>
               <Button
                 disabled={
-                  isUpdating || !competitionInfo.allow_registration_edits
+                  isUpdating ||
+                  !competitionInfo.allow_registration_edits ||
+                  (competitionInfo.force_comment_in_registration &&
+                    comment === '')
                 }
                 color="blue"
                 onClick={() => {

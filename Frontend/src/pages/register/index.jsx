@@ -24,7 +24,10 @@ export default function Register() {
           You need to log in to Register for a competition
         </PermissionMessage>
       ) : // eslint-disable-next-line unicorn/no-nested-ternary
-      competitionInfo['registration_opened?'] ? (
+      competitionInfo['registration_opened?'] ||
+        competitionInfo.organizers
+          .concat(competitionInfo.delegates)
+          .find((u) => u.id === user.id) ? (
         <div>
           {canAttendCompetition ? (
             <StepPanel />
