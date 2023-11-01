@@ -173,12 +173,32 @@ describe("I want to Delete my registration", () => {
 
 describe("I am an Admin and I want to do admin tasks", () => {
   beforeEach(() => {
-    loginAsAdminCompetitor();
+    loginAsOrganizerCompetitor();
     // Expect the user_id to be saved in localstorage to simulate a login
     cy.getAllLocalStorage().then((result) => {
       console.log(result);
-      expect(result[LOCAL_FRONTEND_URL]).to.deep.equal({ user: "15073" });
+      expect(result[LOCAL_FRONTEND_URL]).to.deep.equal({ user: "2" });
     });
+  });
+
+  it("allows me to register early", () => {
+    cy.visit(LOCAL_FRONTEND_URL);
+    // Hover of Registration System
+    cy.get("li.dropdown:nth-child(2)").trigger("mouseover");
+    // Click on the sixth comp
+    cy.get(
+        "li.dropdown:nth-child(2) > ul:nth-child(2) > li:nth-child(6) > a:nth-child(1)"
+    ).click();
+    // Click on register tab
+    cy.get("a.item:nth-child(2)").click();
+    // Ensure it shows the warning message
+    cy.get(".warning").contains("Registration is not open yet, but you can still register as a competition organizer or delegate.")
+    // Click on 3x3x3
+    cy.get("label.event-label:nth-child(1) > input:nth-child(2)").click({
+      force: true,
+    });
+    // Click on send Registration
+    cy.get("button.ui:nth-child(2)").click();
   });
 
   it("allows me to approve a competitor", () => {
