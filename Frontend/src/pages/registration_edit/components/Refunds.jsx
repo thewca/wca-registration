@@ -39,7 +39,7 @@ export default function Refunds({ open, onExit }) {
   return refundsLoading ? (
     <LoadingMessage />
   ) : (
-    refundError && (
+    !refundError && (
       <Modal open={open} dimmer="blurring">
         Available Refunds:
         <Table>
