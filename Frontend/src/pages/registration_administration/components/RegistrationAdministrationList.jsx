@@ -173,7 +173,7 @@ export default function RegistrationAdministrationList() {
   ) : (
     <>
       <div className={styles.listContainer}>
-        <Header> Pending registrations </Header>
+        <Header> Pending registrations ({pending.length}) </Header>
         <RegistrationAdministrationTable
           registrations={pending}
           add={(attendee) => dispatch({ type: 'add-pending', attendee })}
@@ -181,7 +181,10 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.pending}
         />
-        <Header> Approved registrations </Header>
+        <Header>
+          Approved registrations ({accepted.length}/
+          {competitionInfo.competitor_limit})
+        </Header>
         <RegistrationAdministrationTable
           registrations={accepted}
           add={(attendee) => dispatch({ type: 'add-accepted', attendee })}
@@ -189,7 +192,7 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.accepted}
         />
-        <Header> Waitlisted registrations </Header>
+        <Header> Waitlisted registrations ({waiting.length}) </Header>
         <RegistrationAdministrationTable
           registrations={waiting}
           add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
@@ -197,7 +200,7 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.waiting}
         />
-        <Header> Cancelled registrations </Header>
+        <Header> Cancelled registrations ({cancelled.length}) </Header>
         <RegistrationAdministrationTable
           registrations={cancelled}
           add={(attendee) => dispatch({ type: 'add-cancelled', attendee })}
@@ -228,7 +231,7 @@ function RegistrationAdministrationTable({
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
   return (
-    <Table textAlign="left">
+    <Table striped textAlign="left">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>
