@@ -6,7 +6,6 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
-import styles from './list.module.scss'
 
 function sortReducer(state, action) {
   if (action.type === 'CHANGE_SORT') {
@@ -108,115 +107,103 @@ export default function RegistrationList() {
     )
   }, [competitionInfo.event_ids, data])
 
-  return (
-    <div className={styles.list}>
-      {isLoading ? (
-        <LoadingMessage />
-      ) : (
-        <div className="registrations-table-wrapper">
-          <Table className="registrations-table" sortable textAlign="left">
-            <Table.Header className="registrations-table-header">
-              <Table.Row>
-                <Table.HeaderCell
-                  className="registrations-table-header-item"
-                  sorted={sortColumn === 'name' ? sortDirection : undefined}
-                  onClick={() =>
-                    dispatch({ type: 'CHANGE_SORT', sortColumn: 'name' })
+  return isLoading ? (
+    <LoadingMessage />
+  ) : (
+    <div>
+      <Table sortable textAlign="left">
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell
+              sorted={sortColumn === 'name' ? sortDirection : undefined}
+              onClick={() =>
+                dispatch({ type: 'CHANGE_SORT', sortColumn: 'name' })
+              }
+            >
+              Name
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={sortColumn === 'country' ? sortDirection : undefined}
+              onClick={() =>
+                dispatch({ type: 'CHANGE_SORT', sortColumn: 'country' })
+              }
+            >
+              Citizen Of
+            </Table.HeaderCell>
+            {competitionInfo.event_ids.map((id) => (
+              <Table.HeaderCell key={`registration-table-header-${id}`}>
+                <CubingIcon event={id} selected />
+              </Table.HeaderCell>
+            ))}
+            <Table.HeaderCell
+              sorted={sortColumn === 'total' ? sortDirection : undefined}
+              onClick={() =>
+                dispatch({ type: 'CHANGE_SORT', sortColumn: 'total' })
+              }
+            >
+              Total
+            </Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {data ? (
+            data.map((registration) => (
+              <Table.Row key={`registration-table-row-${registration.user.id}`}>
+                <Table.Cell>
+                  {registration.user.wca_id ? (
+                    <a
+                      href={`https://worldcubeassociation.org/persons/${registration.user.wca_id}`}
+                    >
+                      {registration.user.name}
+                    </a>
+                  ) : (
+                    registration.user.name
+                  )}
+                </Table.Cell>
+                <Table.Cell>
+                  <FlagIcon iso2={registration.user.country.iso2} />
+                  {registration.user.country.name}
+                </Table.Cell>
+                {competitionInfo.event_ids.map((id) => {
+                  if (registration.competing.event_ids.includes(id)) {
+                    return (
+                      <Table.Cell
+                        key={`registration-table-row-${registration.user.id}-${id}`}
+                      >
+                        <CubingIcon event={id} selected={true} />
+                      </Table.Cell>
+                    )
                   }
-                >
-                  Name
-                </Table.HeaderCell>
-                <Table.HeaderCell
-                  className="registrations-table-header-item"
-                  sorted={sortColumn === 'country' ? sortDirection : undefined}
-                  onClick={() =>
-                    dispatch({ type: 'CHANGE_SORT', sortColumn: 'country' })
-                  }
-                >
-                  Citizen Of
-                </Table.HeaderCell>
-                {competitionInfo.event_ids.map((id) => (
-                  <Table.HeaderCell
-                    key={`registration-table-header-${id}`}
-                    className="registrations-table-header-item"
-                  >
-                    <CubingIcon event={id} selected />
-                  </Table.HeaderCell>
-                ))}
-                <Table.HeaderCell
-                  className="registrations-table-header-item"
-                  sorted={sortColumn === 'total' ? sortDirection : undefined}
-                  onClick={() =>
-                    dispatch({ type: 'CHANGE_SORT', sortColumn: 'total' })
-                  }
-                >
-                  Total
-                </Table.HeaderCell>
+                  return (
+                    <Table.Cell
+                      key={`registration-table-row-${registration.user.id}-${id}`}
+                    />
+                  )
+                })}
+                <Table.Cell>
+                  {registration.competing.event_ids.length}
+                </Table.Cell>
               </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {data ? (
-                data.map((registration) => (
-                  <Table.Row
-                    key={`registration-table-row-${registration.user.id}`}
-                  >
-                    <Table.Cell>
-                      {registration.user.wca_id ? (
-                        <a
-                          href={`https://worldcubeassociation.org/persons/${registration.user.wca_id}`}
-                        >
-                          {registration.user.name}
-                        </a>
-                      ) : (
-                        registration.user.name
-                      )}
-                    </Table.Cell>
-                    <Table.Cell>
-                      <FlagIcon iso2={registration.user.country.iso2} />
-                      {registration.user.country.name}
-                    </Table.Cell>
-                    {competitionInfo.event_ids.map((id) => {
-                      if (registration.competing.event_ids.includes(id)) {
-                        return (
-                          <Table.Cell
-                            key={`registration-table-row-${registration.user.id}-${id}`}
-                          >
-                            <CubingIcon event={id} selected={true} />
-                          </Table.Cell>
-                        )
-                      }
-                      return (
-                        <Table.Cell
-                          key={`registration-table-row-${registration.user.id}-${id}`}
-                        />
-                      )
-                    })}
-                    <Table.Cell>
-                      {registration.competing.event_ids.length}
-                    </Table.Cell>
-                  </Table.Row>
-                ))
-              ) : (
-                <Table.Row>
-                  <Table.Cell width={12}> No matching records found</Table.Cell>
-                </Table.Row>
-              )}
-            </Table.Body>
-            <Table.Footer>
-              <Table.Row>
-                <Table.Cell>{`${newcomers} First-Timers + ${
-                  registrations.length - newcomers
-                } Returners = ${registrations.length} People`}</Table.Cell>
-                <Table.Cell>{`${countrySet.size}  Countries`}</Table.Cell>
-                {[...eventCounts.entries()].map(([id, count]) => (
-                  <Table.Cell key={`footer-count-${id}`}>{count}</Table.Cell>
-                ))}
-                <Table.Cell>{totalEvents}</Table.Cell>
-              </Table.Row>
-            </Table.Footer>
-          </Table>
-        </div>
-      )}
+            ))
+          ) : (
+            <Table.Row>
+              <Table.Cell width={12}> No matching records found</Table.Cell>
+            </Table.Row>
+          )}
+        </Table.Body>
+        <Table.Footer>
+          <Table.Row>
+            <Table.Cell>{`${newcomers} First-Timers + ${
+              registrations.length - newcomers
+            } Returners = ${registrations.length} People`}</Table.Cell>
+            <Table.Cell>{`${countrySet.size}  Countries`}</Table.Cell>
+            {[...eventCounts.entries()].map(([id, count]) => (
+              <Table.Cell key={`footer-count-${id}`}>{count}</Table.Cell>
+            ))}
+            <Table.Cell>{totalEvents}</Table.Cell>
+          </Table.Row>
+        </Table.Footer>
+      </Table>
     </div>
   )
 }
