@@ -85,16 +85,14 @@ export default function RegistrationEditor() {
             }}
           />
           <Header> Administrative Notes </Header>
-          <div className={styles.commentWrapper}>
-            <TextArea
-              id="admin-comment"
-              maxLength={180}
-              value={adminComment}
-              onChange={(_, data) => {
-                setAdminComment(data.value)
-              }}
-            />
-          </div>
+          <TextArea
+            id="admin-comment"
+            maxLength={180}
+            value={adminComment}
+            onChange={(_, data) => {
+              setAdminComment(data.value)
+            }}
+          />
           <Header> Status </Header>
           <div className={styles.registrationStatus}>
             <Checkbox
