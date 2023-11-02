@@ -15,6 +15,7 @@ import FlashMessage from './ui/messages/flashMessage'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import UserProvider from './ui/providers/UserProvider'
 import PageTabs from './ui/Tabs'
+import Import from "./pages/import";
 
 export const BASE_ROUTE = '/competitions/v2'
 
@@ -54,6 +55,10 @@ const routes = [
           {
             path: `${BASE_ROUTE}/:competition_id/schedule`,
             element: <Schedule />,
+          },
+          {
+            path: `${BASE_ROUTE}/:competition_id/import`,
+            element: <Import />,
           },
           {
             path: `${BASE_ROUTE}/:competition_id/register`,
