@@ -154,8 +154,8 @@ export default function RegistrationEditor() {
           {competitionInfo['using_stripe_payments?'] && (
             <>
               <Header>Payment status</Header>
-              {registration.payments.payment_status}
-              {registration.payment_status === 'succeeded' && (
+              {registration.payment.payment_status}
+              {registration.payment.payment_status === 'succeeded' && (
                 <Button onClick={() => setIsCheckingRefunds(true)}>
                   Show Available Refunds
                 </Button>
