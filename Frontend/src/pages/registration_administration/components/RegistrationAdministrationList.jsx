@@ -319,10 +319,10 @@ function RegistrationAdministrationTable({
                 {competitionInfo['using_stripe_payments?'] && (
                   <>
                     <Table.Cell>
-                      {registration.payment.payment_status ?? 'not paid'}
+                      {registration.payment?.payment_status ?? 'not paid'}
                     </Table.Cell>
                     <Table.Cell>
-                      {registration.payment.updated_at ?? ''}
+                      {registration.payment?.updated_at ?? ''}
                     </Table.Cell>
                   </>
                 )}
