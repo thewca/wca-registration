@@ -1,23 +1,20 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import React, { useContext } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useState } from 'react'
 import { Button, Input, Label, Modal, Table } from 'semantic-ui-react'
-import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import getAvailableRefunds from '../../../api/payment/get/get_available_refunds'
 import refundPayment from '../../../api/payment/get/refund_payment'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
-export default function Refunds({ open, onExit }) {
-  const { user_id } = useParams()
-  const { competitionInfo } = useContext(CompetitionContext)
+export default function Refunds({ open, onExit, userId, competitionId }) {
+  const [refundAmount, setRefundAmount] = useState(0)
   const {
     data: refunds,
     isLoading: refundsLoading,
     isError: refundError,
   } = useQuery({
-    queryKey: ['refunds', competitionInfo.id, user_id],
-    queryFn: () => getAvailableRefunds(competitionInfo.id, user_id),
+    queryKey: ['refunds', competitionId, userId],
+    queryFn: () => getAvailableRefunds(competitionId, userId),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
@@ -41,41 +38,56 @@ export default function Refunds({ open, onExit }) {
   ) : (
     !refundError && (
       <Modal open={open} dimmer="blurring">
-        Available Refunds:
-        <Table>
-          <Table.Header>
-            <Table.Header> Amount </Table.Header>
-            <Table.Header> </Table.Header>
-          </Table.Header>
-          <Table.Body>
-            {refunds.charges.map((refund) => (
-              <Table.Row key={refund.payment_id}>
-                <Table.Cell>
-                  <Input labelPosition="right" type="text" placeholder="Amount">
-                    <Label basic>$</Label>
-                    <input max={refund.amount} />
-                  </Input>
-                </Table.Cell>
-                <Table.Cell>
-                  <Button
-                    onClick={() =>
-                      refundMutation(
-                        competitionInfo.id,
-                        user_id,
-                        refund.payment_id
-                      )
-                    }
-                  >
-                    Refund amount
-                  </Button>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-        <Button disabled={isMutating} onClick={onExit}>
-          Go Back
-        </Button>
+        <Modal.Header>Available Refunds:</Modal.Header>
+        <Modal.Content>
+          <Table>
+            <Table.Header>
+              <Table.Header> Amount </Table.Header>
+              <Table.Header> </Table.Header>
+            </Table.Header>
+            <Table.Body>
+              {refunds.charges.map((refund) => (
+                <Table.Row key={refund.payment_id}>
+                  <Table.Cell>
+                    <Input
+                      labelPosition="right"
+                      type="text"
+                      placeholder={refund.amount}
+                    >
+                      <Label basic>$</Label>
+                      <input
+                        value={refundAmount}
+                        max={refund.amount}
+                        onChange={(event) =>
+                          setRefundAmount(event.target.value)
+                        }
+                      />
+                    </Input>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Button
+                      onClick={() =>
+                        refundMutation({
+                          competitionId,
+                          userId,
+                          paymentId: refund.payment_id,
+                          amount: refundAmount,
+                        })
+                      }
+                    >
+                      Refund amount
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button disabled={isMutating} onClick={onExit}>
+            Go Back
+          </Button>
+        </Modal.Actions>
       </Modal>
     )
   )

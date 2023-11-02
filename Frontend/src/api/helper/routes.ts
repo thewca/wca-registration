@@ -10,9 +10,10 @@ export const availableRefundsRoute = (competitionId: string, userId: string) =>
 export const refundRoute = (
   competitionId: string,
   userId: string,
-  paymentId: string
+  paymentId: string,
+  amount: number
 ) =>
-  `${process.env.WCA_URL}/payment/refund?attendee_id=${competitionId}-${userId}&payment_id=${paymentId}`
+  `${process.env.WCA_URL}/payment/refund?attendee_id=${competitionId}-${userId}&payment_id=${paymentId}&refund_amount=${amount}`
 
 export const pollingRoute = (userId: string, competitionId: string) =>
   `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`

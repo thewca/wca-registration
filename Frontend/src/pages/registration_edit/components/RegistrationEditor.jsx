@@ -162,6 +162,8 @@ export default function RegistrationEditor() {
                 </Button>
               )}
               <Refunds
+                competitionId={competitionInfo.id}
+                userId={user_id}
                 open={isCheckingRefunds}
                 onExit={() => setIsCheckingRefunds(false)}
               />
