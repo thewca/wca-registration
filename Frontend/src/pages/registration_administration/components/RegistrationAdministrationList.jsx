@@ -323,7 +323,22 @@ function RegistrationAdministrationTable({
                       {registration.payment.payment_status ?? 'not paid'}
                     </Table.Cell>
                     <Table.Cell>
-                      {registration.payment.updated_at ?? ''}
+                      {registration.payment.updated_at ? (
+                        <Popup
+                          content={new Date(
+                            registration.payment.updated_at
+                          ).toTimeString()}
+                          trigger={
+                            <span>
+                              {new Date(
+                                registration.payment.updated_at
+                              ).toLocaleDateString()}
+                            </span>
+                          }
+                        />
+                      ) : (
+                        ''
+                      )}
                     </Table.Cell>
                   </>
                 )}
