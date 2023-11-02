@@ -249,7 +249,7 @@ function RegistrationAdministrationTable({
           {competitionInfo['using_stripe_payments?'] && (
             <>
               <Table.HeaderCell>Payment status</Table.HeaderCell>
-              <Table.HeaderCell>Last Payment Update</Table.HeaderCell>
+              <Table.HeaderCell>Paid on</Table.HeaderCell>
             </>
           )}
           <Table.HeaderCell>Number of Events</Table.HeaderCell>
@@ -319,10 +319,10 @@ function RegistrationAdministrationTable({
                 {competitionInfo['using_stripe_payments?'] && (
                   <>
                     <Table.Cell>
-                      {registration.payment?.payment_status ?? 'not paid'}
+                      {registration.payment.payment_status ?? 'not paid'}
                     </Table.Cell>
                     <Table.Cell>
-                      {registration.payment?.updated_at ?? ''}
+                      {registration.payment.updated_at ?? ''}
                     </Table.Cell>
                   </>
                 )}
