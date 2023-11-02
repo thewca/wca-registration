@@ -23,7 +23,19 @@ export default function Import() {
     </PermissionMessage>
   ) : (
     <Segment>
-      <Input type="file" onChange={(event) => setFile(event.target.files[0])} />
+      <Input
+        type="file"
+        onChange={(event) => {
+          const file = event.target.files[0]
+          if (!file.name.endsWith('.csv')) {
+            // TODO: This is just for testing
+            // eslint-disable-next-line no-alert
+            alert('Only .csv files are allowed to be imported')
+          } else {
+            setFile(file)
+          }
+        }}
+      />
       <Button
         disabled={!file || isMutating}
         onClick={() =>

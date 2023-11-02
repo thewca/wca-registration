@@ -220,6 +220,11 @@ class RegistrationController < ApplicationController
            status: :internal_server_error
   end
 
+  def import
+    file = params["file"]
+    puts file
+  end
+
   private
 
     def registration_params
