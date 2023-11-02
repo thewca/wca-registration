@@ -17,7 +17,7 @@ export default function Refunds({ open, onExit }) {
     isError: refundError,
   } = useQuery({
     queryKey: ['refunds', competitionInfo.id, user_id],
-    queryFn: () => getAvailableRefunds(user_id, competitionInfo.id),
+    queryFn: () => getAvailableRefunds(competitionInfo.id, user_id),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
