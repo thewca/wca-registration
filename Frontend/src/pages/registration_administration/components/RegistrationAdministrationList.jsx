@@ -8,6 +8,7 @@ import { getAllRegistrations } from '../../../api/registration/get/get_registrat
 import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
+import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
 
 // Currently it is at the developer's discretion to make sure
@@ -171,7 +172,7 @@ export default function RegistrationAdministrationList() {
     <LoadingMessage />
   ) : (
     <>
-      <div>
+      <div className={styles.listContainer}>
         <Header> Pending registrations </Header>
         <RegistrationAdministrationTable
           registrations={pending}
@@ -227,7 +228,7 @@ function RegistrationAdministrationTable({
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
   return (
-    <Table textAlign="left" singleLine>
+    <Table textAlign="left">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>
@@ -252,7 +253,7 @@ function RegistrationAdministrationTable({
               <Table.HeaderCell>Paid on</Table.HeaderCell>
             </>
           )}
-          <Table.HeaderCell>Number of Events</Table.HeaderCell>
+          <Table.HeaderCell># Events</Table.HeaderCell>
           <Table.HeaderCell>Guests</Table.HeaderCell>
           <Table.HeaderCell>Comment</Table.HeaderCell>
           <Table.HeaderCell>Administrative notes</Table.HeaderCell>
