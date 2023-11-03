@@ -16,7 +16,7 @@ export default function Import() {
   const { mutate: importMutation, isLoading: isMutating } = useMutation({
     mutationFn: importRegistration,
     onSuccess: () =>
-      navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations`),
+      navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations/edit`),
   })
   return !canAdminCompetition ? (
     <PermissionMessage>
@@ -26,16 +26,8 @@ export default function Import() {
     <Segment>
       <Input
         type="file"
-        onChange={(event) => {
-          const file = event.target.files[0]
-          if (!file.name.endsWith('.csv')) {
-            // TODO: This is just for testing
-            // eslint-disable-next-line no-alert
-            alert('Only .csv files are allowed to be imported')
-          } else {
-            setFile(file)
-          }
-        }}
+        accept="text/csv"
+        onChange={(event) => setFile(event.target.files[0])}
       />
       <Button
         disabled={!file || isMutating}
