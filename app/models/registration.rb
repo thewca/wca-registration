@@ -65,7 +65,7 @@ class Registration
   end
 
   def payment_date
-    lanes.filter_map { |x| x.lane_details['updated_at'] if x.lane_name == 'payment' }[0]
+    lanes.filter_map { |x| x.lane_details['last_updated'] if x.lane_name == 'payment' }[0]
   end
 
   def payment_history
