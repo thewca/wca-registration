@@ -223,14 +223,14 @@ class RegistrationController < ApplicationController
   def import
     file = params.require(:csv_data)
     content = File.read(file)
-    if CsvImport::valid?(content)
+    if CsvImport.valid?(content)
       registrations = CSV.parse(File.read(file), headers: true).map do |row|
-        CsvImport::parse_row_to_registration(row.to_h, params[:competition_id])
+        CsvImport.parse_row_to_registration(row.to_h, params[:competition_id])
       end
       Registration.import(registrations)
-      render json: { status: "Successfully imported registration" }
+      render json: { status: 'Successfully imported registration' }
     else
-      render json: { error: "Invalid csv" }, status: :internal_server_error
+      render json: { error: 'Invalid csv' }, status: :internal_server_error
     end
   end
 
