@@ -59,8 +59,7 @@ export async function getAllRegistrations(
   for (const registration of data!) {
     const user = (await getCompetitorInfo(registration.user_id)).user
     regList.push({
-      user_id: registration.user_id,
-      competing: registration.competing,
+      ...registration,
       user,
     })
   }
