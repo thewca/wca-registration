@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { Container } from 'semantic-ui-react'
 import Events from './pages/events'
 import HomePage from './pages/home'
+import Import from './pages/import'
 import Register from './pages/register'
 import RegistrationAdministration from './pages/registration_administration'
 import RegistrationEdit from './pages/registration_edit'
@@ -15,7 +16,6 @@ import FlashMessage from './ui/messages/flashMessage'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import UserProvider from './ui/providers/UserProvider'
 import PageTabs from './ui/Tabs'
-import Import from "./pages/import";
 
 export const BASE_ROUTE = '/competitions/v2'
 
