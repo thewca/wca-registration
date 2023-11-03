@@ -221,8 +221,21 @@ class RegistrationController < ApplicationController
   end
 
   def import
-    file = params["file"]
-    puts file
+    file = params.require(:csv_data)
+    competition_id = params[:competition_id]
+    content = File.read(file)
+    if CsvImport::valid?(content)
+      registrations = []
+      CSV.parse(File.read(file), headers: true) do |row|
+        csv_hash = row.to_h
+        competing_lane = LaneFactory.competing_lane(csv_hash["competing.event_ids"].split(';'), csv_hash["competing.comment"], csv_hash['guests'], csv_hash['competing.admin_comment'], csv_hash['competing.registration_status'])
+        registrations << { attendee_id: "#{competition_id}-#{csv_hash["user_id"]}", user_id: csv_hash["user_id"], competition_id: competition_id, lanes: [competing_lane], isCompeting: csv_hash['competing.registration_status'] == 'accepted' }
+      end
+      Registration.import(registrations)
+      render json: { status: "Successfully imported registration" }
+    else
+      render json: { error: "Invalid csv" }, status: :internal_server_error
+    end
   end
 
   private
