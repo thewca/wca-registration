@@ -1,61 +1,6 @@
-@import '../../style/font-sizes';
-@import '../../style/margins';
-@import '../../style/colors';
 .information{
-  font-size: $sub-header-size;
-  line-height: 1.3em;
-  padding: 30px;
-  .information-header{
-    margin-bottom: $double-margin;
-    font-weight: bold;
-  }
-}
-.home-container{
-  padding: 20px;
-}
-.registration-period{
-  font-size: $sub-header-size;
-  line-height: 1.3em;
-  padding: 0 30px 30px;
-  .registration-header{
-    margin-bottom: $double-margin;
-    font-weight: bold;
-  }
-}
-.bookmarked{
-  text-align: center;
-  font-size: $sub-header-size;
-  margin-top: $double-margin;
-}
-.requirements{
-  font-weight: 500;
-  font-size: $sub-header-size;
-  background-color: $requirements-red;
-  border-radius: 28px;
-  padding: 30px;
-  width: 90%;
-  line-height: 3em;
-}
-.details{
-  font-size: $sub-header-size;
-  line-height: $header-size;
-  background-color: #EBEBEB;
-  margin-top: $triple-margin;
-  border-radius: 28px;
-  padding: 30px;
-  ul{
-    margin: 0;
-  }
-  .detailHeader{
-    font-weight: bold;
-  }
-  p{
-    display: inline;
-  }
-  .delegateLink{
-    margin-right: $single-margin;
-    &::after{
-      content: ',';
-    }
+  font-size: 1.1em;
+  img{
+    display: none;
   }
 }

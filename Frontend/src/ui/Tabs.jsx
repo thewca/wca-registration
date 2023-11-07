@@ -4,16 +4,18 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Menu, Tab } from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
+import { BASE_ROUTE } from '../routes'
 import styles from './tabs.module.scss'
 
 function pathMatch(name, pathname) {
-  const registerExpression = /\/competitions\/[a-zA-Z0-9]+\/register/
+  const registerExpression = /\/competitions\/v2\/[a-zA-Z0-9]+\/register/
   const registrationsExpression =
-    /\/competitions\/[a-zA-Z0-9]+\/registrations\/edit/
-  const competitorsExpression = /\/competitions\/[a-zA-Z0-9]+\/registrations/
-  const eventsExpressions = /\/competitions\/[a-zA-Z0-9]+\/events/
-  const scheduleExpressions = /\/competitions\/[a-zA-Z0-9]+\/schedule/
-  const infoExpression = /\/competitions\/[a-zA-Z0-9]+$/
+    /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations\/edit/
+  const competitorsExpression =
+    /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations/
+  const eventsExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/events/
+  const scheduleExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/schedule/
+  const infoExpression = /\/competitions\/v2\/[a-zA-Z0-9]+$/
   switch (name) {
     case 'register':
       return registerExpression.test(pathname)
@@ -50,7 +52,7 @@ export default function PageTabs() {
             name="register"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/register`)
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/register`)
             }
           >
             <UiIcon name="sign in alt" />
@@ -68,7 +70,7 @@ export default function PageTabs() {
             name="registrations"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/registrations/edit`)
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations/edit`)
             }
           >
             <UiIcon name="list ul" />
@@ -86,7 +88,7 @@ export default function PageTabs() {
             name="competitors"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/registrations`)
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations`)
             }
           >
             <UiIcon name="users" />
@@ -103,7 +105,7 @@ export default function PageTabs() {
             key="tab-info"
             name="info"
             className={styles.tabItem}
-            onClick={() => navigate(`/competitions/${competitionInfo.id}`)}
+            onClick={() => navigate(`${BASE_ROUTE}/${competitionInfo.id}`)}
           >
             <UiIcon name="info" />
             General Info
@@ -119,7 +121,7 @@ export default function PageTabs() {
             name="events"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/events`)
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/events`)
             }
           >
             <CubingIcon event={competitionInfo.main_event_id} selected />
@@ -135,7 +137,7 @@ export default function PageTabs() {
             name="schedule"
             className={styles.tabItem}
             onClick={() =>
-              navigate(`/competitions/${competitionInfo.id}/schedule`)
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/schedule`)
             }
           >
             <UiIcon name="calendar" />
@@ -152,7 +154,7 @@ export default function PageTabs() {
               name={`tabs-${tab.id}`}
               className={styles.tabItem}
               onClick={() =>
-                navigate(`/competitions/${competitionInfo.id}/tabs/${tab.id}`)
+                navigate(`${BASE_ROUTE}/${competitionInfo.id}/tabs/${tab.id}`)
               }
             >
               {tab.name}
@@ -174,6 +176,7 @@ export default function PageTabs() {
 
   return (
     <Tab
+      className={styles.tabs}
       panes={panes}
       renderActiveOnly={true}
       menu={{ secondary: true, pointing: true }}

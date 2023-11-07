@@ -8,7 +8,7 @@ resource "aws_lambda_function" "registration_status_lambda" {
   environment {
     variables = {
       QUEUE_URL = var.shared_resources.queue.url
-      CODE_ENVIRONMENT = "production"
+      DYNAMO_REGISTRATIONS_TABLE = var.shared_resources.dynamo_registration_table.name
     }
   }
 }

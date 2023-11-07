@@ -8,8 +8,7 @@ require_relative 'error_codes'
 require_relative 'wca_api'
 
 def comp_api_url(competition_id)
-  comp_api_baseurl = 'https://worldcubeassociation.org/api/v0/competitions'
-  "#{comp_api_baseurl}/#{competition_id}"
+  "https://#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
 end
 
 class CompetitionApi < WcaApi
@@ -88,6 +87,10 @@ class CompetitionInfo
 
   def payment_info
     [@competition_json['base_entry_fee_lowest_denomination'], @competition_json['currency_code']]
+  end
+
+  def is_organizer_or_delegate?(user_id)
+    (@competition_json['delegates'] + @competition_json['organizers']).any? { |p| p['id'].to_s == user_id }
   end
 
   def name

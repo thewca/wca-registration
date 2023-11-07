@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import { FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
-import { Checkbox, Popup, Table } from 'semantic-ui-react'
+import { Checkbox, Header, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
+import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
@@ -168,13 +169,11 @@ export default function RegistrationAdministrationList() {
     [registrations]
   )
   return isLoading ? (
-    <div className={styles.listContainer}>
-      <LoadingMessage />
-    </div>
+    <LoadingMessage />
   ) : (
     <>
       <div className={styles.listContainer}>
-        <div className={styles.listHeader}> Pending registrations </div>
+        <Header> Pending registrations ({pending.length}) </Header>
         <RegistrationAdministrationTable
           registrations={pending}
           add={(attendee) => dispatch({ type: 'add-pending', attendee })}
@@ -182,7 +181,10 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.pending}
         />
-        <div className={styles.listHeader}> Approved registrations </div>
+        <Header>
+          Approved registrations ({accepted.length}/
+          {competitionInfo.competitor_limit})
+        </Header>
         <RegistrationAdministrationTable
           registrations={accepted}
           add={(attendee) => dispatch({ type: 'add-accepted', attendee })}
@@ -190,7 +192,7 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.accepted}
         />
-        <div className={styles.listHeader}> Waitlisted registrations </div>
+        <Header> Waitlisted registrations ({waiting.length}) </Header>
         <RegistrationAdministrationTable
           registrations={waiting}
           add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
@@ -198,7 +200,7 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.waiting}
         />
-        <div className={styles.listHeader}> Cancelled registrations </div>
+        <Header> Cancelled registrations ({cancelled.length}) </Header>
         <RegistrationAdministrationTable
           registrations={cancelled}
           add={(attendee) => dispatch({ type: 'add-cancelled', attendee })}
@@ -227,8 +229,9 @@ function RegistrationAdministrationTable({
   competition_id,
   selected,
 }) {
+  const { competitionInfo } = useContext(CompetitionContext)
   return (
-    <Table textAlign="left" className={styles.list} singleLine>
+    <Table striped textAlign="left">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>
@@ -247,7 +250,13 @@ function RegistrationAdministrationTable({
           <Table.HeaderCell>Name</Table.HeaderCell>
           <Table.HeaderCell>Citizen of</Table.HeaderCell>
           <Table.HeaderCell>Registered on</Table.HeaderCell>
-          <Table.HeaderCell>Number of Events</Table.HeaderCell>
+          {competitionInfo['using_stripe_payments?'] && (
+            <>
+              <Table.HeaderCell>Payment status</Table.HeaderCell>
+              <Table.HeaderCell>Paid on</Table.HeaderCell>
+            </>
+          )}
+          <Table.HeaderCell># Events</Table.HeaderCell>
           <Table.HeaderCell>Guests</Table.HeaderCell>
           <Table.HeaderCell>Comment</Table.HeaderCell>
           <Table.HeaderCell>Administrative notes</Table.HeaderCell>
@@ -276,7 +285,7 @@ function RegistrationAdministrationTable({
                 </Table.Cell>
                 <Table.Cell>
                   <Link
-                    to={`/competitions/${competition_id}/${registration.user.id}/edit`}
+                    to={`${BASE_ROUTE}/${competition_id}/${registration.user.id}/edit`}
                   >
                     Edit
                   </Link>
@@ -311,6 +320,31 @@ function RegistrationAdministrationTable({
                     }
                   />
                 </Table.Cell>
+                {competitionInfo['using_stripe_payments?'] && (
+                  <>
+                    <Table.Cell>
+                      {registration.payment.payment_status ?? 'not paid'}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {registration.payment.updated_at ? (
+                        <Popup
+                          content={new Date(
+                            registration.payment.updated_at
+                          ).toTimeString()}
+                          trigger={
+                            <span>
+                              {new Date(
+                                registration.payment.updated_at
+                              ).toLocaleDateString()}
+                            </span>
+                          }
+                        />
+                      ) : (
+                        ''
+                      )}
+                    </Table.Cell>
+                  </>
+                )}
                 <Table.Cell>
                   {registration.competing.event_ids.length}
                 </Table.Cell>

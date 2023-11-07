@@ -4,7 +4,11 @@ import { USER_KEY } from '../../ui/providers/UserProvider'
 
 export default function TestLogin() {
   const { login_id } = useParams()
-  useEffect(() => localStorage.setItem(USER_KEY, login_id), [login_id])
+  useEffect(() => {
+    localStorage.setItem(USER_KEY, login_id)
+    // reload the page so the SPA notice that we are 'logged in'
+    window.location = '/'
+  }, [login_id])
   return (
     <div style={{ position: 'absolute', right: '35%' }}>
       <h1> Successfully 'logged in' as User with the id {login_id}</h1>

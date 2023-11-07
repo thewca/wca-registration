@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'time'
+
 class LaneFactory
   def self.competing_lane(event_ids: [], comment: '', guests: 0, lane_state: 'pending')
     competing_lane = Lane.new({})
@@ -14,15 +16,17 @@ class LaneFactory
     competing_lane
   end
 
-  def self.payment_lane(fee_lowest_denominator, currency_code, payment_intent_client_secret)
+  def self.payment_lane(fee_lowest_denominator, currency_code, payment_id)
     payment_lane = Lane.new({})
     payment_lane.lane_name = 'payment'
     payment_lane.completed_steps = ['Payment Intent Init']
     payment_lane.lane_state = 'initialized'
     payment_lane.lane_details = {
       amount_lowest_denominator: fee_lowest_denominator,
-      payment_intent_client_secret: payment_intent_client_secret,
+      payment_id: payment_id,
       currency_code: currency_code,
+      last_updated: Time.now,
+      payment_history: [],
     }
     payment_lane
   end

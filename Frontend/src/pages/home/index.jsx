@@ -1,41 +1,33 @@
 import { UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import moment from 'moment'
-import React, { useContext, useState } from 'react'
-import { Button } from 'semantic-ui-react'
+import React, { useContext } from 'react'
+import { Container, Grid, Header, Segment } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import RegistrationRequirements from '../register/components/RegistrationRequirements'
 import styles from './index.module.scss'
 
 export default function HomePage() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const [showAllRequirements, setShowAllRequirements] = useState(false)
   return (
-    <div className={styles.homeContainer}>
-      <div className={styles.requirements}>
-        <div>Registration Requirements:</div>
-        <div>[INSERT ORGANIZER MESSAGE REGARDING REQUIREMENTS]</div>
-        {showAllRequirements && <RegistrationRequirements />}
-        <div>
-          <Button onClick={() => setShowAllRequirements(!showAllRequirements)}>
-            View All
-          </Button>
-        </div>
+    <Container>
+      <div>
+        <RegistrationRequirements />
       </div>
       {competitionInfo.information && (
-        <div className={styles.information}>
-          <div className={styles.informationHeader}>Information:</div>
+        <div>
+          <Header as="h3">Information:</Header>
           <div
-            className={styles.informationText}
+            className={styles.information}
             dangerouslySetInnerHTML={{
               __html: marked(competitionInfo.information),
             }}
           />
         </div>
       )}
-      <div className={styles.registrationPeriod}>
-        <div className={styles.registrationHeader}>Registration Period:</div>
-        <div className={styles.registrationPeriodText}>
+      <Header as="h3">
+        Registration Period:
+        <Header.Subheader>
           {new Date(competitionInfo.registration_open) < new Date()
             ? `Registration opened ${moment(
                 competitionInfo.registration_open
@@ -45,98 +37,101 @@ export default function HomePage() {
             : `Registration will open ${moment(
                 competitionInfo.registration_open
               ).calendar()}`}
-        </div>
-      </div>
-      <div className={styles.details}>
-        <div>
-          <span className={styles.detailHeader}>Date: </span>
-          {moment(competitionInfo.start_date).format('ll')}
-        </div>
-        <div>
-          <span className={styles.detailHeader}>Start Time: </span>
-          XX:XX PM
-        </div>
-        <div>
-          <span className={styles.detailHeader}>City: </span>
-          {competitionInfo.city}, {competitionInfo.country_iso2}
-        </div>
-        <div>
-          <span className={styles.detailHeader}>Venue: </span>
-          <span
-            dangerouslySetInnerHTML={{ __html: marked(competitionInfo.venue) }}
-          />
-          <ul>
-            <li>
-              <span className={styles.detailHeader}>Address: </span>
-              {competitionInfo.venue_address}
-            </li>
+        </Header.Subheader>
+      </Header>
+      <Segment padded attached>
+        <Grid>
+          <Grid.Column width={3}>
+            <Header>Date</Header>
+            <Header>City</Header>
+            <Header>Venue</Header>
+            <Header color="grey">Address</Header>
             {competitionInfo.venue_details && (
-              <li>
-                <span className={styles.detailHeader}>Details: </span>
-                {competitionInfo.venue_details}
-              </li>
+              <Header color="grey">Details</Header>
             )}
-          </ul>
-        </div>
-        <div>
-          <span className={styles.detailHeader}>Competitor Limit: </span>
-          {competitionInfo.competitor_limit}
-        </div>
-        <div>
-          <span className={styles.detailHeader}>Contact: </span>
-          {competitionInfo.contact ? (
-            <span
-              dangerouslySetInnerHTML={{
-                __html: marked(competitionInfo.contact),
-              }}
-            />
-          ) : (
+            <Header>Competitor Limit</Header>
+            <Header>Contact</Header>
+            <Header>Organizers</Header>
+            <Header>Delegates</Header>
+          </Grid.Column>
+          <Grid.Column width={12}>
+            <Header>
+              {competitionInfo.start_date === competitionInfo.end_date
+                ? `${moment(competitionInfo.start_date).format('ll')}`
+                : `${moment(competitionInfo.start_date).format(
+                    'll'
+                  )} to ${moment(competitionInfo.end_date).format('ll')}`}
+            </Header>
+            <Header>
+              {competitionInfo.city}, {competitionInfo.country_iso2}
+            </Header>
+            <Header>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: marked(competitionInfo.venue),
+                }}
+              />
+            </Header>
+            <Header color="grey">{competitionInfo.venue_address}</Header>
+            {competitionInfo.venue_details && (
+              <Header color="grey">{competitionInfo.venue_details}</Header>
+            )}
+            <Header>{competitionInfo.competitor_limit}</Header>
+            <Header>
+              {competitionInfo.contact ? (
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: marked(competitionInfo.contact),
+                  }}
+                />
+              ) : (
+                <a
+                  href={`https://www.worldcubeassociation.org/contact/website?competitionId=${competitionInfo.id}`}
+                >
+                  Organization Team
+                </a>
+              )}
+            </Header>
+            <Header>
+              {competitionInfo.organizers.map((organizer, index) => (
+                <a
+                  key={`competition-organizer-${organizer.id}`}
+                  href={`${process.env.WCA_URL}/persons/${organizer.wca_id}`}
+                >
+                  {organizer.name}
+                  {index !== competitionInfo.organizers.length - 1 ? ', ' : ''}
+                </a>
+              ))}
+            </Header>
+            <Header>
+              {competitionInfo.delegates.map((delegate, index) => (
+                <a
+                  key={`competition-organizer-${delegate.id}`}
+                  href={`${process.env.WCA_URL}/persons/${delegate.wca_id}`}
+                >
+                  {delegate.name}
+                  {index !== competitionInfo.delegates.length - 1 ? ', ' : ''}
+                </a>
+              ))}
+            </Header>
+          </Grid.Column>
+        </Grid>
+        <Header>
+          <UiIcon name="print" />
+          <Header.Content>
+            Download all of the competitions details as a PDF{' '}
             <a
-              href={`https://www.worldcubeassociation.org/contact/website?competitionId=${competitionInfo.id}`}
-              className={styles.delegateLink}
+              href={`https://www.worldcubeassociation.org/competitions/${competitionInfo.id}.pdf`}
             >
-              Organization Team
+              here
             </a>
-          )}
-        </div>
-        <div>
-          <span className={styles.detailHeader}>Organizers: </span>
-          {competitionInfo.organizers.map((organizer) => (
-            <a
-              key={`competition-organizer-${organizer.id}`}
-              href={`mailto:${organizer.email}`}
-              className={styles.delegateLink}
-            >
-              {organizer.name}
-            </a>
-          ))}
-        </div>
-        <div>
-          <span className={styles.detailHeader}>Delegates: </span>
-          {competitionInfo.delegates.map((delegate) => (
-            <a
-              key={`competition-organizer-${delegate.id}`}
-              href={`mailto:${delegate.email}`}
-              className={styles.delegateLink}
-            >
-              {delegate.name}
-            </a>
-          ))}
-        </div>
-        <div>
-          <UiIcon name="print" /> Download all of the competitions details as a
-          PDF{' '}
-          <a
-            href={`https://www.worldcubeassociation.org/competitions/${competitionInfo.id}.pdf`}
-          >
-            here
-          </a>
-        </div>
-      </div>
-      <div className={styles.bookmarked}>
+          </Header.Content>
+        </Header>
+      </Segment>
+      <Header attached="bottom" textAlign="center" as="h2">
         The Competition has been bookmarked{' '}
         {competitionInfo.number_of_bookmarks} times
-      </div>
-    </div>
+      </Header>
+    </Container>
   )
 }

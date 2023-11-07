@@ -177,20 +177,21 @@ class RegistrationController < ApplicationController
     refresh = params[:refresh]
     if refresh || @registration.payment_ticket.nil?
       amount, currency_code = @competition.payment_info
-      ticket, account_id = PaymentApi.get_ticket(@registration[:attendee_id], amount, currency_code)
+      ticket = PaymentApi.get_ticket(@registration[:attendee_id], amount, currency_code)
       @registration.init_payment_lane(amount, currency_code, ticket)
     else
       ticket = @registration.payment_ticket
     end
-    render json: { client_secret_id: ticket, connected_account_id: account_id }
+    render json: { id: ticket, status: @registration.payment_status }
   end
 
   def validate_payment_ticket_request
     competition_id = params[:competition_id]
+    @competition = CompetitionApi.find!(competition_id)
     render_error(:forbidden, ErrorCodes::PAYMENT_NOT_ENABLED) unless @competition.using_wca_payment?
 
     @registration = Registration.find("#{competition_id}-#{@current_user}")
-    render_error(:forbidden, ErrorCodes::PAYMENT_NOT_READY) if @registration.competing_state.nil?
+    render_error(:forbidden, ErrorCodes::PAYMENT_NOT_READY) if @registration.nil? || @registration.competing_status.nil?
   end
 
   def list
@@ -264,6 +265,10 @@ class RegistrationController < ApplicationController
               comment: x.competing_comment,
               admin_comment: x.admin_comment,
             },
+            payment: {
+              payment_status: x.payment_status,
+              updated_at: x.payment_date,
+            },
             guests: x.guests }
         end
       end
@@ -280,6 +285,10 @@ class RegistrationController < ApplicationController
           registered_on: registration['created_at'],
           comment: registration.competing_comment,
           admin_comment: registration.admin_comment,
+        },
+        payment: {
+          payment_status: registration.payment_status,
+          updated_at: registration.payment_date,
         },
       }
     end
@@ -308,8 +317,10 @@ class RegistrationController < ApplicationController
 
       # Events can't be changed outside the edit_events deadline
       # TODO: Should an admin be able to override this?
-      events_edit_deadline = Time.parse(@competition.event_change_deadline)
-      raise RegistrationError.new(:forbidden, ErrorCodes::EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
+      if @competition.event_change_deadline.present?
+        events_edit_deadline = Time.parse(@competition.event_change_deadline)
+        raise RegistrationError.new(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
+      end
     end
 
     def admin_fields_present?
@@ -324,11 +335,11 @@ class RegistrationController < ApplicationController
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
 
       # Only admins can register when registration is closed, and they can only register for themselves - not for other users
-      raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition.registration_open? || admin_modifying_own_registration?
+      raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition.registration_open? || organizer_signing_up_themselves?
     end
 
-    def admin_modifying_own_registration?
-      UserApi.can_administer?(@current_user, @competition_id) && (@current_user == @user_id.to_s)
+    def organizer_signing_up_themselves?
+      @competition.is_organizer_or_delegate?(@current_user) && (@current_user == @user_id.to_s)
     end
 
     def is_admin_or_current_user?

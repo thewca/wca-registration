@@ -12,13 +12,24 @@ export default function RegistrationActions({ selected, refresh }) {
   const anySelected =
     selected.pending.length > 0 ||
     selected.accepted.length > 0 ||
-    selected.cancelled.length > 0
+    selected.cancelled.length > 0 ||
+    selected.waiting > 0
   const anyApprovable =
-    selected.pending.length > 0 || selected.cancelled.length > 0
+    selected.pending.length > 0 ||
+    selected.cancelled.length > 0 ||
+    selected.waiting.length > 0
   const anyRejectable =
-    selected.accepted.length > 0 || selected.cancelled.length > 0
-  const anyDeletable =
-    selected.pending.length > 0 || selected.accepted.length > 0
+    selected.accepted.length > 0 ||
+    selected.cancelled.length > 0 ||
+    selected.waiting.length > 0
+  const anyCancellable =
+    selected.pending.length > 0 ||
+    selected.accepted.length > 0 ||
+    selected.waiting.length > 0
+  const anyWaitlistable =
+    selected.pending.length > 0 ||
+    selected.accepted.length > 0 ||
+    selected.cancelled.length > 0
   const { mutate: updateRegistrationMutation } = useMutation({
     mutationFn: updateRegistration,
     onError: (data) => {
@@ -60,6 +71,7 @@ export default function RegistrationActions({ selected, refresh }) {
               ...selected.pending,
               ...selected.accepted,
               ...selected.cancelled,
+              ...selected.waiting,
             ]
               .map((user) => user + '@worldcubeassociation.org')
               .join(',')}`}
@@ -75,7 +87,11 @@ export default function RegistrationActions({ selected, refresh }) {
             positive
             onClick={() =>
               changeStatus(
-                [...selected.pending, ...selected.cancelled],
+                [
+                  ...selected.pending,
+                  ...selected.cancelled,
+                  ...selected.waiting,
+                ],
                 'accepted'
               )
             }
@@ -87,25 +103,50 @@ export default function RegistrationActions({ selected, refresh }) {
           <Button
             onClick={() =>
               changeStatus(
-                [...selected.accepted, ...selected.cancelled],
+                [
+                  ...selected.accepted,
+                  ...selected.cancelled,
+                  ...selected.waiting,
+                ],
                 'pending'
               )
             }
           >
-            <UiIcon name="times" /> Reject
+            <UiIcon name="times" /> Move to Pending
           </Button>
         )}
-        {anyDeletable && (
+        {anyWaitlistable && (
+          <Button
+            color="yellow"
+            onClick={() =>
+              changeStatus(
+                [
+                  ...selected.pending,
+                  ...selected.cancelled,
+                  ...selected.accepted,
+                ],
+                'waiting_list'
+              )
+            }
+          >
+            <UiIcon name="hourglass" /> Move to Waiting List
+          </Button>
+        )}
+        {anyCancellable && (
           <Button
             negative
             onClick={() =>
               changeStatus(
-                [...selected.pending, ...selected.cancelled],
+                [
+                  ...selected.pending,
+                  ...selected.accepted,
+                  ...selected.waiting,
+                ],
                 'cancelled'
               )
             }
           >
-            <UiIcon name="trash" /> Delete
+            <UiIcon name="trash" /> Cancel Registration
           </Button>
         )}
       </Button.Group>
