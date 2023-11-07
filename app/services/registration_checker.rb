@@ -23,6 +23,7 @@ class RegistrationChecker
     @registration = Registration.find("#{update_request[:competition_id]}-#{update_request[:user_id]}")
 
     user_can_modify_registration!
+    validate_guests!
     validate_comment!
     validate_admin_fields!
     validate_admin_comment!
@@ -44,6 +45,7 @@ class RegistrationChecker
 
     def user_can_modify_registration!
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless @competition_info.registration_edits_allowed?
     end
 
     def admin_modifying_own_registration?
@@ -73,28 +75,30 @@ class RegistrationChecker
       # Events can't be changed outside the edit_events deadline, except by admins
       # TODO: Allow an admin to edit past the deadline
       # events_edit_deadline = Time.parse(@competition_info.event_change_deadline)
-      # raise RegistrationError.new(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
+      # raise RegistrationError.new(:forbidden, ErrorCodes::EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
     end
 
     def validate_guests!
       defined?(@registration) ? request = @update_request : request = @registration_request
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if request.key?(:guests) && request[:guests] < 0
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if request.key?(:guests) && @competition_info.guest_limit_exceeded?(request[:guests])
+
+      return true unless request.key?(:guests)
+
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if request[:guests] < 0
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if @competition_info.guest_limit_exceeded?(request[:guests])
+      raise RegistrationError.new(:forbidden, ErrorCodes::EDIT_DEADLINE_PASSED) if
+      defined?(@registration) && @competition_info.within_event_change_deadline? && !UserApi.can_administer?(@requester_user_id, @competition_id)
     end
 
     def validate_comment!
       defined?(@registration) ? request = @update_request : request = @registration_request
       if request.key?(:competing) && request[:competing].key?(:comment)
         comment = request[:competing][:comment]
-        puts comment
-        puts comment.length
 
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if comment.length > COMMENT_CHARACTER_LIMIT
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if @competition_info.force_comment? && comment == ''
-        puts 1
+        raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.within_event_change_deadline?
       else
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if @competition_info.force_comment?
-        puts 2
       end
       true
     end
@@ -102,8 +106,6 @@ class RegistrationChecker
     def validate_admin_fields!
       @admin_fields = [:admin_comment]
 
-      puts contains_admin_fields?
-      puts !UserApi.can_administer?(@current_user, @competition_id)
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if contains_admin_fields? && !UserApi.can_administer?(@requester_user_id, @competition_info.competition_id)
       true
     end

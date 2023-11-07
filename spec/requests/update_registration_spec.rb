@@ -441,7 +441,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           let(:registration_update) { update }
           let(:Authorization) { update[:jwt_token] }
 
-          registration_error = { error: ErrorCodes::EVENT_EDIT_DEADLINE_PASSED }.to_json
+          registration_error = { error: ErrorCodes::EDIT_DEADLINE_PASSED }.to_json
 
           run_test! do |response|
             expect(response.body).to eq(registration_error)

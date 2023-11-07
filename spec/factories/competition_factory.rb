@@ -31,6 +31,8 @@ FactoryBot.define do
     event_change_deadline_date { '2024-06-14T00:00:00.000Z' }
     using_stripe_payments? { true }
     force_comment_in_registration { false }
+    allow_registration_self_delete_after_acceptance { true }
+    allow_registration_edits { true }
 
     initialize_with { attributes.transform_keys(&:to_s) }
 
@@ -40,6 +42,10 @@ FactoryBot.define do
 
     trait :closed do
       registration_opened? { false }
+    end
+
+    trait :event_change_deadline_passed do
+      event_change_deadline_date { '2022-06-14T00:00:00.000Z' }
     end
 
     trait :no_guests do

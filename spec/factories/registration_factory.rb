@@ -32,9 +32,7 @@ FactoryBot.define do
   factory :admin_registration, traits: [:admin]
 
   after(:create) do |registration, evaluator|
-    if evaluator.admin_comment.nil?
-      puts 'admin comment is nil'
-    else
+    unless evaluator.admin_comment.nil?
       attendee_id = "#{evaluator.competition_id}-#{evaluator.user_id}"
       registration = Registration.find(attendee_id)
       registration.update_competing_lane!({ admin_comment: evaluator.admin_comment })

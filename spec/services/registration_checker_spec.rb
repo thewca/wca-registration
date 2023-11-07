@@ -293,16 +293,18 @@ describe RegistrationChecker do
       end
     end
 
-    # it 'user cant change guests after registration change deadline' do
-    # end
+    it 'user cant update registration if registration edits arent allowed' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, allow_registration_edits: false))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id])
 
-    # it 'user cant change comment after registration change deadline' do
-    #   expect(true).to eq(false)
-    # end
-
-    # it 'user cant cancel registration after cancel deadline' do
-    #   expect(true).to eq(false)
-    # end
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+      end
+    end
 
     # it 'user cant cancel registration if competition requires admins to cancel registration' do
     #   expect(true).to eq(false)
@@ -401,6 +403,19 @@ describe RegistrationChecker do
         expect(error.error).to eq(ErrorCodes::USER_COMMENT_TOO_LONG)
       end
     end
+
+    # it 'user cant change comment after edit events deadline' do
+    #   registration = FactoryBot.create(:registration)
+    #   competition_info = CompetitionInfo.new(FactoryBot.build(:competition, ))
+    #   update_request = FactoryBot.build(:update_request, :admin_for_user, user_id: registration[:user_id], competing: { comment: 'this is a new comment' })
+
+    #   expect {
+    #     RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+    #   }.to raise_error(RegistrationError) do |error|
+    #     expect(error.http_status).to eq(:forbidden)
+    #     expect(error.error).to eq(ErrorCodes::REGISTRATION_CLOSED) # Note: Should this be EDIT_DEADLINE_PASSED instead?
+    #   end
+    # end
   end
 
   describe '#update_registration_allowed!.validate_admin_fields!' do
@@ -464,36 +479,117 @@ describe RegistrationChecker do
   end
 
   describe '#update_registration_allowed!.validate_guests!' do
-    # it 'user can change number of guests' do
-    #   registration = FactoryBot.create(:registration)
-    #   competition_info = CompetitionInfo.new(FactoryBot.build(:competition, force_comment_in_registration: true))
-    #   update_request = FactoryBot.build(:update_request, user_id: registration[:user_id])
+    it 'user can change number of guests' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], guests: 2)
 
-    #   expect(true).to eq(false)
-    # end
-
-    it 'User A cant change User Bs guests' do
-      expect(true).to eq(false)
+      expect(RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])).to be(true)
     end
 
-    it 'guests can exceed guest limit' do
-      expect(true).to eq(false)
+    it 'guests cant exceed guest limit' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], guests: 3)
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::GUEST_LIMIT_EXCEEDED)
+      end
     end
 
     it 'guests can match guest limit' do
-      expect(true).to eq(false)
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], guests: 2)
+
+      expect(RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])).to be(true)
     end
 
     it 'guests can be zero' do
-      expect(true).to eq(false)
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], guests: 0)
+
+      expect(RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])).to be(true)
     end
 
     it 'guests cant be negative' do
-      expect(true).to eq(false)
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], guests: -1)
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_REQUEST_DATA)
+      end
     end
 
     it 'admin can change number of guests' do
-      expect(true).to eq(false)
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, :admin_for_user, user_id: registration[:user_id], guests: 2)
+
+      expect(RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])).to be(true)
     end
+
+    it 'User A cant change User Bs guests' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, :for_another_user, user_id: registration[:user_id], guests: 2)
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+      end
+    end
+
+    it 'user cant change guests after registration change deadline' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, event_change_deadline_date: '2022-06-14T00:00:00.000Z'))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], guests: 2)
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::EDIT_DEADLINE_PASSED)
+      end
+    end
+
+    it 'admin can change guests after registration change deadline' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, event_change_deadline_date: '2022-06-14T00:00:00.000Z'))
+      update_request = FactoryBot.build(:update_request, :admin_for_user, user_id: registration[:user_id], guests: 2)
+
+      expect(RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])).to be(true)
+    end
+  end
+
+  describe '#update_registration_allowed!.validate_cancellation!' do
+    it 'user cant cancel registration after registration ends' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'cancelled' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::REGISTRATION_CLOSED)
+      end
+    end
+
+    # it 'admin can cancel registration after registration ends' do
+    # end
+
+    # it 'user cant cancel if admins must cancel registrations' do
+    # end
   end
 end

@@ -54,8 +54,8 @@ class CompetitionInfo
     @competition_id = competition_json[:competition_id]
   end
 
-  def event_change_deadline
-    @competition_json['event_change_deadline_date']
+  def within_event_change_deadline?
+    Time.now < @competition_json['event_change_deadline_date']
   end
 
   def competitor_limit
@@ -92,5 +92,9 @@ class CompetitionInfo
 
   def name
     @competition_json['name']
+  end
+
+  def registration_edits_allowed?
+    @competition_json['allow_registration_edits']
   end
 end
