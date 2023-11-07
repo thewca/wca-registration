@@ -29,7 +29,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
       produces 'application/json'
 
       context '-> success registration_request posts' do
-        response '202', '-> PASSING competitor submits basic registration_request' do
+        response '202', '-> PASSING competito3 submits basic registration_request' do
           schema '$ref' => '#/components/schemas/success_response'
           before do
             # TODO: Call it comeptition_json if we're not returning a CompetitionInfo object -> competition
@@ -39,7 +39,8 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
 
           registration_request = FactoryBot.build(:registration_request)
           let!(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
+          # binding.pry
+          let(:Authorization) { registration_request[:jwt_token].to_s }
 
           run_test! do |response|
             expect(response.body).to eq({ status: 'accepted', message: 'Started Registration Process' }.to_json)
@@ -129,12 +130,12 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           end
         end
 
-        response '401', '-> PASSING attendee is banned' do
+        response '401', '-> TESTING attendee is banned' do
           registration_request = FactoryBot.build(:banned_competitor)
           let(:registration_request) { registration_request }
           let(:Authorization) { registration_request[:jwt_token] }
 
-          registration_request_error_json = { error: ErrorCodes::USER_IS_BANNED }.to_json
+          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
 
           run_test! do |response|
             expect(response.body).to eq(registration_request_error_json)
@@ -146,7 +147,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           let(:registration_request) { registration_request }
           let(:Authorization) { registration_request[:jwt_token] }
 
-          registration_request_error_json = { error: ErrorCodes::USER_PROFILE_INCOMPLETE }.to_json
+          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
 
           run_test! do |response|
             expect(response.body).to eq(registration_request_error_json)
@@ -235,7 +236,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           let(:registration_request) { registration_request }
           let(:Authorization) { registration_request[:jwt_token] }
 
-          registration_request_error_json = { error: ErrorCodes::USER_IS_BANNED }.to_json
+          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
 
           run_test! do |response|
             expect(response.body).to eq(registration_request_error_json)
@@ -247,7 +248,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           let(:registration_request) { registration_request }
           let(:Authorization) { registration_request[:jwt_token] }
 
-          registration_request_error_json = { error: ErrorCodes::USER_PROFILE_INCOMPLETE }.to_json
+          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
 
           run_test! do |response|
             expect(response.body).to eq(registration_request_error_json)

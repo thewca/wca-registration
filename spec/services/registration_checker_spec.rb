@@ -73,7 +73,7 @@ describe RegistrationChecker do
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_IS_BANNED)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
       end
     end
 
@@ -85,7 +85,7 @@ describe RegistrationChecker do
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_PROFILE_INCOMPLETE)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
       end
     end
 
@@ -97,7 +97,7 @@ describe RegistrationChecker do
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_IS_BANNED)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
       end
     end
 
@@ -109,7 +109,7 @@ describe RegistrationChecker do
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_PROFILE_INCOMPLETE)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
       end
     end
 

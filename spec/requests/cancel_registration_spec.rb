@@ -28,6 +28,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
         response '200', 'PASSING cancel accepted registration' do
           let(:registration_update) { @cancellation_816 }
           let(:Authorization) { @jwt_816 }
+          # binding.pry
 
           run_test! do |response|
             # Make sure body contains the values we expect

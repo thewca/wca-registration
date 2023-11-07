@@ -18,14 +18,17 @@ class RegistrationChecker
 
   class << self
     def user_can_create_registration!
+      puts 'here'
+      puts @registration_request[:user_id]
+      puts "requester id: #{@requester_user_id}"
       # Only an admin or the user themselves can create a registration for the user
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
 
       # Only admins can register when registration is closed, and they can only register for themselves - not for other users
       raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || admin_modifying_own_registration?
 
-      can_compete, reasons = UserApi.can_compete?(@registration_request[:user_id])
-      raise RegistrationError.new(:unauthorized, reasons) unless can_compete
+      can_compete = UserApi.can_compete?(@registration_request[:user_id])
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
 
       can_compete
     end

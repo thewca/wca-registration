@@ -63,6 +63,7 @@ class RegistrationController < ApplicationController
     # TODO: Rename @comeptition to competition_info - make it clear that it's a DataClass, not a model object
     @competition = CompetitionApi.find!(@competition_id)
 
+    puts "current user: #{@current_user}"
     RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find!(@competition_id), @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
@@ -126,11 +127,8 @@ class RegistrationController < ApplicationController
 
   # You can either update your own registration or one for a competition you administer
   def validate_update_request
-    puts "params: #{params}"
     @user_id = params[:user_id]
-    puts @user_id
     @competition_id = params[:competition_id]
-    puts @competition_id
 
     @competition = CompetitionApi.find!(@competition_id)
     @registration = Registration.find("#{@competition_id}-#{@user_id}")
@@ -309,10 +307,7 @@ class RegistrationController < ApplicationController
 
       # Events can't be changed outside the edit_events deadline
       # TODO: Should an admin be able to override this?
-      if @competition.event_change_deadline.present?
-        events_edit_deadline = Time.parse(@competition.event_change_deadline)
-        raise RegistrationError.new(:forbidden, ErrorCodes::EVENT_EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
-      end
+      raise RegistrationError.new(:forbidden, ErrorCodes::EDIT_DEADLINE_PASSED) unless @competition.within_event_change_deadline?
     end
 
     def admin_fields_present?
