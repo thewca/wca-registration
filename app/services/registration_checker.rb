@@ -16,19 +16,6 @@ class RegistrationChecker
     true
   end
 
-  def self.update_registration_allowed!(update_request, competition_info, requesting_user)
-    @update_request = update_request
-    @competition_info = competition_info
-    @requester_user_id = requesting_user
-    @registration = Registration.find("#{update_request[:competition_id]}-#{update_request[:user_id]}")
-
-    user_can_modify_registration!
-    validate_guests!
-    validate_comment!
-    validate_admin_fields!
-    validate_admin_comment!
-  end
-
   class << self
     def user_can_create_registration!
       # Only an admin or the user themselves can create a registration for the user
@@ -101,26 +88,6 @@ class RegistrationChecker
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if @competition_info.force_comment?
       end
       true
-    end
-
-    def validate_admin_fields!
-      @admin_fields = [:admin_comment]
-
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if contains_admin_fields? && !UserApi.can_administer?(@requester_user_id, @competition_info.competition_id)
-      true
-    end
-
-    def validate_admin_comment!
-      if @update_request.key?(:competing) && @update_request[:competing].key?(:admin_comment)
-        admin_comment = @update_request[:competing][:admin_comment]
-
-        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if admin_comment.length > COMMENT_CHARACTER_LIMIT
-      end
-      true
-    end
-
-    def contains_admin_fields?
-      @update_request.key?(:competing) && @update_request[:competing].keys.any? { |key| @admin_fields.include?(key) }
     end
   end
 end
