@@ -160,7 +160,7 @@ class RegistrationController < ApplicationController
   def validate_show_registration
     @user_id, @competition_id = show_params
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
-      @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
+      @current_user.to_s == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
   end
 
   def payment_ticket
@@ -214,6 +214,20 @@ class RegistrationController < ApplicationController
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
+  end
+
+  def import
+    file = params.require(:csv_data)
+    content = File.read(file)
+    if CsvImport.valid?(content)
+      registrations = CSV.parse(File.read(file), headers: true).map do |row|
+        CsvImport.parse_row_to_registration(row.to_h, params[:competition_id])
+      end
+      Registration.import(registrations)
+      render json: { status: 'Successfully imported registration' }
+    else
+      render json: { error: 'Invalid csv' }, status: :internal_server_error
+    end
   end
 
   private
@@ -326,14 +340,14 @@ class RegistrationController < ApplicationController
     end
 
     def organizer_signing_up_themselves?
-      @competition.is_organizer_or_delegate?(@current_user) && (@current_user == @user_id.to_s)
+      @competition.is_organizer_or_delegate?(@current_user) && (@current_user.to_s == @user_id.to_s)
     end
 
     def is_admin_or_current_user?
       # Only an admin or the user themselves can create a registration for the user
       # One case where admins need to create registrations for users is if a 3rd-party registration system is being used, and registration data is being
       # passed to the Registration Service from it
-      (@current_user == @user_id.to_s) || UserApi.can_administer?(@current_user, @competition_id)
+      (@current_user.to_s == @user_id.to_s) || UserApi.can_administer?(@current_user, @competition_id)
     end
 
     def validate_status!

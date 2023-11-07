@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { Container } from 'semantic-ui-react'
 import Events from './pages/events'
 import HomePage from './pages/home'
+import Import from './pages/import'
 import Register from './pages/register'
 import RegistrationAdministration from './pages/registration_administration'
 import RegistrationEdit from './pages/registration_edit'
@@ -54,6 +55,10 @@ const routes = [
           {
             path: `${BASE_ROUTE}/:competition_id/schedule`,
             element: <Schedule />,
+          },
+          {
+            path: `${BASE_ROUTE}/:competition_id/import`,
+            element: <Import />,
           },
           {
             path: `${BASE_ROUTE}/:competition_id/register`,
