@@ -4,7 +4,6 @@ require 'factory_bot_rails'
 
 # Couldn't get the import from a support folder to work, so defining directly in the factory file
 def fetch_jwt_token(user_id)
-  puts 'fetching jwt token'
   iat = Time.now.to_i
   jti_raw = [JwtOptions.secret, iat].join(':').to_s
   jti = Digest::MD5.hexdigest(jti_raw)

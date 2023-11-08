@@ -6,16 +6,13 @@ class ApplicationController < ActionController::API
   around_action :performance_profile if Rails.env == 'development'
   def validate_token
     auth_header = request.headers['Authorization']
-    puts auth_header
     unless auth_header.present?
       return render json: { error: ErrorCodes::MISSING_AUTHENTICATION }, status: :unauthorized
     end
     token = request.headers['Authorization'].split[1]
     begin
       decoded_token = (JWT.decode token, JwtOptions.secret, true, { algorithm: JwtOptions.algorithm })[0]
-      puts "decoded token: #{decoded_token}"
       @current_user = decoded_token['user_id']
-      puts "current user: #{@current_user}"
     rescue JWT::VerificationError, JWT::InvalidJtiError
       Metrics.jwt_verification_error_counter.increment
       render json: { error: ErrorCodes::INVALID_TOKEN }, status: :unauthorized

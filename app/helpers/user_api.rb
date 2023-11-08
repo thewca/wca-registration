@@ -19,7 +19,6 @@ class UserApi < WcaApi
   end
 
   def self.can_compete?(user_id)
-    puts 'checking can_compete'
     # All User Related cache Keys should start with the UserID, so we could invalidate them on user update
     # TODO: Move this to it's own cache helper class so this is guaranteed?
     permissions = Rails.cache.fetch("#{user_id}-permissions", expires_in: 5.minutes) do

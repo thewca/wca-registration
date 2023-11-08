@@ -63,7 +63,6 @@ class RegistrationController < ApplicationController
     # TODO: Rename @comeptition to competition_info - make it clear that it's a DataClass, not a model object
     @competition = CompetitionApi.find!(@competition_id)
 
-    puts "current user: #{@current_user}"
     RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find!(@competition_id), @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
