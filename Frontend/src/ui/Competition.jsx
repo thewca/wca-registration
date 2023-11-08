@@ -93,7 +93,7 @@ export default function Competition({ children }) {
                       !competitionInfo['registration_opened?'] &&
                       !competitionInfo.organizers
                         .concat(competitionInfo.delegates)
-                        .find((u) => u.id === user.id)
+                        .find((u) => u.id === user?.id)
                     }
                     onClick={(_, data) => {
                       if (!data.disabled) {
