@@ -3,7 +3,21 @@
 require 'rails_helper'
 require_relative '../../app/helpers/competition_api'
 
-# TODO: Add create test for blank comment submitted with required comment
+RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
+  it "user cant change status: #{old_status} to: #{new_status}" do
+    puts 'in shared example :)'
+    registration = FactoryBot.create(:registration, lane_state: old_status)
+    competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+    update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { status: new_status })
+
+    expect {
+      RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+    }.to raise_error(RegistrationError) do |error|
+      expect(error.http_status).to eq(:unauthorized)
+      expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+    end
+  end
+end
 
 describe RegistrationChecker do
   describe '#create_registration_allowed!' do
@@ -11,7 +25,6 @@ describe RegistrationChecker do
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
       registration_request = FactoryBot.build(:registration_request)
 
-      # Expect that registration checker will pass
       expect(RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])).to be(true)
     end
 
@@ -73,7 +86,7 @@ describe RegistrationChecker do
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_IS_BANNED)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
       end
     end
 
@@ -85,7 +98,7 @@ describe RegistrationChecker do
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_PROFILE_INCOMPLETE)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
       end
     end
 
@@ -97,7 +110,7 @@ describe RegistrationChecker do
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_IS_BANNED)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
       end
     end
 
@@ -109,7 +122,7 @@ describe RegistrationChecker do
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_PROFILE_INCOMPLETE)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
       end
     end
 
@@ -301,26 +314,39 @@ describe RegistrationChecker do
       expect {
         RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::USER_EDITS_NOT_ALLOWED)
       end
     end
 
-    # it 'user cant cancel registration if competition requires admins to cancel registration' do
-    #   expect(true).to eq(false)
-    # end
+    it 'user cant change events after event change deadline' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :event_change_deadline_passed))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { event_ids: ['333', '444', '555'] })
 
-    # it 'user cant change events after event change deadline' do
-    #   expect(true).to eq(false)
-    # end
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::USER_EDITS_NOT_ALLOWED)
+      end
+    end
 
-    # it 'admin can change user registration' do
-    #   expect(true).to eq(false)
-    # end
+    it 'admin can change user registration' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, :admin_for_user, user_id: registration[:user_id])
 
-    # it 'admin can change registration after change deadline' do
-    #   expect(true).to eq(false)
-    # end
+      expect(RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])).to be(true)
+    end
+
+    it 'admin can change registration after change deadline' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :event_change_deadline_passed))
+      update_request = FactoryBot.build(:update_request, :admin_for_user, user_id: registration[:user_id], competing: { comment: 'this is a new comment' })
+
+      expect(RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])).to be(true)
+    end
   end
 
   describe '#update_registration_allowed!.validate_comment!' do
@@ -404,18 +430,18 @@ describe RegistrationChecker do
       end
     end
 
-    # it 'user cant change comment after edit events deadline' do
-    #   registration = FactoryBot.create(:registration)
-    #   competition_info = CompetitionInfo.new(FactoryBot.build(:competition, ))
-    #   update_request = FactoryBot.build(:update_request, :admin_for_user, user_id: registration[:user_id], competing: { comment: 'this is a new comment' })
+    it 'user cant change comment after edit events deadline' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :event_change_deadline_passed))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { comment: 'this is a new comment' })
 
-    #   expect {
-    #     RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
-    #   }.to raise_error(RegistrationError) do |error|
-    #     expect(error.http_status).to eq(:forbidden)
-    #     expect(error.error).to eq(ErrorCodes::REGISTRATION_CLOSED) # Note: Should this be EDIT_DEADLINE_PASSED instead?
-    #   end
-    # end
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::USER_EDITS_NOT_ALLOWED)
+      end
+    end
   end
 
   describe '#update_registration_allowed!.validate_admin_fields!' do
@@ -559,7 +585,7 @@ describe RegistrationChecker do
         RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:forbidden)
-        expect(error.error).to eq(ErrorCodes::EDIT_DEADLINE_PASSED)
+        expect(error.error).to eq(ErrorCodes::USER_EDITS_NOT_ALLOWED)
       end
     end
 
@@ -572,7 +598,50 @@ describe RegistrationChecker do
     end
   end
 
-  describe '#update_registration_allowed!.validate_cancellation!' do
+  describe '#update_registration_allowed!.validate_update_status!' do
+    it 'user can change state to cancelled' do
+      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { status: 'cancelled' })
+
+      expect(RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])).to be(true)
+    end
+
+    [
+      { old_status: 'waiting_list', new_status: 'accepted' },
+    ].each do |params|
+      it_behaves_like 'invalid user status updates', params[:old_status], params[:new_status]
+    end
+
+    it 'user can only change state to cancelled - reject waiting_list status' do
+      # expect(true).to eq(false)
+    end
+
+    it 'user can only change state to cancelled - reject accepted status' do
+      # expect(true).to eq(false)
+    end
+
+    it 'user cant cancel accepted registration if competition requires admins to cancel registration' do
+      registration = FactoryBot.create(:registration, lane_state: 'accepted')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, allow_registration_self_delete_after_acceptance: false))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { status: 'cancelled' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::ADMIN_MUST_CANCEL_REGISTRATION)
+      end
+    end
+
+    it 'user can cancel non-accepted registration if competition requires admins to cancel registration' do
+      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, allow_registration_self_delete_after_acceptance: false))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { status: 'cancelled' })
+
+      expect(RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])).to be(true)
+    end
+
     it 'user cant cancel registration after registration ends' do
       registration = FactoryBot.create(:registration)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
@@ -582,14 +651,32 @@ describe RegistrationChecker do
         RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:forbidden)
-        expect(error.error).to eq(ErrorCodes::REGISTRATION_CLOSED)
+        expect(error.error).to eq(ErrorCodes::USER_EDITS_NOT_ALLOWED)
       end
     end
 
-    # it 'admin can cancel registration after registration ends' do
-    # end
+    it 'admin can cancel registration after registration ends' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
+      update_request = FactoryBot.build(:update_request, :admin_for_user, user_id: registration[:user_id], competing: { 'status' => 'cancelled' })
 
-    # it 'user cant cancel if admins must cancel registrations' do
-    # end
+      expect(RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request[:submitted_by])).to be(true)
+    end
+
+    it 'admin can change state to pending' do
+      # expect(true).to eq(false)
+    end
+
+    it 'admin can change state to waiting_list' do
+      # expect(true).to eq(false)
+    end
+
+    it 'admin can change state to accepted' do
+      # expect(true).to eq(false)
+    end
+
+    it 'admin can change state to cancelled' do
+      # expect(true).to eq(false)
+    end
   end
 end

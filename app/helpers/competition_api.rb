@@ -98,6 +98,10 @@ class CompetitionInfo
   end
 
   def registration_edits_allowed?
-    @competition_json['allow_registration_edits']
+    @competition_json['allow_registration_edits'] && within_event_change_deadline?
+  end
+
+  def user_can_cancel?
+    @competition_json['allow_registration_self_delete_after_acceptance']
   end
 end

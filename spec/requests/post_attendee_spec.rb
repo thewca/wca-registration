@@ -134,7 +134,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           let(:registration_request) { registration_request }
           let(:Authorization) { registration_request[:jwt_token] }
 
-          registration_request_error_json = { error: ErrorCodes::USER_IS_BANNED }.to_json
+          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
 
           run_test! do |response|
             expect(response.body).to eq(registration_request_error_json)
@@ -146,7 +146,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           let(:registration_request) { registration_request }
           let(:Authorization) { registration_request[:jwt_token] }
 
-          registration_request_error_json = { error: ErrorCodes::USER_PROFILE_INCOMPLETE }.to_json
+          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
 
           run_test! do |response|
             expect(response.body).to eq(registration_request_error_json)
@@ -235,7 +235,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           let(:registration_request) { registration_request }
           let(:Authorization) { registration_request[:jwt_token] }
 
-          registration_request_error_json = { error: ErrorCodes::USER_IS_BANNED }.to_json
+          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
 
           run_test! do |response|
             expect(response.body).to eq(registration_request_error_json)
@@ -247,7 +247,7 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
           let(:registration_request) { registration_request }
           let(:Authorization) { registration_request[:jwt_token] }
 
-          registration_request_error_json = { error: ErrorCodes::USER_PROFILE_INCOMPLETE }.to_json
+          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
 
           run_test! do |response|
             expect(response.body).to eq(registration_request_error_json)
