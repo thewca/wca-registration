@@ -256,22 +256,24 @@ export default function CompetingStep({ nextStep }) {
               >
                 Update Registration
               </Button>
-              <Button
-                disabled={isUpdating}
-                negative
-                onClick={() => {
-                  setMessage('Registration is being deleted', 'basic')
-                  updateRegistrationMutation({
-                    user_id: registration.user_id,
-                    competition_id: competitionInfo.id,
-                    competing: {
-                      status: 'cancelled',
-                    },
-                  })
-                }}
-              >
-                Delete Registration
-              </Button>
+              {competitionInfo.allow_registration_self_delete_after_acceptance && (
+                <Button
+                  disabled={isUpdating}
+                  negative
+                  onClick={() => {
+                    setMessage('Registration is being deleted', 'basic')
+                    updateRegistrationMutation({
+                      user_id: registration.user_id,
+                      competition_id: competitionInfo.id,
+                      competing: {
+                        status: 'cancelled',
+                      },
+                    })
+                  }}
+                >
+                  Delete Registration
+                </Button>
+              )}
             </div>
           ) : (
             <div className={styles.registrationButtonWrapper}>
