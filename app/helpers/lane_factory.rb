@@ -2,7 +2,7 @@
 
 require 'time'
 # rubocop:disable Metrics/ParameterLists
-
+class LaneFactory
   def self.competing_lane(event_ids = [], comment = '', guests = 0, admin_comment = '', registration_status = 'pending')
     competing_lane = Lane.new({})
     competing_lane.lane_name = 'competing'

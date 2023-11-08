@@ -12,7 +12,8 @@ describe RegistrationChecker do
       registration_request = FactoryBot.build(:registration_request)
 
       # Expect that registration checker will pass
-      expect(RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])).to be(true)
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by]) }
+        .not_to raise_error
     end
 
     it 'users can only register for themselves' do
@@ -43,14 +44,16 @@ describe RegistrationChecker do
       registration_request = FactoryBot.build(:registration_request, :admin)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
 
-      expect(RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])).to be(true)
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by]) }
+        .not_to raise_error
     end
 
     it 'admins can create registrations for users' do
       registration_request = FactoryBot.build(:registration_request, :admin_submits)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
 
-      expect(RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])).to be(true)
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by]) }
+        .not_to raise_error
     end
 
     it 'admins cant register another user before registration opens' do
@@ -165,16 +168,16 @@ describe RegistrationChecker do
       registration_request = FactoryBot.build(:registration_request, guests: 2)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
 
-      registration_result = RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])
-      expect(registration_result).to eq(true)
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by]) }
+        .not_to raise_error
     end
 
     it 'guests may equal 0' do
       registration_request = FactoryBot.build(:registration_request, guests: 0)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
 
-      registration_result = RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])
-      expect(registration_result).to eq(true)
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by]) }
+        .not_to raise_error
     end
 
     it 'guests cant exceed 0 if not allowed' do
@@ -235,7 +238,8 @@ describe RegistrationChecker do
       registration_request = FactoryBot.build(:registration_request, :comment, raw_comment: at_character_limit)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
 
-      expect(RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])).to eq(true)
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by]) }
+        .not_to raise_error
     end
 
     it 'comment can be blank' do
@@ -243,7 +247,8 @@ describe RegistrationChecker do
       registration_request = FactoryBot.build(:registration_request, :comment, raw_comment: comment)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
 
-      expect(RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by])).to eq(true)
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request[:submitted_by]) }
+        .not_to raise_error
     end
 
     it 'comment must be included if required' do

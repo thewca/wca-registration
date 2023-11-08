@@ -93,10 +93,6 @@ class CompetitionInfo
     (@competition_json['delegates'] + @competition_json['organizers']).any? { |p| p['id'].to_s == user_id }
   end
 
-  def name
-    @competition_json['name']
-  end
-
   def registration_edits_allowed?
     @competition_json['allow_registration_edits']
   end
