@@ -79,7 +79,6 @@ class Registration
         end
 
         lane.lane_details['comment'] = update_params[:comment] if update_params[:comment].present?
-        lane.lane_details['guests'] = update_params[:guests] if update_params[:guests].present?
         lane.lane_details['admin_comment'] = update_params[:admin_comment] if update_params[:admin_comment].present?
         if update_params[:event_ids].present? && update_params[:status] != 'cancelled'
           lane.update_events(update_params[:event_ids])
@@ -93,7 +92,12 @@ class Registration
                            else
                              is_attending
                            end
-    update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+    updated_guests = if update_params[:guests].present?
+                       update_params[:guests]
+                     else
+                       guests
+                     end
+    update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
   end
 
   def init_payment_lane(amount, currency_code, id)
