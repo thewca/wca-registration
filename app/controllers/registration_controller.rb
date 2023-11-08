@@ -60,9 +60,6 @@ class RegistrationController < ApplicationController
     @competition_id = registration_params[:competition_id]
     @event_ids = registration_params[:competing]['event_ids']
 
-    # TODO: Rename @comeptition to competition_info - make it clear that it's a DataClass, not a model object
-    @competition = CompetitionApi.find!(@competition_id)
-
     RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find!(@competition_id), @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
