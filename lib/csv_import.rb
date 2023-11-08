@@ -15,7 +15,7 @@ module CsvImport
       competition_id: competition_id,
       lanes: [LaneFactory.competing_lane(csv_hash['competing.event_ids'].split(';'), csv_hash['competing.comment'], csv_hash['competing.admin_comment'], csv_hash['competing.registration_status'])],
       isCompeting: csv_hash['competing.registration_status'] == 'accepted',
-      guests: csv_hash['guests']
+      guests: csv_hash['guests'],
     }
   end
 end
