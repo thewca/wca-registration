@@ -14,9 +14,6 @@ export default function PermissionsProvider({ children }) {
     queryKey: ['permissions-me'],
     queryFn: () => getPermissions(),
     retry: false,
-    onError: (err) => {
-      setMessage(err.message, 'error')
-    },
     // Don't try to get permissions if we are not logged in
     enabled: loggedIn,
   })
