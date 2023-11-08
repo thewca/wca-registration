@@ -27,7 +27,7 @@ export default function Register() {
       competitionInfo['registration_opened?'] ||
         competitionInfo.organizers
           .concat(competitionInfo.delegates)
-          .find((u) => u.id === user.id) ? (
+          .find((u) => u.id === user?.id) ? (
         <div>
           {canAttendCompetition ? (
             <StepPanel />
