@@ -34,12 +34,12 @@ FactoryBot.define do
       competing { { event_ids: events, comment: raw_comment, lane_state: 'pending' } }
     end
 
-    trait :admin do
+    trait :organizer do
       user_id { '15073' }
       jwt_token { fetch_jwt_token(user_id) }
     end
 
-    trait :admin_submits do
+    trait :organizer_submits do
       submitted_by { '15073' }
     end
 
@@ -79,20 +79,16 @@ FactoryBot.define do
       guests { nil }
     end
 
-    trait :admin_as_user do
+    trait :organizer_as_user do
       user_id { '15073' }
     end
 
-    trait :admin_for_user do
+    trait :organizer_for_user do
       submitted_by { '15073' }
     end
 
     trait :organizer_for_self do
       user_id { '1' }
-    end
-
-    trait :organizer_for_user do
-      submitted_by { '1' }
     end
 
     trait :for_another_user do
