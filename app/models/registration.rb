@@ -43,15 +43,6 @@ class Registration
     lanes.filter_map { |x| x.lane_details['comment'] if x.lane_name == 'competing' }[0]
   end
 
-  def competing_guests
-    lanes.filter_map { |x| x.lane_details['guests'] if x.lane_name == 'competing' }[0]
-  end
-
-  # TODO: Change this when we introduce a guest lane
-  def guests
-    lanes.filter_map { |x| x.lane_details['guests'] if x.lane_name == 'competing' }[0]
-  end
-
   def admin_comment
     lanes.filter_map { |x| x.lane_details['admin_comment'] if x.lane_name == 'competing' }[0]
   end
@@ -136,6 +127,7 @@ class Registration
 
   # Fields
   field :user_id, :string
+  field :guests, :number
   field :competition_id, :string
   field :is_attending, :boolean
   field :hide_name_publicly, :boolean

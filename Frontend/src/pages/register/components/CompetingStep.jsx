@@ -51,7 +51,8 @@ export default function CompetingStep({ nextStep }) {
       setRegistration(registrationRequest.registration)
       setComment(registrationRequest.registration.competing.comment ?? '')
       setSelectedEvents(registrationRequest.registration.competing.event_ids)
-      setGuests(registrationRequest.registration.guests)
+      // Ruby sends this as "1.0"
+      setGuests(Number(registrationRequest.registration.guests))
     }
   }, [registrationRequest])
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
@@ -185,11 +186,11 @@ export default function CompetingStep({ nextStep }) {
           </div>
           <div className={styles.commentWrapper}>
             <TextArea
-              maxLength={180}
+              maxLength={240}
               onChange={(_, data) => setComment(data.value)}
               value={comment}
             />
-            <div className={styles.commentCounter}>{comment.length}/180</div>
+            <div className={styles.commentCounter}>{comment.length}/240</div>
           </div>
         </div>
         <div className={styles.registrationRow}>

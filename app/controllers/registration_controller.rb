@@ -21,7 +21,7 @@ class RegistrationController < ApplicationController
 
   def create
     comment = params['competing'][:comment] || ''
-    guests = params[:guests] || 0
+    guests = params['competing'][:guests] || 0
 
     id = SecureRandom.uuid
 

@@ -3,7 +3,7 @@
 require 'time'
 # rubocop:disable Metrics/ParameterLists
 class LaneFactory
-  def self.competing_lane(event_ids = [], comment = '', guests = 0, admin_comment = '', registration_status = 'pending')
+  def self.competing_lane(event_ids = [], comment = '', admin_comment = '', registration_status = 'pending')
     competing_lane = Lane.new({})
     competing_lane.lane_name = 'competing'
     competing_lane.completed_steps = ['Event Registration']
@@ -12,7 +12,6 @@ class LaneFactory
       event_details: event_ids.map { |event_id| { event_id: event_id } },
       comment: comment,
       admin_comment: admin_comment,
-      guests: guests,
     }
     competing_lane
   end
