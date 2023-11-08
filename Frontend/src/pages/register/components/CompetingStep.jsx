@@ -45,7 +45,6 @@ export default function CompetingStep({ nextStep }) {
     onError: (err) => {
       setMessage(err.error, 'error')
     },
-    enabled: user,
   })
   useEffect(() => {
     if (registrationRequest?.registration?.competing) {
