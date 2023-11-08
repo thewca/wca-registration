@@ -49,7 +49,9 @@ export default function Register() {
                   competitionInfo.registration_open
                 ).fromNow()} on ${moment(
                   competitionInfo.registration_open
-                ).format('lll')}`}
+                ).format('lll')}, ${
+                  !loggedIn ? 'You will need a WCA Account to register' : ''
+                }`}
           </Message>
         </div>
       )}
