@@ -4,7 +4,7 @@ import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { dinero, toDecimal } from 'dinero.js'
 import { marked } from 'marked'
 import moment from 'moment'
-import React, { useMemo } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Button,
@@ -17,6 +17,7 @@ import {
 } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import { CompetitionContext } from '../api/helper/context/competition_context'
+import { UserContext } from '../api/helper/context/user_context'
 import { BASE_ROUTE } from '../routes'
 import logo from '../static/wca2020.svg'
 import styles from './competition.module.scss'
@@ -25,6 +26,7 @@ import LoadingMessage from './messages/loadingMessage'
 export default function Competition({ children }) {
   const { competition_id } = useParams()
   const navigate = useNavigate()
+  const { user } = useContext(UserContext)
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
     queryFn: () => getCompetitionInfo(competition_id),
@@ -87,7 +89,12 @@ export default function Competition({ children }) {
                   <Button
                     color="orange"
                     size="massive"
-                    disabled={!competitionInfo['registration_opened?']}
+                    disabled={
+                      !competitionInfo['registration_opened?'] &&
+                      !competitionInfo.organizers
+                        .concat(competitionInfo.delegates)
+                        .find((u) => u.id === user.id)
+                    }
                     onClick={(_, data) => {
                       if (!data.disabled) {
                         if (competitionInfo.use_wca_registration) {
