@@ -78,7 +78,7 @@ export default function RegistrationEditor() {
           <Header> Comment </Header>
           <TextArea
             id="competitor-comment"
-            maxLength={180}
+            maxLength={240}
             value={comment}
             onChange={(_, data) => {
               setComment(data.value)
@@ -87,7 +87,7 @@ export default function RegistrationEditor() {
           <Header> Administrative Notes </Header>
           <TextArea
             id="admin-comment"
-            maxLength={180}
+            maxLength={240}
             value={adminComment}
             onChange={(_, data) => {
               setAdminComment(data.value)

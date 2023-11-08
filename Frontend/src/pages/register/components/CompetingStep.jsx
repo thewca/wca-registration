@@ -189,6 +189,11 @@ export default function CompetingStep({ nextStep }) {
               maxLength={240}
               onChange={(_, data) => setComment(data.value)}
               value={comment}
+              placeholder={
+                competitionInfo.force_comment_in_registration
+                  ? 'A comment is required. Read the Registration Requirements to find out why.'
+                  : ''
+              }
             />
             <div className={styles.commentCounter}>{comment.length}/240</div>
           </div>
@@ -284,7 +289,12 @@ export default function CompetingStep({ nextStep }) {
               </div>
               <Button
                 className={styles.registrationButton}
-                disabled={isCreating || selectedEvents.length === 0}
+                disabled={
+                  isCreating ||
+                  selectedEvents.length === 0 ||
+                  (competitionInfo.force_comment_in_registration &&
+                    comment === '')
+                }
                 onClick={async () => {
                   setMessage('Registration is being processed', 'basic')
                   createRegistrationMutation({
