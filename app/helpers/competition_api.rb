@@ -50,7 +50,7 @@ class CompetitionInfo
 
   def initialize(competition_json)
     @competition_json = competition_json
-    @competition_id = competition_json[:competition_id]
+    @competition_id = competition_json['id']
   end
 
   def within_event_change_deadline?
@@ -62,6 +62,7 @@ class CompetitionInfo
   end
 
   def guest_limit_exceeded?(guest_count)
+    return false unless @competition_json['guests_per_registration_limit'].present?
     @competition_json['guest_entry_status'] == 'restricted' && @competition_json['guests_per_registration_limit'] < guest_count
   end
 

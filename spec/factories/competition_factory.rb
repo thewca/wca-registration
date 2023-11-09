@@ -7,7 +7,7 @@ FactoryBot.define do
   factory :competition, class: Hash do
     events { ['333', '222', '444', '555', '666', '777', '333bf', '333oh', 'clock', 'minx', 'pyram', 'skewb', 'sq1', '444bf', '555bf', '333mbf'] }
     registration_opened? { true }
-    competition_id { 'CubingZANationalChampionship2023' }
+    id { 'CubingZANationalChampionship2023' }
     name { 'CubingZA National Championship 2023' }
     event_ids { events }
     registration_open { '2023-05-05T04:00:00.000Z' }
@@ -34,7 +34,7 @@ FactoryBot.define do
     allow_registration_self_delete_after_acceptance { true }
     allow_registration_edits { true }
 
-    initialize_with { attributes.transform_keys(&:to_s) }
+    initialize_with { attributes.stringify_keys }
 
     transient do
       mock_competition { false }

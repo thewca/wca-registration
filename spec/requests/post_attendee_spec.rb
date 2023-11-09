@@ -2,13 +2,8 @@
 
 require 'swagger_helper'
 require_relative '../support/registration_spec_helper'
-require_relative '../../app/helpers/competition_api'
 
-# TODO: Figure out why RSwag isn't raising an error for the fact that we're getting a 200 not a 202 response
-# TODO: create "smoke tests" that check the values written to the database - these should probably be request tests
-# TODO: Reject a reg that tries to define lane state
-# TODO: Submit registration_request that doesn't have all required fields
-# TODO: Submits registration_request at guest limit (edge cases)
+# TODO: Submits registration at guest limit
 # TODO: Submits comment at character limit
 # TODO: Submits comment over character limit
 # TODO: Validate expected vs actual output
@@ -24,287 +19,227 @@ RSpec.describe 'v1 Registrations API', type: :request, document: false do
     post 'Add an attendee registration' do
       security [Bearer: {}]
       consumes 'application/json'
-      parameter name: :registration_request, in: :body,
+      parameter name: :registration, in: :body,
                 schema: { '$ref' => '#/components/schemas/submitRegistrationBody' }, required: true
       produces 'application/json'
 
-      context '-> success registration_request posts' do
-        response '202', '-> PASSING competitor submits basic registration_request' do
-          schema '$ref' => '#/components/schemas/success_response'
-          before do
-            # TODO: Call it comeptition_json if we're not returning a CompetitionInfo object -> competition
-            competition = FactoryBot.build(:competition)
-            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
-          end
+      context '-> success registration posts' do
+        # include_context 'database seed'
+        # include_context 'auth_tokens'
+        # include_context 'registration_data'
+        include_context 'competition information'
 
-          registration_request = FactoryBot.build(:registration_request)
-          let!(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
+        response '202', '-> PASSING competitor submits basic registration', document: true do
+          schema '$ref' => '#/components/schemas/success_response'
+          registration = FactoryBot.build(:registration_request)
+          let!(:registration) { registration }
+          let(:Authorization) { registration['jwt_token'] }
 
           run_test! do |response|
-            expect(response.body).to eq({ status: 'accepted', message: 'Started Registration Process' }.to_json)
+            assert_requested :get, "#{@base_comp_url}#{@includes_non_attending_registrations}", times: 1
           end
         end
 
-        # This should be a controller test, or just a normal request test (might be good to have an integration test with mis-matching JWT/user_id)
-        response '202', '-> PASSING admin registers before registration_request opens' do
-          before do
-            competition = FactoryBot.build(:competition, competition_opened?: false)
-            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+        response '202', '-> TESTING admin registers before registration opens' do
+          registration = FactoryBot.build(:registration_request, :organizer, events: ['444', '333bf'], competition_id: 'BrizZonSylwesterOpen2023')
+          let(:registration) { registration }
+          let(:Authorization) { registration['jwt_token'] }
+
+          run_test! do |response|
+            # TODO: Do a better assertion here
+            assert_requested :get, "#{@base_comp_url}#{@registrations_not_open}", times: 1
           end
-
-          registration_request = FactoryBot.build(:registration_request_for_admin)
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          run_test!
         end
 
-        response '202', '-> PASSING admin submits registration_request for competitor' do
-          before do
-            competition = FactoryBot.build(:competition)
-            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
+        response '202', '-> PASSING admin submits registration for competitor' do
+          registration = FactoryBot.build(:registration_request, :organizer_submits)
+          let(:registration) { registration }
+          let(:Authorization) { registration['jwt_token'] }
+
+          run_test! do |response|
+            assert_requested :get, "#{@base_comp_url}#{@includes_non_attending_registrations}", times: 1
           end
-
-          registration_request = FactoryBot.build(:admin_submits_registration_request_for_user)
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          run_test!
         end
       end
 
       # TODO: competitor does not meet qualification requirements - will need to mock users service for this? - investigate what the monolith currently does and replicate that
-      context 'fail registration_request posts, from USER' do
-        before do
-          competition = FactoryBot.build(:competition)
-          stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
-        end
-        # include_context 'database seed'
-        # include_context 'auth_tokens'
-        # include_context 'registration_request_data'
-        # include_context 'competition information'
+      context 'fail registration posts, from USER' do
+        include_context 'database seed'
+        include_context 'auth_tokens'
+        include_context 'registration_data'
+        include_context 'competition information'
 
-        response '401', ' -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration_request user_id)' do
+        response '401', ' -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration user_id)', document: true do
           schema '$ref' => '#/components/schemas/error_response'
-          registration_request = FactoryBot.build(:impersonation)
-          registration_request_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
-
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
+          registration_error_json = { error: ErrorCodes::USER_INSUFFICIENT_PERMISSIONS }.to_json
+          let(:registration) { @required_fields_only }
+          let(:Authorization) { @jwt_200 }
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
-        response '422', 'PASSING user registration_request exceeds guest limit' do
+        response '422', 'PASSING user registration exceeds guest limit', document: true do
           schema '$ref' => '#/components/schemas/error_response'
-          registration_request = FactoryBot.build(:registration_request, guests: 3)
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::GUEST_LIMIT_EXCEEDED }.to_json
+          registration_error_json = { error: ErrorCodes::GUEST_LIMIT_EXCEEDED }.to_json
+          let(:registration) { @too_many_guests }
+          let(:Authorization) { @jwt_824 }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
-        response '403', ' -> PASSING user cant register while registration is closed' do
+        response '403', ' -> PASSING user cant register while registration is closed', document: true do
           schema '$ref' => '#/components/schemas/error_response'
-          before do
-            competition = FactoryBot.build(:competition, registration_opened?: false)
-            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
-          end
-
-          registration_request = FactoryBot.build(:registration_request)
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::REGISTRATION_CLOSED }.to_json
-
+          registration_error_json = { error: ErrorCodes::REGISTRATION_CLOSED }.to_json
+          let(:registration) { @comp_not_open }
+          let(:Authorization) { @jwt_817 }
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
         response '401', '-> PASSING attendee is banned' do
-          registration_request = FactoryBot.build(:banned_competitor)
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
+          registration_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
+          let(:registration) { @banned_user_reg }
+          let(:Authorization) { @banned_user_jwt }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
         response '401', '-> PASSING competitor has incomplete profile' do
-          registration_request = FactoryBot.build(:incomplete_profile)
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
+          registration_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
+          let(:registration) { @incomplete_user_reg }
+          let(:Authorization) { @incomplete_user_jwt }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
         response '422', '-> PASSING contains event IDs which are not held at competition' do
-          registration_request = FactoryBot.build(:registration_request, events: ['333', '333fm'])
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          let(:registration) { @events_not_held_reg }
+          let(:Authorization) { @jwt_201 }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
-        response '400', ' -> PASSING empty payload provided' do
-          schema '$ref' => '#/components/schemas/error_response'
-          registration_request = FactoryBot.build(:registration_request)
-          let(:registration_request) { {}.to_json }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::INVALID_REQUEST_DATA }.to_json
+        response '422', '-> PASSING contains event IDs which are not held at competition' do
+          registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          let(:registration) { @events_not_exist_reg }
+          let(:Authorization) { @jwt_202 }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
-        response '404', ' -> PASSING competition does not exist' do
+        response '400', ' -> PASSING empty payload provided', document: true do
           schema '$ref' => '#/components/schemas/error_response'
-          before do
-            wca_error_json = { error: 'Competition with id CompDoesntExist not found' }.to_json
-            FactoryBot.build(:competition, competition_id: 'CompDoesntExist')
-            stub_request(:get, comp_api_url('CompDoesntExist')).to_return(status: 404, body: wca_error_json)
-          end
-
-          registration_request = FactoryBot.build(:registration_request, competition_id: 'CompDoesntExist')
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
+          registration_error_json = { error: ErrorCodes::INVALID_REQUEST_DATA }.to_json
+          let(:registration) { @empty_payload }
+          let(:Authorization) { @jwt_817 }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
+          end
+        end
+
+        response '404', ' -> PASSING competition does not exist', document: true do
+          schema '$ref' => '#/components/schemas/error_response'
+          registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
+          let(:registration) { @bad_comp_name }
+          let(:Authorization) { @jwt_817 }
+
+          run_test! do |response|
+            expect(response.body).to eq(registration_error_json)
           end
         end
       end
 
-      context 'fail registration_request posts, from ADMIN' do
+      context 'fail registration posts, from ADMIN' do
         # TODO: What is the difference between admin and organizer permissions? Should we add organizer test as well?
         # FAIL CASES TO IMPLEMENT:
         # convert all existing cases
         # user has insufficient permissions (admin of different comp trying to add reg)
 
-        # include_context 'database seed'
-        # include_context 'auth_tokens'
-        # include_context 'registration_request_data'
-        # include_context 'competition information'
-        before do
-          competition = FactoryBot.build(:competition)
-          stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
-        end
+        include_context 'database seed'
+        include_context 'auth_tokens'
+        include_context 'registration_data'
+        include_context 'competition information'
 
         response '403', ' -> PASSING comp not open, admin adds another user' do
-          before do
-            competition = FactoryBot.build(:competition, registration_opened?: false)
-            stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: 200, body: competition.to_json)
-          end
-
-          registration_request = FactoryBot.build(:admin_submits_registration_request_for_user)
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::REGISTRATION_CLOSED }.to_json
-
+          registration_error_json = { error: ErrorCodes::REGISTRATION_CLOSED }.to_json
+          let(:registration) { @comp_not_open }
+          let(:Authorization) { @admin_token }
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
         response '401', '-> PASSING admin adds banned user' do
-          registration_request = FactoryBot.build(:admin_submits_registration_request_for_banned_user)
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
+          registration_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
+          let(:registration) { @banned_user_reg }
+          let(:Authorization) { @admin_token }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
         response '401', '-> PASSING admin adds competitor who has incomplete profile' do
-          registration_request = FactoryBot.build(:admin_submits_registration_request_for_incomplete_user)
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
+          registration_error_json = { error: ErrorCodes::USER_CANNOT_COMPETE }.to_json
+          let(:registration) { @incomplete_user_reg }
+          let(:Authorization) { @admin_token }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
         response '422', '-> PASSING admins add other user reg which contains event IDs which are not held at competition' do
-          registration_request = FactoryBot.build(:admin_submits_registration_request_for_user, events: ['333', '333fm'])
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          let(:registration) { @events_not_held_reg }
+          let(:Authorization) { @admin_token }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
         response '422', '-> PASSING admin adds reg for user which contains event IDs which do not exist' do
-          registration_request = FactoryBot.build(:admin_submits_registration_request_for_user, events: ['888'])
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          registration_error_json = { error: ErrorCodes::INVALID_EVENT_SELECTION }.to_json
+          let(:registration) { @events_not_exist_reg }
+          let(:Authorization) { @jwt_202 }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
-        response '400', ' -> PASSING admin adds registration_request with empty payload provided' do # getting a long error on this - not sure why it fails
-          registration_request = FactoryBot.build(:admin_submits_registration_request_for_user)
-          let(:registration_request) { {}.to_json }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::INVALID_REQUEST_DATA }.to_json
+        response '400', ' -> PASSING admin adds registration with empty payload provided' do # getting a long error on this - not sure why it fails
+          registration_error_json = { error: ErrorCodes::INVALID_REQUEST_DATA }.to_json
+          let(:registration) { @empty_payload }
+          let(:Authorization) { @admin_token }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
 
         response '404', ' -> PASSING admin adds reg for competition which does not exist' do
-          before do
-            wca_error_json = { error: 'Competition with id CompDoesntExist not found' }.to_json
-            FactoryBot.build(:competition, competition_id: 'CompDoesntExist')
-            stub_request(:get, comp_api_url('CompDoesntExist')).to_return(status: 404, body: wca_error_json)
-          end
-
-          registration_request = FactoryBot.build(:admin_submits_registration_request_for_user, competition_id: 'CompDoesntExist')
-          let(:registration_request) { registration_request }
-          let(:Authorization) { registration_request[:jwt_token] }
-
-          registration_request_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
+          registration_error_json = { error: ErrorCodes::COMPETITION_NOT_FOUND }.to_json
+          let(:registration) { @bad_comp_name }
+          let(:Authorization) { @jwt_817 }
 
           run_test! do |response|
-            expect(response.body).to eq(registration_request_error_json)
+            expect(response.body).to eq(registration_error_json)
           end
         end
       end

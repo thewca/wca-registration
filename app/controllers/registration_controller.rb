@@ -63,6 +63,7 @@ class RegistrationController < ApplicationController
     # TODO: Rename @comeptition to competition_info - make it clear that it's a DataClass, not a model object
     @competition = CompetitionApi.find!(@competition_id)
 
+    puts "current user: #{@current_user}"
     RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find!(@competition_id), @current_user)
 
     # user_can_create_registration!
@@ -134,25 +135,23 @@ class RegistrationController < ApplicationController
 
   # You can either update your own registration or one for a competition you administer
   def validate_update_request
-    puts "params: #{params}"
+    puts "update params: #{params}"
     @user_id = params[:user_id]
-    puts @user_id
     @competition_id = params[:competition_id]
-    puts @competition_id
 
-    @competition = CompetitionApi.find!(@competition_id)
-    @registration = Registration.find("#{@competition_id}-#{@user_id}")
+    # @registration = Registration.find("#{@competition_id}-#{@user_id}")
 
-    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
-    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if admin_fields_present? && !UserApi.can_administer?(@current_user, @competition_id)
-    raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && @competition.guest_limit_exceeded?(params[:guests])
+    RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
+    # raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
+    # raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if admin_fields_present? && !UserApi.can_administer?(@current_user, @competition_id)
+    # raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if params.key?(:guests) && @competition.guest_limit_exceeded?(params[:guests])
 
-    if params.key?(:competing)
-      validate_status! if params['competing'].key?(:status)
-      validate_events! if params['competing'].key?(:event_ids)
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if params['competing'].key?(:comment) && !comment_valid?
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if !params['competing'].key?(:comment) && @competition.force_comment?
-    end
+    # if params.key?(:competing)
+    #   validate_status! if params['competing'].key?(:status)
+    #   validate_events! if params['competing'].key?(:event_ids)
+    #   raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if params['competing'].key?(:comment) && !comment_valid?
+    #   raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if !params['competing'].key?(:comment) && @competition.force_comment?
+    # end
   rescue Dynamoid::Errors::RecordNotFound
     render_error(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
   rescue RegistrationError => e

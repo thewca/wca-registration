@@ -11,6 +11,12 @@ class Registration
   REGISTRATION_STATES = %w[pending waiting_list accepted cancelled].freeze
   ADMIN_ONLY_STATES = %w[pending waiting_list accepted].freeze # Only admins are allowed to change registration state to one of these states
 
+  # NOTE: this could be very inefficient? Not sure if there's a way to cache the total status numbers?
+  def self.accepted_competitors
+    all.select { |registration| registration.competing_status == 'accepted' }.count
+    # where(competing_status: 'accepted').count
+  end
+
   # Returns all event ids irrespective of registration status
   def event_ids
     lanes.filter_map { |x| x.lane_details['event_details'].pluck('event_id') if x.lane_name == 'competing' }[0]
