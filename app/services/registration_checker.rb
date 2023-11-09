@@ -5,7 +5,6 @@ COMMENT_CHARACTER_LIMIT = 240
 class RegistrationChecker
   def self.create_registration_allowed!(registration_request, competition_info, requesting_user)
     @request = registration_request
-    puts @request
     @competition_info = competition_info
     @requester_user_id = requesting_user
 
@@ -18,7 +17,6 @@ class RegistrationChecker
 
   def self.update_registration_allowed!(update_request, competition_info, requesting_user)
     @request = update_request
-    puts @request
     @competition_info = competition_info
     @requester_user_id = requesting_user
     @registration = Registration.find("#{update_request['competition_id']}-#{update_request['user_id']}")
@@ -129,7 +127,8 @@ class RegistrationChecker
       new_status = @request['competing']['status']
 
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(new_status)
-      raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if new_status == 'accepted' && Registration.accepted_competitors > @competition_info.competitor_limit
+      raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
+        new_status == 'accepted' && Registration.accepted_competitors >= @competition_info.competitor_limit
 
       unless user_is_admin?
         if new_status == 'pending'

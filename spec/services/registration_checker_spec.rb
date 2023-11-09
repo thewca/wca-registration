@@ -3,12 +3,6 @@
 require 'rails_helper'
 require_relative '../../app/helpers/competition_api'
 
-# TODO: Events cant be changed when 'cancel' is sent
-# TODO: Add tests where guests_per_registration_limit == null
-# TODO: Add test for valid status name
-# TODO: Add test for state not going to accepted when competitor list is full
-# TODO: Create a model test validating the accepted_competitors_count property
-
 RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
   it "user cant change 'status' => #{old_status} to: #{new_status}" do
     registration = FactoryBot.create(:registration, lane_state: old_status)
@@ -598,6 +592,15 @@ describe RegistrationChecker do
       end
     end
 
+    it 'guests have no limit if guest limit not set' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :no_guest_limit))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], guests: 99)
+
+      expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
+        .not_to raise_error
+    end
+
     it 'organizer can change number of guests' do
       registration = FactoryBot.create(:registration)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
@@ -644,6 +647,56 @@ describe RegistrationChecker do
   end
 
   describe '#update_registration_allowed!.validate_update_status!' do
+    it 'user cant submit an invalid status' do
+      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'random_status' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_REQUEST_DATA)
+      end
+    end
+
+    it 'organizer cant submit an invalid status' do
+      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, :organizer_as_user, user_id: registration[:user_id], competing: { 'status' => 'random_status' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_REQUEST_DATA)
+      end
+    end
+
+    it 'organizer cant accept a user when registration list is full' do
+      FactoryBot.create_list(:registration, 3, lane_state: 'accepted')
+      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, competitor_limit: 3))
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.error).to eq(ErrorCodes::COMPETITOR_LIMIT_REACHED)
+        expect(error.http_status).to eq(:forbidden)
+      end
+    end
+
+    it 'organizer can accept registrations up to the limit' do
+      FactoryBot.create_list(:registration, 2, lane_state: 'accepted')
+      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, competitor_limit: 3))
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
+
+      expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
+        .not_to raise_error
+    end
+
     it 'user can change state to cancelled' do
       registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
@@ -651,6 +704,21 @@ describe RegistrationChecker do
 
       expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
         .not_to raise_error
+    end
+
+    it 'user cant change events when cancelling' do
+      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(
+        :update_request, user_id: registration[:user_id], competing: { 'status' => 'cancelled', 'event_ids' => ['333'] }
+      )
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_REQUEST_DATA)
+      end
     end
 
     it 'user can change state from cancelled to pending' do
