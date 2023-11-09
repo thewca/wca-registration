@@ -2,8 +2,6 @@
 
 require 'factory_bot_rails'
 
-# TODO: Add guests (requires change to registration model)
-# TODO: Refactor Lane model to be a helper class? Discuss with Finn how this should work
 FactoryBot.define do
   factory :registration do
     transient do
@@ -13,7 +11,7 @@ FactoryBot.define do
       lane_state { 'incoming' }
       admin_comment { nil }
     end
-    # user_id { '158817' }
+
     user_id { rand(100000..200000).to_s }
     competition_id { 'CubingZANationalChampionship2023' }
     attendee_id { "#{competition_id}-#{user_id}" }

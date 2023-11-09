@@ -70,20 +70,6 @@ class RegistrationChecker
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) unless @competition_info.events_held?(event_ids)
     end
 
-    def validate_events!
-      # if @registration.present? && update_request['competing'].key?('status') && update_request['competing']['status'] == 'cancelled'
-      # If status is cancelled, events can only be empty or match the old events list
-      # This allows for edge cases where an API user might send an empty event list/the old event list, or admin might want to remove events
-      # event_ids = params['competing']['event_ids']
-      # raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) unless event_ids == [] || event_ids == @registration_request.event_ids
-      # end
-
-      # Events can't be changed outside the edit_events deadline, except by admins
-      # TODO: Allow an admin to edit past the deadline
-      # events_edit_deadline = Time.parse(@competition_info.event_change_deadline)
-      # raise RegistrationError.new(:forbidden, ErrorCodes::EDIT_DEADLINE_PASSED) if events_edit_deadline < Time.now
-    end
-
     def validate_guests!
       return unless @request.key?('guests')
 
