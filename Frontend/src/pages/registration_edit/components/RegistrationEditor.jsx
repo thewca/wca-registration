@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
+import moment from 'moment/moment'
 import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Checkbox, Header, Segment, TextArea } from 'semantic-ui-react'
@@ -11,7 +12,6 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
 import Refunds from './Refunds'
-import moment from 'moment/moment'
 
 export default function RegistrationEditor() {
   const { user_id } = useParams()

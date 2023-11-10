@@ -2,6 +2,7 @@ import * as currencies from '@dinero.js/currencies'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
 import { dinero, toDecimal } from 'dinero.js'
+import moment from 'moment'
 import React, { useContext, useEffect, useState } from 'react'
 import {
   Button,
@@ -20,7 +21,6 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './panel.module.scss'
 import Processing from './Processing'
-import moment from 'moment'
 
 export default function CompetingStep({ nextStep }) {
   const { user } = useContext(UserContext)
