@@ -11,6 +11,7 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
 import Refunds from './Refunds'
+import moment from 'moment/moment'
 
 export default function RegistrationEditor() {
   const { user_id } = useParams()
@@ -34,22 +35,23 @@ export default function RegistrationEditor() {
     queryKey: ['info', user_id],
     queryFn: () => getCompetitorInfo(user_id),
   })
-  const { mutate: updateRegistrationMutation } = useMutation({
-    mutationFn: updateRegistration,
-    onError: (data) => {
-      setMessage(
-        'Registration update failed with error: ' + data.errorCode,
-        'negative'
-      )
-    },
-    onSuccess: (data) => {
-      setMessage('Registration update succeeded', 'positive')
-      queryClient.setQueryData(
-        ['registration', competitionInfo.id, user_id],
-        data
-      )
-    },
-  })
+  const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
+    useMutation({
+      mutationFn: updateRegistration,
+      onError: (data) => {
+        setMessage(
+          'Registration update failed with error: ' + data.errorCode,
+          'negative'
+        )
+      },
+      onSuccess: (data) => {
+        setMessage('Registration update succeeded', 'positive')
+        queryClient.setQueryData(
+          ['registration', competitionInfo.id, user_id],
+          data
+        )
+      },
+    })
   useEffect(() => {
     if (serverRegistration) {
       setRegistration(serverRegistration.registration)
@@ -131,24 +133,30 @@ export default function RegistrationEditor() {
               onChange={(_, data) => setStatus(data.value)}
             />
           </div>
-          <Button
-            color="blue"
-            onClick={() => {
-              setMessage('Updating Registration', 'basic')
-              updateRegistrationMutation({
-                user_id,
-                competing: {
-                  status,
-                  event_id: selectedEvents,
-                  comment,
-                  admin_comment: adminComment,
-                },
-                competition_id: competitionInfo.id,
-              })
-            }}
-          >
-            Update Registration
-          </Button>
+          {moment(
+            // If no deadline is set default to always be in the future
+            competitionInfo.event_change_deadline_date ?? Date.now() + 1
+          ).isAfter() && (
+            <Button
+              color="blue"
+              onClick={() => {
+                setMessage('Updating Registration', 'basic')
+                updateRegistrationMutation({
+                  user_id,
+                  competing: {
+                    status,
+                    event_id: selectedEvents,
+                    comment,
+                    admin_comment: adminComment,
+                  },
+                  competition_id: competitionInfo.id,
+                })
+              }}
+              disabled={isUpdating || selectedEvents.length === 0}
+            >
+              Update Registration
+            </Button>
+          )}
           {competitionInfo['using_stripe_payments?'] && (
             <>
               <Header>
