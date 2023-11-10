@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'time'
-# rubocop:disable Metrics/ParameterLists
 class LaneFactory
   def self.competing_lane(event_ids: [], comment: '', admin_comment: '', registration_status: 'pending')
     competing_lane = Lane.new({})
@@ -31,4 +30,3 @@ class LaneFactory
     payment_lane
   end
 end
-# rubocop:enable Metrics/ParameterLists
