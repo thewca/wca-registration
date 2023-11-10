@@ -234,9 +234,10 @@ export default function CompetingStep({ nextStep }) {
                   : 'Registration Editing is disabled'}
                 <UiIcon name="circle info" />
               </div>
-              {moment(competitionInfo.event_change_deadline_date).isBefore(
-                moment()
-              ) &&
+              {moment(
+                // If no deadline is set default to always be in the future
+                competitionInfo.event_change_deadline_date ?? Date.now() + 1
+              ).isAfter() &&
                 registration.competing.registration_status !== 'cancelled' && (
                   <Button
                     disabled={
