@@ -238,7 +238,7 @@ export default function CompetingStep({ nextStep }) {
                   isUpdating ||
                   !competitionInfo.allow_registration_edits ||
                   (competitionInfo.force_comment_in_registration &&
-                    comment === '')
+                    comment.trim() === '')
                 }
                 color="blue"
                 onClick={() => {
@@ -296,7 +296,7 @@ export default function CompetingStep({ nextStep }) {
                   isCreating ||
                   selectedEvents.length === 0 ||
                   (competitionInfo.force_comment_in_registration &&
-                    comment === '')
+                    comment.trim() === '')
                 }
                 onClick={async () => {
                   setMessage('Registration is being processed', 'basic')
