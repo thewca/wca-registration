@@ -145,7 +145,7 @@ export default function RegistrationEditor() {
                   user_id,
                   competing: {
                     status,
-                    event_id: selectedEvents,
+                    event_ids: selectedEvents,
                     comment,
                     admin_comment: adminComment,
                   },
