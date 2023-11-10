@@ -20,6 +20,7 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './panel.module.scss'
 import Processing from './Processing'
+import moment from 'moment'
 
 export default function CompetingStep({ nextStep }) {
   const { user } = useContext(UserContext)
@@ -233,29 +234,33 @@ export default function CompetingStep({ nextStep }) {
                   : 'Registration Editing is disabled'}
                 <UiIcon name="circle info" />
               </div>
-              <Button
-                disabled={
-                  isUpdating ||
-                  !competitionInfo.allow_registration_edits ||
-                  (competitionInfo.force_comment_in_registration &&
-                    comment.trim() === '')
-                }
-                color="blue"
-                onClick={() => {
-                  setMessage('Registration is being updated', 'basic')
-                  updateRegistrationMutation({
-                    user_id: registration.user_id,
-                    competition_id: competitionInfo.id,
-                    competing: {
-                      comment,
-                      guests,
-                      event_ids: selectedEvents,
-                    },
-                  })
-                }}
-              >
-                Update Registration
-              </Button>
+              {moment(competitionInfo.event_change_deadline_date).isBefore(
+                moment()
+              ) && (
+                <Button
+                  disabled={
+                    isUpdating ||
+                    !competitionInfo.allow_registration_edits ||
+                    (competitionInfo.force_comment_in_registration &&
+                      comment.trim() === '')
+                  }
+                  color="blue"
+                  onClick={() => {
+                    setMessage('Registration is being updated', 'basic')
+                    updateRegistrationMutation({
+                      user_id: registration.user_id,
+                      competition_id: competitionInfo.id,
+                      competing: {
+                        comment,
+                        guests,
+                        event_ids: selectedEvents,
+                      },
+                    })
+                  }}
+                >
+                  Update Registration
+                </Button>
+              )}
               {competitionInfo.allow_registration_self_delete_after_acceptance &&
                 competitionInfo['registration_opened?'] && (
                   <Button
