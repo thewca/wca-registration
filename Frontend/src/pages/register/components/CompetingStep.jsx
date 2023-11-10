@@ -236,11 +236,36 @@ export default function CompetingStep({ nextStep }) {
               </div>
               {moment(competitionInfo.event_change_deadline_date).isBefore(
                 moment()
-              ) && (
+              ) &&
+                registration.competing.registration_status !== 'cancelled' && (
+                  <Button
+                    disabled={
+                      isUpdating ||
+                      !competitionInfo.allow_registration_edits ||
+                      (competitionInfo.force_comment_in_registration &&
+                        comment.trim() === '')
+                    }
+                    color="blue"
+                    onClick={() => {
+                      setMessage('Registration is being updated', 'basic')
+                      updateRegistrationMutation({
+                        user_id: registration.user_id,
+                        competition_id: competitionInfo.id,
+                        competing: {
+                          comment,
+                          guests,
+                          event_ids: selectedEvents,
+                        },
+                      })
+                    }}
+                  >
+                    Update Registration
+                  </Button>
+                )}
+              {registration.competing.registration_status === 'cancelled' && (
                 <Button
                   disabled={
                     isUpdating ||
-                    !competitionInfo.allow_registration_edits ||
                     (competitionInfo.force_comment_in_registration &&
                       comment.trim() === '')
                   }
@@ -254,15 +279,17 @@ export default function CompetingStep({ nextStep }) {
                         comment,
                         guests,
                         event_ids: selectedEvents,
+                        status: 'pending',
                       },
                     })
                   }}
                 >
-                  Update Registration
+                  Re-Register
                 </Button>
               )}
               {competitionInfo.allow_registration_self_delete_after_acceptance &&
-                competitionInfo['registration_opened?'] && (
+                competitionInfo['registration_opened?'] &&
+                registration.competing.registration_status !== 'cancelled' && (
                   <Button
                     disabled={isUpdating}
                     negative
