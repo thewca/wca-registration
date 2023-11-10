@@ -28,7 +28,9 @@ export async function getConfirmedRegistrations(
   const userInfos = await getCompetitorsInfo(data!.map((d) => d.user_id))
   return data!.map((registration) => ({
     ...registration,
-    user: userInfos.find((info) => info.user.id === registration.user_id)!.user,
+    user: userInfos.users.find(
+      (user) => user.id === Number(registration.user_id)
+    ),
   }))
 }
 
@@ -53,7 +55,9 @@ export async function getAllRegistrations(
   const userInfos = await getCompetitorsInfo(data!.map((d) => d.user_id))
   return data!.map((registration) => ({
     ...registration,
-    user: userInfos.find((info) => info.user.id === registration.user_id)!.user,
+    user: userInfos.users.find(
+      (user) => user.id === Number(registration.user_id)
+    ),
   }))
 }
 
