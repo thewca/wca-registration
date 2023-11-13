@@ -16,7 +16,7 @@ services:
     tty: true
     command: >
       bash -c 'bundle install && yarn install && bin/rake db:seed &&
-      RAILS_ENV=test bundle exec rspec spec/domains -e PASSING'
+      RAILS_ENV=test bundle exec rspec'
     networks:
       - wca-registration
     depends_on:
