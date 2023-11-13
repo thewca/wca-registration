@@ -9,7 +9,7 @@ import {
   OPEN_WITH_PAYMENTS,
 } from './fixtures'
 
-export default async function getCompetitionInfoMock(
+export default async function getCompetitionInfoMockWithRealFallback(
   competitionId: string
 ): Promise<CompetitionInfo> {
   switch (competitionId) {
