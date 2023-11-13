@@ -32,12 +32,12 @@ FactoryBot.define do
     end
 
     trait :organizer do
-      user_id { '15073' }
+      user_id { '1306' }
       jwt_token { fetch_jwt_token(user_id) }
     end
 
     trait :organizer_submits do
-      submitted_by { '15073' }
+      submitted_by { '1306' }
     end
 
     trait :impersonation do
@@ -69,15 +69,11 @@ FactoryBot.define do
     end
 
     trait :organizer_as_user do
-      user_id { '15073' }
+      user_id { '1306' }
     end
 
     trait :organizer_for_user do
-      submitted_by { '15073' }
-    end
-
-    trait :organizer_for_self do
-      user_id { '1' }
+      submitted_by { '1306' }
     end
 
     trait :for_another_user do

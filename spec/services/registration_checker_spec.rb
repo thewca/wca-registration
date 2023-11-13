@@ -3,9 +3,12 @@
 require 'rails_helper'
 require_relative '../../app/helpers/competition_api'
 
+# Add a test where one comp has a lot of competitors and another doesnt but you can still accept, to ensure that we're checking the reg count
+# for the COMPETITION, not all registrations
+
 RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
   it "user cant change 'status' => #{old_status} to: #{new_status}" do
-    registration = FactoryBot.create(:registration, lane_state: old_status)
+    registration = FactoryBot.create(:registration, registration_status: old_status)
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => new_status })
 
@@ -20,7 +23,7 @@ end
 
 RSpec.shared_examples 'valid organizer status updates' do |old_status, new_status|
   it "admin can change 'status' => #{old_status} to: #{new_status} before close" do
-    registration = FactoryBot.create(:registration, lane_state: old_status)
+    registration = FactoryBot.create(:registration, registration_status: old_status)
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
 
@@ -29,7 +32,7 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
   end
 
   it "after edit deadline/reg close, organizer can change 'status' => #{old_status} to: #{new_status}" do
-    registration = FactoryBot.create(:registration, lane_state: old_status)
+    registration = FactoryBot.create(:registration, registration_status: old_status)
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
 
@@ -476,19 +479,19 @@ describe RegistrationChecker do
   end
 
   describe '#update_registration_allowed!.validate_organizer_fields!' do
-    it 'organizer can add admin_comment' do
+    it 'organizer can add organizer_comment' do
       registration = FactoryBot.create(:registration)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'admin_comment' => 'this is an admin comment' })
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'organizer_comment' => 'this is an admin comment' })
 
       expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
         .not_to raise_error
     end
 
-    it 'organizer can change admin_comment' do
-      registration = FactoryBot.create(:registration, 'admin_comment' => 'old admin comment')
+    it 'organizer can change organizer_comment' do
+      registration = FactoryBot.create(:registration, 'organizer_comment' => 'old admin comment')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'admin_comment' => 'new admin comment' })
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'organizer_comment' => 'new admin comment' })
 
       expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
         .not_to raise_error
@@ -497,7 +500,7 @@ describe RegistrationChecker do
     it 'user cant submit an organizer comment' do
       registration = FactoryBot.create(:registration)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'admin_comment' => 'new admin comment' })
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'organizer_comment' => 'new admin comment' })
 
       expect {
         RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
@@ -508,14 +511,14 @@ describe RegistrationChecker do
     end
   end
 
-  describe '#update_registration_allowed!.validate_admin_comment!' do
+  describe '#update_registration_allowed!.validate_organizer_comment!' do
     it 'organizer comment cant exceed 240 characters' do
       long_comment = 'comment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer
       than 240 characterscomment longer than 240 characters'
 
       registration = FactoryBot.create(:registration)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'admin_comment' => long_comment })
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'organizer_comment' => long_comment })
 
       expect {
         RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
@@ -531,7 +534,7 @@ describe RegistrationChecker do
 
       registration = FactoryBot.create(:registration)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'admin_comment' => at_character_limit })
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'organizer_comment' => at_character_limit })
 
       expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
         .not_to raise_error
@@ -648,7 +651,7 @@ describe RegistrationChecker do
 
   describe '#update_registration_allowed!.validate_update_status!' do
     it 'user cant submit an invalid status' do
-      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
       update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'random_status' })
 
@@ -661,7 +664,7 @@ describe RegistrationChecker do
     end
 
     it 'organizer cant submit an invalid status' do
-      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
       update_request = FactoryBot.build(:update_request, :organizer_as_user, user_id: registration[:user_id], competing: { 'status' => 'random_status' })
 
@@ -674,8 +677,8 @@ describe RegistrationChecker do
     end
 
     it 'organizer cant accept a user when registration list is full' do
-      FactoryBot.create_list(:registration, 3, lane_state: 'accepted')
-      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      FactoryBot.create_list(:registration, 3, registration_status: 'accepted')
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition, competitor_limit: 3))
       update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
 
@@ -688,8 +691,8 @@ describe RegistrationChecker do
     end
 
     it 'organizer can accept registrations up to the limit' do
-      FactoryBot.create_list(:registration, 2, lane_state: 'accepted')
-      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      FactoryBot.create_list(:registration, 2, registration_status: 'accepted')
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition, competitor_limit: 3))
       update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
 
@@ -698,7 +701,7 @@ describe RegistrationChecker do
     end
 
     it 'user can change state to cancelled' do
-      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
       update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'cancelled' })
 
@@ -707,7 +710,7 @@ describe RegistrationChecker do
     end
 
     it 'user cant change events when cancelling' do
-      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
       update_request = FactoryBot.build(
         :update_request, user_id: registration[:user_id], competing: { 'status' => 'cancelled', 'event_ids' => ['333'] }
@@ -722,7 +725,7 @@ describe RegistrationChecker do
     end
 
     it 'user can change state from cancelled to pending' do
-      registration = FactoryBot.create(:registration, lane_state: 'cancelled')
+      registration = FactoryBot.create(:registration, registration_status: 'cancelled')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
       update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'pending' })
 
@@ -747,7 +750,7 @@ describe RegistrationChecker do
     end
 
     it 'user cant cancel accepted registration if competition requires organizers to cancel registration' do
-      registration = FactoryBot.create(:registration, lane_state: 'accepted')
+      registration = FactoryBot.create(:registration, registration_status: 'accepted')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition, allow_registration_self_delete_after_acceptance: false))
       update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'cancelled' })
 
@@ -760,7 +763,7 @@ describe RegistrationChecker do
     end
 
     it 'user can cancel non-accepted registration if competition requires organizers to cancel registration' do
-      registration = FactoryBot.create(:registration, lane_state: 'waiting_list')
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition, allow_registration_self_delete_after_acceptance: false))
       update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'cancelled' })
 

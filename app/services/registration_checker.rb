@@ -6,62 +6,57 @@ class RegistrationChecker
   def self.create_registration_allowed!(registration_request, competition_info, requesting_user)
     @request = registration_request
     @competition_info = competition_info
-    @requester_user_id = requesting_user
+    @requestee_user_id = @request['user_id']
+    @requester_user_id = requesting_user.to_s
 
     user_can_create_registration!
     validate_create_events!
     validate_guests!
     validate_comment!
-    true
   end
 
   def self.update_registration_allowed!(update_request, competition_info, requesting_user)
     @request = update_request
     @competition_info = competition_info
-    @requester_user_id = requesting_user
+    @requestee_user_id = @request['user_id']
+    @requester_user_id = requesting_user.to_s
     @registration = Registration.find("#{update_request['competition_id']}-#{update_request['user_id']}")
 
     user_can_modify_registration!
     validate_guests!
     validate_comment!
-    validate_admin_fields!
-    validate_admin_comment!
+    validate_organizer_fields!
+    validate_organizer_comment!
     validate_update_status!
     validate_update_events!
   end
 
   class << self
     def user_can_create_registration!
-      # Only an admin or the user themselves can create a registration for the user
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
+      # Only an organizer or the user themselves can create a registration for the user
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_organizer_or_current_user?
 
-      # Only admins can register when registration is closed, and they can only register for themselves - not for other users
+      # Only organizers can register when registration is closed, and they can only register for themselves - not for other users
       raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || organizer_modifying_own_registration?
 
       can_compete = UserApi.can_compete?(@request['user_id'])
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
-
-      can_compete
     end
 
     def user_can_modify_registration!
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_admin_or_current_user?
-      raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || user_is_admin?
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_organizer_or_current_user?
+      raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || @competition_info.is_organizer_or_delegate?(@requester_user_id)
     end
 
     def organizer_modifying_own_registration?
-      UserApi.can_administer?(@requester_user_id, @competition_info.competition_id) && (@requester_user_id == @request['user_id'].to_s)
+      @competition_info.is_organizer_or_delegate?(@requester_user_id) && (@requester_user_id == @request['user_id'].to_s)
     end
 
-    def is_admin_or_current_user?
-      # Only an admin or the user themselves can create a registration for the user
-      # One case where admins need to create registrations for users is if a 3rd-party registration system is being used, and registration data is being
+    def is_organizer_or_current_user?
+      # Only an organizer or the user themselves can create a registration for the user
+      # One case where organizers need to create registrations for users is if a 3rd-party registration system is being used, and registration data is being
       # passed to the Registration Service from it
-      (@requester_user_id == @request['user_id'].to_s) || user_is_admin?
-    end
-
-    def user_is_admin?
-      UserApi.can_administer?(@requester_user_id, @competition_info.competition_id)
+      (@requester_user_id == @request['user_id'].to_s) || @competition_info.is_organizer_or_delegate?(@requester_user_id)
     end
 
     def validate_create_events!
@@ -88,46 +83,57 @@ class RegistrationChecker
       end
     end
 
-    def validate_admin_fields!
-      @admin_fields = ['admin_comment']
+    def validate_organizer_fields!
+      @organizer_fields = ['organizer_comment']
 
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if contains_admin_fields? && !UserApi.can_administer?(@requester_user_id, @competition_info.competition_id)
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if contains_organizer_fields? && !@competition_info.is_organizer_or_delegate?(@requester_user_id)
     end
 
-    def validate_admin_comment!
-      if @request.key?('competing') && @request['competing'].key?('admin_comment')
-        admin_comment = @request['competing']['admin_comment']
+    def validate_organizer_comment!
+      if @request.key?('competing') && @request['competing'].key?('organizer_comment')
+        organizer_comment = @request['competing']['organizer_comment']
 
-        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if admin_comment.length > COMMENT_CHARACTER_LIMIT
+        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if organizer_comment.length > COMMENT_CHARACTER_LIMIT
       end
     end
 
-    def contains_admin_fields?
-      @request.key?('competing') && @request['competing'].keys.any? { |key| @admin_fields.include?(key) }
+    def contains_organizer_fields?
+      @request.key?('competing') && @request['competing'].keys.any? { |key| @organizer_fields.include?(key) }
     end
 
     def validate_update_status!
       return unless @request.key?('competing') && @request['competing'].key?('status')
 
-      old_status = @registration.competing_status
+      current_status = @registration.competing_status
       new_status = @request['competing']['status']
 
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(new_status)
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
-        new_status == 'accepted' && Registration.accepted_competitors >= @competition_info.competitor_limit
+        new_status == 'accepted' && Registration.accepted_competitors(@competition_info.competition_id) >= @competition_info.competitor_limit
 
-      unless user_is_admin?
-        if new_status == 'pending'
-          raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless old_status == 'cancelled'
-        elsif new_status == 'cancelled'
-          raise RegistrationError.new(:unauthorized, ErrorCodes::ORGANIZER_MUST_CANCEL_REGISTRATION) if
-            !@competition_info.user_can_cancel? && @registration.competing_status == 'accepted'
-          raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if
-            @request['competing'].key?('event_ids') && @registration.event_ids != @request['competing']['event_ids']
-        else
-          raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
-        end
+      # Organizers can make any status change they want to - no checks performed
+      return if @competition_info.is_organizer_or_delegate?(@requester_user_id)
+
+      # A user (ie not an organizer) is only allowed to:
+      # 1. Reactivate their registration if they previously cancelled it (ie, change status from 'cancelled' to 'pending')
+      # 2. Cancel their registration, assuming they are allowed to cancel
+
+      # User reactivating registration
+      if new_status == 'pending'
+        raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless current_status == 'cancelled'
+        return # No further checks needed if status is pending
       end
+
+      # Now that we've checked the 'pending' case, raise an error is the status is not cancelled (cancelling is the only valid action remaining)
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if new_status != 'cancelled'
+
+      # Raise an error if competition prevents users from cancelling a registration once it is accepted
+      raise RegistrationError.new(:unauthorized, ErrorCodes::ORGANIZER_MUST_CANCEL_REGISTRATION) if
+        !@competition_info.user_can_cancel? && current_status == 'accepted'
+
+      # Users aren't allowed to change events when cancelling
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if
+        @request['competing'].key?('event_ids') && @registration.event_ids != @request['competing']['event_ids']
     end
 
     def validate_update_events!
