@@ -28,10 +28,10 @@ module Mocks
           'scope' => '*',
         },
         'can_organize_competitions' => {
-          'scope' => %w[LazarilloOpen2023 CubingZANationalChampionship2023],
+          'scope' => %w[LazarilloOpen2023 CubingZANationalChampionship2023 KoelnerKubing2023],
         },
         'can_administer_competitions' => {
-          'scope' => %w[LazarilloOpen2023 CubingZANationalChampionship2023],
+          'scope' => %w[LazarilloOpen2023 CubingZANationalChampionship2023 KoelnerKubing2023],
         },
       }
     when '15073', '15074' # Test Admin

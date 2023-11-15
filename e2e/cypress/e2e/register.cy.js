@@ -1,7 +1,5 @@
-const LOCAL_FRONTEND_URL = "http://127.0.0.1:3002";
-
 function loginAsTestCompetitor() {
-  cy.visit(LOCAL_FRONTEND_URL);
+  cy.visit('/');
   // Hover over Choose Test User
   cy.get("li.dropdown:nth-child(3)").trigger("mouseover");
   // Click on test competitor 1
@@ -11,7 +9,7 @@ function loginAsTestCompetitor() {
 }
 
 function loginAsOrganizerCompetitor() {
-  cy.visit(LOCAL_FRONTEND_URL);
+  cy.visit('/');
   // Hover over Choose Test User
   cy.get("li.dropdown:nth-child(3)").trigger("mouseover");
   // Click on test competitor 1
@@ -21,7 +19,7 @@ function loginAsOrganizerCompetitor() {
 }
 
 function loginAsAdminCompetitor() {
-  cy.visit(LOCAL_FRONTEND_URL);
+  cy.visit('/');
   // Hover over Choose Test User
   cy.get("li.dropdown:nth-child(3)").trigger("mouseover");
   // Click on test admin
@@ -32,7 +30,7 @@ function loginAsAdminCompetitor() {
 
 describe("I want to Register for a competition", () => {
   it("shows me I have to log in if I am not logged in", () => {
-    cy.visit(LOCAL_FRONTEND_URL);
+    cy.visit('/');
     // Hover of Registration System
     cy.get("li.dropdown:nth-child(2)").trigger("mouseover");
     // Click on the fist comp
@@ -51,7 +49,7 @@ describe("I want to Register for a competition", () => {
     loginAsTestCompetitor();
     // Expect the user_id to be saved in localstorage to simulate a login
     cy.getAllLocalStorage().then((result) => {
-      expect(result[LOCAL_FRONTEND_URL]).to.deep.equal({ user: "6427" });
+      expect(result[Cypress.config().baseUrl]).to.deep.equal({ user: "6427" });
     });
     // Hover of Registration System
     cy.get("li.dropdown:nth-child(2)").trigger("mouseover");
@@ -73,7 +71,7 @@ describe("I want to Register for a competition", () => {
     loginAsTestCompetitor();
     // Expect the user_id to be saved in localstorage to simulate a login
     cy.getAllLocalStorage().then((result) => {
-      expect(result[LOCAL_FRONTEND_URL]).to.deep.equal({ user: "6427" });
+      expect(result[Cypress.config().baseUrl]).to.deep.equal({ user: "6427" });
     });
     // Hover of Registration System
     cy.get("li.dropdown:nth-child(2)").trigger("mouseover");
@@ -101,13 +99,12 @@ describe("I want to Update my registration", () => {
     loginAsTestCompetitor();
     // Expect the user_id to be saved in localstorage to simulate a login
     cy.getAllLocalStorage().then((result) => {
-      console.log(result);
-      expect(result[LOCAL_FRONTEND_URL]).to.deep.equal({ user: "6427" });
+      expect(result[Cypress.config().baseUrl]).to.deep.equal({ user: "6427" });
     });
   });
 
   it("allows me to update my registration", () => {
-    cy.visit(LOCAL_FRONTEND_URL);
+    cy.visit('/');
     // Hover of Registration System
     cy.get("li.dropdown:nth-child(2)").trigger("mouseover");
     // Click on the fist comp
@@ -125,7 +122,7 @@ describe("I want to Update my registration", () => {
   });
 
   it("does not allow me to update my registration if the event deadline is over", () => {
-    cy.visit(LOCAL_FRONTEND_URL);
+    cy.visit('/');
     // Hover of Registration System
     cy.get("li.dropdown:nth-child(2)").trigger("mouseover");
     // Click on the fourth comp
@@ -151,13 +148,12 @@ describe("I want to Delete my registration", () => {
     loginAsTestCompetitor();
     // Expect the user_id to be saved in localstorage to simulate a login
     cy.getAllLocalStorage().then((result) => {
-      console.log(result);
-      expect(result[LOCAL_FRONTEND_URL]).to.deep.equal({ user: "6427" });
+      expect(result[Cypress.config().baseUrl]).to.deep.equal({ user: "6427" });
     });
   });
 
   it("allows me to delete my registration", () => {
-    cy.visit(LOCAL_FRONTEND_URL);
+    cy.visit('/');
     // Hover of Registration System
     cy.get("li.dropdown:nth-child(2)").trigger("mouseover");
     // Click on the fist comp
@@ -176,13 +172,12 @@ describe("I am an Admin and I want to do admin tasks", () => {
     loginAsOrganizerCompetitor();
     // Expect the user_id to be saved in localstorage to simulate a login
     cy.getAllLocalStorage().then((result) => {
-      console.log(result);
-      expect(result[LOCAL_FRONTEND_URL]).to.deep.equal({ user: "2" });
+      expect(result[Cypress.config().baseUrl]).to.deep.equal({ user: "2" });
     });
   });
 
   it("allows me to register early", () => {
-    cy.visit(LOCAL_FRONTEND_URL);
+    cy.visit('/');
     // Hover of Registration System
     cy.get("li.dropdown:nth-child(2)").trigger("mouseover");
     // Click on the sixth comp
@@ -202,7 +197,7 @@ describe("I am an Admin and I want to do admin tasks", () => {
   });
 
   it("allows me to approve a competitor", () => {
-    cy.visit(LOCAL_FRONTEND_URL);
+    cy.visit('/');
     // Hover of Registration System
     cy.get("li.dropdown:nth-child(2)").trigger("mouseover");
     // Click on the fist comp
@@ -220,7 +215,7 @@ describe("I am an Admin and I want to do admin tasks", () => {
   });
 
   it("allows me to add a admin note to a competitors registration", () => {
-    cy.visit(LOCAL_FRONTEND_URL);
+    cy.visit('/');
     // Hover of Registration System
     cy.get("li.dropdown:nth-child(2)").trigger("mouseover");
     // Click on the fist comp
