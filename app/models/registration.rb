@@ -27,6 +27,12 @@ class Registration
     lanes.filter_map { |x| x.lane_details['event_details'].pluck('event_id') if x.lane_name == 'competing' }[0]
   end
 
+  def attendee_id
+    attendee_id = "#{competition_id}-#{user_id}"
+    puts "returning attendee id: #{attendee_id}"
+    "#{competition_id}-#{user_id}"
+  end
+
   # Returns id's of the events with a non-cancelled state
   def registered_event_ids
     event_ids = []
@@ -158,6 +164,7 @@ class Registration
   private
 
     def set_is_competing
+      puts "executing set is competing for: #{attendee_id}"
       self.is_competing = true if competing_status == 'accepted'
     end
 

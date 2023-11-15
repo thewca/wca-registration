@@ -32,19 +32,19 @@ describe Registration do
     end
 
     it 'accepted given cancelled, it sets is_competing to false' do
-      registration = FactoryBot.create(:registration, registration_status: 'updated')
+      registration = FactoryBot.create(:registration, registration_status: 'accepted')
       registration.update_competing_lane!({ status: 'cancelled' })
       expect(registration.is_competing).to eq(false)
     end
 
     it 'accepted given pending, it sets is_competing to false' do
-      registration = FactoryBot.create(:registration, registration_status: 'updated')
+      registration = FactoryBot.create(:registration, registration_status: 'accepted')
       registration.update_competing_lane!({ status: 'pending' })
       expect(registration.is_competing).to eq(false)
     end
 
     it 'accepted given waiting_list, it sets is_competing to false' do
-      registration = FactoryBot.create(:registration, registration_status: 'updated')
+      registration = FactoryBot.create(:registration, registration_status: 'accepted')
       registration.update_competing_lane!({ status: 'waiting_list' })
       expect(registration.is_competing).to eq(false)
     end
@@ -70,6 +70,18 @@ describe Registration do
       comp_registration_count = Registration.accepted_competitors(target_comp)
 
       expect(comp_registration_count).to eq(3)
+    end
+  end
+
+  describe '#set_is_competing' do
+    it 'persists a true state to the database' do
+      registration = FactoryBot.create(:registration, registration_status: 'accepted')
+      expect(Registration.find(registration.attendee_id).is_competing).to eq(true)
+    end
+
+    it 'persists a false state to the database' do
+      registration = FactoryBot.create(:registration, registration_status: 'pending')
+      expect(Registration.find(registration.attendee_id).is_competing).to eq(nil)
     end
   end
 end
