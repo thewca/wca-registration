@@ -15,7 +15,7 @@ FactoryBot.define do
     user_id { rand(100000..200000).to_s }
     competition_id { 'CubingZANationalChampionship2023' }
     attendee_id { "#{competition_id}-#{user_id}" }
-    lanes { [LaneFactory.competing_lane(event_ids: events, comment: comment, guests: guests, registration_status: registration_status)] }
+    lanes { [LaneFactory.competing_lane(event_ids: events, comment: comment, registration_status: registration_status)] }
   end
 
   trait :admin do
