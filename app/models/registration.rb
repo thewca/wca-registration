@@ -11,9 +11,24 @@ class Registration
   REGISTRATION_STATES = %w[pending waiting_list accepted cancelled].freeze
   ADMIN_ONLY_STATES = %w[pending waiting_list accepted].freeze # Only admins are allowed to change registration state to one of these states
 
+  # Pre-validations
+  before_validation :set_is_competing
+
+  # Validations
+  validate :is_competing_consistency
+
+  # NOTE: There are more efficient ways to do this, see: https://github.com/thewca/wca-registration/issues/330
+  def self.accepted_competitors(competition_id)
+    where(competition_id: competition_id, is_competing: true).count
+  end
+
   # Returns all event ids irrespective of registration status
   def event_ids
     lanes.filter_map { |x| x.lane_details['event_details'].pluck('event_id') if x.lane_name == 'competing' }[0]
+  end
+
+  def attendee_id
+    "#{competition_id}-#{user_id}"
   end
 
   # Returns id's of the events with a non-cancelled state
@@ -71,7 +86,7 @@ class Registration
         if update_params[:status].present?
           lane.lane_state = update_params[:status]
 
-          lane.lane_details['event_details'].each do |event|
+          lane.lane_details[:event_details].each do |event|
             # NOTE: Currently event_registration_state is not used - when per-event registrations are added, we need to add validation logic to support cases like
             # limited registrations and waiting lists for certain events
             event['event_registration_state'] = update_params[:status]
@@ -87,11 +102,12 @@ class Registration
       lane
     end
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
-    updated_is_attending = if update_params[:status].present?
+    updated_is_competing = if update_params[:status].present?
                              update_params[:status] == 'accepted'
                            else
-                             is_attending
+                             is_competing
                            end
+    update_attributes!(lanes: updated_lanes, is_competing: updated_is_competing) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
     updated_guests = if update_params[:guests].present?
                        update_params[:guests]
                      else
@@ -133,10 +149,24 @@ class Registration
   field :user_id, :string
   field :guests, :number
   field :competition_id, :string
-  field :is_attending, :boolean
+  field :is_competing, :boolean
   field :hide_name_publicly, :boolean
   field :lanes, :array, of: Lane
 
   global_secondary_index hash_key: :user_id, projected_attributes: :all
   global_secondary_index hash_key: :competition_id, projected_attributes: :all
+
+  private
+
+    def set_is_competing
+      self.is_competing = true if competing_status == 'accepted'
+    end
+
+    def is_competing_consistency
+      if is_competing
+        errors.add(:is_competing, 'cant be true unless competing_status is accepted') unless competing_status == 'accepted'
+      else
+        errors.add(:is_competing, 'must be true if competing_status is accepted') if competing_status == 'accepted'
+      end
+    end
 end
