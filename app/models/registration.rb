@@ -112,7 +112,7 @@ class Registration
                      else
                        guests
                      end
-    update_attributes!(lanes: updated_lanes, is_attending: updated_is_competing, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+    update_attributes!(lanes: updated_lanes, is_competing: updated_is_competing, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
   end
 
   def init_payment_lane(amount, currency_code, id)
