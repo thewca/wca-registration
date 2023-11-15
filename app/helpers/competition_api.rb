@@ -46,12 +46,15 @@ class CompetitionApi < WcaApi
 end
 
 class CompetitionInfo
+  attr_accessor :competition_id
+
   def initialize(competition_json)
     @competition_json = competition_json
+    @competition_id = competition_json['id']
   end
 
-  def event_change_deadline
-    @competition_json['event_change_deadline_date']
+  def within_event_change_deadline?
+    Time.now < @competition_json['event_change_deadline_date']
   end
 
   def competitor_limit
@@ -59,6 +62,7 @@ class CompetitionInfo
   end
 
   def guest_limit_exceeded?(guest_count)
+    return false unless @competition_json['guests_per_registration_limit'].present?
     @competition_json['guest_entry_status'] == 'restricted' && @competition_json['guests_per_registration_limit'] < guest_count
   end
 
@@ -92,5 +96,13 @@ class CompetitionInfo
 
   def name
     @competition_json['name']
+  end
+
+  def registration_edits_allowed?
+    @competition_json['allow_registration_edits'] && within_event_change_deadline?
+  end
+
+  def user_can_cancel?
+    @competition_json['allow_registration_self_delete_after_acceptance']
   end
 end

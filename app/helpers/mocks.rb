@@ -39,24 +39,10 @@ module Mocks
           'scope' => '*',
         },
       }
-    when '209943' # Test banned User
+    when '209943', '999999' # Test banned/incomplete profile User
       {
         'can_attend_competitions' => {
           'scope' => [],
-          'reasons' => ErrorCodes::USER_IS_BANNED,
-        },
-        'can_organize_competitions' => {
-          'scope' => [],
-        },
-        'can_administer_competitions' => {
-          'scope' => [],
-        },
-      }
-    when '999999' # Test incomplete User
-      {
-        'can_attend_competitions' => {
-          'scope' => [],
-          'reasons' => ErrorCodes::USER_PROFILE_INCOMPLETE,
         },
         'can_organize_competitions' => {
           'scope' => [],
