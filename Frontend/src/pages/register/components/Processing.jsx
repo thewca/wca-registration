@@ -29,7 +29,7 @@ export default function Processing({ onProcessingComplete }) {
     }
   }, [data, onProcessingComplete])
   return (
-    <Modal dimmer="blurring">
+    <Modal open={data?.status?.competing !== 'pending'} dimmer="blurring">
       <Modal.Header>Your registration is processing...</Modal.Header>
       <Modal.Content>
         {pollCounter > 3 && (

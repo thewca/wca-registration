@@ -1,17 +1,7 @@
 @import '../../../style/font-sizes';
 @import '../../../style/margins';
 @import '../../../style/colors';
-.list {
-  border-radius: 23px;
-  background-color: $background-grey;
-  border-width: 10px;
-  padding: 10px;
-}
+
 .list-container{
   margin-top: $double-margin;
-}
-.list-header{
-  font-size: $header-size;
-  margin-top: $triple-margin;
-  margin-bottom: $triple-margin;
 }

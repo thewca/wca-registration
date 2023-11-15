@@ -8,6 +8,7 @@ import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { Container } from 'semantic-ui-react'
 import Events from './pages/events'
 import HomePage from './pages/home'
+import Import from './pages/import'
 import Register from './pages/register'
 import RegistrationAdministration from './pages/registration_administration'
 import RegistrationEdit from './pages/registration_edit'
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
           {
             path: `${BASE_ROUTE}/:competition_id/events`,
             element: <Events />,
+          },
+          {
+            path: `${BASE_ROUTE}/:competition_id/import`,
+            element: <Import />,
           },
           {
             path: `${BASE_ROUTE}/:competition_id/schedule`,

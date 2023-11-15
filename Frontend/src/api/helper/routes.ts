@@ -3,6 +3,18 @@ export const permissionsRoute = `${process.env.WCA_URL}/api/v0/users/me/permissi
 export const paymentConfigRoute = `${process.env.WCA_URL}/payment/config`
 export const paymentFinishRoute = (competitionId: string, userId: string) =>
   `${process.env.WCA_URL}/payment/finish?attendee_id=${competitionId}-${userId}`
+
+export const availableRefundsRoute = (competitionId: string, userId: string) =>
+  `${process.env.WCA_URL}/payment/refunds?attendee_id=${competitionId}-${userId}`
+
+export const refundRoute = (
+  competitionId: string,
+  userId: string,
+  paymentId: string,
+  amount: number
+) =>
+  `${process.env.WCA_URL}/payment/refund?attendee_id=${competitionId}-${userId}&payment_id=${paymentId}&refund_amount=${amount}`
+
 export const pollingRoute = (userId: string, competitionId: string) =>
   `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`
 export const meRoute = `${process.env.WCA_URL}/api/v0/users/me`

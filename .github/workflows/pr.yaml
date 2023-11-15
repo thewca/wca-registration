@@ -39,7 +39,7 @@ jobs:
         if: steps.trigger-deployment.outputs.triggered == 'true'
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
         if: steps.trigger-deployment.outputs.triggered == 'true'
       - name: Deploy if triggered
         if: steps.trigger-deployment.outputs.triggered == 'true'
