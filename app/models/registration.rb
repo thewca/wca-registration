@@ -107,13 +107,12 @@ class Registration
                            else
                              is_competing
                            end
-    update_attributes!(lanes: updated_lanes, is_competing: updated_is_competing) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
     updated_guests = if update_params[:guests].present?
                        update_params[:guests]
                      else
                        guests
                      end
-    update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+    update_attributes!(lanes: updated_lanes, is_attending: updated_is_competing, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
   end
 
   def init_payment_lane(amount, currency_code, id)
