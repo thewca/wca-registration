@@ -15,4 +15,5 @@ Rails.application.routes.draw do
   get '/api/v1/registrations/:competition_id', to: 'registration#list'
   get '/api/v1/:competition_id/payment', to: 'registration#payment_ticket'
   post '/api/v1/:competition_id/import', to: 'registration#import'
+  post '/test/reset', to: 'test#reset' if Rails.env.test?
 end
