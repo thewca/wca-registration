@@ -280,7 +280,7 @@ module Mocks
         ],
         'tabs' => [
           {
-            id => 30_361,
+            'id' => 30_361,
           },
         ],
         'class' => 'competition',

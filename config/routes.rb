@@ -4,6 +4,8 @@ Rails.application.routes.draw do
   unless Rails.env.production?
     mount Rswag::Ui::Engine => '/api-docs'
     mount Rswag::Api::Engine => '/api-docs'
+
+    get '/test/jwt/:user_id', to: 'test#token'
   end
 
   get '/healthcheck', to: 'healthcheck#index'

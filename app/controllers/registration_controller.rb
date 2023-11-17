@@ -20,9 +20,9 @@ class RegistrationController < ApplicationController
   before_action :validate_payment_ticket_request, only: [:payment_ticket]
 
   def create
+    event_ids = params.dig('competing', 'event_ids')
     comment = params['competing'][:comment] || ''
     guests = params[:guests] || 0
-
     id = SecureRandom.uuid
 
     step_data = {
@@ -33,7 +33,7 @@ class RegistrationController < ApplicationController
       step: 'Event Registration',
       step_details: {
         registration_status: 'waiting',
-        event_ids: @event_ids,
+        event_ids: event_ids,
         comment: comment,
         guests: guests,
       },
@@ -51,7 +51,7 @@ class RegistrationController < ApplicationController
 
   def validate_create_request
     @competition_id = registration_params[:competition_id]
-
+    @user_id = registration_params[:user_id]
     RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find!(@competition_id), @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
