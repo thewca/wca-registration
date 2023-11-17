@@ -28,8 +28,6 @@ class Registration
   end
 
   def attendee_id
-    attendee_id = "#{competition_id}-#{user_id}"
-    puts "returning attendee id: #{attendee_id}"
     "#{competition_id}-#{user_id}"
   end
 
@@ -164,7 +162,6 @@ class Registration
   private
 
     def set_is_competing
-      puts "executing set is competing for: #{attendee_id}"
       self.is_competing = true if competing_status == 'accepted'
     end
 
