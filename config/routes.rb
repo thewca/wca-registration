@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     mount Rswag::Api::Engine => '/api-docs'
 
     get '/test/jwt/:user_id', to: 'test#token'
+    get '/test/reset', to: 'test#reset'
   end
 
   get '/healthcheck', to: 'healthcheck#index'
