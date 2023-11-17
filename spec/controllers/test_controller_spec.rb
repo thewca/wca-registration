@@ -8,7 +8,7 @@ describe TestController do
     it 'route is available when RAILS_ENV is test' do
       jwt_token = fetch_jwt_token('1306')
       request.headers['Authorization'] = jwt_token
-      post :reset
+      get :reset
       expect(response).to have_http_status(200)
     end
 

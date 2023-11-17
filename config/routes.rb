@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   unless Rails.env.production?
     mount Rswag::Ui::Engine => '/api-docs'
     mount Rswag::Api::Engine => '/api-docs'
+    get '/test/reset', to: 'test#reset'
   end
 
   get '/healthcheck', to: 'healthcheck#index'
@@ -15,5 +16,4 @@ Rails.application.routes.draw do
   get '/api/v1/registrations/:competition_id', to: 'registration#list'
   get '/api/v1/:competition_id/payment', to: 'registration#payment_ticket'
   post '/api/v1/:competition_id/import', to: 'registration#import'
-  post '/test/reset', to: 'test#reset' if Rails.env.test?
 end
