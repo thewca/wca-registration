@@ -14,15 +14,14 @@ class TestController < ApplicationController
     iat = Time.now.to_i
     jti_raw = [JwtOptions.secret, iat].join(':').to_s
     jti = Digest::MD5.hexdigest(jti_raw)
-    payload = { user_id: user_id , exp: Time.now.to_i + JwtOptions.expiry, sub: user_id, iat: iat, jti: jti }
+    payload = { user_id: user_id, exp: Time.now.to_i + JwtOptions.expiry, sub: user_id, iat: iat, jti: jti }
     token = JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
-    render json: { token: token}, status: :ok
+    render json: { token: token }, status: :ok
   end
-  
+
   def reset
     return head :forbidden if Rails.env.production?
     DynamoidReset.all
     head :ok
   end
 end
-
