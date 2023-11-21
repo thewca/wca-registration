@@ -3,9 +3,9 @@
 require_relative 'error_codes'
 require_relative 'wca_api'
 class PaymentApi < WcaApi
-  def self.get_ticket(attendee_id, amount, currency_code)
+  def self.get_ticket(attendee_id, amount, currency_code, current_user)
     response = HTTParty.post(payment_init_path,
-                             body: { 'attendee_id' => attendee_id, 'amount' => amount, 'currency_code' => currency_code }.to_json,
+                             body: { 'attendee_id' => attendee_id, 'amount' => amount, 'currency_code' => currency_code, 'current_user' => current_user }.to_json,
                              headers: { WCA_API_HEADER => self.get_wca_token,
                                         'Content-Type' => 'application/json' })
     unless response.ok?
