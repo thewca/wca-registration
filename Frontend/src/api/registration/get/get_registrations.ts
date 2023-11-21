@@ -3,7 +3,7 @@ import { getJWT } from '../../auth/get_jwt'
 import backendFetch, { BackendError } from '../../helper/backend_fetch'
 import { EXPIRED_TOKEN } from '../../helper/error_codes'
 import { components, paths } from '../../schema'
-import getCompetitorInfo from '../../user/get/get_user_info'
+import { getCompetitorsInfo } from '../../user/get/get_user_info'
 
 const { GET } = createClient<paths>({
   // TODO: Change this once we are fully migrated from backend fetch
@@ -22,19 +22,16 @@ export async function getConfirmedRegistrations(
       params: { path: { competition_id: competitionID } },
     }
   )
-  const regList = []
   if (!response.ok) {
     throw new BackendError(500, response.status)
   }
-  for (const registration of data!) {
-    const user = (await getCompetitorInfo(registration.user_id)).user
-    regList.push({
-      user_id: registration.user_id,
-      competing: registration.competing,
-      user,
-    })
-  }
-  return regList
+  const userInfos = await getCompetitorsInfo(data!.map((d) => d.user_id))
+  return data!.map((registration) => ({
+    ...registration,
+    user: userInfos.users.find(
+      (user) => user.id === Number(registration.user_id)
+    ),
+  }))
 }
 
 export async function getAllRegistrations(
@@ -48,7 +45,6 @@ export async function getAllRegistrations(
       headers: { Authorization: await getJWT() },
     }
   )
-  const regList = []
   if (error) {
     if (error.error === EXPIRED_TOKEN) {
       await getJWT(true)
@@ -56,14 +52,13 @@ export async function getAllRegistrations(
     }
     throw new BackendError(error.error, response.status)
   }
-  for (const registration of data!) {
-    const user = (await getCompetitorInfo(registration.user_id)).user
-    regList.push({
-      ...registration,
-      user,
-    })
-  }
-  return regList
+  const userInfos = await getCompetitorsInfo(data!.map((d) => d.user_id))
+  return data!.map((registration) => ({
+    ...registration,
+    user: userInfos.users.find(
+      (user) => user.id === Number(registration.user_id)
+    ),
+  }))
 }
 
 export async function getSingleRegistration(
