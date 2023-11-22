@@ -25,7 +25,7 @@ export default function getPermissionsMock(): Permissions {
           scope: [],
         },
         can_administer_competitions: {
-          scope: [],
+          scope: ['KoelnerKubing2023'],
         },
       }
     case '6427':

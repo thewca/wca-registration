@@ -125,19 +125,21 @@ export default function Competition({ children }) {
                 <span className={styles.eventHeader}>Events:</span>
                 {competitionInfo.event_ids.map((event) => (
                   <span key={`event-header-${event}`} className={styles.event}>
-                    <CubingIcon event={event} selected={true} />
+                    <CubingIcon event={event} selected />
                   </span>
                 ))}
               </div>
-              <div>
-                <span className={styles.eventHeader}>Main Event:</span>
-                <span className={styles.event}>
-                  <CubingIcon
-                    event={competitionInfo.main_event_id}
-                    selected={true}
-                  />
-                </span>
-              </div>
+              {competitionInfo.main_event_id && (
+                <div>
+                  <span className={styles.eventHeader}>Main Event:</span>
+                  <span className={styles.event}>
+                    <CubingIcon
+                      event={competitionInfo.main_event_id}
+                      selected
+                    />
+                  </span>
+                </div>
+              )}
             </div>
           </Container>
           {children}

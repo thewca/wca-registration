@@ -2,6 +2,7 @@ import * as currencies from '@dinero.js/currencies'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
 import { dinero, toDecimal } from 'dinero.js'
+import moment from 'moment'
 import React, { useContext, useEffect, useState } from 'react'
 import {
   Button,
@@ -87,6 +88,9 @@ export default function CompetingStep({ nextStep }) {
         setProcessing(true)
       },
     })
+  const canUpdateRegistration =
+    competitionInfo.allow_registration_edits &&
+    new Date(competitionInfo.event_change_deadline_date) > Date.now()
 
   return isLoading ? (
     <LoadingMessage />
@@ -188,6 +192,7 @@ export default function CompetingStep({ nextStep }) {
               maxLength={180}
               onChange={(_, data) => setComment(data.value)}
               value={comment}
+              id="comment"
             />
             <div className={styles.commentCounter}>{comment.length}/180</div>
           </div>
@@ -219,20 +224,31 @@ export default function CompetingStep({ nextStep }) {
           {registration?.competing?.registration_status ? (
             <div className={styles.registrationButtonWrapper}>
               <div className={styles.registrationWarning}>
-                Your Registration Status:
+                Your Registration Status:{' '}
                 {registration.competing.registration_status}
                 <br />
-                {competitionInfo.allow_registration_edits
+                {canUpdateRegistration
                   ? 'Update Your Registration below'
                   : 'Registration Editing is disabled'}
-                <UiIcon name="circle info" />
+                <Popup
+                  trigger={<UiIcon name="circle info" />}
+                  position="top center"
+                  content={
+                    canUpdateRegistration
+                      ? `You can update your registration until ${moment(
+                          competitionInfo.event_change_deadline_date ??
+                            competitionInfo.end_date
+                        ).format('ll')}`
+                      : 'You can no longer update your registration'
+                  }
+                />
               </div>
               <Button
                 disabled={
                   isUpdating ||
-                  !competitionInfo.allow_registration_edits ||
                   (competitionInfo.force_comment_in_registration &&
-                    comment === '')
+                    comment === '') ||
+                  !canUpdateRegistration
                 }
                 color="blue"
                 onClick={() => {
@@ -283,7 +299,12 @@ export default function CompetingStep({ nextStep }) {
               </div>
               <Button
                 className={styles.registrationButton}
-                disabled={isCreating || selectedEvents.length === 0}
+                disabled={
+                  isCreating ||
+                  selectedEvents.length === 0 ||
+                  (competitionInfo.force_comment_in_registration &&
+                    comment === '')
+                }
                 onClick={async () => {
                   setMessage('Registration is being processed', 'basic')
                   createRegistrationMutation({

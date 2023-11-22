@@ -24,18 +24,20 @@ interface CompetitionInfo {
   'refund_policy_percent'?: number
   'event_change_deadline_date'?: string
   'waiting_list_deadline_date'?: string
-  'base_entry_fee_lowest_denomination'?: string
+  'base_entry_fee_lowest_denomination'?: number
   'currency_code'?: string
   'on_the_spot_registration': boolean
-  'on_the_spot_entry_fee_lowest_denomination': string
+  'on_the_spot_entry_fee_lowest_denomination'?: number
   'extra_registration_requirements': string
   'guests_entry_fee_lowest_denomination': number
   'url': string
+  'qualification_results': boolean
+  'event_restrictions': boolean
   'website': string
   'short_name': string
   'city': string
+  'enable_donations': boolean
   'venue': string
-  'competition_events': CompetitionEvent[]
   'venue_address': string
   'force_comment_in_registration': boolean
   'venue_details'?: string
@@ -47,10 +49,10 @@ interface CompetitionInfo {
   'use_wca_registration': boolean
   'uses_qualification?': boolean
   'uses_cutoff?': boolean
-  'using_stripe_payments?': boolean
+  'using_stripe_payments?'?: boolean
   'external_registration_page'?: string
   'event_ids': EventId[]
-  'main_event_id': EventId
+  'main_event_id'?: EventId
   'guests_per_registration_limit'?: number
   'guest_entry_status': 'free' | 'restricted' | 'unclear'
   'allow_registration_edits': boolean
@@ -72,21 +74,36 @@ interface CompetitionEvent {
 }
 
 interface UserFull {
-  id: string
+  id: number
   created_at: string
   updated_at: string
   name: string
-  delegate_status: string
+  delegate_status?: string
   gender: 'm' | 'f' | 'o'
   country_iso2: string
-  email: string
-  region: string
-  senior_delegate_id: number
+  location?: string
+  email?: string
+  region?: string
+  senior_delegate_id?: number
   class: string
-  //TODO
-  teams: object[]
-  wca_id: string
+  url: string
+  teams: {
+    id: number
+    friendly_id: string
+    leader: boolean
+    name: string
+    senior_member: boolean
+    wca_id: string
+    avatar: {
+      url: string
+      thumb: {
+        url: string
+      }
+    }
+  }[]
+  wca_id?: string
   country: {
+    continentId: string
     id: string
     name: string
     iso2: string
@@ -95,5 +112,6 @@ interface UserFull {
     url: string
     pending_url: string
     thumb_url: string
+    is_default: boolean
   }
 }
