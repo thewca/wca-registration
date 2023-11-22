@@ -1,11 +1,19 @@
 # frozen_string_literal: true
 
 require 'jwt'
-require_relative '../../spec/support/dynamoid_reset'
 
 class TestController < ApplicationController
-  include DynamoidReset
   skip_before_action :validate_token, only: [:token, :reset]
+
+  def reset
+    unless Rails.env.production?
+      require_relative '../../spec/support/dynamoid_reset'
+      DynamoidReset.all
+      return head :ok
+    end
+    head :forbidden
+  end
+  
   def token
     # This route isn't actually in the routes definition on prod
     return head :forbidden if Rails.env.production?
@@ -17,11 +25,5 @@ class TestController < ApplicationController
     payload = { user_id: user_id, exp: Time.now.to_i + JwtOptions.expiry, sub: user_id, iat: iat, jti: jti }
     token = JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
     render json: { token: token }, status: :ok
-  end
-
-  def reset
-    return head :forbidden if Rails.env.production?
-    DynamoidReset.all
-    head :ok
   end
 end
