@@ -86,7 +86,7 @@ class Registration
         if update_params[:status].present?
           lane.lane_state = update_params[:status]
 
-          lane.lane_details[:event_details].each do |event|
+          lane.lane_details['event_details'].each do |event|
             # NOTE: Currently event_registration_state is not used - when per-event registrations are added, we need to add validation logic to support cases like
             # limited registrations and waiting lists for certain events
             event['event_registration_state'] = update_params[:status]
