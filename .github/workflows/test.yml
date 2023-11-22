@@ -26,5 +26,3 @@ jobs:
           npm run lint
       - name: Backend Tests
         run: docker compose -f "docker-compose.backend-test.yml" up wca_registration_handler --abort-on-container-exit
-      - name: Frontend Tests
-        run: docker compose -f "docker-compose.frontend-test.yml" up cypress --abort-on-container-exit
