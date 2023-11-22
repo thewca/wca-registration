@@ -89,6 +89,9 @@ export default function CompetingStep({ nextStep }) {
         setProcessing(true)
       },
     })
+  const canUpdateRegistration =
+    competitionInfo.allow_registration_edits &&
+    new Date(competitionInfo.event_change_deadline_date) > Date.now()
 
   return isLoading ? (
     <LoadingMessage />
@@ -195,6 +198,7 @@ export default function CompetingStep({ nextStep }) {
                   ? 'A comment is required. Read the Registration Requirements to find out why.'
                   : ''
               }
+              id="comment"
             />
             <div className={styles.commentCounter}>{comment.length}/240</div>
           </div>
@@ -226,13 +230,24 @@ export default function CompetingStep({ nextStep }) {
           {registration?.competing?.registration_status ? (
             <div className={styles.registrationButtonWrapper}>
               <div className={styles.registrationWarning}>
-                Your Registration Status:
+                Your Registration Status:{' '}
                 {registration.competing.registration_status}
                 <br />
-                {competitionInfo.allow_registration_edits
+                {canUpdateRegistration
                   ? 'Update Your Registration below'
                   : 'Registration Editing is disabled'}
-                <UiIcon name="circle info" />
+                <Popup
+                  trigger={<UiIcon name="circle info" />}
+                  position="top center"
+                  content={
+                    canUpdateRegistration
+                      ? `You can update your registration until ${moment(
+                          competitionInfo.event_change_deadline_date ??
+                            competitionInfo.end_date
+                        ).format('ll')}`
+                      : 'You can no longer update your registration'
+                  }
+                />
               </div>
               {moment(
                 // If no deadline is set default to always be in the future

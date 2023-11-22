@@ -51,7 +51,7 @@ class Registration
   end
 
   def competing_status
-    lanes.filter_map { |x| x.lane_state if x.lane_name == 'competing' }[0]
+    lanes&.filter_map { |x| x.lane_state if x.lane_name == 'competing' }&.first
   end
 
   def competing_comment
