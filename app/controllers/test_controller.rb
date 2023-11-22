@@ -13,7 +13,7 @@ class TestController < ApplicationController
     end
     head :forbidden
   end
-  
+
   def token
     # This route isn't actually in the routes definition on prod
     return head :forbidden if Rails.env.production?
