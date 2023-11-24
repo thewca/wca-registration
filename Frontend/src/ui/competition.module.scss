@@ -47,8 +47,7 @@
   border-radius: 12px !important;
 }
 .fee{
-  font-size: $sub-header-size;
-  margin-left: $single-margin;
+  white-space: break-spaces;
 }
 .event-list{
   padding: 30px;
@@ -63,3 +62,4 @@
 .event{
   margin-left: $single-margin;
 }
+

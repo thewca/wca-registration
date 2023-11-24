@@ -42,42 +42,54 @@ export default function HomePage() {
       <Segment padded attached>
         <Grid>
           <Grid.Column width={3}>
-            <Header>Date</Header>
-            <Header>City</Header>
-            <Header>Venue</Header>
-            <Header color="grey">Address</Header>
+            <Header className={styles.informationHeader}>Date</Header>
+            <Header className={styles.informationHeader}>City</Header>
+            <Header className={styles.informationHeader}>Venue</Header>
+            <Header className={styles.informationHeader} color="grey">
+              Address
+            </Header>
             {competitionInfo.venue_details && (
-              <Header color="grey">Details</Header>
+              <Header className={styles.informationHeader} color="grey">
+                Details
+              </Header>
             )}
-            <Header>Competitor Limit</Header>
-            <Header>Contact</Header>
-            <Header>Organizers</Header>
-            <Header>Delegates</Header>
+            <Header className={styles.informationHeader}>
+              Competitor Limit
+            </Header>
+            <Header className={styles.informationHeader}>Contact</Header>
+            <Header className={styles.informationHeader}>Organizers</Header>
+            <Header className={styles.informationHeader}>Delegates</Header>
           </Grid.Column>
           <Grid.Column width={12}>
-            <Header>
+            <Header className={styles.informationHeader}>
               {competitionInfo.start_date === competitionInfo.end_date
                 ? `${moment(competitionInfo.start_date).format('ll')}`
                 : `${moment(competitionInfo.start_date).format(
                     'll'
                   )} to ${moment(competitionInfo.end_date).format('ll')}`}
             </Header>
-            <Header>
+            <Header className={styles.informationHeader}>
               {competitionInfo.city}, {competitionInfo.country_iso2}
             </Header>
-            <Header>
+            <Header className={styles.informationHeader}>
               <p
                 dangerouslySetInnerHTML={{
                   __html: marked(competitionInfo.venue),
                 }}
               />
             </Header>
-            <Header color="grey">{competitionInfo.venue_address}</Header>
+            <Header className={styles.informationHeader} color="grey">
+              {competitionInfo.venue_address}
+            </Header>
             {competitionInfo.venue_details && (
-              <Header color="grey">{competitionInfo.venue_details}</Header>
+              <Header className={styles.informationHeader} color="grey">
+                {competitionInfo.venue_details}
+              </Header>
             )}
-            <Header>{competitionInfo.competitor_limit}</Header>
-            <Header>
+            <Header className={styles.informationHeader}>
+              {competitionInfo.competitor_limit}
+            </Header>
+            <Header className={styles.informationHeader}>
               {competitionInfo.contact ? (
                 <span
                   dangerouslySetInnerHTML={{
@@ -92,7 +104,7 @@ export default function HomePage() {
                 </a>
               )}
             </Header>
-            <Header>
+            <Header className={styles.informationHeader}>
               {competitionInfo.organizers.map((organizer, index) => (
                 <a
                   key={`competition-organizer-${organizer.id}`}
@@ -103,7 +115,7 @@ export default function HomePage() {
                 </a>
               ))}
             </Header>
-            <Header>
+            <Header className={styles.informationHeader}>
               {competitionInfo.delegates.map((delegate, index) => (
                 <a
                   key={`competition-organizer-${delegate.id}`}
@@ -116,7 +128,7 @@ export default function HomePage() {
             </Header>
           </Grid.Column>
         </Grid>
-        <Header>
+        <Header className={styles.informationHeader}>
           <UiIcon name="print" />
           <Header.Content>
             Download all of the competitions details as a PDF{' '}

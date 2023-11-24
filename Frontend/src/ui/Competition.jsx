@@ -110,7 +110,7 @@ export default function Competition({ children }) {
                   >
                     Register
                   </Button>
-                  <Label size="massive">
+                  <Label size="massive" className={styles.fee}>
                     Registration Fee:{' '}
                     {toDecimal(
                       dinero({
