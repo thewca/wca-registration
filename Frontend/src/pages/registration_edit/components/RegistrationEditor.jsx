@@ -3,7 +3,14 @@ import { EventSelector } from '@thewca/wca-components'
 import moment from 'moment/moment'
 import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Button, Checkbox, Header, Segment, TextArea } from 'semantic-ui-react'
+import {
+  Button,
+  Checkbox,
+  Header,
+  Message,
+  Segment,
+  TextArea,
+} from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
@@ -64,6 +71,11 @@ export default function RegistrationEditor() {
     }
   }, [serverRegistration])
 
+  const registrationEditDeadlinePassed = moment(
+    // If no deadline is set default to always be in the future
+    competitionInfo.event_change_deadline_date ?? Date.now() + 1
+  ).isBefore()
+
   return (
     <Segment>
       {!registration?.competing?.registration_status || isLoading ? (
@@ -74,6 +86,7 @@ export default function RegistrationEditor() {
           <EventSelector
             handleEventSelection={setSelectedEvents}
             selected={selectedEvents}
+            disabled={registrationEditDeadlinePassed}
             events={competitionInfo.event_ids}
             size="2x"
           />
@@ -82,6 +95,7 @@ export default function RegistrationEditor() {
             id="competitor-comment"
             maxLength={240}
             value={comment}
+            disabled={registrationEditDeadlinePassed}
             onChange={(_, data) => {
               setComment(data.value)
             }}
@@ -91,6 +105,7 @@ export default function RegistrationEditor() {
             id="admin-comment"
             maxLength={240}
             value={adminComment}
+            disabled={registrationEditDeadlinePassed}
             onChange={(_, data) => {
               setAdminComment(data.value)
             }}
@@ -103,6 +118,7 @@ export default function RegistrationEditor() {
               name="checkboxRadioGroup"
               value="pending"
               checked={status === 'pending'}
+              disabled={registrationEditDeadlinePassed}
               onChange={(_, data) => setStatus(data.value)}
             />
             <br />
@@ -112,6 +128,7 @@ export default function RegistrationEditor() {
               name="checkboxRadioGroup"
               value="accepted"
               checked={status === 'accepted'}
+              disabled={registrationEditDeadlinePassed}
               onChange={(_, data) => setStatus(data.value)}
             />
             <br />
@@ -121,6 +138,7 @@ export default function RegistrationEditor() {
               name="checkboxRadioGroup"
               value="waiting_list"
               checked={status === 'waiting_list'}
+              disabled={registrationEditDeadlinePassed}
               onChange={(_, data) => setStatus(data.value)}
             />
             <br />
@@ -129,14 +147,14 @@ export default function RegistrationEditor() {
               label="Cancelled"
               name="checkboxRadioGroup"
               value="cancelled"
+              disabled={registrationEditDeadlinePassed}
               checked={status === 'cancelled'}
               onChange={(_, data) => setStatus(data.value)}
             />
           </div>
-          {moment(
-            // If no deadline is set default to always be in the future
-            competitionInfo.event_change_deadline_date ?? Date.now() + 1
-          ).isAfter() && (
+          {registrationEditDeadlinePassed ? (
+            <Message negative>Registration edit deadline has passed.</Message>
+          ) : (
             <Button
               color="blue"
               onClick={() => {
