@@ -72,7 +72,7 @@ export default function Schedule() {
                   <Table.HeaderCell>Room</Table.HeaderCell>
                   <Table.HeaderCell>Format</Table.HeaderCell>
                   <Table.HeaderCell>Time Limit</Table.HeaderCell>
-                  <Table.HeaderCell>Time Cutoff</Table.HeaderCell>
+                  <Table.HeaderCell>Cutoff</Table.HeaderCell>
                   <Table.HeaderCell>Proceed</Table.HeaderCell>
                 </Table.Row>
               </Table.Header>
