@@ -13,6 +13,8 @@ export default function UserProvider({ children }) {
     queryKey: ['user-me'],
     queryFn: () => getMe(),
     retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     onError: (_) => {
       // We are not logged in, set user explicitly to undefined?
     },
