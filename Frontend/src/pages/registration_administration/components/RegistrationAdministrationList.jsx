@@ -217,6 +217,7 @@ export default function RegistrationAdministrationList() {
           await refetch()
           dispatch({ type: 'clear-selected' })
         }}
+        registrations={registrations}
       />
     </>
   )
