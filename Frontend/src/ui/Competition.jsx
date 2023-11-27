@@ -60,7 +60,10 @@ export default function Competition({ children }) {
                       </Header.Content>
                     ) : (
                       <Header.Content>
-                        {competitionInfo.name} | Close
+                        {competitionInfo.name} |{' '}
+                        {moment(competitionInfo.registration_open).isAfter()
+                          ? 'Not Yet Open'
+                          : 'Closed'}
                       </Header.Content>
                     )}
                     <Header.Subheader>
