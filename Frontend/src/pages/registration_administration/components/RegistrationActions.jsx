@@ -7,7 +7,30 @@ import { updateRegistration } from '../../../api/registration/patch/update_regis
 import { setMessage } from '../../../ui/events/messages'
 import styles from './actions.module.scss'
 
-export default function RegistrationActions({ selected, refresh }) {
+function csvExport(selected, registrations) {
+  let csvContent = 'data:text/csv;charset=utf-8,'
+  csvContent +=
+    'user_id,guests,competing.event_ids,competing.registration_status,competing.registered_on,competing.comment,competing.admin_comment\n'
+  registrations
+    .filter((r) => selected.includes(r.user.id))
+    .forEach((registration) => {
+      csvContent += `${registration.user_id},${
+        registration.guests
+      },${registration.competing.event_ids.join(';')},${
+        registration.competing.registration_status
+      },${registration.competing.registered_on},${
+        registration.competing.comment
+      },${registration.competing.admin_comment}\n`
+    })
+  const encodedUri = encodeURI(csvContent)
+  window.open(encodedUri)
+}
+
+export default function RegistrationActions({
+  selected,
+  refresh,
+  registrations,
+}) {
   const { competitionInfo } = useContext(CompetitionContext)
   const anySelected =
     selected.pending.length > 0 ||
@@ -62,7 +85,19 @@ export default function RegistrationActions({ selected, refresh }) {
   return (
     anySelected && (
       <Button.Group className={styles.actions}>
-        <Button>
+        <Button
+          onClick={() => {
+            csvExport(
+              [
+                ...selected.pending,
+                ...selected.accepted,
+                ...selected.cancelled,
+                ...selected.waiting,
+              ],
+              registrations
+            )
+          }}
+        >
           <UiIcon name="download" /> Export to CSV
         </Button>
         <Button>
