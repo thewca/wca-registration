@@ -8,11 +8,11 @@ class LaneFactory
     competing_lane.completed_steps = ['Event Registration']
     competing_lane.lane_state = registration_status
     competing_lane.lane_details = {
-      event_details: event_ids.map { |event_id| { event_id: event_id, event_registration_state: registration_status } },
-      comment: comment,
-      admin_comment: admin_comment,
-      guests: guests,
-    }.stringify_keys
+      'event_details' => event_ids.map { |event_id| { event_id: event_id, event_registration_state: registration_status } },
+      'comment' => comment,
+      'admin_comment' => admin_comment,
+      'guests' => guests,
+    }
     competing_lane
   end
 
@@ -22,11 +22,11 @@ class LaneFactory
     payment_lane.completed_steps = ['Payment Intent Init']
     payment_lane.lane_state = 'initialized'
     payment_lane.lane_details = {
-      amount_lowest_denominator: fee_lowest_denominator,
-      payment_id: payment_id,
-      currency_code: currency_code,
-      last_updated: Time.now,
-      payment_history: [],
+      'amount_lowest_denominator' => fee_lowest_denominator,
+      'payment_id' => payment_id,
+      'currency_code' => currency_code,
+      'last_updated' => Time.now,
+      'payment_history' => [],
     }
     payment_lane
   end
