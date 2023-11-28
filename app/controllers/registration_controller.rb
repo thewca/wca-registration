@@ -110,7 +110,7 @@ class RegistrationController < ApplicationController
           registered_on: updated_registration['created_at'],
           comment: updated_registration.competing_comment,
           admin_comment: updated_registration.admin_comment,
-          waiting_list_position: updated_registration.waiting_list_position
+          waiting_list_position: updated_registration.waiting_list_position,
         },
       } }
     rescue StandardError => e
@@ -196,9 +196,13 @@ class RegistrationController < ApplicationController
 
     waiting = Rails.cache.fetch("#{competition_id}-waiting", expires_in: 60.minutes) do
       registrations = get_registrations(competition_id)
-      registrations.filter_map { |r| { user_id: r[:user_id],
-                                       competing: { event_ids: r[:competing][:event_ids],
-                                                    waiting_list_position: r[:competing][:waiting_list_position] || 0} } if r[:competing][:registration_status] == 'waiting_list' }.to_a
+      registrations.filter_map { |r|
+        if r[:competing][:registration_status] == 'waiting_list'
+          { user_id: r[:user_id],
+            competing: { event_ids: r[:competing][:event_ids],
+                         waiting_list_position: r[:competing][:waiting_list_position] || 0 } }
+        end
+      }.to_a
     end
 
     render json: waiting
@@ -282,7 +286,7 @@ class RegistrationController < ApplicationController
               registered_on: x['created_at'],
               comment: x.competing_comment,
               admin_comment: x.admin_comment,
-              waiting_list_position: x.waiting_list_position
+              waiting_list_position: x.waiting_list_position,
             },
             payment: {
               payment_status: x.payment_status,
