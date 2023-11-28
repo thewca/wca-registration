@@ -3,7 +3,7 @@
 require 'jwt'
 
 class TestController < ApplicationController
-  skip_before_action :validate_token, only: [:token, :reset, :error]
+  skip_before_action :validate_token, only: [:token, :reset]
 
   def reset
     unless Rails.env.production?
@@ -12,10 +12,6 @@ class TestController < ApplicationController
       return head :ok
     end
     head :forbidden
-  end
-
-  def error
-    raise 'boom'
   end
 
   def token
