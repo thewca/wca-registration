@@ -14,7 +14,10 @@ import {
 } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { UserContext } from '../../../api/helper/context/user_context'
-import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
+import {
+  getSingleRegistration,
+  getWaitingCompetitors,
+} from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
 import { setMessage } from '../../../ui/events/messages'
@@ -38,6 +41,19 @@ export default function CompetingStep({ nextStep }) {
   } = useQuery({
     queryKey: ['registration', competitionInfo.id, user.id],
     queryFn: () => getSingleRegistration(user.id, competitionInfo.id),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+    refetchOnMount: 'always',
+    retry: false,
+    onError: (err) => {
+      setMessage(err.error, 'error')
+    },
+  })
+
+  const { data: waiting } = useQuery({
+    queryKey: ['waiting', competitionInfo.id],
+    queryFn: () => getWaitingCompetitors(competitionInfo.id),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
@@ -159,7 +175,7 @@ export default function CompetingStep({ nextStep }) {
                 }),
                 ({ value, currency }) => `${currency.code} ${value}`
               ) ?? 'No Entry Fee'}{' '}
-              | Waitlist: 0 People
+              | Waitlist: {(waiting ?? []).length} People
             </div>
             <div className={styles.registrationRow}>
               <div className={styles.eventSelectionText}>
