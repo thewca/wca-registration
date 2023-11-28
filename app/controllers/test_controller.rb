@@ -15,7 +15,6 @@ class TestController < ApplicationController
   end
 
   def error
-    puts Rails.env
     raise 'boom'
   end
 
