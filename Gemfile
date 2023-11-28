@@ -90,6 +90,6 @@ group :development do
   gem 'ruby-prof'
 
   # Better Errors replaces the standard Rails error page with a much better and more useful error page.
-  # gem 'better_errors'
-  # gem 'binding_of_caller'
+  gem 'better_errors'
+  gem 'binding_of_caller'
 end
