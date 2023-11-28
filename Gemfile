@@ -88,4 +88,8 @@ group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
   gem 'ruby-prof'
+
+  # Better Errors replaces the standard Rails error page with a much better and more useful error page.
+  # gem 'better_errors'
+  # gem 'binding_of_caller'
 end

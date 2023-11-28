@@ -14,6 +14,10 @@ class TestController < ApplicationController
     head :forbidden
   end
 
+  def error
+    raise 'boom'
+  end
+
   def token
     # This route isn't actually in the routes definition on prod
     return head :forbidden if Rails.env.production?
