@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { useContext } from 'react'
-import { Table } from 'semantic-ui-react'
+import React, { useContext } from 'react'
+import { Table, TableFooter } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
-import { getWaitingCompetitors } from '../../../api/registration/get/get_waiting'
+import { getWaitingCompetitors } from '../../../api/registration/get/get_registrations'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
@@ -27,12 +27,26 @@ export default function WaitingList() {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {waiting.map((w, i) => (
-          <Table.Row key={w.user_id}>
-            <Table.Cell>{w.user_id}</Table.Cell>
-            <Table.Cell>{i}</Table.Cell>
-          </Table.Row>
-        ))}
+        {waiting ? (
+          waiting
+            .sort(
+              (w1, w2) =>
+                w1.competing.waiting_list_position -
+                w2.competing.waiting_list_position
+            )
+            .map((w) => (
+              <Table.Row key={w.user_id}>
+                <Table.Cell>{w.user.name}</Table.Cell>
+                <Table.Cell>
+                  {w.competing.waiting_list_position === 0
+                    ? 'Not yet assigned'
+                    : w.competing.waiting_list_position}
+                </Table.Cell>
+              </Table.Row>
+            ))
+        ) : (
+          <TableFooter>No one on the Waiting List.</TableFooter>
+        )}
       </Table.Body>
     </Table>
   )

@@ -90,19 +90,27 @@ class RegistrationController < ApplicationController
     comment = params.dig('competing', 'comment')
     event_ids = params.dig('competing', 'event_ids')
     admin_comment = params.dig('competing', 'admin_comment')
+    waiting_list_position = params.dig('competing', 'waiting_list_position')
 
     begin
       registration = Registration.find("#{@competition_id}-#{@user_id}")
-      updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
+      updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position })
+
+      # Delete Waiting list Cache
+      if status.present? || waiting_list_position.present?
+        Rails.cache.delete("#{@competition_id}-waiting")
+      end
+
       render json: { status: 'ok', registration: {
         user_id: updated_registration['user_id'],
-        guests: updated_registration.guests,
+        guests: updated_registration['guests'],
         competing: {
           event_ids: updated_registration.registered_event_ids,
           registration_status: updated_registration.competing_status,
           registered_on: updated_registration['created_at'],
           comment: updated_registration.competing_comment,
           admin_comment: updated_registration.admin_comment,
+          waiting_list_position: updated_registration.waiting_list_position
         },
       } }
     rescue StandardError => e
@@ -173,7 +181,7 @@ class RegistrationController < ApplicationController
   end
 
   def mine
-    my_registrations = Registration.where(user_id: @current_user).map {|x| {competition_id: x.competition_id, status: x.competing_status}}
+    my_registrations = Registration.where(user_id: @current_user).map { |x| { competition_id: x.competition_id, status: x.competing_status } }
     render json: { registrations: my_registrations }
   rescue StandardError => e
     # Render an error response
@@ -185,8 +193,14 @@ class RegistrationController < ApplicationController
 
   def list_waiting
     competition_id = list_params
-    registrations = get_registrations(competition_id)
-    waiting = registrations.filter_map { |r| { user_id: r['user_id'], competing: { event_ids: r.competing.event_ids } } if r.competing.registration_status == 'waiting_list' }
+
+    waiting = Rails.cache.fetch("#{competition_id}-waiting", expires_in: 60.minutes) do
+      registrations = get_registrations(competition_id)
+      registrations.filter_map { |r| { user_id: r[:user_id],
+                                       competing: { event_ids: r[:competing][:event_ids],
+                                                    waiting_list_position: r[:competing][:waiting_list_position] || 0} } if r[:competing][:registration_status] == 'waiting_list' }.to_a
+    end
+
     render json: waiting
   rescue StandardError => e
     # Render an error response
@@ -268,6 +282,7 @@ class RegistrationController < ApplicationController
               registered_on: x['created_at'],
               comment: x.competing_comment,
               admin_comment: x.admin_comment,
+              waiting_list_position: x.waiting_list_position
             },
             payment: {
               payment_status: x.payment_status,

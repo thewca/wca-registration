@@ -50,6 +50,11 @@ class Registration
     competing_lane.lane_details['event_details']
   end
 
+  def waiting_list_position
+    competing_lane = lanes.find { |x| x.lane_name == 'competing' }
+    competing_lane.lane_details['waiting_list_position']
+  end
+
   def competing_status
     lanes&.filter_map { |x| x.lane_state if x.lane_name == 'competing' }&.first
   end
@@ -95,6 +100,8 @@ class Registration
 
         lane.lane_details['comment'] = update_params[:comment] if update_params[:comment].present?
         lane.lane_details['admin_comment'] = update_params[:admin_comment] if update_params[:admin_comment].present?
+        lane.lane_details['waiting_list_position'] = update_params[:waiting_list_position] if update_params[:waiting_list_position].present?
+
         if update_params[:event_ids].present? && update_params[:status] != 'cancelled'
           lane.update_events(update_params[:event_ids])
         end

@@ -12,6 +12,28 @@ const { GET } = createClient<paths>({
   baseUrl: process.env.API_URL.slice(0, -7),
 })
 
+async function addUserInfo(
+  registrations:
+    | components['schemas']['registration'][]
+    | components['schemas']['registrationAdmin'][]
+): Promise<
+  | components['schemas']['registration'][]
+  | components['schemas']['registrationAdmin'][]
+> {
+  if (registrations.length > 0) {
+    const userInfos = await getCompetitorsInfo(
+      registrations.map((d) => d.user_id)
+    )
+    return registrations.map((registration) => ({
+      ...registration,
+      user: userInfos.users.find(
+        (user) => user.id === Number(registration.user_id)
+      ),
+    }))
+  }
+  return []
+}
+
 export async function getConfirmedRegistrations(
   competitionID: string
 ): Promise<components['schemas']['registration'][]> {
@@ -25,16 +47,7 @@ export async function getConfirmedRegistrations(
   if (!response.ok) {
     throw new BackendError(500, response.status)
   }
-  if (data!.length > 0) {
-    const userInfos = await getCompetitorsInfo(data!.map((d) => d.user_id))
-    return data!.map((registration) => ({
-      ...registration,
-      user: userInfos.users.find(
-        (user) => user.id === Number(registration.user_id)
-      ),
-    }))
-  }
-  return []
+  return addUserInfo(data!)
 }
 
 export async function getAllRegistrations(
@@ -55,13 +68,9 @@ export async function getAllRegistrations(
     }
     throw new BackendError(error.error, response.status)
   }
-  const userInfos = await getCompetitorsInfo(data!.map((d) => d.user_id))
-  return data!.map((registration) => ({
-    ...registration,
-    user: userInfos.users.find(
-      (user) => user.id === Number(registration.user_id)
-    ),
-  }))
+  return (await addUserInfo(
+    data!
+  )) as components['schemas']['registrationAdmin'][]
 }
 
 export async function getSingleRegistration(
@@ -73,4 +82,20 @@ export async function getSingleRegistration(
     'GET',
     { needsAuthentication: true }
   ) as Promise<{ registration: components['schemas']['registrationAdmin'] }>
+}
+
+export async function getWaitingCompetitors(
+  competitionId: string
+): Promise<components['schemas']['registrationAdmin'][]> {
+  const registrations = (await backendFetch(
+    `/registrations/${competitionId}/waiting`,
+    'GET',
+    {
+      needsAuthentication: false,
+    }
+  )) as components['schemas']['registrationAdmin'][]
+
+  return (await addUserInfo(
+    registrations
+  )) as components['schemas']['registrationAdmin'][]
 }

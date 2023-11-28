@@ -7,6 +7,8 @@ import {
   Button,
   Checkbox,
   Header,
+  Input,
+  Label,
   Message,
   Segment,
   TextArea,
@@ -26,6 +28,8 @@ export default function RegistrationEditor() {
   const [comment, setComment] = useState('')
   const [adminComment, setAdminComment] = useState('')
   const [status, setStatus] = useState('')
+  const [waitingListPosition, setWaitingListPosition] = useState(0)
+  const [guests, setGuests] = useState(0)
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
   const [isCheckingRefunds, setIsCheckingRefunds] = useState(false)
@@ -68,6 +72,10 @@ export default function RegistrationEditor() {
       setAdminComment(
         serverRegistration.registration.competing.admin_comment ?? ''
       )
+      setWaitingListPosition(
+        serverRegistration.registration.competing.waiting_list_position ?? 0
+      )
+      setGuests(serverRegistration.registration.guests ?? 0)
     }
   }, [serverRegistration])
 
@@ -151,7 +159,31 @@ export default function RegistrationEditor() {
               checked={status === 'cancelled'}
               onChange={(_, data) => setStatus(data.value)}
             />
+            <br />
+            <Header>Guests</Header>
+            <Input
+              disabled={registrationEditDeadlinePassed}
+              type="number"
+              min={0}
+              max={99}
+              value={guests}
+              onChange={(_, data) => setGuests(data.value)}
+            />
           </div>
+          {status === 'waiting_list' && (
+            <>
+              <Header>Waiting List Position</Header>
+              <Input
+                disabled={registrationEditDeadlinePassed}
+                type="number"
+                min={0}
+                value={waitingListPosition}
+                onChange={(_, data) => setWaitingListPosition(data.value)}
+              />
+              <br />
+              <br />
+            </>
+          )}
           {registrationEditDeadlinePassed ? (
             <Message negative>Registration edit deadline has passed.</Message>
           ) : (
@@ -161,11 +193,13 @@ export default function RegistrationEditor() {
                 setMessage('Updating Registration', 'basic')
                 updateRegistrationMutation({
                   user_id,
+                  guests,
                   competing: {
                     status,
                     event_ids: selectedEvents,
                     comment,
                     admin_comment: adminComment,
+                    waiting_list_position: waitingListPosition,
                   },
                   competition_id: competitionInfo.id,
                 })

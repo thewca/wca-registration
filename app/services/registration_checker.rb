@@ -68,7 +68,7 @@ class RegistrationChecker
     def validate_guests!
       return unless @request.key?('guests')
 
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if @request['guests'] < 0
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if @request['guests'].to_i < 0
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if @competition_info.guest_limit_exceeded?(@request['guests'])
     end
 

@@ -16,6 +16,7 @@ import FlashMessage from './ui/messages/flashMessage'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import UserProvider from './ui/providers/UserProvider'
 import PageTabs from './ui/Tabs'
+import Waiting from './pages/waiting'
 
 export const BASE_ROUTE = '/competitions/v2'
 
@@ -63,6 +64,10 @@ const routes = [
           {
             path: `${BASE_ROUTE}/:competition_id/register`,
             element: <Register />,
+          },
+          {
+            path: `${BASE_ROUTE}/:competition_id/waiting`,
+            element: <Waiting />,
           },
           {
             path: `${BASE_ROUTE}/:competition_id/tabs/:tab_id`,

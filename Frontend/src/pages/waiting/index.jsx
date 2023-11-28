@@ -2,10 +2,10 @@ import React from 'react'
 import { Header } from 'semantic-ui-react'
 import WaitingList from './components/WaitingList'
 
-export default function Registrations() {
+export default function Waiting() {
   return (
     <div>
-      <Header>Competitors:</Header>
+      <Header>Waiting List:</Header>
       <WaitingList />
     </div>
   )

@@ -16,6 +16,7 @@ function pathMatch(name, pathname) {
   const eventsExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/events/
   const scheduleExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/schedule/
   const infoExpression = /\/competitions\/v2\/[a-zA-Z0-9]+$/
+  const waitingExpression = /\/competitions\/v2\/[a-zA-Z0-9]+\/waiting/
   switch (name) {
     case 'register':
       return registerExpression.test(pathname)
@@ -27,6 +28,8 @@ function pathMatch(name, pathname) {
       return scheduleExpressions.test(pathname)
     case 'info':
       return infoExpression.test(pathname)
+    case 'waiting':
+      return waitingExpression.test(pathname)
     case 'events':
       return eventsExpressions.test(pathname)
     default: {
@@ -93,6 +96,22 @@ export default function PageTabs() {
           >
             <UiIcon name="users" />
             Competitors
+          </Menu.Item>
+        ),
+        render: () => {},
+      })
+      optionalTabs.push({
+        menuItem: (
+          <Menu.Item
+            key="tab-Waiting"
+            name="waiting"
+            className={styles.tabItem}
+            onClick={() =>
+              navigate(`${BASE_ROUTE}/${competitionInfo.id}/waiting`)
+            }
+          >
+            <UiIcon name="clock" />
+            Waiting List
           </Menu.Item>
         ),
         render: () => {},
