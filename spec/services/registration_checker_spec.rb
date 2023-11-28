@@ -439,6 +439,15 @@ describe RegistrationChecker do
       end
     end
 
+    it 'required comment not needed in payload if status is cancelled' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, force_comment_in_registration: true))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'cancelled' })
+
+      expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
+        .not_to raise_error
+    end
+
     it 'organizer can change user comment' do
       registration = FactoryBot.create(:registration, 'comment' => 'original comment')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
