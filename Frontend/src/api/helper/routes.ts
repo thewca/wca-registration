@@ -8,6 +8,10 @@ export const paymentFinishRoute = (competitionId: string, userId: string) =>
 export const availableRefundsRoute = (competitionId: string, userId: string) =>
   `${process.env.WCA_URL}/payment/refunds?attendee_id=${competitionId}-${userId}`
 
+export const bookmarkCompetitionRoute = `${process.env.WCA_URL}/competitions/bookmark`
+
+export const unbookmarkCompetitionRoute = `${process.env.WCA_URL}/competitions/unbookmark`
+
 export const refundRoute = (
   competitionId: string,
   userId: string,
