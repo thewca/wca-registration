@@ -7,6 +7,7 @@ Rails.application.routes.draw do
 
     get '/test/jwt/:user_id', to: 'test#token'
     get '/test/reset', to: 'test#reset'
+    get '/test/error', to: 'test#error'
   end
 
   get '/healthcheck', to: 'healthcheck#index'
