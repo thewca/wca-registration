@@ -1,6 +1,6 @@
 import React from 'react'
+import { Header } from 'semantic-ui-react'
 import RegistrationList from './components/RegistrationList'
-import { Header } from "semantic-ui-react";
 
 export default function Registrations() {
   return (

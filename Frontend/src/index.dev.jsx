@@ -16,6 +16,7 @@ import Registrations from './pages/registrations'
 import Schedule from './pages/schedule'
 import TestLogin from './pages/test/login'
 import TestLogout from './pages/test/logout'
+import Waiting from './pages/waiting'
 import { BASE_ROUTE } from './routes'
 import App from './ui/App'
 import Competition from './ui/Competition'
@@ -26,7 +27,6 @@ import FlashMessage from './ui/messages/flashMessage'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import UserProvider from './ui/providers/UserProvider'
 import PageTabs from './ui/Tabs'
-import Waiting from './pages/waiting'
 
 const router = createBrowserRouter([
   {

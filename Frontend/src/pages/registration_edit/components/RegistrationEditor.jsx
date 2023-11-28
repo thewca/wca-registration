@@ -8,7 +8,6 @@ import {
   Checkbox,
   Header,
   Input,
-  Label,
   Message,
   Segment,
   TextArea,
