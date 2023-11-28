@@ -1,6 +1,7 @@
-export const tokenRoute = `${process.env.WCA_URL}/api/v0/users/token`
+export const tokenRoute = `${process.env.WCA_URL}/api/v0/users/me/token`
 export const permissionsRoute = `${process.env.WCA_URL}/api/v0/users/me/permissions`
-export const paymentConfigRoute = `${process.env.WCA_URL}/payment/config`
+export const paymentConfigRoute = (competitionId: string, paymentId: string) =>
+  `${process.env.WCA_URL}/payment/config?competition_id=${competitionId}&payment_id=${paymentId}`
 export const paymentFinishRoute = (competitionId: string, userId: string) =>
   `${process.env.WCA_URL}/payment/finish?attendee_id=${competitionId}-${userId}`
 

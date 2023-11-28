@@ -22,7 +22,7 @@ class RegistrationController < ApplicationController
   def create
     event_ids = params.dig('competing', 'event_ids')
     comment = params['competing'][:comment] || ''
-    guests = params[:guests] || 0
+    guests = params['competing'][:guests] || 0
     id = SecureRandom.uuid
 
     step_data = {
@@ -229,7 +229,7 @@ class RegistrationController < ApplicationController
 
     def get_registrations(competition_id, only_attending: false)
       if only_attending
-        Registration.where(competition_id: competition_id, is_attending: true).all.map do |x|
+        Registration.where(competition_id: competition_id, is_competing: true).all.map do |x|
           { user_id: x['user_id'],
             competing: {
               event_ids: x.event_ids,

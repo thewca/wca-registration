@@ -27,6 +27,9 @@ services:
       - localstack
       - prometheus_exporter
       - redis
+    dns:
+      # Set the DNS server to be the LocalStack container
+      - 10.0.2.20
 
   prometheus_exporter:
     container_name: prometheus_exporter
@@ -67,6 +70,9 @@ services:
       - wca-registration
     depends_on:
       - wca_registration_handler
+    dns:
+      # Set the DNS server to be the LocalStack container
+      - 10.0.2.20
 
   # Emulate AWS Services Locally
   localstack:
@@ -82,7 +88,8 @@ services:
       - "./localstack/volume:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
-      - wca-registration
+      wca-registration:
+        ipv4_address: 10.0.2.20
 
   dynamodb-admin:
     container_name: dynamodb-admin
@@ -147,3 +154,7 @@ volumes:
 networks:
   wca-registration:
     name: wca-registration
+    ipam:
+      config:
+        # Specify the subnet range for IP address allocation
+        - subnet: 10.0.2.0/24

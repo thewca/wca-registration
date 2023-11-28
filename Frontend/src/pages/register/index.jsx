@@ -19,22 +19,18 @@ export default function Register() {
       <div>
         <RegistrationRequirements />
       </div>
-      {!loggedIn ? (
-        <PermissionMessage>
-          You need to log in to Register for a competition
-        </PermissionMessage>
-      ) : // eslint-disable-next-line unicorn/no-nested-ternary
-      competitionInfo['registration_opened?'] ||
-        competitionInfo.organizers
-          .concat(competitionInfo.delegates)
-          .find((u) => u.id === user.id) ? (
+      {competitionInfo['registration_opened?'] ||
+      competitionInfo.organizers
+        .concat(competitionInfo.delegates)
+        .find((u) => u.id === user?.id) ? (
         <div>
           {canAttendCompetition ? (
             <StepPanel />
           ) : (
             <PermissionMessage>
-              You are not allowed to Register for a competition, make sure your
-              profile is complete and you are not banned
+              {loggedIn
+                ? 'You are not allowed to Register for a competition, make sure your profile is complete and you are not banned.'
+                : 'You need to log in to Register for a competition.'}
             </PermissionMessage>
           )}
         </div>
@@ -49,7 +45,9 @@ export default function Register() {
                   competitionInfo.registration_open
                 ).fromNow()} on ${moment(
                   competitionInfo.registration_open
-                ).format('lll')}`}
+                ).format('lll')}, ${
+                  !loggedIn ? 'you will need a WCA Account to register' : ''
+                }`}
           </Message>
         </div>
       )}

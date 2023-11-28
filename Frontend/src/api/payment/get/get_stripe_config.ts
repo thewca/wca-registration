@@ -11,12 +11,5 @@ export default async function getStripeConfig(
   competitionId: string,
   paymentId: string
 ): Promise<StripeConfig> {
-  return externalServiceFetch(paymentConfigRoute, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      competition_id: competitionId,
-      payment_id: paymentId,
-    }),
-  })
+  return externalServiceFetch(paymentConfigRoute(competitionId, paymentId))
 }

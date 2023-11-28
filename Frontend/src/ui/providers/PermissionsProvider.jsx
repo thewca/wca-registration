@@ -4,7 +4,6 @@ import { getPermissions } from '../../api/auth/get_permissions'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
-import { setMessage } from '../events/messages'
 import LoadingMessage from '../messages/loadingMessage'
 
 export default function PermissionsProvider({ children }) {
@@ -14,9 +13,6 @@ export default function PermissionsProvider({ children }) {
     queryKey: ['permissions-me'],
     queryFn: () => getPermissions(),
     retry: false,
-    onError: (err) => {
-      setMessage(err.message, 'error')
-    },
     // Don't try to get permissions if we are not logged in
     enabled: loggedIn,
   })

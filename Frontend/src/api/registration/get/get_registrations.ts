@@ -25,13 +25,16 @@ export async function getConfirmedRegistrations(
   if (!response.ok) {
     throw new BackendError(500, response.status)
   }
-  const userInfos = await getCompetitorsInfo(data!.map((d) => d.user_id))
-  return data!.map((registration) => ({
-    ...registration,
-    user: userInfos.users.find(
-      (user) => user.id === Number(registration.user_id)
-    ),
-  }))
+  if (data!.length > 0) {
+    const userInfos = await getCompetitorsInfo(data!.map((d) => d.user_id))
+    return data!.map((registration) => ({
+      ...registration,
+      user: userInfos.users.find(
+        (user) => user.id === Number(registration.user_id)
+      ),
+    }))
+  }
+  return []
 }
 
 export async function getAllRegistrations(

@@ -52,7 +52,8 @@ export default function CompetingStep({ nextStep }) {
       setRegistration(registrationRequest.registration)
       setComment(registrationRequest.registration.competing.comment ?? '')
       setSelectedEvents(registrationRequest.registration.competing.event_ids)
-      setGuests(registrationRequest.registration.guests)
+      // Ruby sends this as "1.0"
+      setGuests(Number(registrationRequest.registration.guests))
     }
   }, [registrationRequest])
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
@@ -189,12 +190,17 @@ export default function CompetingStep({ nextStep }) {
           </div>
           <div className={styles.commentWrapper}>
             <TextArea
-              maxLength={180}
+              maxLength={240}
               onChange={(_, data) => setComment(data.value)}
               value={comment}
+              placeholder={
+                competitionInfo.force_comment_in_registration
+                  ? 'A comment is required. Read the Registration Requirements to find out why.'
+                  : ''
+              }
               id="comment"
             />
-            <div className={styles.commentCounter}>{comment.length}/180</div>
+            <div className={styles.commentCounter}>{comment.length}/240</div>
           </div>
         </div>
         <div className={styles.registrationRow}>
@@ -243,45 +249,80 @@ export default function CompetingStep({ nextStep }) {
                   }
                 />
               </div>
-              <Button
-                disabled={
-                  isUpdating ||
-                  (competitionInfo.force_comment_in_registration &&
-                    comment === '') ||
-                  !canUpdateRegistration
-                }
-                color="blue"
-                onClick={() => {
-                  setMessage('Registration is being updated', 'basic')
-                  updateRegistrationMutation({
-                    user_id: registration.user_id,
-                    competition_id: competitionInfo.id,
-                    competing: {
-                      comment,
-                      guests,
-                      event_ids: selectedEvents,
-                    },
-                  })
-                }}
-              >
-                Update Registration
-              </Button>
-              <Button
-                disabled={isUpdating}
-                negative
-                onClick={() => {
-                  setMessage('Registration is being deleted', 'basic')
-                  updateRegistrationMutation({
-                    user_id: registration.user_id,
-                    competition_id: competitionInfo.id,
-                    competing: {
-                      status: 'cancelled',
-                    },
-                  })
-                }}
-              >
-                Delete Registration
-              </Button>
+              {moment(
+                // If no deadline is set default to always be in the future
+                competitionInfo.event_change_deadline_date ?? Date.now() + 1
+              ).isAfter() &&
+                registration.competing.registration_status !== 'cancelled' && (
+                  <Button
+                    disabled={
+                      isUpdating ||
+                      !competitionInfo.allow_registration_edits ||
+                      (competitionInfo.force_comment_in_registration &&
+                        comment.trim() === '')
+                    }
+                    color="blue"
+                    onClick={() => {
+                      setMessage('Registration is being updated', 'basic')
+                      updateRegistrationMutation({
+                        user_id: registration.user_id,
+                        competition_id: competitionInfo.id,
+                        competing: {
+                          comment,
+                          guests,
+                          event_ids: selectedEvents,
+                        },
+                      })
+                    }}
+                  >
+                    Update Registration
+                  </Button>
+                )}
+              {registration.competing.registration_status === 'cancelled' && (
+                <Button
+                  disabled={
+                    isUpdating ||
+                    (competitionInfo.force_comment_in_registration &&
+                      comment.trim() === '')
+                  }
+                  color="blue"
+                  onClick={() => {
+                    setMessage('Registration is being updated', 'basic')
+                    updateRegistrationMutation({
+                      user_id: registration.user_id,
+                      competition_id: competitionInfo.id,
+                      competing: {
+                        comment,
+                        guests,
+                        event_ids: selectedEvents,
+                        status: 'pending',
+                      },
+                    })
+                  }}
+                >
+                  Re-Register
+                </Button>
+              )}
+              {competitionInfo.allow_registration_self_delete_after_acceptance &&
+                competitionInfo['registration_opened?'] &&
+                registration.competing.registration_status !== 'cancelled' && (
+                  <Button
+                    disabled={isUpdating}
+                    negative
+                    onClick={() => {
+                      setMessage('Registration is being deleted', 'basic')
+                      updateRegistrationMutation({
+                        user_id: registration.user_id,
+                        competition_id: competitionInfo.id,
+                        competing: {
+                          status: 'cancelled',
+                        },
+                      })
+                    }}
+                  >
+                    Delete Registration
+                  </Button>
+                )}
             </div>
           ) : (
             <div className={styles.registrationButtonWrapper}>
@@ -303,7 +344,7 @@ export default function CompetingStep({ nextStep }) {
                   isCreating ||
                   selectedEvents.length === 0 ||
                   (competitionInfo.force_comment_in_registration &&
-                    comment === '')
+                    comment.trim() === '')
                 }
                 onClick={async () => {
                   setMessage('Registration is being processed', 'basic')

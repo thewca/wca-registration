@@ -58,15 +58,6 @@ class Registration
     lanes.filter_map { |x| x.lane_details['comment'] if x.lane_name == 'competing' }[0]
   end
 
-  def competing_guests
-    lanes.filter_map { |x| x.lane_details['guests'] if x.lane_name == 'competing' }[0]
-  end
-
-  # TODO: Change this when we introduce a guest lane
-  def guests
-    lanes.filter_map { |x| x.lane_details['guests'] if x.lane_name == 'competing' }[0]
-  end
-
   def admin_comment
     lanes.filter_map { |x| x.lane_details['admin_comment'] if x.lane_name == 'competing' }[0]
   end
@@ -103,7 +94,6 @@ class Registration
         end
 
         lane.lane_details['comment'] = update_params[:comment] if update_params[:comment].present?
-        lane.lane_details['guests'] = update_params[:guests] if update_params[:guests].present?
         lane.lane_details['admin_comment'] = update_params[:admin_comment] if update_params[:admin_comment].present?
         if update_params[:event_ids].present? && update_params[:status] != 'cancelled'
           lane.update_events(update_params[:event_ids])
@@ -117,7 +107,12 @@ class Registration
                            else
                              is_competing
                            end
-    update_attributes!(lanes: updated_lanes, is_competing: updated_is_competing) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+    updated_guests = if update_params[:guests].present?
+                       update_params[:guests]
+                     else
+                       guests
+                     end
+    update_attributes!(lanes: updated_lanes, is_competing: updated_is_competing, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
   end
 
   def init_payment_lane(amount, currency_code, id)
@@ -151,6 +146,7 @@ class Registration
 
   # Fields
   field :user_id, :string
+  field :guests, :number
   field :competition_id, :string
   field :is_competing, :boolean
   field :hide_name_publicly, :boolean
