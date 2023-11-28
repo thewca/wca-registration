@@ -12,7 +12,7 @@ class LaneFactory
       comment: comment,
       admin_comment: admin_comment,
       guests: guests,
-    }
+    }.stringify_keys
     competing_lane
   end
 
