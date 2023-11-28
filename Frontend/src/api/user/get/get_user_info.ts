@@ -1,8 +1,8 @@
 import externalServiceFetch from '../../helper/external_service_fetch'
-import { userInfoRoute } from '../../helper/routes'
+import { userInfoRoute, usersInfoRoute } from '../../helper/routes'
 
 export interface User {
-  id: string
+  id: number
   wca_id: string
   name: string
   country: {
@@ -16,8 +16,12 @@ export interface UserInfo {
   user: User
 }
 
-export default async function getCompetitorInfo(
-  userId: string
-): Promise<UserInfo> {
+export async function getCompetitorInfo(userId: string): Promise<UserInfo> {
   return externalServiceFetch(userInfoRoute(userId))
+}
+
+export async function getCompetitorsInfo(
+  userIds: string[]
+): Promise<{ users: User[] }> {
+  return externalServiceFetch(usersInfoRoute(userIds))
 }

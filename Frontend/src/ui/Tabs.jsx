@@ -124,7 +124,12 @@ export default function PageTabs() {
               navigate(`${BASE_ROUTE}/${competitionInfo.id}/events`)
             }
           >
-            <CubingIcon event={competitionInfo.main_event_id} selected />
+            <CubingIcon
+              event={
+                competitionInfo.main_event_id ?? competitionInfo.event_ids[0]
+              }
+              selected
+            />
             Events
           </Menu.Item>
         ),
@@ -165,12 +170,13 @@ export default function PageTabs() {
       }),
     ]
   }, [
-    canAdminCompetition,
-    competitionInfo.id,
     competitionInfo.use_wca_registration,
-    competitionInfo.main_event_id,
     competitionInfo.registration_open,
+    competitionInfo.main_event_id,
+    competitionInfo.event_ids,
     competitionInfo.tabs,
+    competitionInfo.id,
+    canAdminCompetition,
     navigate,
   ])
 

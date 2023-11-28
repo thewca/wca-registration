@@ -1,7 +1,7 @@
 import { createContext } from 'react'
 
 export interface UserFull {
-  id: string
+  id: number
   created_at: string
   updated_at: string
   name: string

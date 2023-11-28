@@ -32,6 +32,9 @@ Naming/AccessorMethodName:
 Style/Alias:
   Enabled: false
 
+Style/NumericLiterals:
+  Enabled: false
+
 Style/EmptyMethod:
   EnforcedStyle: expanded
 

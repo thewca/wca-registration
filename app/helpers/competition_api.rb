@@ -13,14 +13,22 @@ end
 
 class CompetitionApi < WcaApi
   def self.find(competition_id)
-    competition_json = fetch_competition(competition_id)
+    competition_json = if Rails.env.production?
+                         fetch_competition(competition_id)
+                       else
+                         Mocks.mock_competition(competition_id)
+                       end
     CompetitionInfo.new(competition_json)
   rescue RegistrationError
     nil
   end
 
   def self.find!(competition_id)
-    competition_json = fetch_competition(competition_id)
+    competition_json = if Rails.env.production?
+                         fetch_competition(competition_id)
+                       else
+                         Mocks.mock_competition(competition_id)
+                       end
     CompetitionInfo.new(competition_json)
   end
 
@@ -46,12 +54,15 @@ class CompetitionApi < WcaApi
 end
 
 class CompetitionInfo
+  attr_accessor :competition_id
+
   def initialize(competition_json)
     @competition_json = competition_json
+    @competition_id = competition_json['id']
   end
 
-  def event_change_deadline
-    @competition_json['event_change_deadline_date']
+  def within_event_change_deadline?
+    Time.now < @competition_json['event_change_deadline_date']
   end
 
   def competitor_limit
@@ -59,6 +70,7 @@ class CompetitionInfo
   end
 
   def guest_limit_exceeded?(guest_count)
+    return false unless @competition_json['guests_per_registration_limit'].present?
     @competition_json['guest_entry_status'] == 'restricted' && @competition_json['guests_per_registration_limit'] < guest_count
   end
 
@@ -86,7 +98,19 @@ class CompetitionInfo
     [@competition_json['base_entry_fee_lowest_denomination'], @competition_json['currency_code']]
   end
 
+  def is_organizer_or_delegate?(user_id)
+    (@competition_json['delegates'] + @competition_json['organizers']).any? { |p| p['id'].to_s == user_id }
+  end
+
   def name
     @competition_json['name']
+  end
+
+  def registration_edits_allowed?
+    @competition_json['allow_registration_edits'] && within_event_change_deadline?
+  end
+
+  def user_can_cancel?
+    @competition_json['allow_registration_self_delete_after_acceptance']
   end
 end

@@ -11,9 +11,24 @@ class Registration
   REGISTRATION_STATES = %w[pending waiting_list accepted cancelled].freeze
   ADMIN_ONLY_STATES = %w[pending waiting_list accepted].freeze # Only admins are allowed to change registration state to one of these states
 
+  # Pre-validations
+  before_validation :set_is_competing
+
+  # Validations
+  validate :is_competing_consistency
+
+  # NOTE: There are more efficient ways to do this, see: https://github.com/thewca/wca-registration/issues/330
+  def self.accepted_competitors(competition_id)
+    where(competition_id: competition_id, is_competing: true).count
+  end
+
   # Returns all event ids irrespective of registration status
   def event_ids
     lanes.filter_map { |x| x.lane_details['event_details'].pluck('event_id') if x.lane_name == 'competing' }[0]
+  end
+
+  def attendee_id
+    "#{competition_id}-#{user_id}"
   end
 
   # Returns id's of the events with a non-cancelled state
@@ -36,20 +51,11 @@ class Registration
   end
 
   def competing_status
-    lanes.filter_map { |x| x.lane_state if x.lane_name == 'competing' }[0]
+    lanes&.filter_map { |x| x.lane_state if x.lane_name == 'competing' }&.first
   end
 
   def competing_comment
     lanes.filter_map { |x| x.lane_details['comment'] if x.lane_name == 'competing' }[0]
-  end
-
-  def competing_guests
-    lanes.filter_map { |x| x.lane_details['guests'] if x.lane_name == 'competing' }[0]
-  end
-
-  # TODO: Change this when we introduce a guest lane
-  def guests
-    lanes.filter_map { |x| x.lane_details['guests'] if x.lane_name == 'competing' }[0]
   end
 
   def admin_comment
@@ -65,7 +71,7 @@ class Registration
   end
 
   def payment_date
-    lanes.filter_map { |x| x.lane_details['updated_at'] if x.lane_name == 'payment' }[0]
+    lanes.filter_map { |x| x.lane_details['last_updated'] if x.lane_name == 'payment' }[0]
   end
 
   def payment_history
@@ -88,7 +94,6 @@ class Registration
         end
 
         lane.lane_details['comment'] = update_params[:comment] if update_params[:comment].present?
-        lane.lane_details['guests'] = update_params[:guests] if update_params[:guests].present?
         lane.lane_details['admin_comment'] = update_params[:admin_comment] if update_params[:admin_comment].present?
         if update_params[:event_ids].present? && update_params[:status] != 'cancelled'
           lane.update_events(update_params[:event_ids])
@@ -97,12 +102,17 @@ class Registration
       lane
     end
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
-    updated_is_attending = if update_params[:status].present?
+    updated_is_competing = if update_params[:status].present?
                              update_params[:status] == 'accepted'
                            else
-                             is_attending
+                             is_competing
                            end
-    update_attributes!(lanes: updated_lanes, is_attending: updated_is_attending) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+    updated_guests = if update_params[:guests].present?
+                       update_params[:guests]
+                     else
+                       guests
+                     end
+    update_attributes!(lanes: updated_lanes, is_competing: updated_is_competing, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
   end
 
   def init_payment_lane(amount, currency_code, id)
@@ -136,11 +146,26 @@ class Registration
 
   # Fields
   field :user_id, :string
+  field :guests, :number
   field :competition_id, :string
-  field :is_attending, :boolean
+  field :is_competing, :boolean
   field :hide_name_publicly, :boolean
   field :lanes, :array, of: Lane
 
   global_secondary_index hash_key: :user_id, projected_attributes: :all
   global_secondary_index hash_key: :competition_id, projected_attributes: :all
+
+  private
+
+    def set_is_competing
+      self.is_competing = true if competing_status == 'accepted'
+    end
+
+    def is_competing_consistency
+      if is_competing
+        errors.add(:is_competing, 'cant be true unless competing_status is accepted') unless competing_status == 'accepted'
+      else
+        errors.add(:is_competing, 'must be true if competing_status is accepted') if competing_status == 'accepted'
+      end
+    end
 end

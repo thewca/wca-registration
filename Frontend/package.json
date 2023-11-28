@@ -24,7 +24,7 @@
   "dependencies": {
     "@dinero.js/currencies": "2.0.0-alpha.14",
     "@stripe/react-stripe-js": "2.1.2",
-    "@stripe/stripe-js": "2.1.6",
+    "@stripe/stripe-js": "2.1.10",
     "@tanstack/react-query": "4.33.0",
     "@tanstack/react-query-devtools": "4.33.0",
     "@thewca/wca-components": "0.5.2",
@@ -34,26 +34,22 @@
     "fomantic-ui-css": "2.9.2",
     "marked": "9.0.3",
     "moment": "2.29.4",
-    "openapi-fetch": "0.7.8",
+    "openapi-fetch": "0.8.1",
     "openapi-typescript": "6.7.0",
     "postcss": "8.4.31",
     "postcss-modules": "6.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-router-dom": "6.16.0",
+    "react-router-dom": "6.18.0",
     "semantic-ui-react": "2.1.4"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "4.36.0",
-    "@types/crypto-js": "4.1.2",
+    "@tanstack/eslint-plugin-query": "5.0.5",
     "@types/node": "20.8.0",
-    "crypto-js": "4.2.0",
-    "esbuild": "0.19.2",
-    "esbuild-sass-plugin": "2.13.0",
-    "eslint": "8.48.0",
+    "esbuild": "0.19.5",
+    "esbuild-sass-plugin": "2.15.0",
+    "eslint": "8.52.0",
     "eslint-kit": "9.5.1",
-    "jose": "4.14.6",
-    "prettier": "2.8.8",
-    "stripe": "13.4.0"
+    "prettier": "2.8.8"
   }
 }

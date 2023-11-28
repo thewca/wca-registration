@@ -5,7 +5,7 @@ require_relative '../../app/helpers/competition_api'
 
 describe CompetitionInfo do
   context 'competition object' do
-    competition_json = FactoryBot.build(:competition_details)
+    competition_json = FactoryBot.build(:competition)
 
     # TODO: Refactor tests to use a factory, not explicitly defined JSON
     describe '#registration_open?' do
@@ -22,7 +22,7 @@ describe CompetitionInfo do
 
       it 'false when closed' do
         # Instantiate a CompetitionInfo object with the sample data
-        competition_json = FactoryBot.build(:competition_details, registration_opened?: false)
+        competition_json = FactoryBot.build(:competition, registration_opened?: false)
         competition_info = CompetitionInfo.new(competition_json)
 
         # Call the method being tested
@@ -47,7 +47,7 @@ describe CompetitionInfo do
 
       it "PASSING false if the competition doesn't use WCA paymet" do
         # Instantiate a CompetitionInfo object with the sample data
-        competition_info = CompetitionInfo.new(FactoryBot.build(:competition_details, using_stripe_payments?: false))
+        competition_info = CompetitionInfo.new(FactoryBot.build(:competition, using_stripe_payments?: false))
 
         # Call the method being tested
         result = competition_info.using_wca_payment?
