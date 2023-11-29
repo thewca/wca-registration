@@ -27,7 +27,7 @@ export default function WaitingList() {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {waiting ? (
+        {waiting?.length ? (
           waiting
             .sort(
               (w1, w2) =>
