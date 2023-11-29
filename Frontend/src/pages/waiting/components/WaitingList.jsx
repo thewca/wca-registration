@@ -33,14 +33,14 @@ export default function WaitingList() {
               (w1, w2) =>
                 w1.competing.waiting_list_position -
                 w2.competing.waiting_list_position
-            )
-            .map((w) => (
+            ) // Once a waiting list is established, we just care about the order of the waitlisted competitors
+            .map((w, i) => (
               <Table.Row key={w.user_id}>
                 <Table.Cell>{w.user.name}</Table.Cell>
                 <Table.Cell>
                   {w.competing.waiting_list_position === 0
                     ? 'Not yet assigned'
-                    : w.competing.waiting_list_position}
+                    : i}
                 </Table.Cell>
               </Table.Row>
             ))
