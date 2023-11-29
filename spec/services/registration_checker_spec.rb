@@ -439,6 +439,24 @@ describe RegistrationChecker do
       end
     end
 
+    it 'mandatory comment: updates without comments are allowed as long as a comment already exists in the registration' do
+      registration = FactoryBot.create(:registration, comment: 'this is a test comment')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, force_comment_in_registration: true))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'cancelled' })
+
+      expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'oranizer can change registration state when comment is mandatory' do
+      registration = FactoryBot.create(:registration, comment: 'this is a test comment')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, force_comment_in_registration: true))
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
+
+      expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
+        .not_to raise_error
+    end
+
     it 'organizer can change user comment' do
       registration = FactoryBot.create(:registration, 'comment' => 'original comment')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
