@@ -347,8 +347,8 @@ namespace :import do
       # BetaComp10: '50_registrations_import.csv',
       # BetaComp11: '100_registrations_import.csv',
       # BetaComp12: '500_registrations_import.csv',
-      # BetaComp13: '1000_registration_import.csv',
-      # BetaComp14: '3000_registration_import.csv',
+      # BetaComp13: '1000_registrations_import.csv',
+      # BetaComp14: '3000_registrations_import.csv',
     }
 
     # Step 2: Import records for each competition_id
