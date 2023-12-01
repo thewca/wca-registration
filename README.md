@@ -6,7 +6,11 @@ under development. For more info about the WCA visit the main repo [here](https:
 ## How to run
 
 ### Running server locally
-Run  `docker compose -f docker-compose.dev.yml up`
+Run
+
+```
+docker compose -f docker-compose.dev.yml up
+```
 
 ### Running tests
 
@@ -17,9 +21,11 @@ If you are running tests for development purposes (ie you want to run them multi
     2.2: Run `docker exec -it {container-id} bash`
 3. Inside the docker container, run `bundle exec rspec`
 
-If you want to build the new swagger file, 
+If you want to the test suite once-off, run
 
-If you want to the test suite once-off, run `docker compose -f "docker-compose.test.yml" up wca_registration_handler --abort-on-container-exit`
+```
+docker compose -f "docker-compose.test.yml" up wca_registration_handler --abort-on-container-exit
+```
 
 ## Tests and API Docs
 
