@@ -12,6 +12,8 @@ Run
 docker compose -f docker-compose.dev.yml up
 ```
 
+The frontend will then be running at http://localhost:3002/.
+
 ### Running tests
 
 If you are running tests for development purposes (ie you want to run them multiple times and check passes/fails), do the following:

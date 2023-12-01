@@ -9,3 +9,5 @@ Go to the root folder and run
 ```
 docker compose -f docker-compose.dev.yml up
 ```
+
+then visit http://localhost:3002/.
