@@ -43,6 +43,7 @@ export default function PageTabs() {
   const { canAdminCompetition } = useContext(PermissionsContext)
   const navigate = useNavigate()
   const location = useLocation()
+
   const panes = useMemo(() => {
     const optionalTabs = []
     if (competitionInfo.use_wca_registration) {
@@ -187,8 +188,10 @@ export default function PageTabs() {
       panes={panes}
       renderActiveOnly={true}
       menu={{ secondary: true, pointing: true }}
-      // This is only relevant on refresh, why we don't need to use useEffect
-      defaultActiveIndex={
+      // clicking a tab will navigate to the new url,
+      // then location.pathname updates and this active index changes
+      // ie the pathname (url) is the single source of truth
+      activeIndex={
         panes.findIndex((pane) => {
           return pathMatch(pane.menuItem.props.name, location.pathname)
         }) ?? 0
