@@ -11,6 +11,7 @@ import {
   Segment,
   TextArea,
 } from 'semantic-ui-react'
+import _ from 'lodash'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
@@ -102,17 +103,25 @@ export default function RegistrationEditor() {
   const eventsAreValid = selectedEvents.length > 0
 
   function handleRegisterClick() {
-    setMessage('Updating Registration', 'basic')
-    updateRegistrationMutation({
-      user_id,
-      competing: {
-        status,
-        event_ids: selectedEvents,
-        comment,
-        admin_comment: adminComment,
-      },
-      competition_id: competitionInfo.id,
-    })
+    if (!hasChanges) {
+      setMessage('There are no changes', 'basic')
+    } else if (!commentIsValid) {
+      setMessage('You must include a comment', 'basic')
+    } else if (!eventsAreValid) {
+      setMessage('You must select at least 1 event', 'basic')
+    } else {
+      setMessage('Updating Registration', 'basic')
+      updateRegistrationMutation({
+        user_id,
+        competing: {
+          status,
+          event_ids: selectedEvents,
+          comment,
+          admin_comment: adminComment,
+        },
+        competition_id: competitionInfo.id,
+      })
+    }
   }
 
   const registrationEditDeadlinePassed = moment(
@@ -206,7 +215,7 @@ export default function RegistrationEditor() {
             <Button
               color="blue"
               onClick={handleRegisterClick}
-              disabled={isUpdating || selectedEvents.length === 0}
+              disabled={isUpdating}
             >
               Update Registration
             </Button>
