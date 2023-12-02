@@ -1,5 +1,5 @@
 import React from 'react'
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import { Container } from 'semantic-ui-react'
 import Events from './pages/events'
 import HomePage from './pages/home'
@@ -79,6 +79,10 @@ const routes = [
           {
             path: 'registrations/edit',
             element: <RegistrationAdministration />,
+          },
+          {
+            path: '*',
+            element: <Navigate to="" />,
           },
         ],
       },

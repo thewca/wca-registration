@@ -4,7 +4,12 @@ import './global.scss'
 import '@thewca/wca-components/dist/index.esm.css'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
+import {
+  createBrowserRouter,
+  Navigate,
+  Outlet,
+  RouterProvider,
+} from 'react-router-dom'
 import { Container } from 'semantic-ui-react'
 import Events from './pages/events'
 import HomePage from './pages/home'
@@ -109,6 +114,10 @@ const router = createBrowserRouter([
           {
             path: 'registrations/edit',
             element: <RegistrationAdministration />,
+          },
+          {
+            path: '*',
+            element: <Navigate to="" />,
           },
         ],
       },
