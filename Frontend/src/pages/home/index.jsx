@@ -150,30 +150,14 @@ function InfoGrid({ competitionInfo }) {
       <InfoGridRow>
         <InfoGridHeader>Organizers</InfoGridHeader>
         <InfoGridHeader>
-          {competitionInfo.organizers.map((organizer, index) => (
-            <a
-              key={`competition-organizer-${organizer.id}`}
-              href={`${process.env.WCA_URL}/persons/${organizer.wca_id}`}
-            >
-              {organizer.name}
-              {index !== competitionInfo.organizers.length - 1 ? ', ' : ''}
-            </a>
-          ))}
+          <PersonList people={competitionInfo.organizers} />
         </InfoGridHeader>
       </InfoGridRow>
 
       <InfoGridRow>
         <InfoGridHeader>Delegates</InfoGridHeader>
         <InfoGridHeader>
-          {competitionInfo.delegates.map((delegate, index) => (
-            <a
-              key={`competition-organizer-${delegate.id}`}
-              href={`${process.env.WCA_URL}/persons/${delegate.wca_id}`}
-            >
-              {delegate.name}
-              {index !== competitionInfo.delegates.length - 1 ? ', ' : ''}
-            </a>
-          ))}
+          <PersonList people={competitionInfo.delegates} />
         </InfoGridHeader>
       </InfoGridRow>
     </Grid>
@@ -200,3 +184,20 @@ function InfoGridHeader({ color, children }) {
     </Header>
   )
 }
+
+function PersonList({ people }) {
+  return (
+    people.map((person, index) => (
+      <>
+        {index > 0 && ", "}
+        <a
+          key={person.id}
+          href={`${process.env.WCA_URL}/persons/${person.wca_id}`}
+        >
+          {person.name}
+        </a>
+      </>
+    ))
+  )
+}
+
