@@ -44,7 +44,7 @@ export default function HomePage() {
       </Header>
 
       <Segment padded attached>
-        <InformationGrid competitionInfo={competitionInfo} />
+        <InfoGrid competitionInfo={competitionInfo} />
 
         <Header className={styles.informationHeader}>
           <UiIcon name="print" />
@@ -67,94 +67,136 @@ export default function HomePage() {
   )
 }
 
-function InformationGrid({ competitionInfo }) {
-  return (<Grid>
-    <Grid.Column width={3}>
-      <Header className={styles.informationHeader}>Date</Header>
-      <Header className={styles.informationHeader}>City</Header>
-      <Header className={styles.informationHeader}>Venue</Header>
-      <Header className={styles.informationHeader} color="grey">
-        Address
-      </Header>
-      {competitionInfo.venue_details && (
-        <Header className={styles.informationHeader} color="grey">
-          Details
-        </Header>
-      )}
-      <Header className={styles.informationHeader}>
-        Competitor Limit
-      </Header>
-      <Header className={styles.informationHeader}>Contact</Header>
-      <Header className={styles.informationHeader}>Organizers</Header>
-      <Header className={styles.informationHeader}>Delegates</Header>
-    </Grid.Column>
-    <Grid.Column width={12}>
-      <Header className={styles.informationHeader}>
-        {competitionInfo.start_date === competitionInfo.end_date
-          ? `${moment(competitionInfo.start_date).format('ll')}`
-          : `${moment(competitionInfo.start_date).format(
-              'll'
-            )} to ${moment(competitionInfo.end_date).format('ll')}`}
-      </Header>
-      <Header className={styles.informationHeader}>
-        {competitionInfo.city}, {competitionInfo.country_iso2}
-      </Header>
-      <Header className={styles.informationHeader}>
-        <p
-          dangerouslySetInnerHTML={{
-            __html: marked(competitionInfo.venue),
-          }}
-        />
-      </Header>
-      <Header className={styles.informationHeader} color="grey">
-        {competitionInfo.venue_address}
-      </Header>
-      {competitionInfo.venue_details && (
-        <Header className={styles.informationHeader} color="grey">
-          {competitionInfo.venue_details}
-        </Header>
-      )}
-      <Header className={styles.informationHeader}>
-        {competitionInfo.competitor_limit}
-      </Header>
-      <Header className={styles.informationHeader}>
-        {competitionInfo.contact ? (
-          <span
+function InfoGrid({ competitionInfo }) {
+  return (
+    <Grid columns={2}>
+      <InfoGridRow>
+          <InfoGridHeader>Date</InfoGridHeader>
+          <InfoGridHeader>
+            {competitionInfo.start_date === competitionInfo.end_date
+              ? `${moment(competitionInfo.start_date).format('ll')}`
+              : `${moment(competitionInfo.start_date).format(
+                  'll'
+                )} to ${moment(competitionInfo.end_date).format('ll')}`}
+          </InfoGridHeader>
+      </InfoGridRow>
+
+      <InfoGridRow>
+          <InfoGridHeader>City</InfoGridHeader>
+          <InfoGridHeader>
+            {competitionInfo.city}, {competitionInfo.country_iso2}
+          </InfoGridHeader>
+      </InfoGridRow>
+
+      <InfoGridRow>
+        <InfoGridHeader>Venue</InfoGridHeader>
+        <InfoGridHeader>
+          <p
             dangerouslySetInnerHTML={{
-              __html: marked(competitionInfo.contact),
+              __html: marked(competitionInfo.venue),
             }}
           />
-        ) : (
-          <a
-            href={`https://www.worldcubeassociation.org/contact/website?competitionId=${competitionInfo.id}`}
-          >
-            Organization Team
-          </a>
-        )}
-      </Header>
-      <Header className={styles.informationHeader}>
-        {competitionInfo.organizers.map((organizer, index) => (
-          <a
-            key={`competition-organizer-${organizer.id}`}
-            href={`${process.env.WCA_URL}/persons/${organizer.wca_id}`}
-          >
-            {organizer.name}
-            {index !== competitionInfo.organizers.length - 1 ? ', ' : ''}
-          </a>
-        ))}
-      </Header>
-      <Header className={styles.informationHeader}>
-        {competitionInfo.delegates.map((delegate, index) => (
-          <a
-            key={`competition-organizer-${delegate.id}`}
-            href={`${process.env.WCA_URL}/persons/${delegate.wca_id}`}
-          >
-            {delegate.name}
-            {index !== competitionInfo.delegates.length - 1 ? ', ' : ''}
-          </a>
-        ))}
-      </Header>
-    </Grid.Column>
-  </Grid>
+        </InfoGridHeader>
+      </InfoGridRow>
+
+      <InfoGridRow>
+        <InfoGridHeader color="grey">
+          Address
+        </InfoGridHeader>
+        <InfoGridHeader color="grey">
+          {competitionInfo.venue_address}
+        </InfoGridHeader>
+      </InfoGridRow>
+
+      {competitionInfo.venue_details && (
+        <InfoGridRow>
+          <InfoGridHeader color="grey">
+            Details
+          </InfoGridHeader>
+          <InfoGridHeader color="grey">
+            {competitionInfo.venue_details}
+          </InfoGridHeader>
+        </InfoGridRow>
+      )}
+
+      <InfoGridRow>
+        <InfoGridHeader>
+          Competitor Limit
+        </InfoGridHeader>
+        <InfoGridHeader>
+          {competitionInfo.competitor_limit}
+        </InfoGridHeader>
+      </InfoGridRow>
+
+      <InfoGridRow>
+        <InfoGridHeader>Contact</InfoGridHeader>
+        <InfoGridHeader>
+          {competitionInfo.contact ? (
+            <span
+              dangerouslySetInnerHTML={{
+                __html: marked(competitionInfo.contact),
+              }}
+            />
+          ) : (
+            <a
+              href={`https://www.worldcubeassociation.org/contact/website?competitionId=${competitionInfo.id}`}
+            >
+              Organization Team
+            </a>
+          )}
+        </InfoGridHeader>
+      </InfoGridRow>
+
+      <InfoGridRow>
+        <InfoGridHeader>Organizers</InfoGridHeader>
+        <InfoGridHeader>
+          {competitionInfo.organizers.map((organizer, index) => (
+            <a
+              key={`competition-organizer-${organizer.id}`}
+              href={`${process.env.WCA_URL}/persons/${organizer.wca_id}`}
+            >
+              {organizer.name}
+              {index !== competitionInfo.organizers.length - 1 ? ', ' : ''}
+            </a>
+          ))}
+        </InfoGridHeader>
+      </InfoGridRow>
+
+      <InfoGridRow>
+        <InfoGridHeader>Delegates</InfoGridHeader>
+        <InfoGridHeader>
+          {competitionInfo.delegates.map((delegate, index) => (
+            <a
+              key={`competition-organizer-${delegate.id}`}
+              href={`${process.env.WCA_URL}/persons/${delegate.wca_id}`}
+            >
+              {delegate.name}
+              {index !== competitionInfo.delegates.length - 1 ? ', ' : ''}
+            </a>
+          ))}
+        </InfoGridHeader>
+      </InfoGridRow>
+    </Grid>
+  )
+}
+
+function InfoGridRow({ children }) {
+  return (
+    <Grid.Row>
+      <Grid.Column computer={3} tablet={5} mobile={5}>
+        {children[0]}
+      </Grid.Column>
+      <Grid.Column computer={12} tablet={10} mobile={10}>
+        {children[1]}
+      </Grid.Column>
+    </Grid.Row>
+  )
+}
+
+function InfoGridHeader({ color, children }) {
+  return (
+    <Header className={styles.informationHeader} color={color}>
+      {children}
+    </Header>
   )
 }
