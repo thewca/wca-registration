@@ -61,7 +61,6 @@ export default function PageTabs() {
             Register
           </Menu.Item>
         ),
-        render: () => {},
       })
     }
     if (canAdminCompetition) {
@@ -79,7 +78,6 @@ export default function PageTabs() {
             Registrations
           </Menu.Item>
         ),
-        render: () => {},
       })
     }
     if (new Date(competitionInfo.registration_open) < Date.now()) {
@@ -97,7 +95,6 @@ export default function PageTabs() {
             Competitors
           </Menu.Item>
         ),
-        render: () => {},
       })
     }
     return [
@@ -113,7 +110,6 @@ export default function PageTabs() {
             General Info
           </Menu.Item>
         ),
-        render: () => {},
       },
       ...optionalTabs,
       {
@@ -135,7 +131,6 @@ export default function PageTabs() {
             Events
           </Menu.Item>
         ),
-        render: () => {},
       },
       {
         menuItem: (
@@ -151,7 +146,6 @@ export default function PageTabs() {
             Schedule
           </Menu.Item>
         ),
-        render: () => {},
       },
       ...competitionInfo.tabs.map((tab) => {
         return {
@@ -167,7 +161,6 @@ export default function PageTabs() {
               {tab.name}
             </Menu.Item>
           ),
-          render: () => {},
         }
       }),
     ]
