@@ -124,7 +124,7 @@ function InfoGrid({ competitionInfo }) {
           Competitor Limit
         </InfoGridHeader>
         <InfoGridHeader>
-          {competitionInfo.competitor_limit}
+          {competitionInfo.competitor_limit ?? "None"}
         </InfoGridHeader>
       </InfoGridRow>
 
@@ -200,4 +200,3 @@ function PersonList({ people }) {
     ))
   )
 }
-
