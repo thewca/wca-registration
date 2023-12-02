@@ -74,6 +74,33 @@ export default function RegistrationEditor() {
     }
   }, [serverRegistration])
 
+  const hasEventsChanged =
+    serverRegistration &&
+    _.xor(serverRegistration.registration.competing.event_ids, selectedEvents)
+      .length > 0
+  const hasCommentChanged =
+    serverRegistration &&
+    comment !== (serverRegistration.registration.competing.comment ?? '')
+  const hasAdminCommentChanged =
+    serverRegistration &&
+    adminComment !==
+      (serverRegistration.registration.competing.admin_comment ?? '')
+  const hasStatusChanged =
+    serverRegistration &&
+    status !== serverRegistration.registration.competing.registration_status
+  const hasGuestsChanged = false
+
+  const hasChanges =
+    hasEventsChanged ||
+    hasCommentChanged ||
+    hasAdminCommentChanged ||
+    hasStatusChanged ||
+    hasGuestsChanged
+
+  const commentIsValid =
+    comment || !competitionInfo.force_comment_in_registration
+  const eventsAreValid = selectedEvents.length > 0
+
   function handleRegisterClick() {
     setMessage('Updating Registration', 'basic')
     updateRegistrationMutation({
