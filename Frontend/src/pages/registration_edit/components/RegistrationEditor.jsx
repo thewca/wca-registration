@@ -74,6 +74,20 @@ export default function RegistrationEditor() {
     }
   }, [serverRegistration])
 
+  function handleRegisterClick() {
+    setMessage('Updating Registration', 'basic')
+    updateRegistrationMutation({
+      user_id,
+      competing: {
+        status,
+        event_ids: selectedEvents,
+        comment,
+        admin_comment: adminComment,
+      },
+      competition_id: competitionInfo.id,
+    })
+  }
+
   const registrationEditDeadlinePassed = moment(
     // If no deadline is set default to always be in the future
     competitionInfo.event_change_deadline_date ?? Date.now() + 1,
@@ -164,19 +178,7 @@ export default function RegistrationEditor() {
           ) : (
             <Button
               color="blue"
-              onClick={() => {
-                setMessage('Updating Registration', 'basic')
-                updateRegistrationMutation({
-                  user_id,
-                  competing: {
-                    status,
-                    event_ids: selectedEvents,
-                    comment,
-                    admin_comment: adminComment,
-                  },
-                  competition_id: competitionInfo.id,
-                })
-              }}
+              onClick={handleRegisterClick}
               disabled={isUpdating || selectedEvents.length === 0}
             >
               Update Registration
