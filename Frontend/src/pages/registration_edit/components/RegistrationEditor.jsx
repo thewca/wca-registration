@@ -23,12 +23,14 @@ import Refunds from './Refunds'
 export default function RegistrationEditor() {
   const { user_id } = useParams()
   const { competitionInfo } = useContext(CompetitionContext)
+
   const [comment, setComment] = useState('')
   const [adminComment, setAdminComment] = useState('')
   const [status, setStatus] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
   const [isCheckingRefunds, setIsCheckingRefunds] = useState(false)
+
   const queryClient = useQueryClient()
   const { data: serverRegistration } = useQuery({
     queryKey: ['registration', competitionInfo.id, user_id],
@@ -48,17 +50,18 @@ export default function RegistrationEditor() {
       onError: (data) => {
         setMessage(
           'Registration update failed with error: ' + data.errorCode,
-          'negative'
+          'negative',
         )
       },
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
           ['registration', competitionInfo.id, user_id],
-          data
+          data,
         )
       },
     })
+
   useEffect(() => {
     if (serverRegistration) {
       setRegistration(serverRegistration.registration)
@@ -66,14 +69,14 @@ export default function RegistrationEditor() {
       setStatus(serverRegistration.registration.competing.registration_status)
       setSelectedEvents(serverRegistration.registration.competing.event_ids)
       setAdminComment(
-        serverRegistration.registration.competing.admin_comment ?? ''
+        serverRegistration.registration.competing.admin_comment ?? '',
       )
     }
   }, [serverRegistration])
 
   const registrationEditDeadlinePassed = moment(
     // If no deadline is set default to always be in the future
-    competitionInfo.event_change_deadline_date ?? Date.now() + 1
+    competitionInfo.event_change_deadline_date ?? Date.now() + 1,
   ).isBefore()
 
   return (
@@ -90,7 +93,8 @@ export default function RegistrationEditor() {
             events={competitionInfo.event_ids}
             size="2x"
           />
-          <Header> Comment </Header>
+
+          <Header>Comment</Header>
           <TextArea
             id="competitor-comment"
             maxLength={240}
@@ -100,7 +104,8 @@ export default function RegistrationEditor() {
               setComment(data.value)
             }}
           />
-          <Header> Administrative Notes </Header>
+
+          <Header>Administrative Notes</Header>
           <TextArea
             id="admin-comment"
             maxLength={240}
@@ -110,7 +115,8 @@ export default function RegistrationEditor() {
               setAdminComment(data.value)
             }}
           />
-          <Header> Status </Header>
+
+          <Header>Status</Header>
           <div className={styles.registrationStatus}>
             <Checkbox
               radio
@@ -152,6 +158,7 @@ export default function RegistrationEditor() {
               onChange={(_, data) => setStatus(data.value)}
             />
           </div>
+
           {registrationEditDeadlinePassed ? (
             <Message negative>Registration edit deadline has passed.</Message>
           ) : (
@@ -175,6 +182,7 @@ export default function RegistrationEditor() {
               Update Registration
             </Button>
           )}
+
           {competitionInfo['using_stripe_payments?'] && (
             <>
               <Header>
