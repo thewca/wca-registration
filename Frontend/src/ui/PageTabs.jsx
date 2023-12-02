@@ -16,6 +16,7 @@ function pathMatch(name, pathname) {
   const eventsExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/events/
   const scheduleExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/schedule/
   const infoExpression = /\/competitions\/v2\/[a-zA-Z0-9]+$/
+
   switch (name) {
     case 'register':
       return registerExpression.test(pathname)

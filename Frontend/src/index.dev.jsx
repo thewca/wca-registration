@@ -25,7 +25,7 @@ import PageHeader from './ui/Header'
 import FlashMessage from './ui/messages/flashMessage'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import UserProvider from './ui/providers/UserProvider'
-import PageTabs from './ui/Tabs'
+import PageTabs from './ui/PageTabs'
 
 const router = createBrowserRouter([
   {
