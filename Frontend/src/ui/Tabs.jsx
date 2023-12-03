@@ -14,7 +14,7 @@ function pathMatch(name, pathname) {
     /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations/
   const eventsExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/events/
   const scheduleExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/schedule/
-  const infoExpression = /\/competitions\/v2\/[a-zA-Z0-9]+$/
+  const infoExpression = /\/competitions\/v2\/[a-zA-Z0-9]+\/?$/
   switch (name) {
     case 'register':
       return registerExpression.test(pathname)
@@ -30,8 +30,7 @@ function pathMatch(name, pathname) {
       return eventsExpressions.test(pathname)
     default: {
       // We are in a custom tab
-      const tabId = name.slice(5)
-      return tabId === pathname.split('/tabs/')[1]
+      return name === parseInt(pathname.split('/tabs/')[1])
     }
   }
 }
@@ -118,7 +117,7 @@ export default function PageTabs() {
               <Dropdown.Item
                   key={competitionTab.id}
                   onClick={() => navigate(`${BASE_ROUTE}/${competitionInfo.id}/tabs/${competitionTab.id}`)}
-                  active={pathMatch(competitionTab.name, location.pathname)}
+                  active={pathMatch(competitionTab.id, location.pathname)}
               >
                 {competitionTab.name}
               </Dropdown.Item>
