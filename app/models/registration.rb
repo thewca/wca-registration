@@ -12,14 +12,14 @@ class Registration
   ADMIN_ONLY_STATES = %w[pending waiting_list accepted].freeze # Only admins are allowed to change registration state to one of these states
 
   # Pre-validations
-  before_validation :set_is_competing
+  before_validation :set_competing_status
 
   # Validations
-  validate :is_competing_consistency
+  validate :competing_status_consistency
 
   # NOTE: There are more efficient ways to do this, see: https://github.com/thewca/wca-registration/issues/330
   def self.accepted_competitors(competition_id)
-    where(competition_id: competition_id, is_competing: true).count
+    where(competition_id: competition_id, competing_status: 'accepted').count
   end
 
   # Returns all event ids irrespective of registration status
@@ -32,6 +32,11 @@ class Registration
   end
 
   # Returns id's of the events with a non-cancelled state
+
+  def competing_lane
+    lanes.find { |x| x.lane_name == 'competing' }
+  end
+
   def registered_event_ids
     event_ids = []
 
@@ -50,13 +55,11 @@ class Registration
     competing_lane.lane_details['event_details']
   end
 
-  def waiting_list_position
-    competing_lane = lanes.find { |x| x.lane_name == 'competing' }
-    competing_lane.lane_details['waiting_list_position']
-  end
-
-  def competing_status
-    lanes&.filter_map { |x| x.lane_state if x.lane_name == 'competing' }&.first
+  def competing_waiting_list_position
+    puts competing_lane.inspect
+    # competing_lane = lanes.find { |x| x.lane_name == 'competing' }
+    competing_lane.get_lane_details_property('waiting_list_position')
+    # competing_lane.lane_details['waiting_list_position']
   end
 
   def competing_comment
@@ -84,11 +87,17 @@ class Registration
   end
 
   def update_competing_lane!(update_params)
+    puts 'updating'
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'competing'
 
         # Update status for lane and events
+        puts "update_params #{update_params}"
+        puts "update status is waiting list? #{update_params[:status] == 'waiting_list'})"
+        update_waiting_list(lane, update_params) if update_params[:status] == 'waiting_list' || update_params[:waiting_list_position].present?
         if update_params[:status].present?
+
+          # lane.add_to_waiting_list(competition_id) if update_params[:status] == 'waiting_list' && lane.lane_state != 'waiting_list'
           lane.lane_state = update_params[:status]
 
           lane.lane_details['event_details'].each do |event|
@@ -109,17 +118,12 @@ class Registration
       lane
     end
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
-    updated_is_competing = if update_params[:status].present?
-                             update_params[:status] == 'accepted'
-                           else
-                             is_competing
-                           end
     updated_guests = if update_params[:guests].present?
                        update_params[:guests]
                      else
                        guests
                      end
-    update_attributes!(lanes: updated_lanes, is_competing: updated_is_competing, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+    update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
   end
 
   def init_payment_lane(amount, currency_code, id)
@@ -151,11 +155,17 @@ class Registration
     update_attributes!(lanes: updated_lanes)
   end
 
+  def update_waiting_list(lane, update_params)
+    puts 'updating waiting list'
+    lane.add_to_waiting_list(competition_id) if update_params[:status] == 'waiting_list'
+    lane.accept_from_waiting_list(competition_id) if update_params[:status] == 'accepted'
+  end
+
   # Fields
   field :user_id, :string
   field :guests, :number
   field :competition_id, :string
-  field :is_competing, :boolean
+  field :competing_status, :string
   field :hide_name_publicly, :boolean
   field :lanes, :array, of: Lane
 
@@ -164,15 +174,11 @@ class Registration
 
   private
 
-    def set_is_competing
-      self.is_competing = true if competing_status == 'accepted'
+    def set_competing_status
+      self.competing_status = lanes&.filter_map { |x| x.lane_state if x.lane_name == 'competing' }&.first
     end
 
-    def is_competing_consistency
-      if is_competing
-        errors.add(:is_competing, 'cant be true unless competing_status is accepted') unless competing_status == 'accepted'
-      else
-        errors.add(:is_competing, 'must be true if competing_status is accepted') if competing_status == 'accepted'
-      end
+    def competing_status_consistency
+      errors.add(:competing_status, '') unless competing_status == lanes&.filter_map { |x| x.lane_state if x.lane_name == 'competing' }&.first
     end
 end

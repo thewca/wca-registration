@@ -27,6 +27,7 @@ class RegistrationChecker
     validate_comment!
     validate_organizer_fields!
     validate_organizer_comment!
+    validate_waiting_list_position!
     validate_update_status!
     validate_update_events!
   end
@@ -84,7 +85,7 @@ class RegistrationChecker
     end
 
     def validate_organizer_fields!
-      @organizer_fields = ['organizer_comment']
+      @organizer_fields = ['organizer_comment', 'waiting_list_position']
 
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if contains_organizer_fields? && !@competition_info.is_organizer_or_delegate?(@requester_user_id)
     end
@@ -95,6 +96,14 @@ class RegistrationChecker
 
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if organizer_comment.length > COMMENT_CHARACTER_LIMIT
       end
+    end
+
+    def validate_waiting_list_position!
+      puts @request
+      return if (waiting_list_position = @request.dig('competing', 'waiting_list_position')).nil?
+      puts "waiting list position: #{waiting_list_position}"
+      puts waiting_list_position.is_a? Integer
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) unless waiting_list_position.is_a? Integer
     end
 
     def contains_organizer_fields?
