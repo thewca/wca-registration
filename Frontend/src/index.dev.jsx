@@ -69,6 +69,7 @@ const router = createBrowserRouter([
               <PermissionsProvider>
                 <PageTabs />
                 <Outlet />
+                <PageTabs />
               </PermissionsProvider>
             </Competition>
           </Container>

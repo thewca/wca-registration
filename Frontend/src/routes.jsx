@@ -39,6 +39,7 @@ const routes = [
               <PermissionsProvider>
                 <PageTabs />
                 <Outlet />
+                <PageTabs />
               </PermissionsProvider>
             </Competition>
           </Container>

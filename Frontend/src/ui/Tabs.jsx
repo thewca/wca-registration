@@ -1,11 +1,10 @@
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import {Icon, Menu, Tab} from 'semantic-ui-react'
+import {Menu} from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
 import { BASE_ROUTE } from '../routes'
-import styles from './tabs.module.scss'
 
 function pathMatch(name, pathname) {
   const registerExpression = /\/competitions\/v2\/[a-zA-Z0-9]+\/register/
@@ -48,110 +47,53 @@ export default function PageTabs() {
     const optionalTabs = []
 
     if (competitionInfo.use_wca_registration) {
-      optionalTabs.push((
-        <Menu.Item
-          key="tab-register"
-          name="register"
-          className={styles.tabItem}
-          onClick={() =>
-            navigate(`${BASE_ROUTE}/${competitionInfo.id}/register`)
-          }
-        >
-          <UiIcon name="sign in alt" />
-          Register
-        </Menu.Item>
-        )
-      )
+      optionalTabs.push({
+        key: 'register',
+        icon: 'sign in alt',
+        label: 'Register',
+      });
     }
     if (canAdminCompetition) {
-      optionalTabs.push((
-        <Menu.Item
-          key="tab-registrations"
-          name="registrations"
-          className={styles.tabItem}
-          onClick={() =>
-            navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations/edit`)
-          }
-        >
-          <UiIcon name="list ul" />
-          Registrations
-        </Menu.Item>
-      ))
+      optionalTabs.push({
+        key: 'registrations',
+        route: 'registrations/edit',
+        icon: 'list ul',
+        label: 'Registrations',
+      });
     }
     if (new Date(competitionInfo.registration_open) < Date.now()) {
-      optionalTabs.push((
-        <Menu.Item
-          key="tab-Competitors"
-          name="competitors"
-          className={styles.tabItem}
-          onClick={() =>
-            navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations`)
-          }
-        >
-          <UiIcon name="users" />
-          Competitors
-        </Menu.Item>
-      ))
+      optionalTabs.push({
+        key: 'competitors',
+        route: 'registrations',
+        icon: 'users',
+        label: 'Competitors',
+      });
     }
 
     return [
-      (
-          <Menu.Item
-              key="tab-info"
-              name="info"
-              className={styles.tabItem}
-              onClick={() => navigate(`${BASE_ROUTE}/${competitionInfo.id}`)}
-          >
-            <UiIcon name="info" />
-            General Info
-          </Menu.Item>
-      ),
+      {
+        key: 'info',
+        route: '',
+        icon: 'info',
+        label: 'General Info',
+      },
       ...optionalTabs,
-      (
-          <Menu.Item
-              key="tab-events"
-              name="events"
-              className={styles.tabItem}
-              onClick={() =>
-                  navigate(`${BASE_ROUTE}/${competitionInfo.id}/events`)
-              }
-          >
-            <CubingIcon
-                event={
-                    competitionInfo.main_event_id ?? competitionInfo.event_ids[0]
-                }
-                selected
-            />
-            Events
-          </Menu.Item>
-      ),
-      (
-          <Menu.Item
-              key="tab-schedule"
-              name="schedule"
-              className={styles.tabItem}
-              onClick={() =>
-                  navigate(`${BASE_ROUTE}/${competitionInfo.id}/schedule`)
-              }
-          >
-            <UiIcon name="calendar" />
-            Schedule
-          </Menu.Item>
-      ),
-      ...competitionInfo.tabs.map((tab) => {
-        return (
-            <Menu.Item
-                key={`tabs-${tab.id}`}
-                name={`tabs-${tab.id}`}
-                className={styles.tabItem}
-                onClick={() =>
-                    navigate(`${BASE_ROUTE}/${competitionInfo.id}/tabs/${tab.id}`)
-                }
-            >
-              {tab.name}
-            </Menu.Item>
-        );
-      }),
+      {
+        key: 'events',
+        icon: competitionInfo.main_event_id ?? competitionInfo.event_ids[0],
+        label: 'Events',
+        cubing: true,
+      },
+      {
+        key: 'schedule',
+        icon: 'calendar',
+        label: 'Schedule',
+      },
+      ...competitionInfo.tabs.map((tab) => ({
+        key: `tabs-${tab.id}`,
+        route: `tabs/${tab.id}`,
+        label: tab.name,
+      })),
     ]
   }, [
     competitionInfo.use_wca_registration,
@@ -165,8 +107,20 @@ export default function PageTabs() {
   ]);
 
   return (
-      <Menu attached fluid widths={5} size="huge">
-        {...menuItems}
+      <Menu attached fluid widths={12} size="huge">
+        {menuItems.map((menuConfig) =>
+            (
+                <Menu.Item
+                    key={menuConfig.key}
+                    name={menuConfig.key}
+                    onClick={() => navigate(`${BASE_ROUTE}/${competitionInfo.id}/${menuConfig.route ?? menuConfig.key}`)}
+                    active={pathMatch(menuConfig.key, location.pathname)}
+                >
+                  {menuConfig.cubing && <CubingIcon event={menuConfig.icon} selected/>}
+                  {menuConfig.icon && !menuConfig.cubing && <UiIcon name={menuConfig.icon}/>}
+                  {menuConfig.label}
+                </Menu.Item>
+            ))}
       </Menu>
   );
 }
