@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getEventName, getFormatName } from '@wca/helpers'
 import React, { useContext } from 'react'
 import {
-  Message,
+  Message, Segment,
   Table,
   TableBody,
   TableCell,
@@ -14,10 +14,10 @@ import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { setMessage } from '../../ui/events/messages'
 import LoadingMessage from '../../ui/messages/loadingMessage'
-import styles from './index.module.scss'
 
 export default function Events() {
   const { competitionInfo } = useContext(CompetitionContext)
+
   const {
     isLoading,
     isError,
@@ -38,7 +38,7 @@ export default function Events() {
   return isLoading ? (
     <LoadingMessage />
   ) : (
-    <div style={styles.eventsWrapper}>
+    <Segment attached padded>
       <Table striped>
         <TableHeader>
           <TableRow>
@@ -93,6 +93,6 @@ export default function Events() {
           })}
         </TableBody>
       </Table>
-    </div>
+    </Segment>
   )
 }

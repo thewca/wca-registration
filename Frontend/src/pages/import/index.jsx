@@ -9,21 +9,25 @@ import { BASE_ROUTE } from '../../routes'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 
 export default function Import() {
-  const [file, setFile] = useState()
+  const [file, setFile] = useState();
+
   const navigate = useNavigate()
+
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAdminCompetition } = useContext(PermissionsContext)
+
   const { mutate: importMutation, isLoading: isMutating } = useMutation({
     mutationFn: importRegistration,
     onSuccess: () =>
       navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations/edit`),
   })
+
   return !canAdminCompetition ? (
     <PermissionMessage>
       You are not allowed to import registrations.
     </PermissionMessage>
   ) : (
-    <Segment>
+    <Segment attached padded>
       <Input
         type="file"
         accept="text/csv"
