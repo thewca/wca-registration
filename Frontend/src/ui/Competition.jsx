@@ -8,11 +8,11 @@ import React, { useContext, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Button,
-  Container,
+  Container, Flag,
   Grid,
   Header, Icon,
   Image,
-  Label,
+  Label, List, Message,
   Segment,
 } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
@@ -49,101 +49,222 @@ export default function Competition({ children }) {
       ) : (
         <>
           <Container>
-            <Segment padded raised>
-              <Grid>
-                <Grid.Column width={12}>
-                  <Header as="h1">
-                    <UiIcon name="bookmark ouline" />
-                    {competitionInfo['registration_opened?'] ? (
-                      <Header.Content>
-                        {competitionInfo.name} | Open
-                      </Header.Content>
-                    ) : (
-                      <Header.Content>
-                        {competitionInfo.name} |{' '}
-                        {moment(competitionInfo.registration_open).isAfter()
-                          ? 'Not Yet Open'
-                          : 'Closed'}
-                      </Header.Content>
-                    )}
-                    <Header.Subheader>
-                      <UiIcon name="pin" /> {competitionInfo.venue_address}
-                    </Header.Subheader>
-                  </Header>
-                  <Header as="h2">
-                    {moment(competitionInfo.start_date).format('LL')}{' '}
+            <Header as="h1" textAlign="center" attached="top">
+              <Image src={src} centered floated="right" />
+              {competitionInfo.name}
+              <Header.Subheader>
+                <List horizontal>
+                  {competitionInfo.event_ids.map((event) => (
+                      <List.Item key={event}>
+                        <CubingIcon
+                            event={event}
+                            size={event === competitionInfo.main_event_id ? '2x' : '1x'}
+                            selected
+                        />
+                      </List.Item>
+                  ))}
+                </List>
+              </Header.Subheader>
+            </Header>
+            <Segment attached>
+              <List divided relaxed size="huge">
+                <List.Item>
+                  <List.Content floated="right">
                     <a
-                      href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${
-                        competitionInfo.id
-                      }&dates=${moment(competitionInfo.start_date).format(
-                        'YYYYMMDD'
-                      )}/${moment(competitionInfo.end_date).format(
-                        'YYYYMMDD'
-                      )}&location=${competitionInfo.venue_address}`}
+                        href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${
+                            competitionInfo.id
+                        }&dates=${moment(competitionInfo.start_date).format(
+                            'YYYYMMDD'
+                        )}/${moment(competitionInfo.end_date).format(
+                            'YYYYMMDD'
+                        )}&location=${competitionInfo.venue_address}`}
+                        target="_blank"
                     >
                       <UiIcon name="calendar plus" />
                     </a>
-                  </Header>
-                  <Segment inverted color="red">
-                    *Insert Potential organizer announcement or memo for users
-                    to view before hitting register*
-                  </Segment>
+                  </List.Content>
+                  <List.Icon name="calendar alternate" />
+                  <List.Content>
+                    {competitionInfo.start_date === competitionInfo.end_date
+                        ? `${moment(competitionInfo.start_date).format('ll')}`
+                        : `${moment(competitionInfo.start_date).format(
+                            'll'
+                        )} to ${moment(competitionInfo.end_date).format('ll')}`}
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Icon name="globe" />
+                  <List.Content>
+                    {competitionInfo.city}
+                    <Flag name={competitionInfo.country_iso2} />
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Icon name="home" />
+                  <List.Content>
+                    <List.Header>
+                      <p
+                          dangerouslySetInnerHTML={{
+                            __html: marked(competitionInfo.venue),
+                          }}
+                      />
+                    </List.Header>
+                    <List.List>
+                      <List.Item>
+                        <List.Content floated="right">
+                          <UiIcon name="google" />
+                        </List.Content>
+                        <List.Icon name="map" />
+                        <List.Content>
+                          {competitionInfo.venue_address}
+                        </List.Content>
+                      </List.Item>
+                      {competitionInfo.venue_details && (
+                          <List.Item>
+                            <List.Icon name="map signs"></List.Icon>
+                            <List.Content>
+                              {competitionInfo.venue_details}
+                            </List.Content>
+                          </List.Item>
+                      )}
+                    </List.List>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Icon name="users" />
+                  <List.Content>
+                    {competitionInfo.competitor_limit}
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Icon name="mail" />
+                  <List.Content>
+                    <List.Header>
+                      {competitionInfo.contact ? (
+                          <span
+                              dangerouslySetInnerHTML={{
+                                __html: marked(competitionInfo.contact),
+                              }}
+                          />
+                      ) : (
+                          <a
+                              href={`https://www.worldcubeassociation.org/contact/website?competitionId=${competitionInfo.id}`}
+                          >
+                            Organization Team
+                          </a>
+                      )}
+                    </List.Header>
+                    <List.List>
+                      <List.Item>
+                        <List.Icon name="user circle" />
+                        <List.Content>
+                          <List.Header>Organizers</List.Header>
+                          <List.Description>
+                            {competitionInfo.organizers.map((organizer, index) => (
+                                <a
+                                    key={`competition-organizer-${organizer.id}`}
+                                    href={`${process.env.WCA_URL}/persons/${organizer.wca_id}`}
+                                >
+                                  {organizer.name}
+                                  {index !== competitionInfo.organizers.length - 1 ? ', ' : ''}
+                                </a>
+                            ))}
+                          </List.Description>
+                        </List.Content>
+                      </List.Item>
+                      <List.Item>
+                        <List.Icon name="user secret" />
+                        <List.Content>
+                          <List.Header>Delegates</List.Header>
+                          <List.Description>
+                            {competitionInfo.delegates.map((delegate, index) => (
+                                <a
+                                    key={`competition-organizer-${delegate.id}`}
+                                    href={`${process.env.WCA_URL}/persons/${delegate.wca_id}`}
+                                >
+                                  {delegate.name}
+                                  {index !== competitionInfo.delegates.length - 1 ? ', ' : ''}
+                                </a>
+                            ))}
+                          </List.Description>
+                        </List.Content>
+                      </List.Item>
+                    </List.List>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Icon name="print" />
+                  <List.Content>
+                    <List.Header>Download all of the competitions details</List.Header>
+                    <List.List>
+                      <List.Item>
+                        <List.Icon name="file pdf" />
+                        <List.Content>
+                          As a{' '}
+                          <a
+                              href={`https://www.worldcubeassociation.org/competitions/${competitionInfo.id}.pdf`}
+                          >
+                            PDF
+                          </a>
+                        </List.Content>
+                      </List.Item>
+                    </List.List>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Icon name="bookmark" />
+                  <List.Content>
+                    <List.Header>Bookmark this competition</List.Header>
+                    <List.Description>
+                      The Competition has been bookmarked{' '}
+                      {competitionInfo.number_of_bookmarks} times
+                    </List.Description>
+                  </List.Content>
+                </List.Item>
+              </List>
+            </Segment>
+            <Segment padded attached>
+              <Message warning>
+                *Insert Potential organizer announcement or memo for users
+                to view before hitting register*
+              </Message>
 
-                  <Button
-                    color="orange"
-                    size="massive"
-                    disabled={
+              <Button
+                  color="orange"
+                  size="massive"
+                  disabled={
                       !competitionInfo['registration_opened?'] &&
                       !competitionInfo.organizers
-                        .concat(competitionInfo.delegates)
-                        .find((u) => u.id === user?.id)
-                    }
-                    onClick={(_, data) => {
-                      if (!data.disabled) {
-                        if (competitionInfo.use_wca_registration) {
-                          navigate(
+                          .concat(competitionInfo.delegates)
+                          .find((u) => u.id === user?.id)
+                  }
+                  onClick={(_, data) => {
+                    if (!data.disabled) {
+                      if (competitionInfo.use_wca_registration) {
+                        navigate(
                             `${BASE_ROUTE}/${competitionInfo.id}/register`
-                          )
-                        } else {
-                          window.location =
+                        )
+                      } else {
+                        window.location =
                             competitionInfo.external_registration_page
-                        }
                       }
-                    }}
-                  >
-                    Register
-                  </Button>
-                  <Label size="massive" className={styles.fee}>
-                    Registration Fee:{' '}
-                    {toDecimal(
-                      dinero({
-                        amount:
-                          competitionInfo.base_entry_fee_lowest_denomination,
-                        currency: currencies[competitionInfo.currency_code],
-                      }),
-                      ({ value, currency }) => `${currency.code} ${value}`
-                    ) ?? 'No Entry Fee'}
-                  </Label>
-                </Grid.Column>
-                <Grid.Column width={4}>
-                  <Image src={src} href={src} centered />
-                </Grid.Column>
-              </Grid>
+                    }
+                  }}
+              >
+                Register
+              </Button>
+              <Label size="massive" className={styles.fee}>
+                Registration Fee:{' '}
+                {toDecimal(
+                    dinero({
+                      amount:
+                      competitionInfo.base_entry_fee_lowest_denomination,
+                      currency: currencies[competitionInfo.currency_code],
+                    }),
+                    ({ value, currency }) => `${currency.code} ${value}`
+                ) ?? 'No Entry Fee'}
+              </Label>
             </Segment>
-            <div className={styles.eventList}>
-              <div>
-                <span className={styles.eventHeader}>Events:</span>
-                {competitionInfo.event_ids.map((event) => (
-                  <span key={`event-header-${event}`} className={styles.event}>
-                    <CubingIcon
-                        event={event}
-                        size={event === competitionInfo.main_event_id ? '2x' : '1x'}
-                        selected
-                    />
-                  </span>
-                ))}
-              </div>
-            </div>
           </Container>
           {children}
         </>
