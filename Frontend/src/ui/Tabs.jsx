@@ -1,7 +1,7 @@
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import {Menu} from 'semantic-ui-react'
+import {Dropdown, Menu} from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
 import { BASE_ROUTE } from '../routes'
@@ -89,38 +89,42 @@ export default function PageTabs() {
         icon: 'calendar',
         label: 'Schedule',
       },
-      ...competitionInfo.tabs.map((tab) => ({
-        key: `tabs-${tab.id}`,
-        route: `tabs/${tab.id}`,
-        label: tab.name,
-      })),
     ]
   }, [
     competitionInfo.use_wca_registration,
     competitionInfo.registration_open,
     competitionInfo.main_event_id,
     competitionInfo.event_ids,
-    competitionInfo.tabs,
-    competitionInfo.id,
     canAdminCompetition,
-    navigate,
   ]);
 
   return (
-      <Menu attached fluid widths={12} size="huge">
-        {menuItems.map((menuConfig) =>
-            (
-                <Menu.Item
-                    key={menuConfig.key}
-                    name={menuConfig.key}
-                    onClick={() => navigate(`${BASE_ROUTE}/${competitionInfo.id}/${menuConfig.route ?? menuConfig.key}`)}
-                    active={pathMatch(menuConfig.key, location.pathname)}
-                >
-                  {menuConfig.cubing && <CubingIcon event={menuConfig.icon} selected/>}
-                  {menuConfig.icon && !menuConfig.cubing && <UiIcon name={menuConfig.icon}/>}
-                  {menuConfig.label}
-                </Menu.Item>
-            ))}
-      </Menu>
+    <Menu attached fluid widths={menuItems.length + 1} size="huge">
+      {menuItems.map((menuConfig) => (
+        <Menu.Item
+            key={menuConfig.key}
+            name={menuConfig.key}
+            onClick={() => navigate(`${BASE_ROUTE}/${competitionInfo.id}/${menuConfig.route ?? menuConfig.key}`)}
+            active={pathMatch(menuConfig.key, location.pathname)}
+        >
+          {menuConfig.cubing && <CubingIcon event={menuConfig.icon} selected/>}
+          {menuConfig.icon && !menuConfig.cubing && <UiIcon name={menuConfig.icon}/>}
+          {menuConfig.label}
+        </Menu.Item>
+      ))}
+      <Dropdown item text="More">
+        <Dropdown.Menu>
+          {competitionInfo.tabs.map((competitionTab) => (
+              <Dropdown.Item
+                  key={competitionTab.id}
+                  onClick={() => navigate(`${BASE_ROUTE}/${competitionInfo.id}/tabs/${competitionTab.id}`)}
+                  active={pathMatch(competitionTab.name, location.pathname)}
+              >
+                {competitionTab.name}
+              </Dropdown.Item>
+          ))}
+        </Dropdown.Menu>
+      </Dropdown>
+    </Menu>
   );
 }
