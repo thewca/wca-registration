@@ -91,7 +91,7 @@ export default function Competition({ children }) {
                   <List.Icon name="globe" />
                   <List.Content>
                     {competitionInfo.city}
-                    <Flag name={competitionInfo.country_iso2} />
+                    <Flag name={competitionInfo.country_iso2.toLowerCase()} />
                   </List.Content>
                 </List.Item>
                 <List.Item>
