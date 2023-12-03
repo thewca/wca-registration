@@ -1,6 +1,6 @@
 import moment from 'moment'
 import React, {useContext, useState} from 'react'
-import {Button, Label, List, Message, Segment, Transition} from 'semantic-ui-react'
+import {Button, Icon, Label, List, Message, Segment, Transition} from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
@@ -35,8 +35,11 @@ export default function Register() {
         <div>
           {canAttendCompetition ? (
             <>
-              <Transition visible={showRegisterSteps} duration={500} animation="fly down">
+              <Transition visible={showRegisterSteps} duration={500} animation="zoom">
                 <Segment padded basic>
+                  <Button floated="right" icon basic onClick={() => setShowRegisterSteps(false)}>
+                    <Icon name="close" />
+                  </Button>
                   <StepPanel />
                 </Segment>
               </Transition>
@@ -144,15 +147,16 @@ export default function Register() {
                   </List.Item>
                 </List>
 
-                <Button
+                <Transition visible={!showRegisterSteps} duration={500} animation="slide down" unmountOnHide>
+                  <Button
                     primary
                     size="huge"
                     fluid
                     disabled={
-                        !competitionInfo['registration_opened?'] &&
-                        !competitionInfo.organizers
-                            .concat(competitionInfo.delegates)
-                            .find((u) => u.id === user?.id)
+                      !competitionInfo['registration_opened?'] &&
+                      !competitionInfo.organizers
+                        .concat(competitionInfo.delegates)
+                        .find((u) => u.id === user?.id)
                     }
                     onClick={(_, data) => {
                       if (!data.disabled) {
@@ -164,9 +168,10 @@ export default function Register() {
                         }
                       }
                     }}
-                >
-                  Sounds awesome, count me in!
-                </Button>
+                  >
+                    Sounds awesome, count me in!
+                  </Button>
+                </Transition>
               </Segment>
             </>
           ) : (
