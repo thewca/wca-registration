@@ -23,14 +23,17 @@ import styles from './panel.module.scss'
 import Processing from './Processing'
 
 export default function CompetingStep({ nextStep }) {
-  const { user } = useContext(UserContext)
-  const { competitionInfo } = useContext(CompetitionContext)
-  const [comment, setComment] = useState('')
-  const [selectedEvents, setSelectedEvents] = useState([])
-  const [guests, setGuests] = useState(0)
-  const [registration, setRegistration] = useState({})
-  const [processing, setProcessing] = useState(false)
-  const queryClient = useQueryClient()
+  const { user } = useContext(UserContext);
+  const { competitionInfo } = useContext(CompetitionContext);
+
+  const queryClient = useQueryClient();
+
+  const [comment, setComment] = useState('');
+  const [selectedEvents, setSelectedEvents] = useState([]);
+  const [guests, setGuests] = useState(0);
+  const [registration, setRegistration] = useState({});
+  const [processing, setProcessing] = useState(false);
+
   const {
     data: registrationRequest,
     isLoading,
@@ -46,7 +49,8 @@ export default function CompetingStep({ nextStep }) {
     onError: (err) => {
       setMessage(err.error, 'error')
     },
-  })
+  });
+
   useEffect(() => {
     if (registrationRequest?.registration?.competing) {
       setRegistration(registrationRequest.registration)
@@ -55,7 +59,8 @@ export default function CompetingStep({ nextStep }) {
       // Ruby sends this as "1.0"
       setGuests(Number(registrationRequest.registration.guests))
     }
-  }, [registrationRequest])
+  }, [registrationRequest]);
+
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
     useMutation({
       mutationFn: updateRegistration,
@@ -72,7 +77,8 @@ export default function CompetingStep({ nextStep }) {
           data
         )
       },
-    })
+    });
+
   const { mutate: createRegistrationMutation, isLoading: isCreating } =
     useMutation({
       mutationFn: submitEventRegistration,
@@ -88,7 +94,8 @@ export default function CompetingStep({ nextStep }) {
         setMessage('Registration submitted successfully', 'positive')
         setProcessing(true)
       },
-    })
+    });
+
   const canUpdateRegistration =
     competitionInfo.allow_registration_edits &&
     new Date(competitionInfo.event_change_deadline_date) > Date.now()
@@ -101,7 +108,8 @@ export default function CompetingStep({ nextStep }) {
         <div className={styles.processing}>
           <Processing
             onProcessingComplete={() => {
-              setProcessing(false)
+              setProcessing(false);
+
               if (competitionInfo['using_stripe_payments?']) {
                 nextStep()
               } else {

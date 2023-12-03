@@ -1,6 +1,6 @@
 import moment from 'moment'
-import React, { useContext } from 'react'
-import {Button, Label, List, Message, Segment} from 'semantic-ui-react'
+import React, {useContext, useState} from 'react'
+import {Button, Label, List, Message, Segment, Transition} from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
@@ -9,12 +9,13 @@ import StepPanel from './components/StepPanel'
 import styles from './index.module.scss'
 import {dinero, toDecimal} from "dinero.js";
 import * as currencies from "@dinero.js/currencies";
-import {BASE_ROUTE} from "../../routes";
 
 export default function Register() {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAttendCompetition } = useContext(PermissionsContext)
+
+  const [showRegisterSteps, setShowRegisterSteps] = useState(false);
 
   const loggedIn = user !== null
 
@@ -34,6 +35,11 @@ export default function Register() {
         <div>
           {canAttendCompetition ? (
             <>
+              <Transition visible={showRegisterSteps} duration={500} animation="fly down">
+                <Segment padded basic>
+                  <StepPanel />
+                </Segment>
+              </Transition>
               <Segment padded attached raised>
                 <Message warning>
                   *Insert Potential organizer announcement or memo for users
@@ -151,9 +157,7 @@ export default function Register() {
                     onClick={(_, data) => {
                       if (!data.disabled) {
                         if (competitionInfo.use_wca_registration) {
-                          navigate(
-                              `${BASE_ROUTE}/${competitionInfo.id}/register`
-                          )
+                          setShowRegisterSteps(true);
                         } else {
                           window.location =
                               competitionInfo.external_registration_page
@@ -164,7 +168,6 @@ export default function Register() {
                   Sounds awesome, count me in!
                 </Button>
               </Segment>
-              <StepPanel />
             </>
           ) : (
             <PermissionMessage>

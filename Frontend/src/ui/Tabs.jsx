@@ -98,7 +98,7 @@ export default function PageTabs() {
   ]);
 
   return (
-    <Menu attached fluid widths={menuItems.length + 1} size="huge">
+    <Menu attached fluid widths={menuItems.length + 1} size="huge" stackable>
       {menuItems.map((menuConfig) => (
         <Menu.Item
             key={menuConfig.key}

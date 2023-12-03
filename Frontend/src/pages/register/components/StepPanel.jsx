@@ -1,6 +1,5 @@
-import { UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useState } from 'react'
-import { Menu, Tab } from 'semantic-ui-react'
+import {Icon, Step} from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import CompetingStep from './CompetingStep'
 import StripeWrapper from './StripeWrapper'
@@ -12,45 +11,43 @@ export default function StepPanel() {
   const panes = useMemo(() => {
     const panes = [
       {
-        menuItem: (
-          <Menu.Item key="step-registration" onClick={() => setActiveIndex(0)}>
-            <UiIcon name="sign in alt" />
-            Register
-          </Menu.Item>
-        ),
         key: 'competing',
-        render: () => (
-          <Tab.Pane>
-            <CompetingStep
-              nextStep={() => {
-                setActiveIndex(1)
-              }}
-            />
-          </Tab.Pane>
-        ),
+        label: 'Register',
+        component: CompetingStep,
       },
     ]
-    if (competitionInfo['using_stripe_payments?']) {
+
+    if (competitionInfo["using_stripe_payments?"]) {
       panes.push({
-        menuItem: (
-          <Menu.Item key="step-payment" onClick={() => setActiveIndex(1)}>
-            <UiIcon name="payment stripe" />
-            Payment
-          </Menu.Item>
-        ),
         key: 'payment',
-        render: () => (
-          <Tab.Pane>
-            <StripeWrapper />
-          </Tab.Pane>
-        ),
+        label: 'Payment',
+        component: StripeWrapper,
       })
     }
     return panes
-  }, [competitionInfo])
+  }, [competitionInfo]);
+
+  const CurrentStepPanel = panes[activeIndex].component;
+
   return (
-    <div>
-      <Tab renderActiveOnly panes={panes} activeIndex={activeIndex} />
-    </div>
-  )
+      <>
+          <Step.Group ordered>
+              {panes.map((stepConfig, index) => (
+                  <Step
+                      key={stepConfig.key}
+                      active={activeIndex === index}
+                      completed={activeIndex > index}
+                      disabled={activeIndex < index}
+                  >
+                      <Step.Content>
+                          <Step.Title>{stepConfig.label}</Step.Title>
+                      </Step.Content>
+                  </Step>
+              ))}
+          </Step.Group>
+          <CurrentStepPanel
+              nextStep={() => setActiveIndex((oldActiveIndex) => oldActiveIndex + 1)}
+          />
+      </>
+  );
 }
