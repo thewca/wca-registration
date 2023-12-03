@@ -74,13 +74,15 @@ class RegistrationChecker
     end
 
     def validate_comment!
-      if @request.key?('competing') && @request['competing'].key?('comment')
-        comment = @request['competing']['comment']
+      if (comment = @request.dig('competing', 'comment')).nil?
+        # Return if no comment was supplied in the request but one already exists for the registration
+        return if @registration.present? && !@registration.competing_comment.nil? && !(@registration.competing_comment == '')
 
+        # Raise error if comment is mandatory, none has been supplied, and none exists for the registration
+        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if @competition_info.force_comment?
+      else
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if comment.length > COMMENT_CHARACTER_LIMIT
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if @competition_info.force_comment? && comment == ''
-      else
-        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if @competition_info.force_comment?
       end
     end
 
@@ -91,11 +93,9 @@ class RegistrationChecker
     end
 
     def validate_organizer_comment!
-      if @request.key?('competing') && @request['competing'].key?('organizer_comment')
-        organizer_comment = @request['competing']['organizer_comment']
-
-        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if organizer_comment.length > COMMENT_CHARACTER_LIMIT
-      end
+      organizer_comment = @request.dig('competing', 'organizer_comment')
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if
+        !organizer_comment.nil? && organizer_comment.length > COMMENT_CHARACTER_LIMIT
     end
 
     def validate_waiting_list_position!
@@ -107,22 +107,20 @@ class RegistrationChecker
     end
 
     def contains_organizer_fields?
-      @request.key?('competing') && @request['competing'].keys.any? { |key| @organizer_fields.include?(key) }
+      @request['competing']&.keys&.any? { |key| @organizer_fields.include?(key) }
     end
 
     def validate_update_status!
-      return unless @request.key?('competing') && @request['competing'].key?('status')
-
+      return if (new_status = @request.dig('competing', 'status')).nil?
       current_status = @registration.competing_status
-      new_status = @request['competing']['status']
 
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(new_status)
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
         new_status == 'accepted' && Registration.accepted_competitors(@competition_info.competition_id) >= @competition_info.competitor_limit
 
       # Organizers can make any status change they want to - no checks performed
-      return if @competition_info.is_organizer_or_delegate?(@requester_user_id)
 
+      return if @competition_info.is_organizer_or_delegate?(@requester_user_id)
       # A user (ie not an organizer) is only allowed to:
       # 1. Reactivate their registration if they previously cancelled it (ie, change status from 'cancelled' to 'pending')
       # 2. Cancel their registration, assuming they are allowed to cancel
@@ -146,10 +144,8 @@ class RegistrationChecker
     end
 
     def validate_update_events!
-      return unless @request.key?('competing') && @request['competing'].key?('event_ids')
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if !@competition_info.events_held?(
-        @request['competing']['event_ids'],
-      )
+      return if (event_ids = @request.dig('competing', 'event_ids')).nil?
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if !@competition_info.events_held?(event_ids)
     end
   end
 end
