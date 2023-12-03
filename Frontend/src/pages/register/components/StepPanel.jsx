@@ -31,7 +31,7 @@ export default function StepPanel() {
 
   return (
       <>
-          <Step.Group ordered>
+          <Step.Group fluid ordered stackable="tablet">
               {panes.map((stepConfig, index) => (
                   <Step
                       key={stepConfig.key}
