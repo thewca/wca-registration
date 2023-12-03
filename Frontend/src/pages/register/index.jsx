@@ -5,7 +5,6 @@ import { CompetitionContext } from '../../api/helper/context/competition_context
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
 import PermissionMessage from '../../ui/messages/permissionMessage'
-import RegistrationRequirements from './components/RegistrationRequirements'
 import StepPanel from './components/StepPanel'
 import styles from './index.module.scss'
 
@@ -16,9 +15,6 @@ export default function Register() {
   const loggedIn = user !== null
   return (
     <div>
-      <div>
-        <RegistrationRequirements />
-      </div>
       {competitionInfo['registration_opened?'] ||
       competitionInfo.organizers
         .concat(competitionInfo.delegates)
