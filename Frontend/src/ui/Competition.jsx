@@ -8,9 +8,11 @@ import React, { useContext, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Button,
-  Container, Flag,
+  Container,
+  Flag,
   Header,
-  Image, Label,
+  Image,
+  Label,
   List,
   Message,
   Segment,
@@ -197,6 +199,7 @@ export default function Competition({ children }) {
                 </List.Item>
               </List>
             </Segment>
+
             <Segment padded attached raised>
               <Message warning>
                 *Insert Potential organizer announcement or memo for users

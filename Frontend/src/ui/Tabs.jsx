@@ -1,7 +1,7 @@
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Menu, Tab } from 'semantic-ui-react'
+import {Icon, Menu, Tab} from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
 import { BASE_ROUTE } from '../routes'
@@ -40,133 +40,117 @@ function pathMatch(name, pathname) {
 export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAdminCompetition } = useContext(PermissionsContext)
+
   const navigate = useNavigate()
   const location = useLocation()
-  const panes = useMemo(() => {
+
+  const menuItems = useMemo(() => {
     const optionalTabs = []
+
     if (competitionInfo.use_wca_registration) {
-      optionalTabs.push({
-        menuItem: (
-          <Menu.Item
-            key="tab-register"
-            name="register"
-            className={styles.tabItem}
-            onClick={() =>
-              navigate(`${BASE_ROUTE}/${competitionInfo.id}/register`)
-            }
-          >
-            <UiIcon name="sign in alt" />
-            Register
-          </Menu.Item>
-        ),
-        render: () => {},
-      })
+      optionalTabs.push((
+        <Menu.Item
+          key="tab-register"
+          name="register"
+          className={styles.tabItem}
+          onClick={() =>
+            navigate(`${BASE_ROUTE}/${competitionInfo.id}/register`)
+          }
+        >
+          <UiIcon name="sign in alt" />
+          Register
+        </Menu.Item>
+        )
+      )
     }
     if (canAdminCompetition) {
-      optionalTabs.push({
-        menuItem: (
-          <Menu.Item
-            key="tab-registrations"
-            name="registrations"
-            className={styles.tabItem}
-            onClick={() =>
-              navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations/edit`)
-            }
-          >
-            <UiIcon name="list ul" />
-            Registrations
-          </Menu.Item>
-        ),
-        render: () => {},
-      })
+      optionalTabs.push((
+        <Menu.Item
+          key="tab-registrations"
+          name="registrations"
+          className={styles.tabItem}
+          onClick={() =>
+            navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations/edit`)
+          }
+        >
+          <UiIcon name="list ul" />
+          Registrations
+        </Menu.Item>
+      ))
     }
     if (new Date(competitionInfo.registration_open) < Date.now()) {
-      optionalTabs.push({
-        menuItem: (
-          <Menu.Item
-            key="tab-Competitors"
-            name="competitors"
-            className={styles.tabItem}
-            onClick={() =>
-              navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations`)
-            }
-          >
-            <UiIcon name="users" />
-            Competitors
-          </Menu.Item>
-        ),
-        render: () => {},
-      })
+      optionalTabs.push((
+        <Menu.Item
+          key="tab-Competitors"
+          name="competitors"
+          className={styles.tabItem}
+          onClick={() =>
+            navigate(`${BASE_ROUTE}/${competitionInfo.id}/registrations`)
+          }
+        >
+          <UiIcon name="users" />
+          Competitors
+        </Menu.Item>
+      ))
     }
+
     return [
-      {
-        menuItem: (
+      (
           <Menu.Item
-            key="tab-info"
-            name="info"
-            className={styles.tabItem}
-            onClick={() => navigate(`${BASE_ROUTE}/${competitionInfo.id}`)}
+              key="tab-info"
+              name="info"
+              className={styles.tabItem}
+              onClick={() => navigate(`${BASE_ROUTE}/${competitionInfo.id}`)}
           >
             <UiIcon name="info" />
             General Info
           </Menu.Item>
-        ),
-        render: () => {},
-      },
+      ),
       ...optionalTabs,
-      {
-        menuItem: (
+      (
           <Menu.Item
-            key="tab-events"
-            name="events"
-            className={styles.tabItem}
-            onClick={() =>
-              navigate(`${BASE_ROUTE}/${competitionInfo.id}/events`)
-            }
+              key="tab-events"
+              name="events"
+              className={styles.tabItem}
+              onClick={() =>
+                  navigate(`${BASE_ROUTE}/${competitionInfo.id}/events`)
+              }
           >
             <CubingIcon
-              event={
-                competitionInfo.main_event_id ?? competitionInfo.event_ids[0]
-              }
-              selected
+                event={
+                    competitionInfo.main_event_id ?? competitionInfo.event_ids[0]
+                }
+                selected
             />
             Events
           </Menu.Item>
-        ),
-        render: () => {},
-      },
-      {
-        menuItem: (
+      ),
+      (
           <Menu.Item
-            key="tab-schedule"
-            name="schedule"
-            className={styles.tabItem}
-            onClick={() =>
-              navigate(`${BASE_ROUTE}/${competitionInfo.id}/schedule`)
-            }
+              key="tab-schedule"
+              name="schedule"
+              className={styles.tabItem}
+              onClick={() =>
+                  navigate(`${BASE_ROUTE}/${competitionInfo.id}/schedule`)
+              }
           >
             <UiIcon name="calendar" />
             Schedule
           </Menu.Item>
-        ),
-        render: () => {},
-      },
+      ),
       ...competitionInfo.tabs.map((tab) => {
-        return {
-          menuItem: (
+        return (
             <Menu.Item
-              key={`tabs-${tab.id}`}
-              name={`tabs-${tab.id}`}
-              className={styles.tabItem}
-              onClick={() =>
-                navigate(`${BASE_ROUTE}/${competitionInfo.id}/tabs/${tab.id}`)
-              }
+                key={`tabs-${tab.id}`}
+                name={`tabs-${tab.id}`}
+                className={styles.tabItem}
+                onClick={() =>
+                    navigate(`${BASE_ROUTE}/${competitionInfo.id}/tabs/${tab.id}`)
+                }
             >
               {tab.name}
             </Menu.Item>
-          ),
-          render: () => {},
-        }
+        );
       }),
     ]
   }, [
@@ -178,20 +162,11 @@ export default function PageTabs() {
     competitionInfo.id,
     canAdminCompetition,
     navigate,
-  ])
+  ]);
 
   return (
-    <Tab
-      className={styles.tabs}
-      panes={panes}
-      renderActiveOnly={true}
-      menu={{ secondary: true, pointing: true }}
-      // This is only relevant on refresh, why we don't need to use useEffect
-      defaultActiveIndex={
-        panes.findIndex((pane) => {
-          return pathMatch(pane.menuItem.props.name, location.pathname)
-        }) ?? 0
-      }
-    />
-  )
+      <Menu attached fluid widths={5} size="huge">
+        {...menuItems}
+      </Menu>
+  );
 }

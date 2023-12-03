@@ -1,5 +1,4 @@
 import { marked } from 'marked'
-import moment from 'moment'
 import React, { useContext } from 'react'
 import {Container, Header} from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
@@ -20,20 +19,6 @@ export default function HomePage() {
           />
         </div>
       )}
-      <Header as="h3">
-        Registration Period:
-        <Header.Subheader>
-          {new Date(competitionInfo.registration_open) < new Date()
-            ? `Registration opened ${moment(
-                competitionInfo.registration_open
-              ).calendar()} and will close ${moment(
-                competitionInfo.registration_close
-              ).format('ll')}`
-            : `Registration will open ${moment(
-                competitionInfo.registration_open
-              ).calendar()}`}
-        </Header.Subheader>
-      </Header>
     </Container>
   )
 }
