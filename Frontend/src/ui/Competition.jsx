@@ -10,7 +10,7 @@ import {
   Button,
   Container,
   Grid,
-  Header,
+  Header, Icon,
   Image,
   Label,
   Segment,
@@ -71,7 +71,7 @@ export default function Competition({ children }) {
                     </Header.Subheader>
                   </Header>
                   <Header as="h2">
-                    {moment(competitionInfo.start_date).format('LL')},{' '}
+                    {moment(competitionInfo.start_date).format('LL')}{' '}
                     <a
                       href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${
                         competitionInfo.id
@@ -81,7 +81,7 @@ export default function Competition({ children }) {
                         'YYYYMMDD'
                       )}&location=${competitionInfo.venue_address}`}
                     >
-                      Add to Google Calendar
+                      <UiIcon name="calendar plus" />
                     </a>
                   </Header>
                   <Segment inverted color="red">
@@ -135,21 +135,14 @@ export default function Competition({ children }) {
                 <span className={styles.eventHeader}>Events:</span>
                 {competitionInfo.event_ids.map((event) => (
                   <span key={`event-header-${event}`} className={styles.event}>
-                    <CubingIcon event={event} selected />
+                    <CubingIcon
+                        event={event}
+                        size={event === competitionInfo.main_event_id ? '2x' : '1x'}
+                        selected
+                    />
                   </span>
                 ))}
               </div>
-              {competitionInfo.main_event_id && (
-                <div>
-                  <span className={styles.eventHeader}>Main Event:</span>
-                  <span className={styles.event}>
-                    <CubingIcon
-                      event={competitionInfo.main_event_id}
-                      selected
-                    />
-                  </span>
-                </div>
-              )}
             </div>
           </Container>
           {children}
