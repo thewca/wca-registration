@@ -34,12 +34,12 @@ export default function HomePage() {
         <Header.Subheader>
           {new Date(competitionInfo.registration_open) < new Date()
             ? `Registration opened ${moment(
-                competitionInfo.registration_open,
+                competitionInfo.registration_open
               ).calendar()} and will close ${moment(
-                competitionInfo.registration_close,
+                competitionInfo.registration_close
               ).format('ll')}`
             : `Registration will open ${moment(
-                competitionInfo.registration_open,
+                competitionInfo.registration_open
               ).calendar()}`}
         </Header.Subheader>
       </Header>

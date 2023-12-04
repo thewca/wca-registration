@@ -1,6 +1,6 @@
 import { marked } from 'marked'
 import moment from 'moment'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Grid, Header } from 'semantic-ui-react'
 import styles from './index.module.scss'
 
@@ -13,7 +13,7 @@ export default function InfoGrid({ competitionInfo }) {
           {competitionInfo.start_date === competitionInfo.end_date
             ? `${moment(competitionInfo.start_date).format('ll')}`
             : `${moment(competitionInfo.start_date).format('ll')} to ${moment(
-                competitionInfo.end_date,
+                competitionInfo.end_date
               ).format('ll')}`}
         </InfoGridHeader>
       </InfoGridRow>
@@ -118,14 +118,11 @@ function InfoGridHeader({ color, children }) {
 
 function PersonList({ people }) {
   return people.map((person, index) => (
-    <>
+    <Fragment key={person.id}>
       {index > 0 && ', '}
-      <a
-        key={person.id}
-        href={`${process.env.WCA_URL}/persons/${person.wca_id}`}
-      >
+      <a href={`${process.env.WCA_URL}/persons/${person.wca_id}`}>
         {person.name}
       </a>
-    </>
+    </Fragment>
   ))
 }
