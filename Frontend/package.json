@@ -44,7 +44,7 @@
     "semantic-ui-react": "2.1.4"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "5.0.5",
+    "@tanstack/eslint-plugin-query": "5.12.1",
     "@types/node": "20.8.0",
     "esbuild": "0.19.5",
     "esbuild-sass-plugin": "2.15.0",
