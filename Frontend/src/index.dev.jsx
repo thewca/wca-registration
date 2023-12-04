@@ -28,9 +28,9 @@ import CustomTab from './ui/CustomTab'
 import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 import FlashMessage from './ui/messages/flashMessage'
+import PageTabs from './ui/PageTabs'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import UserProvider from './ui/providers/UserProvider'
-import PageTabs from './ui/PageTabs'
 
 const router = createBrowserRouter([
   {
