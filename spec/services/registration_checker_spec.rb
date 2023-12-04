@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../app/helpers/competition_api'
 
-# Add a test where one comp has a lot of competitors and another doesnt but you can still accept, to ensure that we're checking the reg count
+# TODO: Add a test where one comp has a lot of competitors and another doesnt but you can still accept, to ensure that we're checking the reg count
 # for the COMPETITION, not all registrations
 
 RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|

@@ -26,17 +26,15 @@ class Lane
   end
 
   def move_within_waiting_list(competition_id, new_position)
-    # old_position = get_lane_details_property('waiting_list_position')
-    if new_position < get_lane_details_property('waiting_list_position')
-      increment_waiting_list_from_position_to_position(competition_id, new_position, get_lane_details_property('waiting_list_position'))
+    if new_position < get_lane_detail('waiting_list_position')
+      cascade_waiting_list(competition_id, new_position, get_lane_detail('waiting_list_position')+1)
     else
-      decrement_waiting_list_from_position_to_position(competition_id, get_lane_details_property('waiting_list_position'), new_position)
+      cascade_waiting_list(competition_id, get_lane_detail('waiting_list_position'), new_position+1, -1)
     end
-    set_lane_details_property('waiting_list_position', new_position)
+    set_lane_detail('waiting_list_position', new_position)
   end
 
   def add_to_waiting_list(competition_id)
-    puts 'adding to waiting list'
     # TODO: Tests in lane_spec for this function?
     # TODO: Test cases for when there's actually no change to (a) the status, or (b) the waiting_list_position
     # TODO: Invalidate Finn's waiting_list cache when this function is called
@@ -46,63 +44,25 @@ class Lane
     waiting_list_min = boundaries['waiting_list_position_min']
 
     if waiting_list_max.nil? && waiting_list_min.nil?
-      set_lane_details_property('waiting_list_position', 1)
+      set_lane_detail('waiting_list_position', 1)
     else
-      set_lane_details_property('waiting_list_position', waiting_list_max+1)
+      set_lane_detail('waiting_list_position', waiting_list_max+1)
     end
   end
 
   def remove_from_waiting_list(competition_id)
-    puts 'removing from waiting list'
-    decrement_waiting_list_from_position(competition_id, get_lane_details_property('waiting_list_position'))
-    set_lane_details_property('waiting_list_position', nil)
-  end
-
-  def increment_waiting_list_from_position_to_position(competition_id, from_position, to_position)
-    waiting_list_registrations = get_registrations_by_status(competition_id, 'waiting_list')
-
-    waiting_list_registrations.each do |reg|
-      current_position = reg.competing_waiting_list_position
-      if current_position >= from_position && current_position < to_position
-        # reg.competing_lane.set_lane_details_property('waiting_list_position', current_position-1)
-        reg.update_competing_waiting_list_position(current_position+1)
-      end
-    end
-  end
-
-  def decrement_waiting_list_from_position_to_position(competition_id, from_position, to_position)
-    puts 'decrementing range'
-    waiting_list_registrations = get_registrations_by_status(competition_id, 'waiting_list')
-
-    waiting_list_registrations.each do |reg|
-      current_position = reg.competing_waiting_list_position
-      if current_position > from_position && current_position <= to_position
-        puts "decrementing position: #{current_position}"
-        # reg.competing_lane.set_lane_details_property('waiting_list_position', current_position-1)
-        reg.update_competing_waiting_list_position(current_position-1)
-      end
-    end
-  end
-
-  # Any item with waiting_list_position > given position will be decremented on the waiting list
-  def decrement_waiting_list_from_position(competition_id, position)
-    waiting_list_registrations = get_registrations_by_status(competition_id, 'waiting_list')
-
-    waiting_list_registrations.each do |reg|
-      current_position = reg.competing_waiting_list_position
-      if current_position > position
-        # reg.competing_lane.set_lane_details_property('waiting_list_position', current_position-1)
-        reg.update_competing_waiting_list_position(current_position-1)
-      end
-    end
+    max_position = get_waiting_list_boundaries(competition_id)['waiting_list_position_max']
+    cascade_waiting_list(competition_id, get_lane_detail('waiting_list_position'), max_position+1, -1)
+    set_lane_detail('waiting_list_position', nil)
   end
 
   def accept_from_waiting_list
-    puts 'accepting from waiting list'
-    set_lane_details_property('waiting_list_position', nil)
+    set_lane_detail('waiting_list_position', nil)
   end
 
+  # NOTE: Does this belong in the lane? Or in some lib file or something?
   def get_registrations_by_status(competition_id, status)
+    # NOTE: Where does this cache need to be invalidated?
     Rails.cache.fetch("#{competition_id}-waiting_list_registrations", expires_in: 60.minutes) do
       Registration.where(competition_id: competition_id, competing_status: status)
     end
@@ -116,7 +76,11 @@ class Lane
       waiting_list_registrations = get_registrations_by_status(competition_id, 'waiting_list')
 
       # Iterate through waiting list registrations and record min/max waiting list positions
-      # We aren't just counting the number of registrations in the waiting list, as that may not necessarily match the boundary positions
+      # We aren't just counting the number of registrations in the waiting list. When a registration is
+      # accepted from the waiting list, we don't "move up" the waiting_list_position of the registrations
+      # behind it - so we can't assume that the position 1 is the min, or that the count of waiting_list
+      # registrations is the max.
+
       waiting_list_position_min = nil
       waiting_list_position_max = nil
 
@@ -134,15 +98,13 @@ class Lane
     end
   end
 
-  # def set_lane_details_property('waiting_list_position', waiting_list_position)
-  #   lane_details['waiting_list_position'] = waiting_list_position
-  # end
-
-  def set_lane_details_property(property_name, property_value)
+  # NOTE: Is this function necessary? I think so?
+  def set_lane_detail(property_name, property_value)
     lane_details[property_name] = property_value
   end
 
-  def get_lane_details_property(property_name)
+  # NOTE: Is this function necessary? I think so?
+  def get_lane_detail(property_name)
     lane_details[property_name]
   end
 
@@ -168,4 +130,20 @@ class Lane
       end
     end
   end
+
+  private
+
+    # Used for propagating a change in waiting_list_position to all affected registrations
+    # increment_value is the value by which position should be shifted - usually 1 or -1
+    # Lower waiting_list_position = higher up the waiting list (1 on waiting list will be accepted before 10)
+    def cascade_waiting_list(competition_id, start_at, stop_at, increment_value = 1)
+      waiting_list_registrations = get_registrations_by_status(competition_id, 'waiting_list')
+
+      waiting_list_registrations.each do |reg|
+        current_position = reg.competing_waiting_list_position
+        if current_position >= start_at && current_position < stop_at
+          reg.update_competing_waiting_list_position(current_position + increment_value)
+        end
+      end
+    end
 end

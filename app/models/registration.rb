@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require_relative 'lane'
+require_relative '../../lib/lane'
 require 'time'
+
 class Registration
   include Dynamoid::Document
 
@@ -31,8 +32,6 @@ class Registration
     "#{competition_id}-#{user_id}"
   end
 
-  # Returns id's of the events with a non-cancelled state
-
   def competing_lane
     lanes.find { |x| x.lane_name == 'competing' }
   end
@@ -56,9 +55,7 @@ class Registration
   end
 
   def competing_waiting_list_position
-    # competing_lane = lanes.find { |x| x.lane_name == 'competing' }
-    competing_lane.get_lane_details_property('waiting_list_position')
-    # competing_lane.lane_details['waiting_list_position']
+    competing_lane.get_lane_detail('waiting_list_position')
   end
 
   def competing_comment
@@ -85,6 +82,8 @@ class Registration
     lanes.filter_map { |x| x.lane_details['payment_history'] if x.lane_name == 'payment' }[0]
   end
 
+  # REFACTOR THIS LOL
+  # NOTE: There must be a better way to do this?
   def update_competing_waiting_list_position(new_position)
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'competing'
@@ -101,10 +100,7 @@ class Registration
 
         # Update status for lane and events
         update_waiting_list(lane, update_params) if waiting_list_changed?(update_params)
-        # update_waiting_list(lane, update_params) if update_params[:status] == 'waiting_list' || update_params[:waiting_list_position].present?
         if update_params[:status].present?
-
-          # lane.add_to_waiting_list(competition_id) if update_params[:status] == 'waiting_list' && lane.lane_state != 'waiting_list'
           lane.lane_state = update_params[:status]
 
           lane.lane_details['event_details'].each do |event|
@@ -116,7 +112,6 @@ class Registration
 
         lane.lane_details['comment'] = update_params[:comment] if update_params[:comment].present?
         lane.lane_details['admin_comment'] = update_params[:admin_comment] if update_params[:admin_comment].present?
-        # lane.lane_details['waiting_list_position'] = update_params[:waiting_list_position] if update_params[:waiting_list_position].present?
 
         if update_params[:event_ids].present? && update_params[:status] != 'cancelled'
           lane.update_events(update_params[:event_ids])
@@ -162,8 +157,9 @@ class Registration
     update_attributes!(lanes: updated_lanes)
   end
 
+  # NOTE: The logic of this method feels wrong, but not sure how to structure it differently
+  # TODO: Update this method to invalidate any cached waiting list/registration data
   def update_waiting_list(lane, update_params)
-    puts 'updating waiting list'
     lane.add_to_waiting_list(competition_id) if update_params[:status] == 'waiting_list'
     lane.accept_from_waiting_list if update_params[:status] == 'accepted'
     lane.remove_from_waiting_list(competition_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
