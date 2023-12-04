@@ -56,7 +56,6 @@ class Registration
   end
 
   def competing_waiting_list_position
-    puts competing_lane.inspect
     # competing_lane = lanes.find { |x| x.lane_name == 'competing' }
     competing_lane.get_lane_details_property('waiting_list_position')
     # competing_lane.lane_details['waiting_list_position']
@@ -86,15 +85,23 @@ class Registration
     lanes.filter_map { |x| x.lane_details['payment_history'] if x.lane_name == 'payment' }[0]
   end
 
+  def update_competing_waiting_list_position(new_position)
+    updated_lanes = lanes.map do |lane|
+      if lane.lane_name == 'competing'
+        lane.lane_details['waiting_list_position'] = new_position
+      end
+      lane
+    end
+    update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+  end
+
   def update_competing_lane!(update_params)
-    puts 'updating'
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'competing'
 
         # Update status for lane and events
-        puts "update_params #{update_params}"
-        puts "update status is waiting list? #{update_params[:status] == 'waiting_list'})"
-        update_waiting_list(lane, update_params) if update_params[:status] == 'waiting_list' || update_params[:waiting_list_position].present?
+        update_waiting_list(lane, update_params) if waiting_list_changed?(update_params)
+        # update_waiting_list(lane, update_params) if update_params[:status] == 'waiting_list' || update_params[:waiting_list_position].present?
         if update_params[:status].present?
 
           # lane.add_to_waiting_list(competition_id) if update_params[:status] == 'waiting_list' && lane.lane_state != 'waiting_list'
@@ -109,7 +116,7 @@ class Registration
 
         lane.lane_details['comment'] = update_params[:comment] if update_params[:comment].present?
         lane.lane_details['admin_comment'] = update_params[:admin_comment] if update_params[:admin_comment].present?
-        lane.lane_details['waiting_list_position'] = update_params[:waiting_list_position] if update_params[:waiting_list_position].present?
+        # lane.lane_details['waiting_list_position'] = update_params[:waiting_list_position] if update_params[:waiting_list_position].present?
 
         if update_params[:event_ids].present? && update_params[:status] != 'cancelled'
           lane.update_events(update_params[:event_ids])
@@ -158,7 +165,10 @@ class Registration
   def update_waiting_list(lane, update_params)
     puts 'updating waiting list'
     lane.add_to_waiting_list(competition_id) if update_params[:status] == 'waiting_list'
-    lane.accept_from_waiting_list(competition_id) if update_params[:status] == 'accepted'
+    lane.accept_from_waiting_list if update_params[:status] == 'accepted'
+    lane.remove_from_waiting_list(competition_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
+    lane.move_within_waiting_list(competition_id, update_params[:waiting_list_position]) if
+      update_params[:waiting_list_position].present? && update_params[:waiting_list_position] != competing_waiting_list_position
   end
 
   # Fields
@@ -180,5 +190,20 @@ class Registration
 
     def competing_status_consistency
       errors.add(:competing_status, '') unless competing_status == lanes&.filter_map { |x| x.lane_state if x.lane_name == 'competing' }&.first
+    end
+
+    def waiting_list_changed?(update_params)
+      waiting_list_position_changed?(update_params) || waiting_list_status_changed?(update_params)
+    end
+
+    def waiting_list_position_changed?(update_params)
+      return false unless update_params[:waiting_list_position].present?
+      update_params[:waiting_list_position] != competing_waiting_list_position
+    end
+
+    def waiting_list_status_changed?(update_params)
+      lane_state_present = competing_status == 'waiting_list' || update_params[:status] == 'waiting_list'
+      states_are_different = competing_status != update_params[:status]
+      lane_state_present && states_are_different
     end
 end

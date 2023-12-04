@@ -99,10 +99,7 @@ class RegistrationChecker
     end
 
     def validate_waiting_list_position!
-      puts @request
       return if (waiting_list_position = @request.dig('competing', 'waiting_list_position')).nil?
-      puts "waiting list position: #{waiting_list_position}"
-      puts waiting_list_position.is_a? Integer
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) unless waiting_list_position.is_a? Integer
     end
 
@@ -118,7 +115,13 @@ class RegistrationChecker
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
         new_status == 'accepted' && Registration.accepted_competitors(@competition_info.competition_id) >= @competition_info.competitor_limit
 
-      # Organizers can make any status change they want to - no checks performed
+      # Organizers cant accept someone from the waiting list who isn't in the leading position
+      min_waiting_list_position = @registration.competing_lane.get_waiting_list_boundaries(@registration.competition_id)['waiting_list_position_min']
+      raise RegistrationError.new(:forbidden, ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER) if
+      current_status == 'waiting_list' && new_status == 'accepted' &&
+      @registration.competing_waiting_list_position != min_waiting_list_position
+
+      # Otherwise, organizers can make any status change they want to
 
       return if @competition_info.is_organizer_or_delegate?(@requester_user_id)
       # A user (ie not an organizer) is only allowed to:

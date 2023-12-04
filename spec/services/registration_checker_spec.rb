@@ -990,5 +990,19 @@ describe RegistrationChecker do
         expect(error.error).to eq(ErrorCodes::INVALID_WAITING_LIST_POSITION)
       end
     end
+
+    it 'organizer cant accept anyone except the min position on the waiting list' do
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER)
+      end
+    end
   end
 end
