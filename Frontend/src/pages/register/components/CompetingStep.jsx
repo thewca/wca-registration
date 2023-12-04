@@ -62,14 +62,14 @@ export default function CompetingStep({ nextStep }) {
       onError: (data) => {
         setMessage(
           'Registration update failed with error: ' + data.message,
-          'negative',
+          'negative'
         )
       },
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
           ['registration', competitionInfo.id, user.id],
-          data,
+          data
         )
       },
     })
@@ -79,7 +79,7 @@ export default function CompetingStep({ nextStep }) {
       onError: (data) => {
         setMessage(
           'Registration failed with error: ' + data.message,
-          'negative',
+          'negative'
         )
       },
       onSuccess: (_) => {
@@ -157,7 +157,7 @@ export default function CompetingStep({ nextStep }) {
                   amount: competitionInfo.base_entry_fee_lowest_denomination,
                   currency: currencies[competitionInfo.currency_code],
                 }),
-                ({ value, currency }) => `${currency.code} ${value}`,
+                ({ value, currency }) => `${currency.code} ${value}`
               ) ?? 'No Entry Fee'}{' '}
               | Waitlist: 0 People
             </div>
@@ -214,7 +214,7 @@ export default function CompetingStep({ nextStep }) {
               selection
               options={[
                 ...new Array(
-                  (competitionInfo.guests_per_registration_limit ?? 99) + 1, // Arrays start at 0
+                  (competitionInfo.guests_per_registration_limit ?? 99) + 1 // Arrays start at 0
                 ),
               ].map((_, index) => {
                 return {
@@ -243,7 +243,7 @@ export default function CompetingStep({ nextStep }) {
                     canUpdateRegistration
                       ? `You can update your registration until ${moment(
                           competitionInfo.event_change_deadline_date ??
-                            competitionInfo.end_date,
+                            competitionInfo.end_date
                         ).format('ll')}`
                       : 'You can no longer update your registration'
                   }
@@ -251,7 +251,7 @@ export default function CompetingStep({ nextStep }) {
               </div>
               {moment(
                 // If no deadline is set default to always be in the future
-                competitionInfo.event_change_deadline_date ?? Date.now() + 1,
+                competitionInfo.event_change_deadline_date ?? Date.now() + 1
               ).isAfter() &&
                 registration.competing.registration_status !== 'cancelled' && (
                   <Button

@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
+import _ from 'lodash'
 import moment from 'moment/moment'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Button,
@@ -11,7 +12,6 @@ import {
   Segment,
   TextArea,
 } from 'semantic-ui-react'
-import _ from 'lodash'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
@@ -51,14 +51,14 @@ export default function RegistrationEditor() {
       onError: (data) => {
         setMessage(
           'Registration update failed with error: ' + data.errorCode,
-          'negative',
+          'negative'
         )
       },
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
           ['registration', competitionInfo.id, user_id],
-          data,
+          data
         )
       },
     })
@@ -70,7 +70,7 @@ export default function RegistrationEditor() {
       setStatus(serverRegistration.registration.competing.registration_status)
       setSelectedEvents(serverRegistration.registration.competing.event_ids)
       setAdminComment(
-        serverRegistration.registration.competing.admin_comment ?? '',
+        serverRegistration.registration.competing.admin_comment ?? ''
       )
     }
   }, [serverRegistration])
@@ -102,7 +102,7 @@ export default function RegistrationEditor() {
     comment || !competitionInfo.force_comment_in_registration
   const eventsAreValid = selectedEvents.length > 0
 
-  function handleRegisterClick() {
+  const handleRegisterClick = useCallback(() => {
     if (!hasChanges) {
       setMessage('There are no changes', 'basic')
     } else if (!commentIsValid) {
@@ -122,11 +122,22 @@ export default function RegistrationEditor() {
         competition_id: competitionInfo.id,
       })
     }
-  }
+  }, [
+    adminComment,
+    comment,
+    commentIsValid,
+    competitionInfo.id,
+    eventsAreValid,
+    hasChanges,
+    selectedEvents,
+    status,
+    updateRegistrationMutation,
+    user_id,
+  ])
 
   const registrationEditDeadlinePassed = moment(
     // If no deadline is set default to always be in the future
-    competitionInfo.event_change_deadline_date ?? Date.now() + 1,
+    competitionInfo.event_change_deadline_date ?? Date.now() + 1
   ).isBefore()
 
   return (
