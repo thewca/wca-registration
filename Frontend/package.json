@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.12.1",
-    "@types/node": "20.8.0",
+    "@types/node": "20.10.3",
     "esbuild": "0.19.8",
     "esbuild-sass-plugin": "2.16.0",
     "eslint": "8.52.0",
