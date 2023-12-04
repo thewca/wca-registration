@@ -328,7 +328,7 @@ export default function CompetingStep({ nextStep }) {
             <div className={styles.registrationButtonWrapper}>
               <div className={styles.registrationWarning}>
                 <Popup
-                  content="You will only be accepted if you have met all reigstration requirements"
+                  content="You will only be accepted if you have met all registration requirements"
                   position="top center"
                   trigger={
                     <span>
