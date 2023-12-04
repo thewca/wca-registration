@@ -32,7 +32,7 @@
     "dinero.js": "2.0.0-alpha.14",
     "events": "3.3.0",
     "fomantic-ui-css": "2.9.2",
-    "marked": "9.0.3",
+    "marked": "11.0.0",
     "moment": "2.29.4",
     "openapi-fetch": "0.8.1",
     "openapi-typescript": "6.7.2",
