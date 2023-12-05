@@ -98,8 +98,10 @@ export default function PageTabs() {
   ])
 
   const customTabActive = useMemo(() => {
-    return competitionInfo.tabs.some((competitionTab) => pathMatch(competitionTab.id, location.pathname))
-  }, [competitionInfo.tabs, location]);
+    return competitionInfo.tabs.some((competitionTab) =>
+      pathMatch(competitionTab.id, location.pathname)
+    )
+  }, [competitionInfo.tabs, location])
 
   return (
     <Menu attached fluid widths={menuItems.length + 1} size="huge" stackable>
@@ -123,7 +125,7 @@ export default function PageTabs() {
           {menuConfig.label}
         </Menu.Item>
       ))}
-      <Dropdown item text="More" className={customTabActive ? "active" : ""}>
+      <Dropdown item text="More" className={customTabActive ? 'active' : ''}>
         <Dropdown.Menu>
           {competitionInfo.tabs.map((competitionTab) => (
             <Dropdown.Item

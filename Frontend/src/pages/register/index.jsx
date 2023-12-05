@@ -220,15 +220,15 @@ export default function Register() {
           {moment(competitionInfo.registration_open).diff(moment.now()) < 0
             ? `Competition Registration closed on ${moment(
                 competitionInfo.registration_close
-            ).format('ll')}`
+              ).format('ll')}`
             : `Competition Registration will open in ${moment(
                 competitionInfo.registration_open
-            ).fromNow()} on ${moment(
+              ).fromNow()} on ${moment(
                 competitionInfo.registration_open
-            ).format('lll')}, ${
+              ).format('lll')}, ${
                 !loggedIn ? 'you will need a WCA Account to register' : ''
-            }`}
-          </Message>
+              }`}
+        </Message>
       )}
     </div>
   )
