@@ -31,6 +31,7 @@ import FlashMessage from './ui/messages/flashMessage'
 import PageTabs from './ui/PageTabs'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import UserProvider from './ui/providers/UserProvider'
+import RegistrationProvider from './ui/providers/RegistrationProvider'
 
 const router = createBrowserRouter([
   {
@@ -72,9 +73,11 @@ const router = createBrowserRouter([
           <Container>
             <Competition>
               <PermissionsProvider>
-                <PageTabs />
-                <Outlet />
-                <PageTabs />
+                <RegistrationProvider>
+                  <PageTabs />
+                  <Outlet />
+                  <PageTabs />
+                </RegistrationProvider>
               </PermissionsProvider>
             </Competition>
           </Container>

@@ -1,12 +1,14 @@
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Step } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import CompetingStep from './CompetingStep'
 import StripeWrapper from './StripeWrapper'
 import RegistrationRequirements from './RegistrationRequirements'
+import { RegistrationContext } from '../../../api/helper/context/registration_context'
 
 export default function StepPanel() {
   const { competitionInfo } = useContext(CompetitionContext)
+  const { isRegistered } = useContext(RegistrationContext)
   const [activeIndex, setActiveIndex] = useState(0)
 
   const steps = useMemo(() => {
@@ -32,6 +34,12 @@ export default function StepPanel() {
     }
     return steps
   }, [competitionInfo])
+
+  useEffect(() => {
+    if (isRegistered) {
+      setActiveIndex(1)
+    }
+  }, [isRegistered])
 
   const CurrentStepPanel = steps[activeIndex].component
 

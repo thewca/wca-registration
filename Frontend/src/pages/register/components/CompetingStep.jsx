@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
 import moment from 'moment'
 import React, { useContext, useEffect, useState } from 'react'
@@ -15,53 +15,34 @@ import {
   TextArea,
 } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import { RegistrationContext } from '../../../api/helper/context/registration_context'
 import { UserContext } from '../../../api/helper/context/user_context'
-import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
 import { setMessage } from '../../../ui/events/messages'
-import LoadingMessage from '../../../ui/messages/loadingMessage'
 import Processing from './Processing'
 
 export default function CompetingStep({ nextStep }) {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
-
+  const { registration, isRegistered, refetch } =
+    useContext(RegistrationContext)
   const queryClient = useQueryClient()
 
   const [comment, setComment] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
   const [guests, setGuests] = useState(0)
 
-  const [registration, setRegistration] = useState({})
   const [processing, setProcessing] = useState(false)
 
-  const {
-    data: registrationRequest,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ['registration', competitionInfo.id, user.id],
-    queryFn: () => getSingleRegistration(user.id, competitionInfo.id),
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    staleTime: Infinity,
-    refetchOnMount: 'always',
-    retry: false,
-    onError: (err) => {
-      setMessage(err.error, 'error')
-    },
-  })
-
   useEffect(() => {
-    if (registrationRequest?.registration?.competing) {
-      setRegistration(registrationRequest.registration)
-      setComment(registrationRequest.registration.competing.comment ?? '')
-      setSelectedEvents(registrationRequest.registration.competing.event_ids)
+    if (isRegistered) {
+      setComment(registration.competing.comment ?? '')
+      setSelectedEvents(registration.competing.event_ids)
       // Ruby sends this as "1.0"
-      setGuests(Number(registrationRequest.registration.guests))
+      setGuests(Number(registration.guests))
     }
-  }, [registrationRequest])
+  }, [isRegistered, registration])
 
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
     useMutation({
@@ -102,9 +83,7 @@ export default function CompetingStep({ nextStep }) {
     competitionInfo.allow_registration_edits &&
     new Date(competitionInfo.event_change_deadline_date) > Date.now()
 
-  return isLoading ? (
-    <LoadingMessage />
-  ) : (
+  return (
     <Segment basic>
       {processing && (
         <Processing
