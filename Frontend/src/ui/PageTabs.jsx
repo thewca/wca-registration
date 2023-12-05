@@ -11,7 +11,7 @@ function pathMatch(name, pathname) {
   const registrationsExpression =
     /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations\/edit/
   const competitorsExpression =
-    /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations/
+    /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations\/?$/
   const eventsExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/events/
   const scheduleExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/schedule/
   const infoExpression = /\/competitions\/v2\/[a-zA-Z0-9]+\/?$/
@@ -97,6 +97,10 @@ export default function PageTabs() {
     canAdminCompetition,
   ])
 
+  const customTabActive = useMemo(() => {
+    return competitionInfo.tabs.some((competitionTab) => pathMatch(competitionTab.id, location.pathname))
+  }, [competitionInfo.tabs, location]);
+
   return (
     <Menu attached fluid widths={menuItems.length + 1} size="huge" stackable>
       {menuItems.map((menuConfig) => (
@@ -119,7 +123,7 @@ export default function PageTabs() {
           {menuConfig.label}
         </Menu.Item>
       ))}
-      <Dropdown item text="More">
+      <Dropdown item text="More" className={customTabActive ? "active" : ""}>
         <Dropdown.Menu>
           {competitionInfo.tabs.map((competitionTab) => (
             <Dropdown.Item

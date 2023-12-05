@@ -23,31 +23,10 @@
     opacity: 1 !important;
   }
 
-  // FIXME: yet another bootstrap conflict override :(
-  .ui.modal {
-    top: auto;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    overflow: visible;
-    outline: none;
-  }
-
   .navbar-brand {
     .icon {
       margin: 0;
       width: auto;
-    }
-  }
-  // FIXME: the two rules below are to override conflicting bootstrap/semantic ui definition
-  .container {
-    padding-right: 0px;
-    padding-left: 0px;
-  }
-  @media only screen and (max-width: 768px) {
-    div.navbar-static-top > div.ui.ui.ui.container:not(.fluid) {
-      margin-left: auto;
-      margin-right: auto;
     }
   }
 
@@ -60,16 +39,13 @@
       color: black;
     }
   }
-  a, a:hover {
-    text-decoration: none;
-  }
   a:hover {
     color: #c63a00;
   }
   a {
     color: #e64503;
   }
-  a {
+  .nav a {
     background-color: transparent;
   }
 }
