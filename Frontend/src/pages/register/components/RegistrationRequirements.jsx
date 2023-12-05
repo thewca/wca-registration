@@ -11,10 +11,12 @@ import styles from './requirements.module.scss'
 export default function RegistrationRequirements() {
   const { competitionInfo } = useContext(CompetitionContext)
   const [activeIndex, setActiveIndex] = useState(-1)
-  const handleClick = (e, titleProps) => {
+
+  const handleClick = (_, titleProps) => {
     const { index } = titleProps
     setActiveIndex(activeIndex === index ? -1 : index)
   }
+
   return (
     <div className={styles.requirements}>
       <Header as="h1" attached="top">
@@ -45,13 +47,24 @@ export default function RegistrationRequirements() {
             onClick={handleClick}
           >
             <UiIcon name="dropdown" />
-            {competitionInfo.competitor_limit} person Competitor Limit
+            {competitionInfo.competitor_limit
+              ? `${competitionInfo.competitor_limit} Person Competitor Limit`
+              : 'No Competitor Limit'}
           </Accordion.Title>
           <Accordion.Content active={activeIndex === 1}>
-            <p>
-              Once the competitor Limit has been reached you will be put onto
-              the waiting list.
-            </p>
+            {competitionInfo.competitor_limit ? (
+              <p>
+                Once the competitor limit has been reached you will be put onto
+                the waiting list.
+              </p>
+            ) : (
+              <p>
+                There is no competitor limit, but if this competition has
+                multiple locations then each location may have a separate
+                competitor limit. Please review the other tabs for more
+                information.
+              </p>
+            )}
           </Accordion.Content>
           <Accordion.Title
             active={activeIndex === 2}
