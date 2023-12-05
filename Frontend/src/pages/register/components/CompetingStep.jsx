@@ -131,12 +131,13 @@ export default function CompetingStep({ nextStep }) {
         )}
         <Form>
           <Form.Field>
-            <label>Events</label>
+            <label htmlFor="event-selection">Events</label>
             <EventSelector
               handleEventSelection={setSelectedEvents}
               events={competitionInfo.event_ids}
               selected={selectedEvents}
               size="2x"
+              id="event-selection"
             />
             <p>
               You can set your preferred events to prefill future competitions
@@ -144,7 +145,9 @@ export default function CompetingStep({ nextStep }) {
             </p>
           </Form.Field>
           <Form.Field required={competitionInfo.force_comment_in_registration}>
-            <label>Additional comments to the organizers</label>
+            <label htmlFor="comment">
+              Additional comments to the organizers
+            </label>
             <TextArea
               maxLength={240}
               onChange={(_, data) => setComment(data.value)}
@@ -159,8 +162,9 @@ export default function CompetingStep({ nextStep }) {
             <p>{comment.length}/240</p>
           </Form.Field>
           <Form.Field>
-            <label>Guests</label>
+            <label htmlFor="guest-dropdown">Guests</label>
             <Dropdown
+              id="guest-dropdown"
               value={guests}
               onChange={(e, data) => setGuests(data.value)}
               selection
@@ -195,7 +199,10 @@ export default function CompetingStep({ nextStep }) {
                 }
               />
               <Message.Content>
-                <Message.Header>Your Registration Status</Message.Header>
+                <Message.Header>
+                  Your Registration Status:{' '}
+                  {registration.competing.registration_status}
+                </Message.Header>
                 {canUpdateRegistration
                   ? 'Update Your Registration below'
                   : 'Registration Editing is disabled'}
