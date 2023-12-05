@@ -25,6 +25,7 @@ export default function RegistrationRequirements() {
           [INSERT ORGANIZER MESSAGE REGARDING REQUIREMENTS]
         </Header.Subheader>
       </Header>
+
       <Segment padded inverted color="orange" attached size="big">
         <Accordion inverted>
           <Accordion.Title
@@ -41,6 +42,7 @@ export default function RegistrationRequirements() {
               <a href="/users/sign_up">here</a> to create one.
             </p>
           </Accordion.Content>
+
           <Accordion.Title
             active={activeIndex === 1}
             index={1}
@@ -66,6 +68,7 @@ export default function RegistrationRequirements() {
               </p>
             )}
           </Accordion.Content>
+
           <Accordion.Title
             active={activeIndex === 2}
             index={2}
@@ -89,6 +92,7 @@ export default function RegistrationRequirements() {
               before this date.`}
             </p>
           </Accordion.Content>
+
           <Accordion.Title
             active={activeIndex === 3}
             index={3}
@@ -104,6 +108,7 @@ export default function RegistrationRequirements() {
           <Accordion.Content active={activeIndex === 3}>
             <p>You can edit your registration until this date.</p>
           </Accordion.Content>
+
           <Accordion.Title
             active={activeIndex === 4}
             index={4}
@@ -130,6 +135,7 @@ export default function RegistrationRequirements() {
                 : 'This competition is free'}
             </p>
           </Accordion.Content>
+
           <Accordion.Title
             active={activeIndex === 5}
             index={5}
@@ -154,6 +160,7 @@ export default function RegistrationRequirements() {
                 : 'Guests attend for free.'}
             </p>
           </Accordion.Content>
+
           {competitionInfo.extra_registration_requirements && (
             <>
               <Accordion.Title
