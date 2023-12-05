@@ -141,6 +141,7 @@ const truncateComment = (comment) =>
 
 export default function RegistrationAdministrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
+
   const {
     isLoading,
     data: registrations,
@@ -157,6 +158,7 @@ export default function RegistrationAdministrationList() {
       setMessage(err.message, 'error')
     },
   })
+
   const [selected, dispatch] = useReducer(reducer, {
     pending: [],
     accepted: [],
@@ -168,6 +170,7 @@ export default function RegistrationAdministrationList() {
     () => partitionRegistrations(registrations ?? []),
     [registrations]
   )
+
   return isLoading ? (
     <LoadingMessage />
   ) : (
@@ -181,6 +184,7 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.pending}
         />
+
         <Header>
           Approved registrations ({accepted.length}/
           {competitionInfo.competitor_limit})
@@ -192,6 +196,7 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.accepted}
         />
+
         <Header> Waitlisted registrations ({waiting.length}) </Header>
         <RegistrationAdministrationTable
           registrations={waiting}
@@ -200,6 +205,7 @@ export default function RegistrationAdministrationList() {
           competition_id={competitionInfo.id}
           selected={selected.waiting}
         />
+
         <Header> Cancelled registrations ({cancelled.length}) </Header>
         <RegistrationAdministrationTable
           registrations={cancelled}
@@ -211,6 +217,7 @@ export default function RegistrationAdministrationList() {
           selected={selected.cancelled}
         />
       </div>
+
       <RegistrationActions
         selected={selected}
         refresh={async () => {
@@ -231,6 +238,7 @@ function RegistrationAdministrationTable({
   selected,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
+
   return (
     <Table striped textAlign="left">
       <Table.Header>
@@ -264,6 +272,7 @@ function RegistrationAdministrationTable({
           <Table.HeaderCell>Email</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
+
       <Table.Body>
         {registrations.length > 0 ? (
           registrations.map((registration) => {
