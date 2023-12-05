@@ -6,6 +6,7 @@ import {
   Button,
   ButtonGroup,
   Divider,
+  Dropdown,
   Form,
   Icon,
   Message,
@@ -159,12 +160,21 @@ export default function CompetingStep({ nextStep }) {
           </Form.Field>
           <Form.Field>
             <label>Guests</label>
-            <input
-              type="number"
-              step={1}
+            <Dropdown
               value={guests}
               onChange={(e, data) => setGuests(data.value)}
-              max={competitionInfo.guests_per_registration_limit ?? 99}
+              selection
+              options={[
+                ...new Array(
+                  (competitionInfo.guests_per_registration_limit ?? 99) + 1 // Arrays start at 0
+                ),
+              ].map((_, index) => {
+                return {
+                  key: `registration-guest-dropdown-${index}`,
+                  text: index,
+                  value: index,
+                }
+              })}
             />
           </Form.Field>
         </Form>
@@ -212,9 +222,9 @@ export default function CompetingStep({ nextStep }) {
                         competition_id: competitionInfo.id,
                         competing: {
                           comment,
-                          guests,
                           event_ids: selectedEvents,
                         },
+                        guests,
                       })
                     }}
                   >
