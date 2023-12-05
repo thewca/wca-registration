@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Step } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
-import CompetingStep from './CompetingStep'
-import StripeWrapper from './StripeWrapper'
-import RegistrationRequirements from './RegistrationRequirements'
 import { RegistrationContext } from '../../../api/helper/context/registration_context'
+import CompetingStep from './CompetingStep'
+import RegistrationRequirements from './RegistrationRequirements'
+import StripeWrapper from './StripeWrapper'
 
 export default function StepPanel() {
   const { competitionInfo } = useContext(CompetitionContext)
