@@ -15,7 +15,6 @@ import { UserContext } from '../../api/helper/context/user_context'
 import { displayMoneyISO4217 } from '../../lib/money'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
-import styles from './index.module.scss'
 
 function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {
@@ -217,21 +216,19 @@ export default function Register() {
           )}
         </div>
       ) : (
-        <div className={styles.competitionNotOpen}>
-          <Message warning>
-            {moment(competitionInfo.registration_open).diff(moment.now()) < 0
-              ? `Competition Registration closed on ${moment(
-                  competitionInfo.registration_close
-                ).format('ll')}`
-              : `Competition Registration will open in ${moment(
-                  competitionInfo.registration_open
-                ).fromNow()} on ${moment(
-                  competitionInfo.registration_open
-                ).format('lll')}, ${
-                  !loggedIn ? 'you will need a WCA Account to register' : ''
-                }`}
+        <Message warning>
+          {moment(competitionInfo.registration_open).diff(moment.now()) < 0
+            ? `Competition Registration closed on ${moment(
+                competitionInfo.registration_close
+            ).format('ll')}`
+            : `Competition Registration will open in ${moment(
+                competitionInfo.registration_open
+            ).fromNow()} on ${moment(
+                competitionInfo.registration_open
+            ).format('lll')}, ${
+                !loggedIn ? 'you will need a WCA Account to register' : ''
+            }`}
           </Message>
-        </div>
       )}
     </div>
   )
