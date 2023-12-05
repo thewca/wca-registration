@@ -16,6 +16,11 @@ import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import logo from '../static/wca2020.svg'
 import LoadingMessage from './messages/loadingMessage'
+import {
+  competitionContactFormRoute,
+  competitionsPDFRoute,
+  userProfileRoute,
+} from '../api/helper/routes'
 
 export default function Competition({ children }) {
   const { competition_id } = useParams()
@@ -50,13 +55,15 @@ export default function Competition({ children }) {
               <Header.Subheader>
                 <List horizontal>
                   {competitionInfo.event_ids.map((event) => (
-                      <List.Item key={event}>
-                        <CubingIcon
-                            event={event}
-                            size={event === competitionInfo.main_event_id ? '2x' : '1x'}
-                            selected
-                        />
-                      </List.Item>
+                    <List.Item key={event}>
+                      <CubingIcon
+                        event={event}
+                        size={
+                          event === competitionInfo.main_event_id ? '2x' : '1x'
+                        }
+                        selected
+                      />
+                    </List.Item>
                   ))}
                 </List>
               </Header.Subheader>
@@ -66,14 +73,14 @@ export default function Competition({ children }) {
                 <List.Item>
                   <List.Content floated="right">
                     <a
-                        href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${
-                            competitionInfo.id
-                        }&dates=${moment(competitionInfo.start_date).format(
-                            'YYYYMMDD'
-                        )}/${moment(competitionInfo.end_date).format(
-                            'YYYYMMDD'
-                        )}&location=${competitionInfo.venue_address}`}
-                        target="_blank"
+                      href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${
+                        competitionInfo.id
+                      }&dates=${moment(competitionInfo.start_date).format(
+                        'YYYYMMDD'
+                      )}/${moment(competitionInfo.end_date).format(
+                        'YYYYMMDD'
+                      )}&location=${competitionInfo.venue_address}`}
+                      target="_blank"
                     >
                       <UiIcon name="calendar plus" />
                     </a>
@@ -81,9 +88,9 @@ export default function Competition({ children }) {
                   <List.Icon name="calendar alternate" />
                   <List.Content>
                     {competitionInfo.start_date === competitionInfo.end_date
-                        ? `${moment(competitionInfo.start_date).format('ll')}`
-                        : `${moment(competitionInfo.start_date).format(
-                            'll'
+                      ? `${moment(competitionInfo.start_date).format('ll')}`
+                      : `${moment(competitionInfo.start_date).format(
+                          'll'
                         )} to ${moment(competitionInfo.end_date).format('ll')}`}
                   </List.Content>
                 </List.Item>
@@ -99,9 +106,9 @@ export default function Competition({ children }) {
                   <List.Content>
                     <List.Header>
                       <p
-                          dangerouslySetInnerHTML={{
-                            __html: marked(competitionInfo.venue),
-                          }}
+                        dangerouslySetInnerHTML={{
+                          __html: marked(competitionInfo.venue),
+                        }}
                       />
                     </List.Header>
                     <List.List>
@@ -115,12 +122,12 @@ export default function Competition({ children }) {
                         </List.Content>
                       </List.Item>
                       {competitionInfo.venue_details && (
-                          <List.Item>
-                            <List.Icon name="map signs"></List.Icon>
-                            <List.Content>
-                              {competitionInfo.venue_details}
-                            </List.Content>
-                          </List.Item>
+                        <List.Item>
+                          <List.Icon name="map signs" />
+                          <List.Content>
+                            {competitionInfo.venue_details}
+                          </List.Content>
+                        </List.Item>
                       )}
                     </List.List>
                   </List.Content>
@@ -130,17 +137,17 @@ export default function Competition({ children }) {
                   <List.Content>
                     <List.Header>
                       {competitionInfo.contact ? (
-                          <span
-                              dangerouslySetInnerHTML={{
-                                __html: marked(competitionInfo.contact),
-                              }}
-                          />
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: marked(competitionInfo.contact),
+                          }}
+                        />
                       ) : (
-                          <a
-                              href={`https://www.worldcubeassociation.org/contact/website?competitionId=${competitionInfo.id}`}
-                          >
-                            Organization Team
-                          </a>
+                        <a
+                          href={competitionContactFormRoute(competitionInfo.id)}
+                        >
+                          Organization Team
+                        </a>
                       )}
                     </List.Header>
                     <List.List>
@@ -149,15 +156,20 @@ export default function Competition({ children }) {
                         <List.Content>
                           <List.Header>Organizers</List.Header>
                           <List.Description>
-                            {competitionInfo.organizers.map((organizer, index) => (
+                            {competitionInfo.organizers.map(
+                              (organizer, index) => (
                                 <a
-                                    key={`competition-organizer-${organizer.id}`}
-                                    href={`${process.env.WCA_URL}/persons/${organizer.wca_id}`}
+                                  key={`competition-organizer-${organizer.id}`}
+                                  href={userProfileRoute(organizer.wca_id)}
                                 >
                                   {organizer.name}
-                                  {index !== competitionInfo.organizers.length - 1 ? ', ' : ''}
+                                  {index !==
+                                  competitionInfo.organizers.length - 1
+                                    ? ', '
+                                    : ''}
                                 </a>
-                            ))}
+                              )
+                            )}
                           </List.Description>
                         </List.Content>
                       </List.Item>
@@ -166,15 +178,20 @@ export default function Competition({ children }) {
                         <List.Content>
                           <List.Header>Delegates</List.Header>
                           <List.Description>
-                            {competitionInfo.delegates.map((delegate, index) => (
+                            {competitionInfo.delegates.map(
+                              (delegate, index) => (
                                 <a
-                                    key={`competition-organizer-${delegate.id}`}
-                                    href={`${process.env.WCA_URL}/persons/${delegate.wca_id}`}
+                                  key={`competition-organizer-${delegate.id}`}
+                                  href={userProfileRoute(delegate.wca_id)}
                                 >
                                   {delegate.name}
-                                  {index !== competitionInfo.delegates.length - 1 ? ', ' : ''}
+                                  {index !==
+                                  competitionInfo.delegates.length - 1
+                                    ? ', '
+                                    : ''}
                                 </a>
-                            ))}
+                              )
+                            )}
                           </List.Description>
                         </List.Content>
                       </List.Item>
@@ -190,15 +207,15 @@ export default function Competition({ children }) {
               <List.Item>
                 <List.Icon name="print" />
                 <List.Content>
-                  <List.Header>Download all of the competitions details</List.Header>
+                  <List.Header>
+                    Download all of the competitions details
+                  </List.Header>
                   <List.List>
                     <List.Item>
                       <List.Icon name="file pdf" />
                       <List.Content>
                         As a{' '}
-                        <a
-                            href={`https://www.worldcubeassociation.org/competitions/${competitionInfo.id}.pdf`}
-                        >
+                        <a href={competitionsPDFRoute(competitionInfo.id)}>
                           PDF
                         </a>
                       </List.Content>
