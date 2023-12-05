@@ -171,6 +171,10 @@ export default function RegistrationAdministrationList() {
     [registrations]
   )
 
+  const spotsRemaining = `; ${
+    competitionInfo?.competitor_limit - accepted?.length
+  } spot(s) remaining`
+
   return isLoading ? (
     <LoadingMessage />
   ) : (
@@ -187,8 +191,12 @@ export default function RegistrationAdministrationList() {
 
         <Header>
           Approved registrations ({accepted.length}
-          {competitionInfo.competitor_limit &&
-            `/${competitionInfo.competitor_limit}`}
+          {competitionInfo.competitor_limit && (
+            <>
+              {`/${competitionInfo.competitor_limit}`}
+              {spotsRemaining}
+            </>
+          )}
           )
         </Header>
         <RegistrationAdministrationTable
@@ -199,7 +207,10 @@ export default function RegistrationAdministrationList() {
           selected={selected.accepted}
         />
 
-        <Header> Waitlisted registrations ({waiting.length}) </Header>
+        <Header>
+          Waitlisted registrations ({waiting.length}
+          {competitionInfo.competitor_limit && spotsRemaining})
+        </Header>
         <RegistrationAdministrationTable
           registrations={waiting}
           add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
