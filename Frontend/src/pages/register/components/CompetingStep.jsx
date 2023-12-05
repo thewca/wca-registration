@@ -23,17 +23,17 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 import Processing from './Processing'
 
 export default function CompetingStep({ nextStep }) {
-  const { user } = useContext(UserContext);
-  const { competitionInfo } = useContext(CompetitionContext);
+  const { user } = useContext(UserContext)
+  const { competitionInfo } = useContext(CompetitionContext)
 
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
-  const [comment, setComment] = useState('');
-  const [selectedEvents, setSelectedEvents] = useState([]);
-  const [guests, setGuests] = useState(0);
+  const [comment, setComment] = useState('')
+  const [selectedEvents, setSelectedEvents] = useState([])
+  const [guests, setGuests] = useState(0)
 
-  const [registration, setRegistration] = useState({});
-  const [processing, setProcessing] = useState(false);
+  const [registration, setRegistration] = useState({})
+  const [processing, setProcessing] = useState(false)
 
   const {
     data: registrationRequest,
@@ -50,7 +50,7 @@ export default function CompetingStep({ nextStep }) {
     onError: (err) => {
       setMessage(err.error, 'error')
     },
-  });
+  })
 
   useEffect(() => {
     if (registrationRequest?.registration?.competing) {
@@ -60,7 +60,7 @@ export default function CompetingStep({ nextStep }) {
       // Ruby sends this as "1.0"
       setGuests(Number(registrationRequest.registration.guests))
     }
-  }, [registrationRequest]);
+  }, [registrationRequest])
 
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
     useMutation({
@@ -78,7 +78,7 @@ export default function CompetingStep({ nextStep }) {
           data
         )
       },
-    });
+    })
 
   const { mutate: createRegistrationMutation, isLoading: isCreating } =
     useMutation({
@@ -95,7 +95,7 @@ export default function CompetingStep({ nextStep }) {
         setMessage('Registration submitted successfully', 'positive')
         setProcessing(true)
       },
-    });
+    })
 
   const canUpdateRegistration =
     competitionInfo.allow_registration_edits &&
@@ -108,7 +108,7 @@ export default function CompetingStep({ nextStep }) {
       {processing && (
         <Processing
           onProcessingComplete={() => {
-            setProcessing(false);
+            setProcessing(false)
 
             if (competitionInfo['using_stripe_payments?']) {
               nextStep()
@@ -120,50 +120,51 @@ export default function CompetingStep({ nextStep }) {
       )}
       <>
         {registration.registration_status && (
-            <Message info>
-              You have registered for {competitionInfo.name}
-            </Message>
+          <Message info>You have registered for {competitionInfo.name}</Message>
         )}
         {!competitionInfo['registration_opened?'] && (
-            <Message warning>
-              Registration is not open yet, but you can still register as a
-              competition organizer or delegate.
-            </Message>
+          <Message warning>
+            Registration is not open yet, but you can still register as a
+            competition organizer or delegate.
+          </Message>
         )}
         <Form>
           <Form.Field>
             <label>Events</label>
             <EventSelector
-                handleEventSelection={setSelectedEvents}
-                events={competitionInfo.event_ids}
-                selected={selectedEvents}
-                size="2x"
+              handleEventSelection={setSelectedEvents}
+              events={competitionInfo.event_ids}
+              selected={selectedEvents}
+              size="2x"
             />
-            <p>You can set your preferred events to prefill future competitions in your profile</p>
+            <p>
+              You can set your preferred events to prefill future competitions
+              in your profile
+            </p>
           </Form.Field>
           <Form.Field required={competitionInfo.force_comment_in_registration}>
             <label>Additional comments to the organizers</label>
             <TextArea
-                maxLength={240}
-                onChange={(_, data) => setComment(data.value)}
-                value={comment}
-                placeholder={
-                  competitionInfo.force_comment_in_registration
-                      ? 'A comment is required. Read the Registration Requirements to find out why.'
-                      : ''
-                }
-                id="comment"
+              maxLength={240}
+              onChange={(_, data) => setComment(data.value)}
+              value={comment}
+              placeholder={
+                competitionInfo.force_comment_in_registration
+                  ? 'A comment is required. Read the Registration Requirements to find out why.'
+                  : ''
+              }
+              id="comment"
             />
             <p>{comment.length}/240</p>
           </Form.Field>
           <Form.Field>
             <label>Guests</label>
             <input
-                type="number"
-                step={1}
-                value={guests}
-                onChange={(e, data) => setGuests(data.value)}
-                max={competitionInfo.guests_per_registration_limit ?? 99}
+              type="number"
+              step={1}
+              value={guests}
+              onChange={(e, data) => setGuests(data.value)}
+              max={competitionInfo.guests_per_registration_limit ?? 99}
             />
           </Form.Field>
         </Form>
@@ -172,22 +173,22 @@ export default function CompetingStep({ nextStep }) {
           <>
             <Message warning icon>
               <Popup
-                  trigger={<UiIcon name="circle info" />}
-                  position="top center"
-                  content={
-                    canUpdateRegistration
-                        ? `You can update your registration until ${moment(
-                            competitionInfo.event_change_deadline_date ??
-                            competitionInfo.end_date
-                        ).format('ll')}`
-                        : 'You can no longer update your registration'
-                  }
+                trigger={<UiIcon name="circle info" />}
+                position="top center"
+                content={
+                  canUpdateRegistration
+                    ? `You can update your registration until ${moment(
+                        competitionInfo.event_change_deadline_date ??
+                          competitionInfo.end_date
+                      ).format('ll')}`
+                    : 'You can no longer update your registration'
+                }
               />
               <Message.Content>
                 <Message.Header>Your Registration Status</Message.Header>
                 {canUpdateRegistration
-                    ? 'Update Your Registration below'
-                    : 'Registration Editing is disabled'}
+                  ? 'Update Your Registration below'
+                  : 'Registration Editing is disabled'}
               </Message.Content>
             </Message>
             <ButtonGroup>
@@ -200,9 +201,9 @@ export default function CompetingStep({ nextStep }) {
                     primary
                     disabled={
                       isUpdating ||
-                        !competitionInfo.allow_registration_edits ||
-                        (competitionInfo.force_comment_in_registration &&
-                          comment.trim() === '')
+                      !competitionInfo.allow_registration_edits ||
+                      (competitionInfo.force_comment_in_registration &&
+                        comment.trim() === '')
                     }
                     onClick={() => {
                       setMessage('Registration is being updated', 'basic')
@@ -219,8 +220,7 @@ export default function CompetingStep({ nextStep }) {
                   >
                     Update Registration
                   </Button>
-                )
-              }
+                )}
               {registration.competing.registration_status === 'cancelled' && (
                 <Button
                   secondary
@@ -274,9 +274,7 @@ export default function CompetingStep({ nextStep }) {
               <Popup
                 content="You will only be accepted if you have met all reigstration requirements"
                 position="top left"
-                trigger={
-                  <Icon name="circle info" />
-                }
+                trigger={<Icon name="circle info" />}
               />
               <Message.Content>
                 Submission of Registration does not mean approval to compete
@@ -292,7 +290,7 @@ export default function CompetingStep({ nextStep }) {
                 isCreating ||
                 selectedEvents.length === 0 ||
                 (competitionInfo.force_comment_in_registration &&
-                    comment.trim() === '')
+                  comment.trim() === '')
               }
               onClick={async () => {
                 setMessage('Registration is being processed', 'basic')

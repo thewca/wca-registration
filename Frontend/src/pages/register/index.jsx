@@ -1,30 +1,39 @@
 import moment from 'moment'
-import React, {useContext, useState} from 'react'
-import {Button, Icon, Label, List, Message, Segment, Transition} from 'semantic-ui-react'
+import React, { useContext, useState } from 'react'
+import {
+  Button,
+  Icon,
+  Label,
+  List,
+  Message,
+  Segment,
+  Transition,
+} from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
 import styles from './index.module.scss'
-import {dinero, toDecimal} from "dinero.js";
-import * as currencies from "@dinero.js/currencies";
+import { displayMoneyISO4217 } from '../../lib/money'
+
+function registrationStatusLabel(competitionInfo) {
+  if (competitionInfo['registration_opened?']) {
+    return 'OPEN'
+  }
+  return moment(competitionInfo.registration_open).isAfter()
+    ? 'NOT YET OPEN'
+    : 'CLOSED'
+}
 
 export default function Register() {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAttendCompetition } = useContext(PermissionsContext)
 
-  const [showRegisterSteps, setShowRegisterSteps] = useState(false);
+  const [showRegisterSteps, setShowRegisterSteps] = useState(false)
 
   const loggedIn = user !== null
-
-  const regOpenDate = new Date(competitionInfo?.registration_open)
-  const regClosingDate = new Date(competitionInfo?.registration_close)
-
-  const now = Date.now();
-
-  const isRegistrationOpen = regOpenDate <= now && regClosingDate >= now;
 
   return (
     <div>
@@ -35,9 +44,18 @@ export default function Register() {
         <div>
           {canAttendCompetition ? (
             <>
-              <Transition visible={showRegisterSteps} duration={500} animation="zoom">
+              <Transition
+                visible={showRegisterSteps}
+                duration={500}
+                animation="zoom"
+              >
                 <Segment padded basic>
-                  <Button floated="right" icon basic onClick={() => setShowRegisterSteps(false)}>
+                  <Button
+                    floated="right"
+                    icon
+                    basic
+                    onClick={() => setShowRegisterSteps(false)}
+                  >
                     <Icon name="close" />
                   </Button>
                   <StepPanel />
@@ -45,15 +63,17 @@ export default function Register() {
               </Transition>
               <Segment padded attached raised>
                 <Message warning>
-                  *Insert Potential organizer announcement or memo for users
-                  to view before hitting register*
+                  *Insert Potential organizer announcement or memo for users to
+                  view before hitting register*
                 </Message>
 
                 <List divided relaxed size="huge">
                   <List.Item>
                     <List.Icon name="users" />
                     <List.Content>
-                      <List.Header>{competitionInfo.competitor_limit}</List.Header>
+                      <List.Header>
+                        {competitionInfo.competitor_limit}
+                      </List.Header>
                       <List.Description>Competitor Limit</List.Description>
                     </List.Content>
                   </List.Item>
@@ -61,13 +81,12 @@ export default function Register() {
                     <List.Icon name="money" />
                     <List.Content>
                       <List.Header>
-                        {toDecimal(
-                            dinero({
-                              amount: competitionInfo.base_entry_fee_lowest_denomination,
-                              currency: currencies[competitionInfo.currency_code],
-                            }),
-                            ({ value, currency }) => `${currency.code} ${value}`
-                        ) ?? 'No Entry Fee'}
+                        {competitionInfo.base_entry_fee_lowest_denomination
+                          ? displayMoneyISO4217(
+                              competitionInfo.base_entry_fee_lowest_denomination,
+                              competitionInfo.currency_code
+                            )
+                          : 'No Entry Fee'}
                       </List.Header>
                       <List.Description>Base Registration Fee</List.Description>
                       <List.List>
@@ -75,13 +94,12 @@ export default function Register() {
                           <List.Icon name="user plus" />
                           <List.Content>
                             <List.Header>
-                              {toDecimal(
-                                  dinero({
-                                    amount: competitionInfo.guests_entry_fee_lowest_denomination,
-                                    currency: currencies[competitionInfo.currency_code],
-                                  }),
-                                  ({ value, currency }) => `${currency.code} ${value}`
-                              )}
+                              {competitionInfo.guests_entry_fee_lowest_denomination
+                                ? displayMoneyISO4217(
+                                    competitionInfo.guests_entry_fee_lowest_denomination,
+                                    competitionInfo.currency_code
+                                  )
+                                : 'Guests attend for free'}
                             </List.Header>
                             <List.Description>Guest Entry Fee</List.Description>
                           </List.Content>
@@ -91,8 +109,15 @@ export default function Register() {
                   </List.Item>
                   <List.Item>
                     <List.Content floated="right">
-                      <Label size="huge" color={isRegistrationOpen ? "green" : "red"}>
-                        {isRegistrationOpen ? 'OPEN' : 'CLOSED'}
+                      <Label
+                        size="huge"
+                        color={
+                          competitionInfo['registration_opened?']
+                            ? 'green'
+                            : 'red'
+                        }
+                      >
+                        {registrationStatusLabel(competitionInfo)}
                       </Label>
                     </List.Content>
                     <List.Icon name="pencil" />
@@ -111,7 +136,7 @@ export default function Register() {
                               {competitionInfo.refund_policy_percent}
                               {'% before '}
                               {moment(
-                                  competitionInfo.refund_policy_limit_date ??
+                                competitionInfo.refund_policy_limit_date ??
                                   competitionInfo.start_date
                               ).calendar()}
                             </List.Header>
@@ -123,11 +148,13 @@ export default function Register() {
                           <List.Content>
                             <List.Header>
                               {moment(
-                                  competitionInfo.event_change_deadline_date ??
+                                competitionInfo.event_change_deadline_date ??
                                   competitionInfo.end_date
                               ).calendar()}
                             </List.Header>
-                            <List.Description>Edit registration deadline</List.Description>
+                            <List.Description>
+                              Edit registration deadline
+                            </List.Description>
                           </List.Content>
                         </List.Item>
                         <List.Item>
@@ -135,11 +162,13 @@ export default function Register() {
                           <List.Content>
                             <List.Header>
                               {moment(
-                                  competitionInfo.waiting_list_deadline_date ??
+                                competitionInfo.waiting_list_deadline_date ??
                                   competitionInfo.start_date
                               ).calendar()}
                             </List.Header>
-                            <List.Description>Waiting list acceptance date</List.Description>
+                            <List.Description>
+                              Waiting list acceptance date
+                            </List.Description>
                           </List.Content>
                         </List.Item>
                       </List.List>
@@ -147,7 +176,12 @@ export default function Register() {
                   </List.Item>
                 </List>
 
-                <Transition visible={!showRegisterSteps} duration={500} animation="slide down" unmountOnHide>
+                <Transition
+                  visible={!showRegisterSteps}
+                  duration={500}
+                  animation="slide down"
+                  unmountOnHide
+                >
                   <Button
                     primary
                     size="huge"
@@ -161,10 +195,10 @@ export default function Register() {
                     onClick={(_, data) => {
                       if (!data.disabled) {
                         if (competitionInfo.use_wca_registration) {
-                          setShowRegisterSteps(true);
+                          setShowRegisterSteps(true)
                         } else {
                           window.location =
-                              competitionInfo.external_registration_page
+                            competitionInfo.external_registration_page
                         }
                       }
                     }}

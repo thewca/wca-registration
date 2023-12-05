@@ -14,13 +14,13 @@ import {
 } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import { CompetitionContext } from '../api/helper/context/competition_context'
-import logo from '../static/wca2020.svg'
-import LoadingMessage from './messages/loadingMessage'
 import {
   competitionContactFormRoute,
   competitionsPDFRoute,
   userProfileRoute,
 } from '../api/helper/routes'
+import logo from '../static/wca2020.svg'
+import LoadingMessage from './messages/loadingMessage'
 
 export default function Competition({ children }) {
   const { competition_id } = useParams()
