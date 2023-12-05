@@ -186,8 +186,10 @@ export default function RegistrationAdministrationList() {
         />
 
         <Header>
-          Approved registrations ({accepted.length}/
-          {competitionInfo.competitor_limit})
+          Approved registrations ({accepted.length}
+          {competitionInfo.competitor_limit &&
+            `/${competitionInfo.competitor_limit}`}
+          )
         </Header>
         <RegistrationAdministrationTable
           registrations={accepted}
