@@ -165,6 +165,9 @@ class Registration
     lane.remove_from_waiting_list(competition_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
     lane.move_within_waiting_list(competition_id, update_params[:waiting_list_position]) if
       update_params[:waiting_list_position].present? && update_params[:waiting_list_position] != competing_waiting_list_position
+
+    Rails.cache.delete("#{@competition_id}-waiting_list_boundaries")
+    Rails.cache.delete("#{@competition_id}-waiting_list_registrations")
   end
 
   # Fields

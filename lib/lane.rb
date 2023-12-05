@@ -62,17 +62,13 @@ class Lane
 
   # NOTE: Does this belong in the lane? Or in some lib file or something?
   def get_registrations_by_status(competition_id, status)
-    # NOTE: Where does this cache need to be invalidated?
     Rails.cache.fetch("#{competition_id}-waiting_list_registrations", expires_in: 60.minutes) do
       Registration.where(competition_id: competition_id, competing_status: status)
     end
   end
 
   def get_waiting_list_boundaries(competition_id)
-    # TODO: Tests in lane_spec for this function?
     Rails.cache.fetch("#{competition_id}-waiting_list_boundaries", expires_in: 60.minutes) do
-      # TODO: Make sure I'm invalidating this cache appropriately
-      # Get all registrations with correct competition_id with status of waiting_list
       waiting_list_registrations = get_registrations_by_status(competition_id, 'waiting_list')
 
       # Iterate through waiting list registrations and record min/max waiting list positions
