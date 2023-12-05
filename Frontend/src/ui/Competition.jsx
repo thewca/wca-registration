@@ -114,7 +114,12 @@ export default function Competition({ children }) {
                     <List.List>
                       <List.Item>
                         <List.Content floated="right">
-                          <UiIcon name="google" />
+                          <a
+                            href={`https://google.com/maps/place/${competitionInfo.latitude_degrees},${competitionInfo.longitude_degrees}`}
+                            target="_blank"
+                          >
+                            <UiIcon name="google" />
+                          </a>
                         </List.Content>
                         <List.Icon name="map" />
                         <List.Content>
