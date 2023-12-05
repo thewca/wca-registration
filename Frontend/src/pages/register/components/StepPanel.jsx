@@ -3,13 +3,19 @@ import { Step } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import CompetingStep from './CompetingStep'
 import StripeWrapper from './StripeWrapper'
+import RegistrationRequirements from './RegistrationRequirements'
 
 export default function StepPanel() {
   const { competitionInfo } = useContext(CompetitionContext)
   const [activeIndex, setActiveIndex] = useState(0)
 
-  const panes = useMemo(() => {
-    const panes = [
+  const steps = useMemo(() => {
+    const steps = [
+      {
+        key: 'requirements',
+        label: 'Requirements',
+        component: RegistrationRequirements,
+      },
       {
         key: 'competing',
         label: 'Register',
@@ -18,21 +24,21 @@ export default function StepPanel() {
     ]
 
     if (competitionInfo['using_stripe_payments?']) {
-      panes.push({
+      steps.push({
         key: 'payment',
         label: 'Payment',
         component: StripeWrapper,
       })
     }
-    return panes
+    return steps
   }, [competitionInfo])
 
-  const CurrentStepPanel = panes[activeIndex].component
+  const CurrentStepPanel = steps[activeIndex].component
 
   return (
     <>
       <Step.Group fluid ordered stackable="tablet">
-        {panes.map((stepConfig, index) => (
+        {steps.map((stepConfig, index) => (
           <Step
             key={stepConfig.key}
             active={activeIndex === index}
