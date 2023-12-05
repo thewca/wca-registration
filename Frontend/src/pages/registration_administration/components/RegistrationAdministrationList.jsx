@@ -171,6 +171,8 @@ export default function RegistrationAdministrationList() {
     [registrations]
   )
 
+  // some sticky/floating bar somewhere with totals/info would be better
+  // than putting this in the table headers which scroll out of sight
   const spotsRemaining = `; ${
     competitionInfo?.competitor_limit - accepted?.length
   } spot(s) remaining`
