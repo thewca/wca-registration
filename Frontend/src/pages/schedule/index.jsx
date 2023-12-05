@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getFormatName } from '@wca/helpers'
 import moment from 'moment'
 import React, { useContext } from 'react'
-import {Header, Message, Segment, Table, TableCell} from 'semantic-ui-react'
+import { Header, Message, Segment, Table, TableCell } from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { setMessage } from '../../ui/events/messages'
@@ -53,9 +53,7 @@ export default function Schedule() {
           date
         ).sort((a, b) => new Date(a.startTime) > new Date(b.startTime))
         return (
-          <Segment basic
-            key={date.toLocaleString()}
-          >
+          <Segment key={date.toLocaleString()} basic>
             <Header as="h2">Schedule for {moment(date).format('ll')}</Header>
             <Table striped>
               <Table.Header>

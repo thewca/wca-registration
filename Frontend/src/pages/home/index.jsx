@@ -1,6 +1,6 @@
 import { marked } from 'marked'
 import React, { useContext } from 'react'
-import { Segment} from 'semantic-ui-react'
+import { Segment } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 
 export default function HomePage() {

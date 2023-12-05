@@ -1,8 +1,8 @@
 import React, { useContext } from 'react'
+import { Segment } from 'semantic-ui-react'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import RegistrationAdministrationList from './components/RegistrationAdministrationList'
-import {Segment} from "semantic-ui-react";
 
 export default function RegistrationAdministration() {
   const { canAdminCompetition } = useContext(PermissionsContext)

@@ -12,10 +12,10 @@ import {
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
+import { displayMoneyISO4217 } from '../../lib/money'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
 import styles from './index.module.scss'
-import { displayMoneyISO4217 } from '../../lib/money'
 
 function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {

@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import { getEventName, getFormatName } from '@wca/helpers'
 import React, { useContext } from 'react'
 import {
-  Message, Segment,
+  Message,
+  Segment,
   Table,
   TableBody,
   TableCell,

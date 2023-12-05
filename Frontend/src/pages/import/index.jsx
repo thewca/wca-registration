@@ -9,7 +9,7 @@ import { BASE_ROUTE } from '../../routes'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 
 export default function Import() {
-  const [file, setFile] = useState();
+  const [file, setFile] = useState()
 
   const navigate = useNavigate()
 
