@@ -69,7 +69,11 @@ export default function RegistrationRequirements({ nextStep }) {
                 <UiIcon name="dropdown" />
                 Additional Registration Requirements
               </Accordion.Title>
-              <Transition visible={showRegRequirements} duration={500}>
+              <Transition
+                visible={showRegRequirements}
+                animation="scale"
+                duration={500}
+              >
                 <Accordion.Content active={showRegRequirements}>
                   <p
                     dangerouslySetInnerHTML={{

@@ -46,7 +46,7 @@ export default function Register() {
               <Transition
                 visible={showRegisterSteps}
                 duration={500}
-                animation="zoom"
+                animation="scale"
               >
                 <Segment padded basic>
                   <Button
@@ -178,7 +178,7 @@ export default function Register() {
                 <Transition
                   visible={!showRegisterSteps}
                   duration={500}
-                  animation="slide down"
+                  animation="scale"
                   unmountOnHide
                 >
                   <Button
