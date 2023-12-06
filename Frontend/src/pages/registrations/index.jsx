@@ -1,12 +1,11 @@
 import React from 'react'
+import { Segment } from 'semantic-ui-react'
 import RegistrationList from './components/RegistrationList'
-import styles from './index.module.scss'
 
 export default function Registrations() {
   return (
-    <div>
-      <div className={styles.listHeader}>Competitors:</div>
+    <Segment padded attached>
       <RegistrationList />
-    </div>
+    </Segment>
   )
 }

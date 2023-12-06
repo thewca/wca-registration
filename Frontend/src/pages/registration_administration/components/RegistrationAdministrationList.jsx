@@ -11,100 +11,32 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
 
-// Currently it is at the developer's discretion to make sure
-// an attendee is added to the right list.
-// One Solution would be to keep the registrations state as
-// the source of truth and partition as needed
-const reducer = (state, action) => {
-  const { type, attendee } = action
-  // Make sure no one adds an attendee twice
-  if (
-    type.startsWith('add') &&
-    [
-      ...state.waiting,
-      ...state.accepted,
-      ...state.cancelled,
-      ...state.pending,
-    ].includes(attendee)
-  ) {
-    return state
-  }
+const selectedReducer = (state, action) => {
+  let newState = [...state]
+
+  const { type, attendee, attendees } = action
+  const idList = attendees || [attendee]
+
   switch (type) {
-    case 'add-pending':
-      return {
-        pending: [...state.pending, attendee],
-        accepted: state.accepted,
-        cancelled: state.cancelled,
-        waiting: state.waiting,
-      }
-    case 'remove-pending':
-      return {
-        pending: state.pending.filter(
-          (selectedAttendee) => selectedAttendee !== attendee
-        ),
-        accepted: state.accepted,
-        cancelled: state.cancelled,
-        waiting: state.waiting,
-      }
-    case 'add-waiting':
-      return {
-        waiting: [...state.waiting, attendee],
-        accepted: state.accepted,
-        cancelled: state.cancelled,
-        pending: state.pending,
-      }
-    case 'remove-waiting':
-      return {
-        waiting: state.waiting.filter(
-          (selectedAttendee) => selectedAttendee !== attendee
-        ),
-        accepted: state.accepted,
-        cancelled: state.cancelled,
-        pending: state.pending,
-      }
-    case 'add-accepted':
-      return {
-        accepted: [...state.accepted, attendee],
-        waiting: state.waiting,
-        cancelled: state.cancelled,
-        pending: state.pending,
-      }
-    case 'remove-accepted':
-      return {
-        accepted: state.accepted.filter(
-          (selectedAttendee) => selectedAttendee !== attendee
-        ),
-        waiting: state.waiting,
-        cancelled: state.cancelled,
-        pending: state.pending,
-      }
-    case 'add-cancelled':
-      return {
-        cancelled: [...state.cancelled, attendee],
-        accepted: state.accepted,
-        waiting: state.waiting,
-        pending: state.pending,
-      }
-    case 'remove-cancelled':
-      return {
-        cancelled: state.cancelled.filter(
-          (selectedAttendee) => selectedAttendee !== attendee
-        ),
-        accepted: state.accepted,
-        waiting: state.waiting,
-        pending: state.pending,
-      }
-    case 'clear-selected': {
-      return {
-        waiting: [],
-        accepted: [],
-        cancelled: [],
-        pending: [],
-      }
-    }
+    case 'add':
+      idList.forEach((id) => {
+        // Make sure no one adds an attendee twice
+        if (!newState.includes(id)) newState.push(id)
+      })
+      break
+
+    case 'remove':
+      newState = newState.filter((id) => !idList.includes(id))
+      break
+
+    case 'clear-selected':
+      return []
+
     default:
       throw new Error('Unknown action.')
   }
+
+  return newState
 }
 
 const partitionRegistrations = (registrations) => {
@@ -141,6 +73,7 @@ const truncateComment = (comment) =>
 
 export default function RegistrationAdministrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
+
   const {
     isLoading,
     data: registrations,
@@ -157,17 +90,40 @@ export default function RegistrationAdministrationList() {
       setMessage(err.message, 'error')
     },
   })
-  const [selected, dispatch] = useReducer(reducer, {
-    pending: [],
-    accepted: [],
-    cancelled: [],
-    waiting: [],
-  })
 
   const { waiting, accepted, cancelled, pending } = useMemo(
     () => partitionRegistrations(registrations ?? []),
     [registrations]
   )
+
+  const [selected, dispatch] = useReducer(selectedReducer, [])
+  const partitionedSelected = useMemo(
+    () => ({
+      pending: selected.filter((id) =>
+        pending.some((reg) => id === reg.user.id)
+      ),
+      waiting: selected.filter((id) =>
+        waiting.some((reg) => id === reg.user.id)
+      ),
+      accepted: selected.filter((id) =>
+        accepted.some((reg) => id === reg.user.id)
+      ),
+      cancelled: selected.filter((id) =>
+        cancelled.some((reg) => id === reg.user.id)
+      ),
+    }),
+    [selected, pending, waiting, accepted, cancelled]
+  )
+
+  const select = (attendees) => dispatch({ type: 'add', attendees })
+  const unselect = (attendees) => dispatch({ type: 'remove', attendees })
+
+  // some sticky/floating bar somewhere with totals/info would be better
+  // than putting this in the table headers which scroll out of sight
+  const spotsRemaining = `; ${
+    competitionInfo?.competitor_limit - accepted?.length
+  } spot(s) remaining`
+
   return isLoading ? (
     <LoadingMessage />
   ) : (
@@ -176,43 +132,54 @@ export default function RegistrationAdministrationList() {
         <Header> Pending registrations ({pending.length}) </Header>
         <RegistrationAdministrationTable
           registrations={pending}
-          add={(attendee) => dispatch({ type: 'add-pending', attendee })}
-          remove={(attendee) => dispatch({ type: 'remove-pending', attendee })}
+          select={select}
+          unselect={unselect}
           competition_id={competitionInfo.id}
-          selected={selected.pending}
+          selected={partitionedSelected.pending}
         />
+
         <Header>
-          Approved registrations ({accepted.length}/
-          {competitionInfo.competitor_limit})
+          Approved registrations ({accepted.length}
+          {competitionInfo.competitor_limit && (
+            <>
+              {`/${competitionInfo.competitor_limit}`}
+              {spotsRemaining}
+            </>
+          )}
+          )
         </Header>
         <RegistrationAdministrationTable
           registrations={accepted}
-          add={(attendee) => dispatch({ type: 'add-accepted', attendee })}
-          remove={(attendee) => dispatch({ type: 'remove-accepted', attendee })}
+          select={select}
+          unselect={unselect}
           competition_id={competitionInfo.id}
-          selected={selected.accepted}
+          selected={partitionedSelected.accepted}
         />
-        <Header> Waitlisted registrations ({waiting.length}) </Header>
+
+        <Header>
+          Waitlisted registrations ({waiting.length}
+          {competitionInfo.competitor_limit && spotsRemaining})
+        </Header>
         <RegistrationAdministrationTable
           registrations={waiting}
-          add={(attendee) => dispatch({ type: 'add-waiting', attendee })}
-          remove={(attendee) => dispatch({ type: 'remove-waiting', attendee })}
+          select={select}
+          unselect={unselect}
           competition_id={competitionInfo.id}
-          selected={selected.waiting}
+          selected={partitionedSelected.waiting}
         />
-        <Header> Cancelled registrations ({cancelled.length}) </Header>
+
+        <Header>Cancelled registrations ({cancelled.length})</Header>
         <RegistrationAdministrationTable
           registrations={cancelled}
-          add={(attendee) => dispatch({ type: 'add-cancelled', attendee })}
-          remove={(attendee) =>
-            dispatch({ type: 'remove-cancelled', attendee })
-          }
+          select={select}
+          unselect={unselect}
           competition_id={competitionInfo.id}
-          selected={selected.cancelled}
+          selected={partitionedSelected.cancelled}
         />
       </div>
+
       <RegistrationActions
-        selected={selected}
+        partitionedSelected={partitionedSelected}
         refresh={async () => {
           await refetch()
           dispatch({ type: 'clear-selected' })
@@ -225,26 +192,30 @@ export default function RegistrationAdministrationList() {
 
 function RegistrationAdministrationTable({
   registrations,
-  add,
-  remove,
+  select,
+  unselect,
   competition_id,
   selected,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
+
   return (
     <Table striped textAlign="left">
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>
-            <Checkbox
-              onChange={(_, data) => {
-                registrations.forEach((registration) =>
-                  data.checked
-                    ? add(registration.user.id)
-                    : remove(registration.user.id)
-                )
-              }}
-            />
+            {registrations.length > 0 && (
+              <Checkbox
+                checked={registrations.length === selected.length}
+                onChange={(_, data) => {
+                  if (data.checked) {
+                    select(registrations.map(({ user }) => user.id))
+                  } else {
+                    unselect(registrations.map(({ user }) => user.id))
+                  }
+                }}
+              />
+            )}
           </Table.HeaderCell>
           <Table.HeaderCell />
           <Table.HeaderCell>WCA ID</Table.HeaderCell>
@@ -264,6 +235,7 @@ function RegistrationAdministrationTable({
           <Table.HeaderCell>Email</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
+
       <Table.Body>
         {registrations.length > 0 ? (
           registrations.map((registration) => {
@@ -276,9 +248,9 @@ function RegistrationAdministrationTable({
                   <Checkbox
                     onChange={(_, data) => {
                       if (data.checked) {
-                        add(registration.user.id)
+                        select([registration.user.id])
                       } else {
-                        remove(registration.user.id)
+                        unselect([registration.user.id])
                       }
                     }}
                     checked={selected.includes(registration.user.id)}
@@ -292,14 +264,12 @@ function RegistrationAdministrationTable({
                   </Link>
                 </Table.Cell>
                 <Table.Cell>
-                  {registration.user.wca_id ? (
+                  {registration.user.wca_id && (
                     <a
                       href={`https://www.worldcubeassociation.org/persons/${registration.user.wca_id}`}
                     >
                       {registration.user.wca_id}
                     </a>
-                  ) : (
-                    ''
                   )}
                 </Table.Cell>
                 <Table.Cell>{registration.user.name}</Table.Cell>
@@ -321,13 +291,14 @@ function RegistrationAdministrationTable({
                     }
                   />
                 </Table.Cell>
+
                 {competitionInfo['using_stripe_payments?'] && (
                   <>
                     <Table.Cell>
                       {registration.payment.payment_status ?? 'not paid'}
                     </Table.Cell>
                     <Table.Cell>
-                      {registration.payment.updated_at ? (
+                      {registration.payment.updated_at && (
                         <Popup
                           content={new Date(
                             registration.payment.updated_at
@@ -340,8 +311,6 @@ function RegistrationAdministrationTable({
                             </span>
                           }
                         />
-                      ) : (
-                        ''
                       )}
                     </Table.Cell>
                   </>

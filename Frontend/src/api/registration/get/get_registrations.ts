@@ -65,7 +65,7 @@ export async function getAllRegistrations(
 }
 
 export async function getSingleRegistration(
-  userId: string,
+  userId: number,
   competitionId: string
 ): Promise<{ registration: components['schemas']['registrationAdmin'] }> {
   return backendFetch(

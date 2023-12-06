@@ -2,12 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { getFormatName } from '@wca/helpers'
 import moment from 'moment'
 import React, { useContext } from 'react'
-import { Message, Table, TableCell } from 'semantic-ui-react'
+import { Header, Message, Segment, Table, TableCell } from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { setMessage } from '../../ui/events/messages'
 import LoadingMessage from '../../ui/messages/loadingMessage'
-import styles from './index.module.scss'
 
 const getDatesStartingOn = (startDate, numberOfDays) => {
   const range = []
@@ -42,11 +41,11 @@ export default function Schedule() {
   return isLoading ? (
     <LoadingMessage />
   ) : (
-    <div className={styles.scheduleWrapper}>
+    <Segment padded attached>
       {getDatesStartingOn(
         wcif.schedule.startDate,
         wcif.schedule.numberOfDays
-      ).map((date, index) => {
+      ).map((date) => {
         const activitiesForDay = activitiesByDate(
           wcif.schedule.venues.flatMap((venue) =>
             venue.rooms.flatMap((room) => room.activities)
@@ -54,15 +53,8 @@ export default function Schedule() {
           date
         ).sort((a, b) => new Date(a.startTime) > new Date(b.startTime))
         return (
-          <div
-            key={date.toLocaleString()}
-            className={`${
-              index === wcif.schedule.numberOfDays - 1
-                ? styles.scheduleTable
-                : ''
-            }`}
-          >
-            <h2>Schedule for {moment(date).format('ll')}</h2>
+          <Segment key={date.toLocaleString()} basic>
+            <Header as="h2">Schedule for {moment(date).format('ll')}</Header>
             <Table striped>
               <Table.Header>
                 <Table.Row>
@@ -118,9 +110,9 @@ export default function Schedule() {
                 })}
               </Table.Body>
             </Table>
-          </div>
+          </Segment>
         )
       })}
-    </div>
+    </Segment>
   )
 }

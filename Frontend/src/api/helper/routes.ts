@@ -20,6 +20,15 @@ export const refundRoute = (
 ) =>
   `${process.env.WCA_URL}/payment/refund?attendee_id=${competitionId}-${userId}&payment_id=${paymentId}&refund_amount=${amount}`
 
+export const userProfileRoute = (wcaId: string) =>
+  `${process.env.WCA_URL}/persons/${wcaId}`
+
+export const competitionsPDFRoute = (compId: string) =>
+  `${process.env.WCA_URL}/competitions/${compId}.pdf`
+
+export const competitionContactFormRoute = (compId: string) =>
+  `https://www.worldcubeassociation.org/contact/website?competitionId=${compId}`
+
 export const pollingRoute = (userId: string, competitionId: string) =>
   `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`
 export const meRoute = `${process.env.WCA_URL}/api/v0/users/me`

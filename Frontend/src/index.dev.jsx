@@ -4,7 +4,12 @@ import './global.scss'
 import '@thewca/wca-components/dist/index.esm.css'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
+import {
+  createBrowserRouter,
+  Navigate,
+  Outlet,
+  RouterProvider,
+} from 'react-router-dom'
 import { Container } from 'semantic-ui-react'
 import Events from './pages/events'
 import HomePage from './pages/home'
@@ -23,9 +28,10 @@ import CustomTab from './ui/CustomTab'
 import PageFooter from './ui/Footer'
 import PageHeader from './ui/Header'
 import FlashMessage from './ui/messages/flashMessage'
+import PageTabs from './ui/PageTabs'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
+import RegistrationProvider from './ui/providers/RegistrationProvider'
 import UserProvider from './ui/providers/UserProvider'
-import PageTabs from './ui/Tabs'
 
 const router = createBrowserRouter([
   {
@@ -67,48 +73,55 @@ const router = createBrowserRouter([
           <Container>
             <Competition>
               <PermissionsProvider>
-                <PageTabs />
-                <Outlet />
+                <RegistrationProvider>
+                  <PageTabs />
+                  <Outlet />
+                  <PageTabs />
+                </RegistrationProvider>
               </PermissionsProvider>
             </Competition>
           </Container>
         ),
         children: [
           {
-            path: `${BASE_ROUTE}/:competition_id`,
+            path: '',
             element: <HomePage />,
           },
           {
-            path: `${BASE_ROUTE}/:competition_id/events`,
+            path: 'events',
             element: <Events />,
           },
           {
-            path: `${BASE_ROUTE}/:competition_id/import`,
+            path: 'import',
             element: <Import />,
           },
           {
-            path: `${BASE_ROUTE}/:competition_id/schedule`,
+            path: 'schedule',
             element: <Schedule />,
           },
           {
-            path: `${BASE_ROUTE}/:competition_id/register`,
+            path: 'register',
             element: <Register />,
           },
           {
-            path: `${BASE_ROUTE}/:competition_id/tabs/:tab_id`,
+            path: 'tabs/:tab_id',
             element: <CustomTab />,
           },
           {
-            path: `${BASE_ROUTE}/:competition_id/registrations`,
+            path: 'registrations',
             element: <Registrations />,
           },
           {
-            path: `${BASE_ROUTE}/:competition_id/:user_id/edit`,
+            path: ':user_id/edit',
             element: <RegistrationEdit />,
           },
           {
-            path: `${BASE_ROUTE}/:competition_id/registrations/edit`,
+            path: 'registrations/edit',
             element: <RegistrationAdministration />,
+          },
+          {
+            path: '*',
+            element: <Navigate to="" />,
           },
         ],
       },
