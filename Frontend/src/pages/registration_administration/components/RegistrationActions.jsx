@@ -45,6 +45,9 @@ export default function RegistrationActions({
   const anyCancellable = cancelled.length < selectedCount
   const anyWaitlistable = waiting.length < selectedCount
 
+  // TODO: mirror backend conditions, ie only organizers and delegates of the competition(?)
+  const canChangeStatuses = true
+
   const { mutate: updateRegistrationMutation } = useMutation({
     mutationFn: updateRegistration,
     onError: (data) => {
@@ -107,50 +110,63 @@ export default function RegistrationActions({
           </a>
         </Button>
 
-        {anyApprovable && (
-          <Button
-            positive
-            onClick={() =>
-              changeStatus([...pending, ...cancelled, ...waiting], 'accepted')
-            }
-          >
-            <UiIcon name="check" /> Approve
-          </Button>
-        )}
+        {canChangeStatuses && (
+          <>
+            {anyApprovable && (
+              <Button
+                positive
+                onClick={() =>
+                  changeStatus(
+                    [...pending, ...cancelled, ...waiting],
+                    'accepted'
+                  )
+                }
+              >
+                <UiIcon name="check" /> Approve
+              </Button>
+            )}
 
-        {anyRejectable && (
-          <Button
-            onClick={() =>
-              changeStatus([...accepted, ...cancelled, ...waiting], 'pending')
-            }
-          >
-            <UiIcon name="times" /> Move to Pending
-          </Button>
-        )}
+            {anyRejectable && (
+              <Button
+                onClick={() =>
+                  changeStatus(
+                    [...accepted, ...cancelled, ...waiting],
+                    'pending'
+                  )
+                }
+              >
+                <UiIcon name="times" /> Move to Pending
+              </Button>
+            )}
 
-        {anyWaitlistable && (
-          <Button
-            color="yellow"
-            onClick={() =>
-              changeStatus(
-                [...pending, ...cancelled, ...accepted],
-                'waiting_list'
-              )
-            }
-          >
-            <UiIcon name="hourglass" /> Move to Waiting List
-          </Button>
-        )}
+            {anyWaitlistable && (
+              <Button
+                color="yellow"
+                onClick={() =>
+                  changeStatus(
+                    [...pending, ...cancelled, ...accepted],
+                    'waiting_list'
+                  )
+                }
+              >
+                <UiIcon name="hourglass" /> Move to Waiting List
+              </Button>
+            )}
 
-        {anyCancellable && (
-          <Button
-            negative
-            onClick={() =>
-              changeStatus([...pending, ...accepted, ...waiting], 'cancelled')
-            }
-          >
-            <UiIcon name="trash" /> Cancel Registration
-          </Button>
+            {anyCancellable && (
+              <Button
+                negative
+                onClick={() =>
+                  changeStatus(
+                    [...pending, ...accepted, ...waiting],
+                    'cancelled'
+                  )
+                }
+              >
+                <UiIcon name="trash" /> Cancel Registration
+              </Button>
+            )}
+          </>
         )}
       </Button.Group>
     )
