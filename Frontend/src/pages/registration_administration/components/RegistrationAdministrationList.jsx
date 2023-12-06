@@ -115,12 +115,8 @@ export default function RegistrationAdministrationList() {
     [selected, pending, waiting, accepted, cancelled]
   )
 
-  function select(attendees) {
-    dispatch({ type: 'add', attendees })
-  }
-  function unselect(attendees) {
-    dispatch({ type: 'remove', attendees })
-  }
+  const select = (attendees) => dispatch({ type: 'add', attendees })
+  const unselect = (attendees) => dispatch({ type: 'remove', attendees })
 
   // some sticky/floating bar somewhere with totals/info would be better
   // than putting this in the table headers which scroll out of sight
@@ -212,9 +208,11 @@ function RegistrationAdministrationTable({
               <Checkbox
                 checked={registrations.length === selected.length}
                 onChange={(_, data) => {
-                  data.checked
-                    ? select(registrations.map(({ user }) => user.id))
-                    : unselect(registrations.map(({ user }) => user.id))
+                  if (data.checked) {
+                    select(registrations.map(({ user }) => user.id))
+                  } else {
+                    unselect(registrations.map(({ user }) => user.id))
+                  }
                 }}
               />
             )}
@@ -249,9 +247,11 @@ function RegistrationAdministrationTable({
                 <Table.Cell>
                   <Checkbox
                     onChange={(_, data) => {
-                      data.checked
-                        ? select([registration.user.id])
-                        : unselect([registration.user.id])
+                      if (data.checked) {
+                        select([registration.user.id])
+                      } else {
+                        unselect([registration.user.id])
+                      }
                     }}
                     checked={selected.includes(registration.user.id)}
                   />
