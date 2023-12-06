@@ -31,6 +31,7 @@ export default function RegistrationActions({
   partitionedSelected,
   refresh,
   registrations,
+  spotsRemaining,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
@@ -56,6 +57,20 @@ export default function RegistrationActions({
       )
     },
   })
+
+  const attemptToApprove = () => {
+    const idsToAccept = [...pending, ...cancelled, ...waiting]
+    if (idsToAccept.length > spotsRemaining) {
+      setMessage(
+        `Accepting all these registrations would go over the competitor limit by ${
+          idsToAccept.length - spotsRemaining
+        }`,
+        'negative'
+      )
+    } else {
+      changeStatus(idsToAccept, 'accepted')
+    }
+  }
 
   const changeStatus = async (attendees, status) => {
     attendees.forEach((attendee) => {
@@ -112,15 +127,7 @@ export default function RegistrationActions({
         {isOrganizerOrDelegate && (
           <>
             {anyApprovable && (
-              <Button
-                positive
-                onClick={() =>
-                  changeStatus(
-                    [...pending, ...cancelled, ...waiting],
-                    'accepted'
-                  )
-                }
-              >
+              <Button positive onClick={attemptToApprove}>
                 <UiIcon name="check" /> Approve
               </Button>
             )}
