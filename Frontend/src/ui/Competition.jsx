@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import moment from 'moment'
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Container,
@@ -39,19 +39,18 @@ export default function Competition({ children }) {
     queryFn: () => getCompetitionInfo(competition_id),
   })
 
-  const { data: bookmarkedCompetitions } = useQuery({
+  const {
+    data: bookmarkedCompetitions,
+    isFetching: bookmarkLoading,
+    refetch,
+  } = useQuery({
     queryKey: [user.id, 'bookmarks'],
     queryFn: () => getBookmarkedCompetitions(),
   })
 
-  const [competitionIsBookmarked, setIsCompetitionIsBookmarked] =
-    useState(false)
-
-  useEffect(() => {
-    setIsCompetitionIsBookmarked(
-      (bookmarkedCompetitions ?? []).includes(competitionInfo?.id)
-    )
-  }, [bookmarkedCompetitions, competitionInfo?.id])
+  const competitionIsBookmarked = (bookmarkedCompetitions ?? []).includes(
+    competitionInfo?.id
+  )
 
   // Hack before we have an image Icon field in the DB
   const src = useMemo(() => {
@@ -254,21 +253,21 @@ export default function Competition({ children }) {
               <List.Item>
                 <List.Icon
                   link
-                  onClick={() => {
+                  onClick={async () => {
                     if (competitionIsBookmarked) {
-                      unbookmarkCompetition(competitionInfo.id)
-                      setIsCompetitionIsBookmarked(false)
+                      await unbookmarkCompetition(competitionInfo.id)
+                      refetch()
                       setMessage('Unbookmarked this competition.', 'basic')
                     } else {
-                      bookmarkCompetition(competitionInfo.id)
-                      setIsCompetitionIsBookmarked(true)
+                      await bookmarkCompetition(competitionInfo.id)
+                      refetch()
                       setMessage(
                         'You bookmarked this competition. You will get an email 24h before Registration Opens.',
                         'positive'
                       )
                     }
                   }}
-                  name="bookmark"
+                  name={bookmarkLoading ? 'spinner' : 'bookmark'}
                   color={competitionIsBookmarked ? 'black' : 'grey'}
                 />
                 <List.Content>
