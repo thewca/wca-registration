@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import moment from 'moment'
-import React, { useMemo } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Container,
@@ -21,14 +21,37 @@ import {
 } from '../api/helper/routes'
 import logo from '../static/wca2020.svg'
 import LoadingMessage from './messages/loadingMessage'
+import {
+  bookmarkCompetition,
+  unbookmarkCompetition,
+} from '../api/competition/post/bookmark_competition'
+import { UserContext } from '../api/helper/context/user_context'
+import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
+import { setMessage } from './events/messages'
 
 export default function Competition({ children }) {
   const { competition_id } = useParams()
+
+  const { user } = useContext(UserContext)
 
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
     queryFn: () => getCompetitionInfo(competition_id),
   })
+
+  const { data: bookmarkedCompetitions } = useQuery({
+    queryKey: [user.id, 'bookmarks'],
+    queryFn: () => getBookmarkedCompetitions(),
+  })
+
+  const [competitionIsBookmarked, setIsCompetitionIsBookmarked] =
+    useState(false)
+
+  useEffect(() => {
+    setIsCompetitionIsBookmarked(
+      (bookmarkedCompetitions ?? []).includes(competitionInfo?.id)
+    )
+  }, [bookmarkedCompetitions, competitionInfo?.id])
 
   // Hack before we have an image Icon field in the DB
   const src = useMemo(() => {
@@ -229,7 +252,25 @@ export default function Competition({ children }) {
                 </List.Content>
               </List.Item>
               <List.Item>
-                <List.Icon name="bookmark" />
+                <List.Icon
+                  link
+                  onClick={() => {
+                    if (competitionIsBookmarked) {
+                      unbookmarkCompetition(competitionInfo.id)
+                      setIsCompetitionIsBookmarked(false)
+                      setMessage('Unbookmarked this competition.', 'basic')
+                    } else {
+                      bookmarkCompetition(competitionInfo.id)
+                      setIsCompetitionIsBookmarked(true)
+                      setMessage(
+                        'You bookmarked this competition. You will get an email 24h before Registration Opens.',
+                        'positive'
+                      )
+                    }
+                  }}
+                  name="bookmark"
+                  color={competitionIsBookmarked ? 'black' : 'grey'}
+                />
                 <List.Content>
                   <List.Header>Bookmark this competition</List.Header>
                   <List.Description>

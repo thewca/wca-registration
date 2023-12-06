@@ -4,29 +4,39 @@ import {
   bookmarkCompetitionRoute,
   unbookmarkCompetitionRoute,
 } from '../../helper/routes'
+import {
+  addBookmarkedMock,
+  removeBookmarkedMock,
+} from '../../mocks/bookmarked_mock'
 
 export async function bookmarkCompetition(
   competitionId: string
 ): Promise<boolean> {
-  return externalServiceFetch(bookmarkCompetitionRoute, {
-    method: 'POST',
-    body: JSON.stringify({ id: competitionId }),
-    headers: {
-      'X-CSRF-Token': getCSRFToken(),
-      'Content-Type': 'application/json',
-    },
-  })
+  if (process.env.NODE_ENV === 'production') {
+    return externalServiceFetch(bookmarkCompetitionRoute, {
+      method: 'POST',
+      body: JSON.stringify({ id: competitionId }),
+      headers: {
+        'X-CSRF-Token': getCSRFToken(),
+        'Content-Type': 'application/json',
+      },
+    })
+  }
+  return addBookmarkedMock(competitionId)
 }
 
 export async function unbookmarkCompetition(
   competitionId: string
 ): Promise<boolean> {
-  return externalServiceFetch(unbookmarkCompetitionRoute, {
-    method: 'POST',
-    body: JSON.stringify({ id: competitionId }),
-    headers: {
-      'X-CSRF-Token': getCSRFToken(),
-      'Content-Type': 'application/json',
-    },
-  })
+  if (process.env.NODE_ENV === 'production') {
+    return externalServiceFetch(unbookmarkCompetitionRoute, {
+      method: 'POST',
+      body: JSON.stringify({ id: competitionId }),
+      headers: {
+        'X-CSRF-Token': getCSRFToken(),
+        'Content-Type': 'application/json',
+      },
+    })
+  }
+  return removeBookmarkedMock(competitionId)
 }
