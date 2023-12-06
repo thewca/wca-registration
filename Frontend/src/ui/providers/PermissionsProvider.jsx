@@ -30,6 +30,9 @@ export default function PermissionsProvider({ children }) {
           permissions?.can_administer_competitions.scope.includes(
             competitionInfo.id
           ),
+        isOrganizerOrDelegate: competitionInfo.organizers
+          .concat(competitionInfo.delegates)
+          .some((organizer) => organizer.id === user.id),
       }}
     >
       {children}

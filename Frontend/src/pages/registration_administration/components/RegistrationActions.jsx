@@ -3,6 +3,7 @@ import { UiIcon } from '@thewca/wca-components'
 import React, { useContext } from 'react'
 import { Button } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
 import styles from './actions.module.scss'
@@ -32,6 +33,7 @@ export default function RegistrationActions({
   registrations,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
+  const { isOrganizerOrDelegate } = useContext(PermissionsContext)
 
   const selectedCount = Object.values(partitionedSelected).reduce(
     (sum, part) => sum + part.length,
@@ -44,9 +46,6 @@ export default function RegistrationActions({
   const anyApprovable = accepted.length < selectedCount
   const anyCancellable = cancelled.length < selectedCount
   const anyWaitlistable = waiting.length < selectedCount
-
-  // TODO: mirror backend conditions, ie only organizers and delegates of the competition(?)
-  const canChangeStatuses = true
 
   const { mutate: updateRegistrationMutation } = useMutation({
     mutationFn: updateRegistration,
@@ -110,7 +109,7 @@ export default function RegistrationActions({
           </a>
         </Button>
 
-        {canChangeStatuses && (
+        {isOrganizerOrDelegate && (
           <>
             {anyApprovable && (
               <Button
