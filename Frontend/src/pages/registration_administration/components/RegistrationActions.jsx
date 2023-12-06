@@ -27,32 +27,24 @@ function csvExport(selected, registrations) {
 }
 
 export default function RegistrationActions({
-  selected,
+  partitionedSelected,
   refresh,
   registrations,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
-  const anySelected =
-    selected.pending.length > 0 ||
-    selected.accepted.length > 0 ||
-    selected.cancelled.length > 0 ||
-    selected.waiting > 0
-  const anyApprovable =
-    selected.pending.length > 0 ||
-    selected.cancelled.length > 0 ||
-    selected.waiting.length > 0
-  const anyRejectable =
-    selected.accepted.length > 0 ||
-    selected.cancelled.length > 0 ||
-    selected.waiting.length > 0
-  const anyCancellable =
-    selected.pending.length > 0 ||
-    selected.accepted.length > 0 ||
-    selected.waiting.length > 0
-  const anyWaitlistable =
-    selected.pending.length > 0 ||
-    selected.accepted.length > 0 ||
-    selected.cancelled.length > 0
+
+  const selectedCount = Object.values(partitionedSelected).reduce(
+    (sum, part) => sum + part.length,
+    0
+  )
+  const anySelected = selectedCount > 0
+
+  const { pending, accepted, cancelled, waiting } = partitionedSelected
+  const anyRejectable = pending.length < selectedCount
+  const anyApprovable = accepted.length < selectedCount
+  const anyCancellable = cancelled.length < selectedCount
+  const anyWaitlistable = waiting.length < selectedCount
+
   const { mutate: updateRegistrationMutation } = useMutation({
     mutationFn: updateRegistration,
     onError: (data) => {
@@ -62,6 +54,7 @@ export default function RegistrationActions({
       )
     },
   })
+
   const changeStatus = async (attendees, status) => {
     attendees.forEach((attendee) => {
       updateRegistrationMutation(
@@ -88,25 +81,21 @@ export default function RegistrationActions({
         <Button
           onClick={() => {
             csvExport(
-              [
-                ...selected.pending,
-                ...selected.accepted,
-                ...selected.cancelled,
-                ...selected.waiting,
-              ],
+              [...pending, ...accepted, ...cancelled, ...waiting],
               registrations
             )
           }}
         >
           <UiIcon name="download" /> Export to CSV
         </Button>
+
         <Button>
           <a
             href={`mailto:?bcc=${[
-              ...selected.pending,
-              ...selected.accepted,
-              ...selected.cancelled,
-              ...selected.waiting,
+              ...pending,
+              ...accepted,
+              ...cancelled,
+              ...waiting,
             ]
               .map((user) => user + '@worldcubeassociation.org')
               .join(',')}`}
@@ -117,49 +106,34 @@ export default function RegistrationActions({
             <UiIcon name="envelope" /> Email
           </a>
         </Button>
+
         {anyApprovable && (
           <Button
             positive
             onClick={() =>
-              changeStatus(
-                [
-                  ...selected.pending,
-                  ...selected.cancelled,
-                  ...selected.waiting,
-                ],
-                'accepted'
-              )
+              changeStatus([...pending, ...cancelled, ...waiting], 'accepted')
             }
           >
             <UiIcon name="check" /> Approve
           </Button>
         )}
+
         {anyRejectable && (
           <Button
             onClick={() =>
-              changeStatus(
-                [
-                  ...selected.accepted,
-                  ...selected.cancelled,
-                  ...selected.waiting,
-                ],
-                'pending'
-              )
+              changeStatus([...accepted, ...cancelled, ...waiting], 'pending')
             }
           >
             <UiIcon name="times" /> Move to Pending
           </Button>
         )}
+
         {anyWaitlistable && (
           <Button
             color="yellow"
             onClick={() =>
               changeStatus(
-                [
-                  ...selected.pending,
-                  ...selected.cancelled,
-                  ...selected.accepted,
-                ],
+                [...pending, ...cancelled, ...accepted],
                 'waiting_list'
               )
             }
@@ -167,18 +141,12 @@ export default function RegistrationActions({
             <UiIcon name="hourglass" /> Move to Waiting List
           </Button>
         )}
+
         {anyCancellable && (
           <Button
             negative
             onClick={() =>
-              changeStatus(
-                [
-                  ...selected.pending,
-                  ...selected.accepted,
-                  ...selected.waiting,
-                ],
-                'cancelled'
-              )
+              changeStatus([...pending, ...accepted, ...waiting], 'cancelled')
             }
           >
             <UiIcon name="trash" /> Cancel Registration
