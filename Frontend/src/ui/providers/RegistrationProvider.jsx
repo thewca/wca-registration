@@ -9,6 +9,7 @@ import LoadingMessage from '../messages/loadingMessage'
 
 export default function RegistrationProvider({ children }) {
   const { user } = useContext(UserContext)
+  const loggedIn = user !== null
   const { competitionInfo } = useContext(CompetitionContext)
   const {
     data: registrationRequest,
@@ -16,8 +17,8 @@ export default function RegistrationProvider({ children }) {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['registration', competitionInfo.id, user.id],
-    queryFn: () => getSingleRegistration(user.id, competitionInfo.id),
+    queryKey: ['registration', competitionInfo.id, user?.id],
+    queryFn: () => getSingleRegistration(user?.id, competitionInfo.id),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
@@ -26,11 +27,12 @@ export default function RegistrationProvider({ children }) {
     onError: (err) => {
       setMessage(err.error, 'error')
     },
+    enabled: loggedIn,
   })
-  return isLoading ? (
+  return loggedIn && isLoading ? (
     <LoadingMessage />
   ) : // eslint-disable-next-line unicorn/no-nested-ternary
-  isError ? (
+  isError || !loggedIn ? (
     <RegistrationContext.Provider
       value={{ registration: null, refetch: () => {}, isRegistered: false }}
     >
