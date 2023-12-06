@@ -30,6 +30,7 @@ import PageHeader from './ui/Header'
 import FlashMessage from './ui/messages/flashMessage'
 import PageTabs from './ui/PageTabs'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
+import RegistrationProvider from './ui/providers/RegistrationProvider'
 import UserProvider from './ui/providers/UserProvider'
 
 const router = createBrowserRouter([
@@ -72,8 +73,11 @@ const router = createBrowserRouter([
           <Container>
             <Competition>
               <PermissionsProvider>
-                <PageTabs />
-                <Outlet />
+                <RegistrationProvider>
+                  <PageTabs />
+                  <Outlet />
+                  <PageTabs />
+                </RegistrationProvider>
               </PermissionsProvider>
             </Competition>
           </Container>

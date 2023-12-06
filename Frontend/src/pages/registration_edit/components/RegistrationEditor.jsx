@@ -141,7 +141,7 @@ export default function RegistrationEditor() {
   ).isBefore()
 
   return (
-    <Segment>
+    <Segment padded attached>
       {!registration?.competing?.registration_status || isLoading ? (
         <LoadingMessage />
       ) : (

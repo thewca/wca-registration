@@ -15,6 +15,7 @@ import CustomTab from './ui/CustomTab'
 import FlashMessage from './ui/messages/flashMessage'
 import PageTabs from './ui/PageTabs'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
+import RegistrationProvider from './ui/providers/RegistrationProvider'
 import UserProvider from './ui/providers/UserProvider'
 
 export const BASE_ROUTE = '/competitions/v2'
@@ -37,8 +38,11 @@ const routes = [
           <Container>
             <Competition>
               <PermissionsProvider>
-                <PageTabs />
-                <Outlet />
+                <RegistrationProvider>
+                  <PageTabs />
+                  <Outlet />
+                  <PageTabs />
+                </RegistrationProvider>
               </PermissionsProvider>
             </Competition>
           </Container>
