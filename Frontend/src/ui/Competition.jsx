@@ -13,21 +13,21 @@ import {
   Segment,
 } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
+import {
+  bookmarkCompetition,
+  unbookmarkCompetition,
+} from '../api/competition/post/bookmark_competition'
 import { CompetitionContext } from '../api/helper/context/competition_context'
+import { UserContext } from '../api/helper/context/user_context'
 import {
   competitionContactFormRoute,
   competitionsPDFRoute,
   userProfileRoute,
 } from '../api/helper/routes'
-import logo from '../static/wca2020.svg'
-import LoadingMessage from './messages/loadingMessage'
-import {
-  bookmarkCompetition,
-  unbookmarkCompetition,
-} from '../api/competition/post/bookmark_competition'
-import { UserContext } from '../api/helper/context/user_context'
 import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
+import logo from '../static/wca2020.svg'
 import { setMessage } from './events/messages'
+import LoadingMessage from './messages/loadingMessage'
 
 export default function Competition({ children }) {
   const { competition_id } = useParams()
