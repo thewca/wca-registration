@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import moment from 'moment'
-import React, { useMemo } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Container,
@@ -13,22 +13,44 @@ import {
   Segment,
 } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
+import {
+  bookmarkCompetition,
+  unbookmarkCompetition,
+} from '../api/competition/post/bookmark_competition'
 import { CompetitionContext } from '../api/helper/context/competition_context'
+import { UserContext } from '../api/helper/context/user_context'
 import {
   competitionContactFormRoute,
   competitionsPDFRoute,
   userProfileRoute,
 } from '../api/helper/routes'
+import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
 import logo from '../static/wca2020.svg'
+import { setMessage } from './events/messages'
 import LoadingMessage from './messages/loadingMessage'
 
 export default function Competition({ children }) {
   const { competition_id } = useParams()
 
+  const { user } = useContext(UserContext)
+
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
     queryFn: () => getCompetitionInfo(competition_id),
   })
+
+  const {
+    data: bookmarkedCompetitions,
+    isFetching: bookmarkLoading,
+    refetch,
+  } = useQuery({
+    queryKey: [user.id, 'bookmarks'],
+    queryFn: () => getBookmarkedCompetitions(),
+  })
+
+  const competitionIsBookmarked = (bookmarkedCompetitions ?? []).includes(
+    competitionInfo?.id
+  )
 
   // Hack before we have an image Icon field in the DB
   const src = useMemo(() => {
@@ -229,7 +251,25 @@ export default function Competition({ children }) {
                 </List.Content>
               </List.Item>
               <List.Item>
-                <List.Icon name="bookmark" />
+                <List.Icon
+                  link
+                  onClick={async () => {
+                    if (competitionIsBookmarked) {
+                      await unbookmarkCompetition(competitionInfo.id)
+                      await refetch()
+                      setMessage('Unbookmarked this competition.', 'basic')
+                    } else {
+                      await bookmarkCompetition(competitionInfo.id)
+                      await refetch()
+                      setMessage(
+                        'You bookmarked this competition. You will get an email 24h before Registration Opens.',
+                        'positive'
+                      )
+                    }
+                  }}
+                  name={bookmarkLoading ? 'spinner' : 'bookmark'}
+                  color={competitionIsBookmarked ? 'black' : 'grey'}
+                />
                 <List.Content>
                   <List.Header>Bookmark this competition</List.Header>
                   <List.Description>

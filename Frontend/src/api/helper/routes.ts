@@ -8,6 +8,10 @@ export const paymentFinishRoute = (competitionId: string, userId: string) =>
 export const availableRefundsRoute = (competitionId: string, userId: string) =>
   `${process.env.WCA_URL}/payment/refunds?attendee_id=${competitionId}-${userId}`
 
+export const bookmarkCompetitionRoute = `${process.env.WCA_URL}/competitions/bookmark`
+
+export const unbookmarkCompetitionRoute = `${process.env.WCA_URL}/competitions/unbookmark`
+
 export const refundRoute = (
   competitionId: string,
   userId: string,
@@ -28,6 +32,7 @@ export const competitionContactFormRoute = (compId: string) =>
 export const pollingRoute = (userId: string, competitionId: string) =>
   `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`
 export const meRoute = `${process.env.WCA_URL}/api/v0/users/me`
+export const myBookmarkedCompetitionsRoute = `${process.env.WCA_URL}/api/v0/users/me/bookmarks`
 // This will break when urls get really big, maybe we should switch to POST?
 export const usersInfoRoute = (ids: string[]) =>
   `${process.env.WCA_URL}/api/v0/users?${ids
