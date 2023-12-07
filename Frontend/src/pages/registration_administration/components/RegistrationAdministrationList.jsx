@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
-import { Button, Checkbox, Header, Popup, Table } from 'semantic-ui-react'
+import { Button, Checkbox, Header, Icon, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import { BASE_ROUTE } from '../../../routes'
@@ -274,6 +274,11 @@ function TableRow({ registration, isSelected, onCheckboxChange }) {
 
   const { competitionInfo, competition_id } = useContext(CompetitionContext)
 
+  const copyEmail = () => {
+    navigator.clipboard.writeText(email)
+    setMessage('Copied email address to clipboard.', 'positive')
+  }
+
   return (
     <Table.Row key={id} active={isSelected}>
       <Table.Cell>
@@ -326,9 +331,7 @@ function TableRow({ registration, isSelected, onCheckboxChange }) {
         <a href={`mailto:${email}`}>
           <UiIcon name="mail" />
         </a>{' '}
-        <Button onClick={() => navigator.clipboard.writeText(email)}>
-          <UiIcon name="copy" />
-        </Button>
+        <Icon link onClick={copyEmail} name="copy" title="Copy Email Address" />
       </Table.Cell>
     </Table.Row>
   )
