@@ -13,14 +13,18 @@ export async function bookmarkCompetition(
   competitionId: string
 ): Promise<boolean> {
   if (process.env.NODE_ENV === 'production') {
-    return externalServiceFetch(bookmarkCompetitionRoute, {
-      method: 'POST',
-      body: JSON.stringify({ id: competitionId }),
-      headers: {
-        'X-CSRF-Token': getCSRFToken(),
-        'Content-Type': 'application/json',
+    return externalServiceFetch(
+      bookmarkCompetitionRoute,
+      {
+        method: 'POST',
+        body: JSON.stringify({ id: competitionId }),
+        headers: {
+          'X-CSRF-Token': getCSRFToken(),
+          'Content-Type': 'application/json',
+        },
       },
-    })
+      false
+    )
   }
   return addBookmarkedMock(competitionId)
 }
@@ -29,14 +33,18 @@ export async function unbookmarkCompetition(
   competitionId: string
 ): Promise<boolean> {
   if (process.env.NODE_ENV === 'production') {
-    return externalServiceFetch(unbookmarkCompetitionRoute, {
-      method: 'POST',
-      body: JSON.stringify({ id: competitionId }),
-      headers: {
-        'X-CSRF-Token': getCSRFToken(),
-        'Content-Type': 'application/json',
+    return externalServiceFetch(
+      unbookmarkCompetitionRoute,
+      {
+        method: 'POST',
+        body: JSON.stringify({ id: competitionId }),
+        headers: {
+          'X-CSRF-Token': getCSRFToken(),
+          'Content-Type': 'application/json',
+        },
       },
-    })
+      false
+    )
   }
   return removeBookmarkedMock(competitionId)
 }

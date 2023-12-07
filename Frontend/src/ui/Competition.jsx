@@ -256,11 +256,11 @@ export default function Competition({ children }) {
                   onClick={async () => {
                     if (competitionIsBookmarked) {
                       await unbookmarkCompetition(competitionInfo.id)
-                      refetch()
+                      await refetch()
                       setMessage('Unbookmarked this competition.', 'basic')
                     } else {
                       await bookmarkCompetition(competitionInfo.id)
-                      refetch()
+                      await refetch()
                       setMessage(
                         'You bookmarked this competition. You will get an email 24h before Registration Opens.',
                         'positive'
