@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Redis
   def increment_or_initialize(key, &block)
     if Rails.cache.exist?(key)
