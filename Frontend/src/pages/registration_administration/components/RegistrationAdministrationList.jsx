@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
-import { Checkbox, Header, Popup, Table } from 'semantic-ui-react'
+import { Button, Checkbox, Header, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import { BASE_ROUTE } from '../../../routes'
@@ -330,7 +330,15 @@ function RegistrationAdministrationTable({
                     href={`mailto:${registration.user_id}@worldcubeassociation.org`}
                   >
                     <UiIcon name="mail" />
-                  </a>
+                  </a>{' '}
+                  {/* TODO: get correct email */}
+                  <Button
+                    onClick={() =>
+                      navigator.clipboard.writeText(registration.user_id)
+                    }
+                  >
+                    <UiIcon name="copy" />
+                  </Button>
                 </Table.Cell>
               </Table.Row>
             )
