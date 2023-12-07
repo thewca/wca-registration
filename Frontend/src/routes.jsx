@@ -17,6 +17,7 @@ import PageTabs from './ui/PageTabs'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import RegistrationProvider from './ui/providers/RegistrationProvider'
 import UserProvider from './ui/providers/UserProvider'
+import ScrollToTopButton from './ui/ScrollToTopButton'
 
 export const BASE_ROUTE = '/competitions/v2'
 
@@ -41,7 +42,7 @@ const routes = [
                 <RegistrationProvider>
                   <PageTabs />
                   <Outlet />
-                  <PageTabs />
+                  <ScrollToTopButton />
                 </RegistrationProvider>
               </PermissionsProvider>
             </Competition>
