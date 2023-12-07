@@ -93,7 +93,13 @@ class RegistrationController < ApplicationController
 
     begin
       registration = Registration.find("#{@competition_id}-#{@user_id}")
+      old_status = registration.competing_status
       updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
+      if old_status == "accepted" && status != "accepted"
+        Registration.decrement_competitors_count(@competition_id)
+      elsif old_status != "accepted" && status == "accepted"
+        Registration.increment_competitors_count(@competition_id)
+      end
       render json: { status: 'ok', registration: {
         user_id: updated_registration['user_id'],
         guests: updated_registration.guests,
@@ -194,12 +200,16 @@ class RegistrationController < ApplicationController
 
   def import
     file = params.require(:csv_data)
+    competition_id = params.require(:competition_id)
     content = File.read(file)
     if CsvImport.valid?(content)
       registrations = CSV.parse(File.read(file), headers: true).map do |row|
-        CsvImport.parse_row_to_registration(row.to_h, params[:competition_id])
+        CsvImport.parse_row_to_registration(row.to_h, competition_id)
       end
       Registration.import(registrations)
+
+      Rails.cache.invalidate("#{competition_id}-accepted-count")
+
       render json: { status: 'Successfully imported registration' }
     else
       render json: { error: 'Invalid csv' }, status: :internal_server_error

@@ -56,7 +56,7 @@ describe Registration do
       FactoryBot.create_list(:registration, 3, registration_status: 'accepted')
       FactoryBot.create_list(:registration, 3, registration_status: 'accepted', competition_id: target_comp)
 
-      comp_registration_count = Registration.accepted_competitors(target_comp)
+      comp_registration_count = Registration.accepted_competitors_count(target_comp)
 
       expect(comp_registration_count).to eq(3)
     end
@@ -67,7 +67,7 @@ describe Registration do
       FactoryBot.create_list(:registration, 3, registration_status: 'accepted', competition_id: target_comp)
       FactoryBot.create_list(:registration, 3, registration_status: 'cancelled', competition_id: target_comp)
 
-      comp_registration_count = Registration.accepted_competitors(target_comp)
+      comp_registration_count = Registration.accepted_competitors_count(target_comp)
 
       expect(comp_registration_count).to eq(3)
     end

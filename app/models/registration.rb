@@ -17,9 +17,26 @@ class Registration
   # Validations
   validate :is_competing_consistency
 
-  # NOTE: There are more efficient ways to do this, see: https://github.com/thewca/wca-registration/issues/330
   def self.accepted_competitors(competition_id)
     where(competition_id: competition_id, is_competing: true).count
+  end
+
+  def self.accepted_competitors_count(competition_id)
+    Rails.cache.fetch("#{competition_id}-accepted-count", expires_in: 60.minutes, raw: true) do
+      self.accepted_competitors(competition_id)
+    end
+  end
+
+  def self.decrement_competitors_count(competition_id)
+    decrement_or_initialize("#{competition_id}-accepted-count") do
+      self.accepted_competitors(competition_id)
+    end
+  end
+
+  def self.increment_competitors_count(competition_id)
+    increment_or_initialize("#{competition_id}-accepted-count") do
+      self.accepted_competitors(competition_id)
+    end
   end
 
   # Returns all event ids irrespective of registration status
