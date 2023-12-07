@@ -69,7 +69,7 @@ describe Registration do
         registration_4 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
         FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
 
-        registration_4.update_competing_lane!({ waiting_list_position: 2 })
+        registration_4.update_competing_lane!({ waiting_list_position: '2' })
         registration_4.reload
 
         expect(registration_4.competing_waiting_list_position).to eq(2)
@@ -82,7 +82,7 @@ describe Registration do
         registration_4 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
         FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
 
-        registration_4.update_competing_lane!({ waiting_list_position: 2 })
+        registration_4.update_competing_lane!({ waiting_list_position: '2' })
         registration_4.reload
 
         registration_2.reload

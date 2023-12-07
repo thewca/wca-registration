@@ -160,14 +160,20 @@ class Registration
   # NOTE: The logic of this method feels wrong, but not sure how to structure it differently
   # TODO: Update this method to invalidate any cached waiting list/registration data
   def update_waiting_list(lane, update_params)
+    update_params[:waiting_list_position]&.to_i
     lane.add_to_waiting_list(competition_id) if update_params[:status] == 'waiting_list'
     lane.accept_from_waiting_list if update_params[:status] == 'accepted'
     lane.remove_from_waiting_list(competition_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
-    lane.move_within_waiting_list(competition_id, update_params[:waiting_list_position]) if
+    lane.move_within_waiting_list(competition_id, update_params[:waiting_list_position].to_i) if
       update_params[:waiting_list_position].present? && update_params[:waiting_list_position] != competing_waiting_list_position
 
+    # TODO: Update the caches instead of writing them
+    Rails.cache.write("#{competition_id}-waiting_list_registrations", expires_in: 60.minutes) do
+      Registration.where(competition_id: competition_id, competing_status: status)
+    end
+
     Rails.cache.delete("#{@competition_id}-waiting_list_boundaries")
-    Rails.cache.delete("#{@competition_id}-waiting_list_registrations")
+    # Rails.cache.delete("#{@competition_id}-waiting_list_registrations")
   end
 
   # Fields
