@@ -100,17 +100,25 @@ class RegistrationChecker
 
     def validate_waiting_list_position!
       return if (waiting_list_position = @request.dig('competing', 'waiting_list_position')).nil?
-      puts waiting_list_position
-      puts waiting_list_position.is_a? Integer
-      puts waiting_list_position.is_a? Float
-      puts waiting_list_position.is_a? String
 
+      puts waiting_list_position
       # Floats are not allowed
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) if waiting_list_position.is_a? Float
 
       # We convert strings to integers and then check if they are an integer
       converted_position = Integer(waiting_list_position, exception: false)
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) unless converted_position.is_a? Integer
+
+      boundaries = @registration.competing_lane.get_waiting_list_boundaries(@competition_info.competition_id)
+      puts "boundaries: #{boundaries}"
+      puts converted_position
+      puts converted_position.class
+      if boundaries['waiting_list_position_min'].nil? && boundaries['waiting_list_position_max'].nil?
+        raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position != 1
+      else
+        raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if
+          converted_position < boundaries['waiting_list_position_min'] || converted_position > boundaries['waiting_list_position_max']
+      end
     end
 
     def contains_organizer_fields?

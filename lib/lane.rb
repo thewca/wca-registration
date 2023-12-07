@@ -78,33 +78,37 @@ class Lane
   end
 
   def get_waiting_list_boundaries(competition_id)
-    Rails.cache.fetch("#{competition_id}-waiting_list_boundaries", expires_in: 60.minutes) do
-      waiting_list_registrations = get_registrations_by_status(competition_id, 'waiting_list')
+    # Rails.cache.fetch("#{competition_id}-waiting_list_boundaries", expires_in: 60.minutes) do
+    waiting_list_registrations = get_registrations_by_status(competition_id, 'waiting_list')
 
-      # Iterate through waiting list registrations and record min/max waiting list positions
-      # We aren't just counting the number of registrations in the waiting list. When a registration is
-      # accepted from the waiting list, we don't "move up" the waiting_list_position of the registrations
-      # behind it - so we can't assume that the position 1 is the min, or that the count of waiting_list
-      # registrations is the max.
+    # Iterate through waiting list registrations and record min/max waiting list positions
+    # We aren't just counting the number of registrations in the waiting list. When a registration is
+    # accepted from the waiting list, we don't "move up" the waiting_list_position of the registrations
+    # behind it - so we can't assume that the position 1 is the min, or that the count of waiting_list
+    # registrations is the max.
 
-      waiting_list_position_min = nil
-      waiting_list_position_max = nil
+    waiting_list_position_min = nil
+    waiting_list_position_max = nil
 
-      # NOTE: Doing to_i conversions as the values seem to come back from redis as strings - they are ints when set in set_lane_detail
-      waiting_list_registrations.each do |reg|
-        puts "checking reg with position #{reg.competing_waiting_list_position} which is class #{reg.competing_waiting_list_position.class}"
-        waiting_list_position_min = reg.competing_waiting_list_position if
-          waiting_list_position_min.nil? || reg.competing_waiting_list_position < waiting_list_position_min
-        waiting_list_position_max = reg.competing_waiting_list_position.to_i if
-          waiting_list_position_max.nil? || reg.competing_waiting_list_position > waiting_list_position_max
-      end
-
-      {
-        'waiting_list_position_min' => waiting_list_position_min,
-        'waiting_list_position_max' => waiting_list_position_max,
-      }
+    # NOTE: Doing to_i conversions as the values seem to come back from redis as strings - they are ints when set in set_lane_detail
+    puts waiting_list_registrations.count
+    waiting_list_registrations.each do |reg|
+      puts "checking reg with position #{reg.competing_waiting_list_position} which is class #{reg.competing_waiting_list_position.class}"
+      waiting_list_position_min = reg.competing_waiting_list_position if
+        waiting_list_position_min.nil? || reg.competing_waiting_list_position < waiting_list_position_min
+      waiting_list_position_max = reg.competing_waiting_list_position.to_i if
+        waiting_list_position_max.nil? || reg.competing_waiting_list_position > waiting_list_position_max
     end
+
+    puts "min: #{waiting_list_position_min}"
+    puts "max: #{waiting_list_position_max}"
+
+    {
+      'waiting_list_position_min' => waiting_list_position_min,
+      'waiting_list_position_max' => waiting_list_position_max,
+    }
   end
+  # end
 
   # NOTE: Is this function necessary? I think so?
   def set_lane_detail(property_name, property_value)
