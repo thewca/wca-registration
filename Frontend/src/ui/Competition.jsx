@@ -264,7 +264,11 @@ function PersonList({ people }) {
   return people.map((person, index) => (
     <Fragment key={person.id}>
       {index > 0 && ', '}
-      <a href={userProfileRoute(person.wca_id)}>{person.name}</a>
+      {person.wca_id ? (
+        <a href={userProfileRoute(person.wca_id)}>{person.name}</a>
+      ) : (
+        <>{person.name}</>
+      )}
     </Fragment>
   ))
 }
