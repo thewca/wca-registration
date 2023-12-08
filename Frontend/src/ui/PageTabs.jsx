@@ -103,8 +103,16 @@ export default function PageTabs() {
     )
   }, [competitionInfo.tabs, location])
 
+  const hasCustomTabs = competitionInfo.tabs.length > 0
+
   return (
-    <Menu attached fluid widths={menuItems.length + 1} size="huge" stackable>
+    <Menu
+      attached
+      fluid
+      widths={menuItems.length + (hasCustomTabs ? 1 : 0)}
+      size="huge"
+      stackable
+    >
       {menuItems.map((menuConfig) => (
         <Menu.Item
           key={menuConfig.key}
@@ -125,23 +133,26 @@ export default function PageTabs() {
           {menuConfig.label}
         </Menu.Item>
       ))}
-      <Dropdown item text="More" className={customTabActive ? 'active' : ''}>
-        <Dropdown.Menu>
-          {competitionInfo.tabs.map((competitionTab) => (
-            <Dropdown.Item
-              key={competitionTab.id}
-              onClick={() =>
-                navigate(
-                  `${BASE_ROUTE}/${competitionInfo.id}/tabs/${competitionTab.id}`
-                )
-              }
-              active={pathMatch(competitionTab.id, location.pathname)}
-            >
-              {competitionTab.name}
-            </Dropdown.Item>
-          ))}
-        </Dropdown.Menu>
-      </Dropdown>
+
+      {hasCustomTabs && (
+        <Dropdown item text="More" className={customTabActive ? 'active' : ''}>
+          <Dropdown.Menu>
+            {competitionInfo.tabs.map((competitionTab) => (
+              <Dropdown.Item
+                key={competitionTab.id}
+                onClick={() =>
+                  navigate(
+                    `${BASE_ROUTE}/${competitionInfo.id}/tabs/${competitionTab.id}`
+                  )
+                }
+                active={pathMatch(competitionTab.id, location.pathname)}
+              >
+                {competitionTab.name}
+              </Dropdown.Item>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
+      )}
     </Menu>
   )
 }
