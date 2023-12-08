@@ -47,6 +47,11 @@ export default function RegistrationActions({
   const anyCancellable = cancelled.length < selectedCount
   const anyWaitlistable = waiting.length < selectedCount
 
+  const selectedEmails = [...pending, ...accepted, ...cancelled, ...waiting]
+    // TODO: get real email from backend
+    .map((user) => user + '@worldcubeassociation.org')
+    .join(',')
+
   const { mutate: updateRegistrationMutation } = useMutation({
     mutationFn: updateRegistration,
     onError: (data) => {
@@ -77,6 +82,11 @@ export default function RegistrationActions({
     })
   }
 
+  const copyEmails = (emails) => {
+    navigator.clipboard.writeText(emails)
+    setMessage('Copied to clipboard. Remember to use bcc!', 'positive')
+  }
+
   return (
     anySelected && (
       <Button.Group className={styles.actions}>
@@ -93,20 +103,17 @@ export default function RegistrationActions({
 
         <Button>
           <a
-            href={`mailto:?bcc=${[
-              ...pending,
-              ...accepted,
-              ...cancelled,
-              ...waiting,
-            ]
-              .map((user) => user + '@worldcubeassociation.org')
-              .join(',')}`}
+            href={`mailto:?bcc=${selectedEmails}`}
             id="email-selected"
             target="_blank"
             className="btn btn-info selected-registrations-actions"
           >
-            <UiIcon name="envelope" /> Email
+            <UiIcon name="envelope" /> Send Email
           </a>
+        </Button>
+
+        <Button onClick={() => copyEmails(selectedEmails)}>
+          <UiIcon name="copy" /> Copy Emails
         </Button>
 
         {isOrganizerOrDelegate && (

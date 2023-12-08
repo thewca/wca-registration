@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
-import { Checkbox, Header, Popup, Table } from 'semantic-ui-react'
+import { Checkbox, Header, Icon, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import { BASE_ROUTE } from '../../../routes'
@@ -194,7 +194,6 @@ function RegistrationAdministrationTable({
   registrations,
   select,
   unselect,
-  competition_id,
   selected,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -239,100 +238,20 @@ function RegistrationAdministrationTable({
       <Table.Body>
         {registrations.length > 0 ? (
           registrations.map((registration) => {
+            const id = registration.user.id
             return (
-              <Table.Row
-                key={registration.user.id}
-                active={selected.includes(registration.user.id)}
-              >
-                <Table.Cell>
-                  <Checkbox
-                    onChange={(_, data) => {
-                      if (data.checked) {
-                        select([registration.user.id])
-                      } else {
-                        unselect([registration.user.id])
-                      }
-                    }}
-                    checked={selected.includes(registration.user.id)}
-                  />
-                </Table.Cell>
-                <Table.Cell>
-                  <Link
-                    to={`${BASE_ROUTE}/${competition_id}/${registration.user.id}/edit`}
-                  >
-                    Edit
-                  </Link>
-                </Table.Cell>
-                <Table.Cell>
-                  {registration.user.wca_id && (
-                    <a
-                      href={`https://www.worldcubeassociation.org/persons/${registration.user.wca_id}`}
-                    >
-                      {registration.user.wca_id}
-                    </a>
-                  )}
-                </Table.Cell>
-                <Table.Cell>{registration.user.name}</Table.Cell>
-                <Table.Cell>
-                  <FlagIcon iso2={registration.user.country.iso2} />
-                  {registration.user.country.name}
-                </Table.Cell>
-                <Table.Cell>
-                  <Popup
-                    content={new Date(
-                      registration.competing.registered_on
-                    ).toTimeString()}
-                    trigger={
-                      <span>
-                        {new Date(
-                          registration.competing.registered_on
-                        ).toLocaleDateString()}
-                      </span>
-                    }
-                  />
-                </Table.Cell>
-
-                {competitionInfo['using_stripe_payments?'] && (
-                  <>
-                    <Table.Cell>
-                      {registration.payment.payment_status ?? 'not paid'}
-                    </Table.Cell>
-                    <Table.Cell>
-                      {registration.payment.updated_at && (
-                        <Popup
-                          content={new Date(
-                            registration.payment.updated_at
-                          ).toTimeString()}
-                          trigger={
-                            <span>
-                              {new Date(
-                                registration.payment.updated_at
-                              ).toLocaleDateString()}
-                            </span>
-                          }
-                        />
-                      )}
-                    </Table.Cell>
-                  </>
-                )}
-                <Table.Cell>
-                  {registration.competing.event_ids.length}
-                </Table.Cell>
-                <Table.Cell>{registration.guests}</Table.Cell>
-                <Table.Cell title={registration.competing.comment}>
-                  {truncateComment(registration.competing.comment)}
-                </Table.Cell>
-                <Table.Cell title={registration.competing.admin_comment}>
-                  {truncateComment(registration.competing.admin_comment)}
-                </Table.Cell>
-                <Table.Cell>
-                  <a
-                    href={`mailto:${registration.user_id}@worldcubeassociation.org`}
-                  >
-                    <UiIcon name="mail" />
-                  </a>
-                </Table.Cell>
-              </Table.Row>
+              <TableRow
+                key={id}
+                registration={registration}
+                isSelected={selected.includes(id)}
+                onCheckboxChange={(_, data) => {
+                  if (data.checked) {
+                    select([id])
+                  } else {
+                    unselect([id])
+                  }
+                }}
+              />
             )
           })
         ) : (
@@ -342,5 +261,78 @@ function RegistrationAdministrationTable({
         )}
       </Table.Body>
     </Table>
+  )
+}
+
+function TableRow({ registration, isSelected, onCheckboxChange }) {
+  const { id, wca_id, name, country } = registration.user
+  const { registered_on, event_ids, comment, admin_comment } =
+    registration.competing
+  const { payment_status, updated_at } = registration.payment
+  // TODO: get actual email
+  const email = `${registration.user_id}@worldcubeassociation.org`
+
+  const { competitionInfo, competition_id } = useContext(CompetitionContext)
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText(email)
+    setMessage('Copied email address to clipboard.', 'positive')
+  }
+
+  return (
+    <Table.Row key={id} active={isSelected}>
+      <Table.Cell>
+        <Checkbox onChange={onCheckboxChange} checked={isSelected} />
+      </Table.Cell>
+      <Table.Cell>
+        <Link to={`${BASE_ROUTE}/${competition_id}/${id}/edit`}>Edit</Link>
+      </Table.Cell>
+      <Table.Cell>
+        {wca_id && (
+          <a href={`https://www.worldcubeassociation.org/persons/${wca_id}`}>
+            {wca_id}
+          </a>
+        )}
+      </Table.Cell>
+      <Table.Cell>{name}</Table.Cell>
+      <Table.Cell>
+        <FlagIcon iso2={country.iso2} />
+        {country.name}
+      </Table.Cell>
+      <Table.Cell>
+        <Popup
+          content={new Date(registered_on).toTimeString()}
+          trigger={<span>{new Date(registered_on).toLocaleDateString()}</span>}
+        />
+      </Table.Cell>
+
+      {competitionInfo['using_stripe_payments?'] && (
+        <>
+          <Table.Cell>{payment_status ?? 'not paid'}</Table.Cell>
+          <Table.Cell>
+            {updated_at && (
+              <Popup
+                content={new Date(updated_at).toTimeString()}
+                trigger={
+                  <span>{new Date(updated_at).toLocaleDateString()}</span>
+                }
+              />
+            )}
+          </Table.Cell>
+        </>
+      )}
+      <Table.Cell>{event_ids.length}</Table.Cell>
+      <Table.Cell>{registration.guests}</Table.Cell>
+      <Table.Cell title={comment}>{truncateComment(comment)}</Table.Cell>
+      <Table.Cell title={admin_comment}>
+        {truncateComment(admin_comment)}
+      </Table.Cell>
+      <Table.Cell>
+        <a href={`mailto:${email}`}>
+          <UiIcon name="mail" />
+        </a>{' '}
+        <Icon link onClick={copyEmail} name="copy" title="Copy Email Address" />
+      </Table.Cell>
+    </Table.Row>
   )
 }
