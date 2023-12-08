@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import moment from 'moment'
-import React, { useContext, useMemo } from 'react'
+import React, { Fragment, useContext, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Container,
@@ -183,20 +183,7 @@ export default function Competition({ children }) {
                         <List.Content>
                           <List.Header>Organizers</List.Header>
                           <List.Description>
-                            {competitionInfo.organizers.map(
-                              (organizer, index) => (
-                                <a
-                                  key={`competition-organizer-${organizer.id}`}
-                                  href={userProfileRoute(organizer.wca_id)}
-                                >
-                                  {organizer.name}
-                                  {index !==
-                                  competitionInfo.organizers.length - 1
-                                    ? ', '
-                                    : ''}
-                                </a>
-                              )
-                            )}
+                            <PersonList people={competitionInfo.organizers} />
                           </List.Description>
                         </List.Content>
                       </List.Item>
@@ -205,20 +192,7 @@ export default function Competition({ children }) {
                         <List.Content>
                           <List.Header>Delegates</List.Header>
                           <List.Description>
-                            {competitionInfo.delegates.map(
-                              (delegate, index) => (
-                                <a
-                                  key={`competition-organizer-${delegate.id}`}
-                                  href={userProfileRoute(delegate.wca_id)}
-                                >
-                                  {delegate.name}
-                                  {index !==
-                                  competitionInfo.delegates.length - 1
-                                    ? ', '
-                                    : ''}
-                                </a>
-                              )
-                            )}
+                            <PersonList people={competitionInfo.delegates} />
                           </List.Description>
                         </List.Content>
                       </List.Item>
@@ -284,4 +258,15 @@ export default function Competition({ children }) {
       )}
     </CompetitionContext.Provider>
   )
+}
+
+function PersonList({ people }) {
+  return people.map((person, index) => (
+    <Fragment key={person.id}>
+      {index > 0 && ', '}
+      <a href={`${process.env.WCA_URL}/persons/${person.wca_id}`}>
+        {person.name}
+      </a>
+    </Fragment>
+  ))
 }
