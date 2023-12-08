@@ -264,9 +264,7 @@ function PersonList({ people }) {
   return people.map((person, index) => (
     <Fragment key={person.id}>
       {index > 0 && ', '}
-      <a href={`${process.env.WCA_URL}/persons/${person.wca_id}`}>
-        {person.name}
-      </a>
+      <a href={userProfileRoute(person.wca_id)}>{person.name}</a>
     </Fragment>
   ))
 }
