@@ -43,23 +43,6 @@ export default function Register() {
         <div>
           {canAttendCompetition ? (
             <>
-              <Transition
-                visible={showRegisterSteps}
-                duration={500}
-                animation="scale"
-              >
-                <Segment padded basic>
-                  <Button
-                    floated="right"
-                    icon
-                    basic
-                    onClick={() => setShowRegisterSteps(false)}
-                  >
-                    <Icon name="close" />
-                  </Button>
-                  <StepPanel />
-                </Segment>
-              </Transition>
               <Segment padded attached raised>
                 <Message warning>
                   *Insert Potential organizer announcement or memo for users to
@@ -206,6 +189,24 @@ export default function Register() {
                   </Button>
                 </Transition>
               </Segment>
+
+              <Transition
+                visible={showRegisterSteps}
+                duration={500}
+                animation="scale"
+              >
+                <Segment padded basic>
+                  <Button
+                    floated="right"
+                    icon
+                    basic
+                    onClick={() => setShowRegisterSteps(false)}
+                  >
+                    <Icon name="close" />
+                  </Button>
+                  <StepPanel />
+                </Segment>
+              </Transition>
             </>
           ) : (
             <PermissionMessage>
