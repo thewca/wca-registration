@@ -47,6 +47,7 @@ export default function Register() {
                 visible={showRegisterSteps}
                 duration={500}
                 animation="scale"
+                unmountOnHide
               >
                 <Segment padded basic>
                   <Button
