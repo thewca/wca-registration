@@ -6,35 +6,6 @@ import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
 import { BASE_ROUTE } from '../routes'
 
-function pathMatch(name, pathname) {
-  const registerExpression = /\/competitions\/v2\/[a-zA-Z0-9]+\/register/
-  const registrationsExpression =
-    /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations\/edit/
-  const competitorsExpression =
-    /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations\/?$/
-  const eventsExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/events/
-  const scheduleExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/schedule/
-  const infoExpression = /\/competitions\/v2\/[a-zA-Z0-9]+\/?$/
-  switch (name) {
-    case 'register':
-      return registerExpression.test(pathname)
-    case 'registrations':
-      return registrationsExpression.test(pathname)
-    case 'competitors':
-      return competitorsExpression.test(pathname)
-    case 'schedule':
-      return scheduleExpressions.test(pathname)
-    case 'info':
-      return infoExpression.test(pathname)
-    case 'events':
-      return eventsExpressions.test(pathname)
-    default: {
-      // We are in a custom tab
-      return name === Number.parseInt(pathname.split('/tabs/')[1], 10)
-    }
-  }
-}
-
 export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAdminCompetition } = useContext(PermissionsContext)
@@ -46,48 +17,23 @@ export default function PageTabs() {
     const optionalTabs = []
 
     if (competitionInfo.use_wca_registration) {
-      optionalTabs.push({
-        key: 'register',
-        icon: 'sign in alt',
-        label: 'Register',
-      })
+      optionalTabs.push(registerMenuConfig)
     }
     if (canAdminCompetition) {
-      optionalTabs.push({
-        key: 'registrations',
-        route: 'registrations/edit',
-        icon: 'list ul',
-        label: 'Registrations',
-      })
+      optionalTabs.push(registrationsMenuConfig)
     }
     if (new Date(competitionInfo.registration_open) < Date.now()) {
-      optionalTabs.push({
-        key: 'competitors',
-        route: 'registrations',
-        icon: 'users',
-        label: 'Competitors',
-      })
+      optionalTabs.push(competitorsMenuConfig)
     }
 
+    const eventTabIcon =
+      competitionInfo.main_event_id ?? competitionInfo.event_ids[0]
+
     return [
-      {
-        key: 'info',
-        route: '',
-        icon: 'info',
-        label: 'General Info',
-      },
+      generalInfoMenuConfig,
       ...optionalTabs,
-      {
-        key: 'events',
-        icon: competitionInfo.main_event_id ?? competitionInfo.event_ids[0],
-        label: 'Events',
-        cubing: true,
-      },
-      {
-        key: 'schedule',
-        icon: 'calendar',
-        label: 'Schedule',
-      },
+      eventsMenuConfig(eventTabIcon),
+      scheduleMenuConfig,
     ]
   }, [
     competitionInfo.use_wca_registration,
@@ -155,4 +101,68 @@ export default function PageTabs() {
       )}
     </Menu>
   )
+}
+
+function pathMatch(name, pathname) {
+  const registerExpression = /\/competitions\/v2\/[a-zA-Z0-9]+\/register/
+  const registrationsExpression =
+    /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations\/edit/
+  const competitorsExpression =
+    /\/competitions\/v2\/[a-zA-Z0-9]+\/registrations\/?$/
+  const eventsExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/events/
+  const scheduleExpressions = /\/competitions\/v2\/[a-zA-Z0-9]+\/schedule/
+  const infoExpression = /\/competitions\/v2\/[a-zA-Z0-9]+\/?$/
+  switch (name) {
+    case 'register':
+      return registerExpression.test(pathname)
+    case 'registrations':
+      return registrationsExpression.test(pathname)
+    case 'competitors':
+      return competitorsExpression.test(pathname)
+    case 'schedule':
+      return scheduleExpressions.test(pathname)
+    case 'info':
+      return infoExpression.test(pathname)
+    case 'events':
+      return eventsExpressions.test(pathname)
+    default: {
+      // We are in a custom tab
+      return name === Number.parseInt(pathname.split('/tabs/')[1], 10)
+    }
+  }
+}
+
+const registerMenuConfig = {
+  key: 'register',
+  icon: 'sign in alt',
+  label: 'Register',
+}
+const registrationsMenuConfig = {
+  key: 'registrations',
+  route: 'registrations/edit',
+  icon: 'list ul',
+  label: 'Registrations',
+}
+const competitorsMenuConfig = {
+  key: 'competitors',
+  route: 'registrations',
+  icon: 'users',
+  label: 'Competitors',
+}
+const generalInfoMenuConfig = {
+  key: 'info',
+  route: '',
+  icon: 'info',
+  label: 'General Info',
+}
+const eventsMenuConfig = (icon) => ({
+  key: 'events',
+  icon,
+  label: 'Events',
+  cubing: true,
+})
+const scheduleMenuConfig = {
+  key: 'schedule',
+  icon: 'calendar',
+  label: 'Schedule',
 }
