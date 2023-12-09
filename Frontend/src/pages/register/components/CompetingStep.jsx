@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
 import moment from 'moment'
-import React, { useContext, useEffect, useState } from 'react'
+import _ from 'lodash'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import {
   Button,
   ButtonGroup,
@@ -27,7 +28,6 @@ export default function CompetingStep({ nextStep }) {
   const { competitionInfo } = useContext(CompetitionContext)
   const { registration, isRegistered, refetch } =
     useContext(RegistrationContext)
-  const queryClient = useQueryClient()
 
   const [comment, setComment] = useState('')
   const [selectedEvents, setSelectedEvents] = useState([])
@@ -44,6 +44,7 @@ export default function CompetingStep({ nextStep }) {
     }
   }, [isRegistered, registration])
 
+  const queryClient = useQueryClient()
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
     useMutation({
       mutationFn: updateRegistration,
@@ -83,13 +84,49 @@ export default function CompetingStep({ nextStep }) {
     competitionInfo.allow_registration_edits &&
     new Date(competitionInfo.event_change_deadline_date) > Date.now()
 
+  const hasEventsChanged =
+    registration?.competing &&
+    _.xor(registration.competing.event_ids, selectedEvents).length > 0
+  const hasCommentChanged =
+    registration?.competing &&
+    comment !== (registration.competing.comment ?? '')
+  const hasGuestsChanged =
+    registration && guests !== parseInt(registration.guests)
+
+  const hasChanges = hasEventsChanged || hasCommentChanged || hasGuestsChanged
+
+  const commentIsValid =
+    comment.trim() || !competitionInfo.force_comment_in_registration
+  // TODO: get max events can register for
+  const maxEvents = Infinity
+  const eventsAreValid =
+    selectedEvents.length > 0 && selectedEvents.length <= maxEvents
+
+  const attemptAction = useCallback(
+    (action, options = {}) => {
+      if (options.checkForChanges && !hasChanges) {
+        setMessage('There are no changes', 'basic')
+      } else if (!commentIsValid) {
+        setMessage('You must include a comment', 'negative')
+      } else if (!eventsAreValid) {
+        setMessage(
+          maxEvents === Infinity
+            ? 'You must select at least 1 event'
+            : `You must select between 1 and ${maxEvents} events`,
+          'negative'
+        )
+      } else {
+        action()
+      }
+    },
+    [commentIsValid, eventsAreValid, hasChanges]
+  )
   return (
     <Segment basic>
       {processing && (
         <Processing
           onProcessingComplete={() => {
             setProcessing(false)
-
             if (competitionInfo['using_stripe_payments?']) {
               nextStep()
             } else {
@@ -98,6 +135,7 @@ export default function CompetingStep({ nextStep }) {
           }}
         />
       )}
+
       <>
         {registration.registration_status && (
           <Message info>You have registered for {competitionInfo.name}</Message>
@@ -145,7 +183,7 @@ export default function CompetingStep({ nextStep }) {
             <Dropdown
               id="guest-dropdown"
               value={guests}
-              onChange={(e, data) => setGuests(data.value)}
+              onChange={(_, data) => setGuests(data.value)}
               selection
               options={[
                 ...new Array(
@@ -161,7 +199,9 @@ export default function CompetingStep({ nextStep }) {
             />
           </Form.Field>
         </Form>
+
         <Divider />
+
         {registration?.competing?.registration_status ? (
           <>
             <Message warning icon>
