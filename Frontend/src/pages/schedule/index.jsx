@@ -24,6 +24,7 @@ const activitiesByDate = (activities, date) => {
 
 export default function Schedule() {
   const { competitionInfo } = useContext(CompetitionContext)
+
   const {
     isLoading,
     isError,
@@ -34,8 +35,9 @@ export default function Schedule() {
     retry: false,
     onError: (err) => setMessage(err.message, 'error'),
   })
+
   if (isError) {
-    return <Message>Loading the schedule failed, please try again</Message>
+    return <Message>Loading the schedule failed, please try again.</Message>
   }
 
   return isLoading ? (
@@ -51,68 +53,99 @@ export default function Schedule() {
             venue.rooms.flatMap((room) => room.activities)
           ),
           date
-        ).sort((a, b) => new Date(a.startTime) > new Date(b.startTime))
+        )
+
         return (
-          <Segment key={date.toLocaleString()} basic>
-            <Header as="h2">Schedule for {moment(date).format('ll')}</Header>
-            <Table striped>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell>Start</Table.HeaderCell>
-                  <Table.HeaderCell>End</Table.HeaderCell>
-                  <Table.HeaderCell>Activity</Table.HeaderCell>
-                  <Table.HeaderCell>Room</Table.HeaderCell>
-                  <Table.HeaderCell>Format</Table.HeaderCell>
-                  <Table.HeaderCell>Time Limit</Table.HeaderCell>
-                  <Table.HeaderCell>Cutoff</Table.HeaderCell>
-                  <Table.HeaderCell>Proceed</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {activitiesForDay.map((activity) => {
-                  const round = wcif.events
-                    .flatMap((events) => events.rounds)
-                    .find((round) => round.id === activity.activityCode)
-                  const room = wcif.schedule.venues
-                    .flatMap((venue) => venue.rooms)
-                    .find((room) =>
-                      room.activities.some(
-                        (ac) => ac.activityCode === activity.activityCode
-                      )
-                    )
-                  return (
-                    <Table.Row key={activity.id}>
-                      <Table.Cell>
-                        {moment(activity.startTime).format('HH:mm')}
-                      </Table.Cell>
-                      <Table.Cell>
-                        {moment(activity.endTime).format('HH:mm')}
-                      </Table.Cell>
-                      <Table.Cell>{activity.name}</Table.Cell>
-                      <Table.Cell>{room.name}</Table.Cell>
-                      <Table.Cell>
-                        {round?.format && getFormatName(round.format)}
-                      </Table.Cell>
-                      <TableCell>
-                        {round?.timeLimit &&
-                          `${round.timeLimit.centiseconds / 100} seconds`}
-                      </TableCell>
-                      <TableCell>
-                        {round?.cutoff &&
-                          `${round.cutoff?.attemptResult / 100} seconds`}
-                      </TableCell>
-                      <TableCell>
-                        {round?.advancementCondition &&
-                          `Top ${round.advancementCondition.level} ${round.advancementCondition.type} proceed`}
-                      </TableCell>
-                    </Table.Row>
-                  )
-                })}
-              </Table.Body>
-            </Table>
-          </Segment>
+          <ScheduleOnDate
+            key={date.getDate()}
+            date={date}
+            activities={activitiesForDay}
+            wcif={wcif}
+          />
         )
       })}
     </Segment>
+  )
+}
+
+function ScheduleOnDate({ date, activities, wcif }) {
+  const sortedActivities = activities.sort(
+    (a, b) => new Date(a.startTime) > new Date(b.startTime)
+  )
+
+  return (
+    <Segment basic>
+      <Header as="h2">Schedule for {moment(date).format('ll')}</Header>
+      <Table striped>
+        <ScheduleHeaderRow />
+        <Table.Body>
+          {sortedActivities.map((activity) => {
+            const round = wcif.events
+              .flatMap((events) => events.rounds)
+              .find((round) => round.id === activity.activityCode)
+            const room = wcif.schedule.venues
+              .flatMap((venue) => venue.rooms)
+              .find((room) =>
+                room.activities.some(
+                  (ac) => ac.activityCode === activity.activityCode
+                )
+              )
+
+            return (
+              <ScheduleActivityRow
+                key={activity.id}
+                activity={activity}
+                round={round}
+                room={room}
+              />
+            )
+          })}
+        </Table.Body>
+      </Table>
+    </Segment>
+  )
+}
+
+function ScheduleHeaderRow() {
+  return (
+    <Table.Header>
+      <Table.Row>
+        <Table.HeaderCell>Start</Table.HeaderCell>
+        <Table.HeaderCell>End</Table.HeaderCell>
+        <Table.HeaderCell>Activity</Table.HeaderCell>
+        <Table.HeaderCell>Room</Table.HeaderCell>
+        <Table.HeaderCell>Format</Table.HeaderCell>
+        <Table.HeaderCell>Time Limit</Table.HeaderCell>
+        <Table.HeaderCell>Cutoff</Table.HeaderCell>
+        <Table.HeaderCell>Proceed</Table.HeaderCell>
+      </Table.Row>
+    </Table.Header>
+  )
+}
+
+function ScheduleActivityRow({ activity, round, room }) {
+  const { name, startTime, endTime } = activity
+
+  return (
+    <Table.Row>
+      <Table.Cell>{moment(startTime).format('HH:mm')}</Table.Cell>
+      <Table.Cell>{moment(endTime).format('HH:mm')}</Table.Cell>
+
+      <Table.Cell>{name}</Table.Cell>
+
+      <Table.Cell>{room.name}</Table.Cell>
+
+      <Table.Cell>{round?.format && getFormatName(round.format)}</Table.Cell>
+      <TableCell>
+        {round?.timeLimit && `${round.timeLimit.centiseconds / 100} seconds`}
+      </TableCell>
+      <TableCell>
+        {round?.cutoff && `${round.cutoff.attemptResult / 100} seconds`}
+      </TableCell>
+      <TableCell>
+        {round?.advancementCondition &&
+          `Top ${round.advancementCondition.level} ${round.advancementCondition.type} proceed`}
+      </TableCell>
+    </Table.Row>
   )
 }
