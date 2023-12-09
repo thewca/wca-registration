@@ -54,13 +54,16 @@ export default function Schedule() {
           ),
           date
         )
+        const rounds = wcif.events.flatMap((events) => events.rounds)
+        const rooms = wcif.schedule.venues.flatMap((venue) => venue.rooms)
 
         return (
           <ScheduleOnDate
             key={date.getDate()}
             date={date}
             activities={activitiesForDay}
-            wcif={wcif}
+            rounds={rounds}
+            rooms={rooms}
           />
         )
       })}
@@ -68,7 +71,7 @@ export default function Schedule() {
   )
 }
 
-function ScheduleOnDate({ date, activities, wcif }) {
+function ScheduleOnDate({ date, activities, rounds, rooms }) {
   const sortedActivities = activities.sort(
     (a, b) => new Date(a.startTime) > new Date(b.startTime)
   )
@@ -80,16 +83,14 @@ function ScheduleOnDate({ date, activities, wcif }) {
         <ScheduleHeaderRow />
         <Table.Body>
           {sortedActivities.map((activity) => {
-            const round = wcif.events
-              .flatMap((events) => events.rounds)
-              .find((round) => round.id === activity.activityCode)
-            const room = wcif.schedule.venues
-              .flatMap((venue) => venue.rooms)
-              .find((room) =>
-                room.activities.some(
-                  (ac) => ac.activityCode === activity.activityCode
-                )
+            const round = rounds.find(
+              (round) => round.id === activity.activityCode
+            )
+            const room = rooms.find((room) =>
+              room.activities.some(
+                (ac) => ac.activityCode === activity.activityCode
               )
+            )
 
             return (
               <ScheduleActivityRow
@@ -124,6 +125,8 @@ function ScheduleHeaderRow() {
 }
 
 function ScheduleActivityRow({ activity, round, room }) {
+  // note: round/room may be undefined for custom activities like lunch
+
   const { name, startTime, endTime } = activity
 
   return (
