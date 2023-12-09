@@ -23,6 +23,8 @@ import submitEventRegistration from '../../../api/registration/post/submit_regis
 import { setMessage } from '../../../ui/events/messages'
 import Processing from './Processing'
 
+const maxCommentLength = 240
+
 export default function CompetingStep({ nextStep }) {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
@@ -238,7 +240,7 @@ export default function CompetingStep({ nextStep }) {
               Additional comments to the organizers
             </label>
             <TextArea
-              maxLength={240}
+              maxLength={maxCommentLength}
               onChange={(_, data) => setComment(data.value)}
               value={comment}
               placeholder={
@@ -248,7 +250,9 @@ export default function CompetingStep({ nextStep }) {
               }
               id="comment"
             />
-            <p>{comment.length}/240</p>
+            <p>
+              {comment.length}/{maxCommentLength}
+            </p>
           </Form.Field>
           <Form.Field>
             <label htmlFor="guest-dropdown">Guests</label>
