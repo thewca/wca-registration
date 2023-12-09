@@ -142,6 +142,7 @@ export default function RegistrationEditor() {
     status,
     updateRegistrationMutation,
     user_id,
+    maxEvents,
   ])
 
   const registrationEditDeadlinePassed = moment(

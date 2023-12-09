@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
-import moment from 'moment'
 import _ from 'lodash'
+import moment from 'moment'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import {
   Button,
@@ -42,7 +42,7 @@ export default function CompetingStep({ nextStep }) {
       setComment(registration.competing.comment ?? '')
       setSelectedEvents(registration.competing.event_ids)
       // Ruby sends this as "1.0"
-      setGuests(parseInt(registration.guests))
+      setGuests(Number.parseInt(registration.guests, 10))
     }
   }, [isRegistered, registration])
 
@@ -97,7 +97,7 @@ export default function CompetingStep({ nextStep }) {
     registration?.competing &&
     comment !== (registration.competing.comment ?? '')
   const hasGuestsChanged =
-    registration && guests !== parseInt(registration.guests)
+    registration && guests !== Number.parseInt(registration.guests, 10)
 
   const hasChanges = hasEventsChanged || hasCommentChanged || hasGuestsChanged
 
@@ -125,7 +125,7 @@ export default function CompetingStep({ nextStep }) {
         action()
       }
     },
-    [commentIsValid, eventsAreValid, hasChanges]
+    [commentIsValid, eventsAreValid, hasChanges, maxEvents]
   )
 
   const actionCreateRegistration = () => {
@@ -299,7 +299,7 @@ export default function CompetingStep({ nextStep }) {
                   {registration.competing.registration_status}
                 </Message.Header>
                 {canUpdateRegistration
-                  ? 'Update your registration below'
+                  ? 'Update your registration below' // eslint-disable-next-line unicorn/no-nested-ternary
                   : hasRegistrationEditDeadlinePassed
                   ? 'The deadline to edit your registration has passed'
                   : 'Registration editing is disabled for this competition'}
