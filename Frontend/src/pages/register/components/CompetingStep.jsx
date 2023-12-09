@@ -40,7 +40,7 @@ export default function CompetingStep({ nextStep }) {
       setComment(registration.competing.comment ?? '')
       setSelectedEvents(registration.competing.event_ids)
       // Ruby sends this as "1.0"
-      setGuests(Number(registration.guests))
+      setGuests(parseInt(registration.guests))
     }
   }, [isRegistered, registration])
 
