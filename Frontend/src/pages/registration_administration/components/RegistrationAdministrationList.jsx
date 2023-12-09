@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
-import { Checkbox, Header, Icon, Popup, Table } from 'semantic-ui-react'
+import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import { BASE_ROUTE } from '../../../routes'
@@ -64,6 +64,31 @@ const partitionRegistrations = (registrations) => {
   )
 }
 
+const expandableColumns = {
+  dob: 'Date or Birth',
+  region: 'Region',
+  events: 'Events',
+  comments: 'Comment & Note',
+  email: 'Email',
+}
+const initialExpandedColumns = {
+  dob: false,
+  region: false,
+  events: false,
+  comments: true,
+  email: false,
+}
+
+const columnReducer = (state, action) => {
+  if (action.type === 'reset') {
+    return initialExpandedColumns
+  } else if (Object.keys(expandableColumns).includes(action.column)) {
+    return { ...state, [action.column]: !state[action.column] }
+  } else {
+    return state
+  }
+}
+
 // Semantic Table only allows truncating _all_ columns in a table in
 // single line fixed mode. As we only want to truncate the comment/admin notes
 // this function is used to manually truncate the columns.
@@ -73,6 +98,11 @@ const truncateComment = (comment) =>
 
 export default function RegistrationAdministrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
+
+  const [expandedColumns, dispatchColumns] = useReducer(
+    columnReducer,
+    initialExpandedColumns
+  )
 
   const {
     isLoading,
@@ -128,9 +158,26 @@ export default function RegistrationAdministrationList() {
     <LoadingMessage />
   ) : (
     <>
+      <Form>
+        <Form.Group widths="equal">
+          {Object.entries(expandableColumns).map(([id, name]) => (
+            <Form.Field key={id}>
+              <Checkbox
+                name={id}
+                label={name}
+                toggle
+                checked={expandedColumns[id]}
+                onChange={() => dispatchColumns({ column: id })}
+              />
+            </Form.Field>
+          ))}
+        </Form.Group>
+      </Form>
+
       <div className={styles.listContainer}>
         <Header> Pending registrations ({pending.length}) </Header>
         <RegistrationAdministrationTable
+          columnsExpanded={expandedColumns}
           registrations={pending}
           select={select}
           unselect={unselect}
@@ -149,6 +196,7 @@ export default function RegistrationAdministrationList() {
           )
         </Header>
         <RegistrationAdministrationTable
+          columnsExpanded={expandedColumns}
           registrations={accepted}
           select={select}
           unselect={unselect}
@@ -161,6 +209,7 @@ export default function RegistrationAdministrationList() {
           {competitionInfo.competitor_limit && spotsRemaining})
         </Header>
         <RegistrationAdministrationTable
+          columnsExpanded={expandedColumns}
           registrations={waiting}
           select={select}
           unselect={unselect}
@@ -170,6 +219,7 @@ export default function RegistrationAdministrationList() {
 
         <Header>Cancelled registrations ({cancelled.length})</Header>
         <RegistrationAdministrationTable
+          columnsExpanded={expandedColumns}
           registrations={cancelled}
           select={select}
           unselect={unselect}
@@ -191,12 +241,14 @@ export default function RegistrationAdministrationList() {
 }
 
 function RegistrationAdministrationTable({
+  columnsExpanded,
   registrations,
   select,
   unselect,
   selected,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
+  const { events, comments } = columnsExpanded
 
   return (
     <Table striped textAlign="left">
@@ -219,18 +271,30 @@ function RegistrationAdministrationTable({
           <Table.HeaderCell />
           <Table.HeaderCell>WCA ID</Table.HeaderCell>
           <Table.HeaderCell>Name</Table.HeaderCell>
-          <Table.HeaderCell>Citizen of</Table.HeaderCell>
+          <Table.HeaderCell>Region</Table.HeaderCell>
           <Table.HeaderCell>Registered on</Table.HeaderCell>
           {competitionInfo['using_stripe_payments?'] && (
             <>
-              <Table.HeaderCell>Payment status</Table.HeaderCell>
+              <Table.HeaderCell>Payment Status</Table.HeaderCell>
               <Table.HeaderCell>Paid on</Table.HeaderCell>
             </>
           )}
-          <Table.HeaderCell># Events</Table.HeaderCell>
+          {events ? (
+            competitionInfo.event_ids.map((eventId) => (
+              <Table.HeaderCell key={`event-${eventId}`}>
+                {eventId}
+              </Table.HeaderCell>
+            ))
+          ) : (
+            <Table.HeaderCell>Events</Table.HeaderCell>
+          )}
           <Table.HeaderCell>Guests</Table.HeaderCell>
-          <Table.HeaderCell>Comment</Table.HeaderCell>
-          <Table.HeaderCell>Administrative notes</Table.HeaderCell>
+          {comments && (
+            <>
+              <Table.HeaderCell>Comment</Table.HeaderCell>
+              <Table.HeaderCell>Admin Note</Table.HeaderCell>
+            </>
+          )}
           <Table.HeaderCell>Email</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
@@ -242,6 +306,7 @@ function RegistrationAdministrationTable({
             return (
               <TableRow
                 key={id}
+                columnsExpanded={columnsExpanded}
                 registration={registration}
                 isSelected={selected.includes(id)}
                 onCheckboxChange={(_, data) => {
@@ -264,18 +329,24 @@ function RegistrationAdministrationTable({
   )
 }
 
-function TableRow({ registration, isSelected, onCheckboxChange }) {
+function TableRow({
+  columnsExpanded,
+  registration,
+  isSelected,
+  onCheckboxChange,
+}) {
+  const { region, events, email, comments } = columnsExpanded
   const { id, wca_id, name, country } = registration.user
   const { registered_on, event_ids, comment, admin_comment } =
     registration.competing
   const { payment_status, updated_at } = registration.payment
   // TODO: get actual email
-  const email = `${registration.user_id}@worldcubeassociation.org`
+  const emailAddress = `${registration.user_id}@worldcubeassociation.org`
 
   const { competitionInfo, competition_id } = useContext(CompetitionContext)
 
   const copyEmail = () => {
-    navigator.clipboard.writeText(email)
+    navigator.clipboard.writeText(emailAddress)
     setMessage('Copied email address to clipboard.', 'positive')
   }
 
@@ -284,9 +355,11 @@ function TableRow({ registration, isSelected, onCheckboxChange }) {
       <Table.Cell>
         <Checkbox onChange={onCheckboxChange} checked={isSelected} />
       </Table.Cell>
+
       <Table.Cell>
         <Link to={`${BASE_ROUTE}/${competition_id}/${id}/edit`}>Edit</Link>
       </Table.Cell>
+
       <Table.Cell>
         {wca_id && (
           <a href={`https://www.worldcubeassociation.org/persons/${wca_id}`}>
@@ -294,11 +367,14 @@ function TableRow({ registration, isSelected, onCheckboxChange }) {
           </a>
         )}
       </Table.Cell>
+
       <Table.Cell>{name}</Table.Cell>
+
       <Table.Cell>
         <FlagIcon iso2={country.iso2} />
-        {country.name}
+        {region && country.name}
       </Table.Cell>
+
       <Table.Cell>
         <Popup
           content={new Date(registered_on).toTimeString()}
@@ -321,15 +397,32 @@ function TableRow({ registration, isSelected, onCheckboxChange }) {
           </Table.Cell>
         </>
       )}
-      <Table.Cell>{event_ids.length}</Table.Cell>
+
+      {events ? (
+        competitionInfo.event_ids.map((eventId) => (
+          <Table.Cell key={`event-${eventId}`}>
+            {event_ids.includes(eventId) && 'Y'}
+          </Table.Cell>
+        ))
+      ) : (
+        <Table.Cell>{event_ids.length}</Table.Cell>
+      )}
+
       <Table.Cell>{registration.guests}</Table.Cell>
-      <Table.Cell title={comment}>{truncateComment(comment)}</Table.Cell>
-      <Table.Cell title={admin_comment}>
-        {truncateComment(admin_comment)}
-      </Table.Cell>
+
+      {comments && (
+        <>
+          <Table.Cell title={comment}>{truncateComment(comment)}</Table.Cell>
+
+          <Table.Cell title={admin_comment}>
+            {truncateComment(admin_comment)}
+          </Table.Cell>
+        </>
+      )}
+
       <Table.Cell>
-        <a href={`mailto:${email}`}>
-          <UiIcon name="mail" />
+        <a href={`mailto:${emailAddress}`}>
+          {email ? emailAddress : <UiIcon name="mail" />}
         </a>{' '}
         <Icon link onClick={copyEmail} name="copy" title="Copy Email Address" />
       </Table.Cell>
