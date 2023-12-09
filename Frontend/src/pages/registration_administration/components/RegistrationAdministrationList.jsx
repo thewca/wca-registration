@@ -272,7 +272,7 @@ function TableRow({ registration, isSelected, onCheckboxChange }) {
   // TODO: get actual email
   const email = `${registration.user_id}@worldcubeassociation.org`
 
-  const { competitionInfo, competition_id } = useContext(CompetitionContext)
+  const { competitionInfo } = useContext(CompetitionContext)
 
   const copyEmail = () => {
     navigator.clipboard.writeText(email)
@@ -285,7 +285,7 @@ function TableRow({ registration, isSelected, onCheckboxChange }) {
         <Checkbox onChange={onCheckboxChange} checked={isSelected} />
       </Table.Cell>
       <Table.Cell>
-        <Link to={`${BASE_ROUTE}/${competition_id}/${id}/edit`}>Edit</Link>
+        <Link to={`${BASE_ROUTE}/${competitionInfo.id}/${id}/edit`}>Edit</Link>
       </Table.Cell>
       <Table.Cell>
         {wca_id && (
