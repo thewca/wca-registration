@@ -248,7 +248,7 @@ function RegistrationAdministrationTable({
   selected,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { events, comments } = columnsExpanded
+  const { dob, events, comments } = columnsExpanded
 
   return (
     <Table striped textAlign="left">
@@ -271,6 +271,7 @@ function RegistrationAdministrationTable({
           <Table.HeaderCell />
           <Table.HeaderCell>WCA ID</Table.HeaderCell>
           <Table.HeaderCell>Name</Table.HeaderCell>
+          {dob && <Table.HeaderCell>DOB</Table.HeaderCell>}
           <Table.HeaderCell>Region</Table.HeaderCell>
           <Table.HeaderCell>Registered on</Table.HeaderCell>
           {competitionInfo['using_stripe_payments?'] && (
@@ -335,13 +336,15 @@ function TableRow({
   isSelected,
   onCheckboxChange,
 }) {
-  const { region, events, email, comments } = columnsExpanded
+  const { dob: dobCol, region, events, comments, email } = columnsExpanded
   const { id, wca_id, name, country } = registration.user
   const { registered_on, event_ids, comment, admin_comment } =
     registration.competing
   const { payment_status, updated_at } = registration.payment
   // TODO: get actual email
   const emailAddress = `${registration.user_id}@worldcubeassociation.org`
+  // TODO: get actual dob
+  const dob = new Date()
 
   const { competitionInfo, competition_id } = useContext(CompetitionContext)
 
@@ -369,6 +372,8 @@ function TableRow({
       </Table.Cell>
 
       <Table.Cell>{name}</Table.Cell>
+
+      {dobCol && <Table.Cell>{dob.toLocaleDateString()}</Table.Cell>}
 
       <Table.Cell>
         {region ? (
