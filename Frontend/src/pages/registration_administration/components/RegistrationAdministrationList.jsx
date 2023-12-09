@@ -82,11 +82,11 @@ const initialExpandedColumns = {
 const columnReducer = (state, action) => {
   if (action.type === 'reset') {
     return initialExpandedColumns
-  } else if (Object.keys(expandableColumns).includes(action.column)) {
-    return { ...state, [action.column]: !state[action.column] }
-  } else {
-    return state
   }
+  if (Object.keys(expandableColumns).includes(action.column)) {
+    return { ...state, [action.column]: !state[action.column] }
+  }
+  return state
 }
 
 // Semantic Table only allows truncating _all_ columns in a table in
@@ -283,7 +283,7 @@ function RegistrationAdministrationTable({
           {events ? (
             competitionInfo.event_ids.map((eventId) => (
               <Table.HeaderCell key={`event-${eventId}`}>
-                <CubingIcon event={eventId} size={'1x'} selected />
+                <CubingIcon event={eventId} size="1x" selected />
               </Table.HeaderCell>
             ))
           ) : (
