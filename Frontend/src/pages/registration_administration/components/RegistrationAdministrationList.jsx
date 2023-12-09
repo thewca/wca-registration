@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { FlagIcon, UiIcon } from '@thewca/wca-components'
+import { CubingIcon, FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
 import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
@@ -282,7 +282,7 @@ function RegistrationAdministrationTable({
           {events ? (
             competitionInfo.event_ids.map((eventId) => (
               <Table.HeaderCell key={`event-${eventId}`}>
-                {eventId}
+                <CubingIcon event={eventId} size={'1x'} selected />
               </Table.HeaderCell>
             ))
           ) : (
@@ -371,8 +371,20 @@ function TableRow({
       <Table.Cell>{name}</Table.Cell>
 
       <Table.Cell>
-        <FlagIcon iso2={country.iso2} />
-        {region && country.name}
+        {region ? (
+          <>
+            <FlagIcon iso2={country.iso2} /> {region && country.name}
+          </>
+        ) : (
+          <Popup
+            content={country.name}
+            trigger={
+              <span>
+                <FlagIcon iso2={country.iso2} />
+              </span>
+            }
+          />
+        )}
       </Table.Cell>
 
       <Table.Cell>
@@ -401,28 +413,56 @@ function TableRow({
       {events ? (
         competitionInfo.event_ids.map((eventId) => (
           <Table.Cell key={`event-${eventId}`}>
-            {event_ids.includes(eventId) && 'Y'}
+            {event_ids.includes(eventId) && (
+              <CubingIcon event={eventId} size="1x" selected />
+            )}
           </Table.Cell>
         ))
       ) : (
-        <Table.Cell>{event_ids.length}</Table.Cell>
+        <Table.Cell>
+          <Popup
+            content={event_ids.map((eventId) => (
+              <CubingIcon key={eventId} event={eventId} size="3x" selected />
+            ))}
+            trigger={<span>{event_ids.length}</span>}
+          />
+        </Table.Cell>
       )}
 
       <Table.Cell>{registration.guests}</Table.Cell>
 
       {comments && (
         <>
-          <Table.Cell title={comment}>{truncateComment(comment)}</Table.Cell>
+          <Table.Cell>
+            <Popup
+              content={comment}
+              trigger={<span>{truncateComment(comment)}</span>}
+            />
+          </Table.Cell>
 
-          <Table.Cell title={admin_comment}>
-            {truncateComment(admin_comment)}
+          <Table.Cell>
+            <Popup
+              content={admin_comment}
+              trigger={<span>{truncateComment(admin_comment)}</span>}
+            />
           </Table.Cell>
         </>
       )}
 
       <Table.Cell>
         <a href={`mailto:${emailAddress}`}>
-          {email ? emailAddress : <UiIcon name="mail" />}
+          {email ? (
+            emailAddress
+          ) : (
+            <Popup
+              content={emailAddress}
+              trigger={
+                <span>
+                  <UiIcon name="mail" />
+                </span>
+              }
+            />
+          )}
         </a>{' '}
         <Icon link onClick={copyEmail} name="copy" title="Copy Email Address" />
       </Table.Cell>
