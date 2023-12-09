@@ -80,9 +80,13 @@ export default function CompetingStep({ nextStep }) {
       },
     })
 
+  const hasRegistrationEditDeadlinePassed =
+    new Date(
+      competitionInfo.event_change_deadline_date ?? competitionInfo.start_date
+    ) < Date.now()
   const canUpdateRegistration =
     competitionInfo.allow_registration_edits &&
-    new Date(competitionInfo.event_change_deadline_date) > Date.now()
+    !hasRegistrationEditDeadlinePassed
 
   const hasEventsChanged =
     registration?.competing &&
@@ -173,6 +177,21 @@ export default function CompetingStep({ nextStep }) {
     })
   }
 
+  const shouldShowUpdateButton =
+    isRegistered &&
+    !hasRegistrationEditDeadlinePassed &&
+    registration.competing.registration_status !== 'cancelled'
+
+  const shouldShowReRegisterButton =
+    registration?.competing?.registration_status === 'cancelled'
+
+  const shouldShowDeleteButton =
+    isRegistered &&
+    registration.competing.registration_status !== 'cancelled' &&
+    (registration.competing.registration_status !== 'accepted' ||
+      competitionInfo.allow_registration_self_delete_after_acceptance) &&
+    competitionInfo['registration_opened?']
+
   return (
     <Segment basic>
       {processing && (
@@ -189,7 +208,7 @@ export default function CompetingStep({ nextStep }) {
       )}
 
       <>
-        {registration.registration_status && (
+        {registration?.registration_status && (
           <Message info>You have registered for {competitionInfo.name}</Message>
         )}
         {!competitionInfo['registration_opened?'] && (
@@ -198,6 +217,7 @@ export default function CompetingStep({ nextStep }) {
             competition organizer or delegate.
           </Message>
         )}
+
         <Form>
           <Form.Field>
             <label htmlFor="event-selection">Events</label>
@@ -264,7 +284,7 @@ export default function CompetingStep({ nextStep }) {
                   canUpdateRegistration
                     ? `You can update your registration until ${moment(
                         competitionInfo.event_change_deadline_date ??
-                          competitionInfo.end_date
+                          competitionInfo.start_date
                       ).format('ll')}`
                     : 'You can no longer update your registration'
                 }
@@ -275,29 +295,29 @@ export default function CompetingStep({ nextStep }) {
                   {registration.competing.registration_status}
                 </Message.Header>
                 {canUpdateRegistration
-                  ? 'Update Your Registration below'
-                  : 'Registration Editing is disabled'}
+                  ? 'Update your registration below'
+                  : hasRegistrationEditDeadlinePassed
+                  ? 'The deadline to edit your registration has passed'
+                  : 'Registration editing is disabled for this competition'}
               </Message.Content>
             </Message>
+
             <ButtonGroup>
-              {moment(
-                // If no deadline is set default to always be in the future
-                competitionInfo.event_change_deadline_date ?? Date.now() + 1
-              ).isAfter() &&
-                registration.competing.registration_status !== 'cancelled' && (
-                  <Button
-                    primary
-                    disabled={isUpdating || !canUpdateRegistration}
-                    onClick={() =>
-                      attemptAction(actionUpdateRegistration, {
-                        checkForChanges: true,
-                      })
-                    }
-                  >
-                    Update Registration
-                  </Button>
-                )}
-              {registration.competing.registration_status === 'cancelled' && (
+              {shouldShowUpdateButton && (
+                <Button
+                  primary
+                  disabled={isUpdating || !canUpdateRegistration}
+                  onClick={() =>
+                    attemptAction(actionUpdateRegistration, {
+                      checkForChanges: true,
+                    })
+                  }
+                >
+                  Update Registration
+                </Button>
+              )}
+
+              {shouldShowReRegisterButton && (
                 <Button
                   secondary
                   disabled={isUpdating}
@@ -306,17 +326,16 @@ export default function CompetingStep({ nextStep }) {
                   Re-Register
                 </Button>
               )}
-              {competitionInfo.allow_registration_self_delete_after_acceptance &&
-                competitionInfo['registration_opened?'] &&
-                registration.competing.registration_status !== 'cancelled' && (
-                  <Button
-                    disabled={isUpdating}
-                    negative
-                    onClick={actionDeleteRegistration}
-                  >
-                    Delete Registration
-                  </Button>
-                )}
+
+              {shouldShowDeleteButton && (
+                <Button
+                  disabled={isUpdating}
+                  negative
+                  onClick={actionDeleteRegistration}
+                >
+                  Delete Registration
+                </Button>
+              )}
             </ButtonGroup>
           </>
         ) : (
