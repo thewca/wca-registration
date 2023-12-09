@@ -101,15 +101,23 @@ export default function RegistrationEditor() {
 
   const commentIsValid =
     comment || !competitionInfo.force_comment_in_registration
-  const eventsAreValid = selectedEvents.length > 0
+  // TODO: get max events can register for
+  const maxEvents = Infinity
+  const eventsAreValid =
+    selectedEvents.length > 0 && selectedEvents.length <= maxEvents
 
   const handleRegisterClick = useCallback(() => {
     if (!hasChanges) {
       setMessage('There are no changes', 'basic')
     } else if (!commentIsValid) {
-      setMessage('You must include a comment', 'basic')
+      setMessage('You must include a comment', 'negative')
     } else if (!eventsAreValid) {
-      setMessage('You must select at least 1 event', 'basic')
+      setMessage(
+        maxEvents === Infinity
+          ? 'You must select at least 1 event'
+          : `You must select between 1 and ${maxEvents} events`,
+        'negative'
+      )
     } else {
       setMessage('Updating Registration', 'basic')
       updateRegistrationMutation({
