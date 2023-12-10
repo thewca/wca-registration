@@ -1,8 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { getFormatName } from '@wca/helpers'
 import moment from 'moment'
-import React, { useContext } from 'react'
-import { Header, Message, Segment, Table, TableCell } from 'semantic-ui-react'
+import React, { useContext, useMemo } from 'react'
+import {
+  Header,
+  Message,
+  Segment,
+  Tab,
+  Table,
+  TableCell,
+} from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { setMessage } from '../../ui/events/messages'
@@ -29,6 +36,15 @@ const getShortTime = (date, timeZone) => {
   })
 }
 
+const getLongDate = (date) => {
+  return new Date(date).toLocaleDateString([], {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
+
 export default function Schedule() {
   const { competitionInfo } = useContext(CompetitionContext)
 
@@ -43,82 +59,131 @@ export default function Schedule() {
     onError: (err) => setMessage(err.message, 'error'),
   })
 
+  const venueCount = wcif?.schedule?.venues?.length
+
+  const panes = useMemo(
+    () => [
+      // {
+      //   menuItem: 'All Venues',
+      //   render: () => <>Combined view in local timezone??</>,
+      // },
+      ...(wcif?.schedule?.venues ?? []).map((venue) => ({
+        menuItem: venue.name,
+        render: () => (
+          <VenueSchedule
+            schedule={wcif.schedule}
+            venue={venue}
+            events={wcif.events}
+          />
+        ),
+      })),
+    ],
+    [wcif?.schedule]
+  )
+
+  if (isLoading) {
+    return <LoadingMessage />
+  }
+
   if (isError) {
     return <Message>Loading the schedule failed, please try again.</Message>
   }
 
-  return isLoading ? (
-    <LoadingMessage />
-  ) : (
+  return (
     <Segment padded attached>
-      {getDatesStartingOn(
-        wcif.schedule.startDate,
-        wcif.schedule.numberOfDays
-      ).map((date) => {
-        const activitiesForDay = activitiesByDate(
-          wcif.schedule.venues.flatMap((venue) =>
-            venue.rooms.flatMap((room) => room.activities)
-          ),
-          date
-        )
-        const rounds = wcif.events.flatMap((events) => events.rounds)
-        const venues = wcif.schedule.venues
-
-        return (
-          <ScheduleOnDate
-            key={date.getDate()}
-            date={date}
-            activities={activitiesForDay}
-            rounds={rounds}
-            venues={venues}
-          />
-        )
-      })}
+      {venueCount === 1 ? (
+        <VenueSchedule
+          schedule={wcif.schedule}
+          venue={wcif.schedule.venues[0]}
+          events={wcif.events}
+        />
+      ) : (
+        <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
+      )}
     </Segment>
   )
 }
 
-function ScheduleOnDate({ date, activities, rounds, venues }) {
+function VenueSchedule({ schedule, venue, events }) {
+  const venueCount = schedule.venues.length
+  const mapLink = `https://www.google.com/maps/place/${venue.latitudeMicrodegrees},${venue.longitudeMicrodegrees}`
+
+  return (
+    <>
+      <Message>
+        <Message.Content>
+          You are viewing the schedule for{' '}
+          <a target="_blank" href={mapLink}>
+            {venue.name}
+          </a>
+          {venueCount === 1
+            ? ', the sole venue for this competition.'
+            : `, one of ${venueCount} venues for this competition.`}{' '}
+          This schedule is displayed in the venue's time zone: {venue.timezone}.
+        </Message.Content>
+      </Message>
+
+      {getDatesStartingOn(schedule.startDate, schedule.numberOfDays).map(
+        (date) => {
+          const title = `Schedule for ${getLongDate(date)}`
+          const activitiesForDay = activitiesByDate(
+            venue.rooms.flatMap((room) => room.activities),
+            date
+          )
+          const rounds = events.flatMap((events) => events.rounds)
+
+          return (
+            <Segment basic>
+              <Header as="h2">{title}</Header>
+              <OneDayTable
+                key={date.getDate()}
+                activities={activitiesForDay}
+                rounds={rounds}
+                venue={venue}
+              />
+            </Segment>
+          )
+        }
+      )}
+    </>
+  )
+}
+
+function OneDayTable({ activities, venue, rounds }) {
   const sortedActivities = activities.sort(
     (a, b) => new Date(a.startTime) > new Date(b.startTime)
   )
-  const rooms = venues.flatMap((venue) => venue.rooms)
 
   return (
-    <Segment basic>
-      <Header as="h2">Schedule for {moment(date).format('ll')}</Header>
-      <Table striped>
-        <ScheduleHeaderRow />
-        <Table.Body>
-          {sortedActivities.map((activity) => {
-            const round = rounds.find(
-              (round) => round.id === activity.activityCode
+    <Table striped>
+      <HeaderRow />
+      <Table.Body>
+        {sortedActivities.map((activity) => {
+          const round = rounds.find(
+            (round) => round.id === activity.activityCode
+          )
+          const room = venue.rooms.find((room) =>
+            room.activities.some(
+              (ac) => ac.activityCode === activity.activityCode
             )
-            const room = rooms.find((room) =>
-              room.activities.some(
-                (ac) => ac.activityCode === activity.activityCode
-              )
-            )
-            const venue = venues.find((venue) => venue.rooms.includes(room))
-            const timeZone = venue.timezone
+          )
 
-            return (
-              <ScheduleActivityRow
-                key={activity.id}
-                activity={activity}
-                round={round}
-                room={room}
-                timeZone={timeZone}
-              />
-            )
-          })}
-        </Table.Body>
-      </Table>
-    </Segment>
+          return (
+            <ActivityRow
+              key={activity.id}
+              activity={activity}
+              venue={venue}
+              round={round}
+              room={room}
+            />
+          )
+        })}
+      </Table.Body>
+    </Table>
   )
 }
 
-function ScheduleHeaderRow() {
+function HeaderRow() {
   return (
     <Table.Header>
       <Table.Row>
@@ -135,10 +200,11 @@ function ScheduleHeaderRow() {
   )
 }
 
-function ScheduleActivityRow({ activity, round, room, timeZone }) {
+function ActivityRow({ activity, venue, round, room }) {
   // note: round/room may be undefined for custom activities like lunch
 
   const { name, startTime, endTime } = activity
+  const timeZone = venue.timezone
 
   return (
     <Table.Row>
