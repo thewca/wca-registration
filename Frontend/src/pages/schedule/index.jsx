@@ -64,12 +64,8 @@ export default function Schedule() {
   const venueCount = wcif?.schedule?.venues?.length
 
   const panes = useMemo(
-    () => [
-      // {
-      //   menuItem: 'All Venues',
-      //   render: () => <>Combined view in local timezone??</>,
-      // },
-      ...(wcif?.schedule?.venues ?? []).map((venue) => ({
+    () =>
+      wcif?.schedule?.venues?.map((venue) => ({
         menuItem: venue.name,
         render: () => (
           <VenueSchedule
@@ -78,8 +74,7 @@ export default function Schedule() {
             events={wcif.events}
           />
         ),
-      })),
-    ],
+      })) ?? [],
     [wcif?.schedule]
   )
 
@@ -202,7 +197,7 @@ function HeaderRow() {
 }
 
 function ActivityRow({ activity, venue, round, room }) {
-  // note: round/room may be undefined for custom activities like lunch
+  // note: round may be undefined for custom activities like lunch
 
   const { name, startTime, endTime } = activity
   const timeZone = venue.timezone
