@@ -75,7 +75,7 @@ export default function Schedule() {
           />
         ),
       })) ?? [],
-    [wcif?.schedule]
+    [wcif?.schedule, wcif?.events]
   )
 
   if (isLoading) {
