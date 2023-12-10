@@ -22,6 +22,13 @@ const activitiesByDate = (activities, date) => {
   )
 }
 
+const getShortTime = (date, timeZone) => {
+  return new Date(date).toLocaleTimeString([], {
+    timeStyle: 'short',
+    timeZone,
+  })
+}
+
 export default function Schedule() {
   const { competitionInfo } = useContext(CompetitionContext)
 
@@ -55,7 +62,7 @@ export default function Schedule() {
           date
         )
         const rounds = wcif.events.flatMap((events) => events.rounds)
-        const rooms = wcif.schedule.venues.flatMap((venue) => venue.rooms)
+        const venues = wcif.schedule.venues
 
         return (
           <ScheduleOnDate
@@ -63,7 +70,7 @@ export default function Schedule() {
             date={date}
             activities={activitiesForDay}
             rounds={rounds}
-            rooms={rooms}
+            venues={venues}
           />
         )
       })}
@@ -71,10 +78,11 @@ export default function Schedule() {
   )
 }
 
-function ScheduleOnDate({ date, activities, rounds, rooms }) {
+function ScheduleOnDate({ date, activities, rounds, venues }) {
   const sortedActivities = activities.sort(
     (a, b) => new Date(a.startTime) > new Date(b.startTime)
   )
+  const rooms = venues.flatMap((venue) => venue.rooms)
 
   return (
     <Segment basic>
@@ -91,6 +99,8 @@ function ScheduleOnDate({ date, activities, rounds, rooms }) {
                 (ac) => ac.activityCode === activity.activityCode
               )
             )
+            const venue = venues.find((venue) => venue.rooms.includes(room))
+            const timeZone = venue.timezone
 
             return (
               <ScheduleActivityRow
@@ -98,6 +108,7 @@ function ScheduleOnDate({ date, activities, rounds, rooms }) {
                 activity={activity}
                 round={round}
                 room={room}
+                timeZone={timeZone}
               />
             )
           })}
@@ -124,15 +135,15 @@ function ScheduleHeaderRow() {
   )
 }
 
-function ScheduleActivityRow({ activity, round, room }) {
+function ScheduleActivityRow({ activity, round, room, timeZone }) {
   // note: round/room may be undefined for custom activities like lunch
 
   const { name, startTime, endTime } = activity
 
   return (
     <Table.Row>
-      <Table.Cell>{moment(startTime).format('HH:mm')}</Table.Cell>
-      <Table.Cell>{moment(endTime).format('HH:mm')}</Table.Cell>
+      <Table.Cell>{getShortTime(startTime, timeZone)}</Table.Cell>
+      <Table.Cell>{getShortTime(endTime, timeZone)}</Table.Cell>
 
       <Table.Cell>{name}</Table.Cell>
 
