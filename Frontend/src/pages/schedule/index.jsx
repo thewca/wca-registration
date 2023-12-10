@@ -23,9 +23,11 @@ const getDatesStartingOn = (startDate, numberOfDays) => {
   return range
 }
 
-const activitiesByDate = (activities, date) => {
+const activitiesByDate = (activities, date, timeZone) => {
   return activities.filter(
-    (activity) => new Date(activity.startTime).getDate() === date.getDate()
+    (activity) =>
+      new Date(activity.startTime).toLocaleDateString([], { timeZone }) ===
+      date.toLocaleDateString([], { timeZone: 'UTC' })
   )
 }
 
@@ -107,6 +109,7 @@ export default function Schedule() {
 function VenueSchedule({ schedule, venue, events }) {
   const venueCount = schedule.venues.length
   const mapLink = `https://www.google.com/maps/place/${venue.latitudeMicrodegrees},${venue.longitudeMicrodegrees}`
+  const timeZone = venue.timezone
 
   return (
     <>
@@ -119,7 +122,7 @@ function VenueSchedule({ schedule, venue, events }) {
           {venueCount === 1
             ? ', the sole venue for this competition.'
             : `, one of ${venueCount} venues for this competition.`}{' '}
-          This schedule is displayed in the venue's time zone: {venue.timezone}.
+          This schedule is displayed in the venue's time zone: {timeZone}.
         </Message.Content>
       </Message>
 
@@ -128,15 +131,15 @@ function VenueSchedule({ schedule, venue, events }) {
           const title = `Schedule for ${getLongDate(date)}`
           const activitiesForDay = activitiesByDate(
             venue.rooms.flatMap((room) => room.activities),
-            date
+            date,
+            timeZone
           )
           const rounds = events.flatMap((events) => events.rounds)
 
           return (
-            <Segment basic>
+            <Segment key={date.getDate()} basic>
               <Header as="h2">{title}</Header>
               <OneDayTable
-                key={date.getDate()}
                 activities={activitiesForDay}
                 rounds={rounds}
                 venue={venue}
