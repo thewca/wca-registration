@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getFormatName } from '@wca/helpers'
+import _ from 'lodash'
 import moment from 'moment'
 import React, { useContext, useMemo } from 'react'
 import {
@@ -153,9 +154,7 @@ function VenueSchedule({ schedule, venue, events }) {
 }
 
 function OneDayTable({ activities, venue, rounds }) {
-  const sortedActivities = activities.sort(
-    (a, b) => new Date(a.startTime) > new Date(b.startTime)
-  )
+  const sortedActivities = _.sortBy(activities, (a) => a.startTime)
 
   return (
     <Table striped>
