@@ -164,7 +164,7 @@ class Registration
 
   # Fields
   field :user_id, :string
-  field :guests, :number
+  field :guests, :integer
   field :competition_id, :string
   field :is_competing, :boolean
   field :hide_name_publicly, :boolean
