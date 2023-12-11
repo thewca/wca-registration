@@ -22,6 +22,8 @@ jobs:
         id: comment-branch
         uses: xt0rted/pull-request-comment-branch@v2
         if: steps.trigger-deployment.outputs.triggered == 'true'
+      - name: Checkout `main` branch
+        uses: actions/checkout@v4
       - name: Checkout PR branch
         run: gh pr checkout $PR_NUMBER
         env:
