@@ -12,6 +12,25 @@ const { GET } = createClient<paths>({
   baseUrl: process.env.API_URL.slice(0, -7),
 })
 
+async function addUserInfo<
+  Type extends
+    | components['schemas']['registration']
+    | components['schemas']['registrationAdmin']
+>(registrations: Type[]): Promise<Type[]> {
+  if (registrations.length > 0) {
+    const userInfos = await getCompetitorsInfo(
+      registrations.map((d) => d.user_id)
+    )
+    return registrations.map((registration) => ({
+      ...registration,
+      user: userInfos.users.find(
+        (user) => user.id === Number(registration.user_id)
+      ),
+    }))
+  }
+  return []
+}
+
 export async function getConfirmedRegistrations(
   competitionID: string
 ): Promise<components['schemas']['registration'][]> {
@@ -25,22 +44,12 @@ export async function getConfirmedRegistrations(
   if (!response.ok) {
     throw new BackendError(500, response.status)
   }
-  if (data!.length > 0) {
-    const userInfos = await getCompetitorsInfo(data!.map((d) => d.user_id))
-    return data!.map((registration) => ({
-      ...registration,
-      user: userInfos.users.find(
-        (user) => user.id === Number(registration.user_id)
-      ),
-    }))
-  }
-  return []
+  return addUserInfo(data!)
 }
 
 export async function getAllRegistrations(
   competitionID: string
 ): Promise<components['schemas']['registrationAdmin'][]> {
-  //TODO: Because there is currently no bulk user fetch route we need to manually add user data here
   const { data, error, response } = await GET(
     '/api/v1/registrations/{competition_id}/admin',
     {
@@ -55,13 +64,7 @@ export async function getAllRegistrations(
     }
     throw new BackendError(error.error, response.status)
   }
-  const userInfos = await getCompetitorsInfo(data!.map((d) => d.user_id))
-  return data!.map((registration) => ({
-    ...registration,
-    user: userInfos.users.find(
-      (user) => user.id === Number(registration.user_id)
-    ),
-  }))
+  return addUserInfo(data!)
 }
 
 export async function getSingleRegistration(
