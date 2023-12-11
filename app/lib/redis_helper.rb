@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module Redis
-  def increment_or_initialize(key, &block)
+module RedisHelper
+  def self.increment_or_initialize(key, &block)
     if Rails.cache.exist?(key)
       Rails.cache.increment(key)
     else
@@ -9,7 +9,7 @@ module Redis
     end
   end
 
-  def decrement_or_initialize(key, &block)
+  def self.decrement_or_initialize(key, &block)
     if Rails.cache.exist?(key)
       Rails.cache.decrement(key)
     else

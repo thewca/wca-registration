@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'lane'
+require_relative '../lib/redis_helper'
 require 'time'
 class Registration
   include Dynamoid::Document
@@ -28,13 +29,13 @@ class Registration
   end
 
   def self.decrement_competitors_count(competition_id)
-    decrement_or_initialize("#{competition_id}-accepted-count") do
+    RedisHelper::decrement_or_initialize("#{competition_id}-accepted-count") do
       self.accepted_competitors(competition_id)
     end
   end
 
   def self.increment_competitors_count(competition_id)
-    increment_or_initialize("#{competition_id}-accepted-count") do
+    RedisHelper::increment_or_initialize("#{competition_id}-accepted-count") do
       self.accepted_competitors(competition_id)
     end
   end
