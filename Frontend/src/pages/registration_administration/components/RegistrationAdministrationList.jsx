@@ -120,9 +120,9 @@ export default function RegistrationAdministrationList() {
 
   // some sticky/floating bar somewhere with totals/info would be better
   // than putting this in the table headers which scroll out of sight
-  const spotsRemaining = `; ${
-    competitionInfo?.competitor_limit - accepted?.length
-  } spot(s) remaining`
+  const spotsRemaining =
+    (competitionInfo.competitor_limit ?? Infinity) - accepted.length
+  const spotsRemainingText = `; ${spotsRemaining} spot(s) remaining`
 
   return isLoading ? (
     <LoadingMessage />
@@ -143,7 +143,7 @@ export default function RegistrationAdministrationList() {
           {competitionInfo.competitor_limit && (
             <>
               {`/${competitionInfo.competitor_limit}`}
-              {spotsRemaining}
+              {spotsRemainingText}
             </>
           )}
           )
@@ -158,7 +158,7 @@ export default function RegistrationAdministrationList() {
 
         <Header>
           Waitlisted registrations ({waiting.length}
-          {competitionInfo.competitor_limit && spotsRemaining})
+          {competitionInfo.competitor_limit && spotsRemainingText})
         </Header>
         <RegistrationAdministrationTable
           registrations={waiting}
@@ -185,6 +185,7 @@ export default function RegistrationAdministrationList() {
           dispatch({ type: 'clear-selected' })
         }}
         registrations={registrations}
+        spotsRemaining={spotsRemaining}
       />
     </>
   )
