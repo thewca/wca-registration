@@ -4,6 +4,7 @@ import {
   CLOSED_COMPETITION,
   COMMENT_REQUIRED,
   FAVOURITES_COMPETITION,
+  LOW_COMPETITOR_LIMIT,
   NOT_YET_OPEN,
   OPEN_COMPETITION,
   OPEN_WITH_PAYMENTS,
@@ -30,6 +31,9 @@ export default async function getCompetitionInfoMockWithRealFallback(
     }
     case 'PickeringFavouritesAutumn2023': {
       return FAVOURITES_COMPETITION
+    }
+    case 'LowLimit2023': {
+      return LOW_COMPETITOR_LIMIT
     }
     default: {
       // This allows non mocked response when debugging a certain competition

@@ -28,6 +28,12 @@ const DROPDOWNS = [
         reactRoute: true,
       },
       {
+        path: `${BASE_ROUTE}/LowLimit2023`,
+        icon: 'battery empty',
+        title: 'Low Competitor Limit',
+        reactRoute: true,
+      },
+      {
         path: `${BASE_ROUTE}/PickeringFavouritesAutumn2023`,
         icon: 'heart',
         title: 'Favourites Competition',
