@@ -1016,7 +1016,21 @@ describe RegistrationChecker do
     end
 
     it 'cannot move to greater than current max position' do
-      expect(true).to eq(false)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 6)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
+
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'waiting_list_position' => '1' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::INVALID_WAITING_LIST_POSITION)
+      end
     end
   end
 end

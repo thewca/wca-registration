@@ -23,6 +23,12 @@ class Registration
     where(competition_id: competition_id, competing_status: 'accepted').count
   end
 
+  def self.get_registrations_by_status(competition_id, status)
+    Rails.cache.fetch("#{competition_id}-{status}_registrations", expires_in: 60.minutes) do
+      Registration.where(competition_id: competition_id, competing_status: status)
+    end
+  end
+
   # Returns all event ids irrespective of registration status
   def event_ids
     lanes.filter_map { |x| x.lane_details['event_details'].pluck('event_id') if x.lane_name == 'competing' }[0]
