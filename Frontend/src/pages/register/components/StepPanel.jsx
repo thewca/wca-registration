@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useMemo, useState } from 'react'
 import { Step } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { RegistrationContext } from '../../../api/helper/context/registration_context'
@@ -9,37 +9,23 @@ import StripeWrapper from './StripeWrapper'
 export default function StepPanel() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { isRegistered } = useContext(RegistrationContext)
-  const [activeIndex, setActiveIndex] = useState(0)
 
   const steps = useMemo(() => {
-    const steps = [
-      {
-        key: 'requirements',
-        label: 'Requirements',
-        component: RegistrationRequirements,
-      },
-      {
-        key: 'competing',
-        label: 'Register',
-        component: CompetingStep,
-      },
-    ]
+    const steps = [requirementsStepConfig, competingStepConfig]
 
     if (competitionInfo['using_stripe_payments?']) {
-      steps.push({
-        key: 'payment',
-        label: 'Payment',
-        component: StripeWrapper,
-      })
+      steps.push(paymentStepConfig)
     }
+
     return steps
   }, [competitionInfo])
 
-  useEffect(() => {
-    if (isRegistered) {
-      setActiveIndex(1)
-    }
-  }, [isRegistered])
+  const [activeIndex, setActiveIndex] = useState(() =>
+    steps.findIndex(
+      (step) =>
+        step === (isRegistered ? competingStepConfig : requirementsStepConfig)
+    )
+  )
 
   const CurrentStepPanel = steps[activeIndex].component
 
@@ -64,4 +50,20 @@ export default function StepPanel() {
       />
     </>
   )
+}
+
+const requirementsStepConfig = {
+  key: 'requirements',
+  label: 'Requirements',
+  component: RegistrationRequirements,
+}
+const competingStepConfig = {
+  key: 'competing',
+  label: 'Register',
+  component: CompetingStep,
+}
+const paymentStepConfig = {
+  key: 'payment',
+  label: 'Payment',
+  component: StripeWrapper,
 }
