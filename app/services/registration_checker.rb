@@ -107,7 +107,7 @@ class RegistrationChecker
 
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(new_status)
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
-        new_status == 'accepted' && Registration.accepted_competitors(@competition_info.competition_id) >= @competition_info.competitor_limit
+        new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
 
       # Organizers can make any status change they want to - no checks performed
 
