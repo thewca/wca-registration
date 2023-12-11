@@ -323,7 +323,7 @@ function TableRow({ registration, isSelected, onCheckboxChange }) {
         </>
       )}
       <Table.Cell>{event_ids.length}</Table.Cell>
-      <Table.Cell>{Number.parseInt(registration.guests, 10)}</Table.Cell>
+      <Table.Cell>{registration.guests}</Table.Cell>
       <Table.Cell title={comment}>{truncateComment(comment)}</Table.Cell>
       <Table.Cell title={admin_comment}>
         {truncateComment(admin_comment)}
