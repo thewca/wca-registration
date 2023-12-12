@@ -9,14 +9,14 @@ services:
     environment:
       LOCALSTACK_ENDPOINT: "http://localstack:4566"
       PROMETHEUS_EXPORTER: "prometheus_exporter"
-      RAILS_ENV: test
+      RAILS_ENV: development
     volumes:
       - .:/app
       - gems_volume_handler:/usr/local/bundle
     tty: true
     command: >
       bash -c 'bundle install && yarn install && bin/rake db:seed &&
-      RAILS_ENV=test bundle exec rspec --exclude-pattern spec/cache'
+      RAILS_ENV=test bundle exec rspec spec/cache'
     networks:
       - wca-registration
     depends_on:
@@ -63,7 +63,7 @@ services:
   # Emulate AWS Services Locally
   localstack:
     container_name: "localstack"
-    image: localstack/localstack
+    image: localstack/localstack:3.0.0
     ports:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway
       - "127.0.0.1:4510-4559:4510-4559"  # external services port range

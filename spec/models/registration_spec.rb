@@ -92,6 +92,34 @@ describe Registration do
       end
     end
 
+    describe '#waiting_list.caching_tests' do
+      let(:redis_store) { ActiveSupport::Cache.lookup_store(:redis_cache_store, { url: EnvConfig.REDIS_URL }) }
+      let(:cache) { Rails.cache }
+
+      before do
+        allow(Rails).to receive(:cache).and_return(redis_store)
+        Rails.cache.clear
+      end
+
+      # before(:all) do
+      #   Rails.application.config.cache_store = :redis_cache_store, { url: EnvConfig.REDIS_URL }
+      # end
+
+      # after(:all) do
+      #   Rails.application.config.cache_store = :null_store
+      # end
+
+      it 'with caching: second competitor gets set to position 2' do
+        reg_1 = FactoryBot.create(:registration, registration_status: 'pending')
+        reg_1.update_competing_lane!({ status: 'waiting_list' })
+
+        registration = FactoryBot.create(:registration, registration_status: 'pending')
+        registration.update_competing_lane!({ status: 'waiting_list' })
+
+        expect(registration.competing_waiting_list_position).to eq(2)
+      end
+    end
+
     describe '#waiting_list.move_within_waiting_list' do
       it 'gets moved to the correct position' do
         FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)

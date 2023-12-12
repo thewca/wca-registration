@@ -70,9 +70,13 @@ class Lane
   end
 
   def get_waiting_list_boundaries(competition_id)
-    Rails.cache.fetch("#{competition_id}-waiting_list_boundaries", expires_in: 60.minutes) do
+    puts 'fetching waiting list boundaries'
+    # TODO: Refactor to use min/max functions
+    # binding.pry
+    boundaries = Rails.cache.fetch("#{competition_id}-waiting_list_boundaries", expires_in: 60.minutes) do
+      puts 'recalculating waiting list boundaries cache'
       waiting_list_registrations = Registration.get_registrations_by_status(competition_id, 'waiting_list')
-      puts waiting_list_registrations
+      puts "waiting_list_registrations: #{waiting_list_registrations}"
 
       # Iterate through waiting list registrations and record min/max waiting list positions
       # We aren't just counting the number of registrations in the waiting list. When a registration is
@@ -88,20 +92,22 @@ class Lane
       waiting_list_registrations.each do |reg|
         puts reg.inspect
         puts "checking reg with position #{reg.competing_waiting_list_position} which is class #{reg.competing_waiting_list_position.class}"
+
+        # waiting_list_registrations.minmax { |a, b| a.competing_waiting_list_position <=> b.competing_waiting_list_position }
+
         waiting_list_position_min = reg.competing_waiting_list_position if
           waiting_list_position_min.nil? || reg.competing_waiting_list_position < waiting_list_position_min
         waiting_list_position_max = reg.competing_waiting_list_position.to_i if
           waiting_list_position_max.nil? || reg.competing_waiting_list_position > waiting_list_position_max
       end
 
-      puts "min: #{waiting_list_position_min}"
-      puts "max: #{waiting_list_position_max}"
-
       {
         'waiting_list_position_min' => waiting_list_position_min,
         'waiting_list_position_max' => waiting_list_position_max,
       }
     end
+    puts boundaries
+    boundaries
   end
 
   # NOTE: Is this function necessary? I think so? NO
@@ -145,7 +151,7 @@ class Lane
     # increment_value is the value by which position should be shifted - usually 1 or -1
     # Lower waiting_list_position = higher up the waiting list (1 on waiting list will be accepted before 10)
     def cascade_waiting_list(competition_id, start_at, stop_at, increment_value = 1)
-      waiting_list_registrations = get_registrations_by_status(competition_id, 'waiting_list')
+      waiting_list_registrations = Registration.get_registrations_by_status(competition_id, 'waiting_list')
 
       waiting_list_registrations.each do |reg|
         current_position = reg.competing_waiting_list_position.to_i

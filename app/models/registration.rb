@@ -25,7 +25,12 @@ class Registration
 
   def self.get_registrations_by_status(competition_id, status)
     Rails.cache.fetch("#{competition_id}-{status}_registrations", expires_in: 60.minutes) do
-      Registration.where(competition_id: competition_id, competing_status: status)
+      puts 'querying waiting_list registrations'
+      # binding.pry
+      result = Registration.where(competition_id: competition_id, competing_status: status).to_a
+      puts "query result: #{result.inspect}"
+      puts "count: #{result.count}"
+      result
     end
   end
 
@@ -101,11 +106,20 @@ class Registration
   end
 
   def update_competing_lane!(update_params)
+    puts "update_competing_lane! called with params: #{update_params}"
+
+    update_waiting_list_caches = false
+
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'competing'
+        puts 'updating competing lane'
 
         # Update status for lane and events
-        update_waiting_list(lane, update_params) if waiting_list_changed?(update_params)
+        if waiting_list_changed?(update_params)
+          update_waiting_list_caches = true
+          update_waiting_list(lane, update_params)
+        end
+
         if update_params[:status].present?
           lane.lane_state = update_params[:status]
 
@@ -132,6 +146,18 @@ class Registration
                        guests
                      end
     update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+    if update_waiting_list_caches
+      # TODO: Update the caches instead of writing them
+      puts 'updating caches after waiting list update'
+      Rails.cache.write("#{competition_id}-waiting_list_registrations", expires_in: 60.minutes) do
+        puts 'writing cache'
+        Registration.where(competition_id: competition_id, competing_status: status).to_a
+      end
+
+      Rails.cache.delete("#{competition_id}-waiting_list_boundaries")
+      # Rails.cache.delete("#{@competition_id}-waiting_list_registrations")
+
+    end
   end
 
   def init_payment_lane(amount, currency_code, id)
@@ -172,14 +198,6 @@ class Registration
     lane.remove_from_waiting_list(competition_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
     lane.move_within_waiting_list(competition_id, update_params[:waiting_list_position].to_i) if
       update_params[:waiting_list_position].present? && update_params[:waiting_list_position] != competing_waiting_list_position
-
-    # TODO: Update the caches instead of writing them
-    Rails.cache.write("#{competition_id}-waiting_list_registrations", expires_in: 60.minutes) do
-      Registration.where(competition_id: competition_id, competing_status: status)
-    end
-
-    Rails.cache.delete("#{@competition_id}-waiting_list_boundaries")
-    # Rails.cache.delete("#{@competition_id}-waiting_list_registrations")
   end
 
   # Fields
@@ -204,7 +222,9 @@ class Registration
     end
 
     def waiting_list_changed?(update_params)
-      waiting_list_position_changed?(update_params) || waiting_list_status_changed?(update_params)
+      result = waiting_list_position_changed?(update_params) || waiting_list_status_changed?(update_params)
+      puts "waiting list changed? #{result}"
+      result
     end
 
     def waiting_list_position_changed?(update_params)
