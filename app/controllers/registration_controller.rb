@@ -208,7 +208,7 @@ class RegistrationController < ApplicationController
       end
       Registration.import(registrations)
 
-      Rails.cache.invalidate("#{competition_id}-accepted-count")
+      Rails.cache.delete("#{competition_id}-accepted-count")
 
       render json: { status: 'Successfully imported registration' }
     else
