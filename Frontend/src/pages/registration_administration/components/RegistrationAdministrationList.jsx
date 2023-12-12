@@ -11,6 +11,7 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
+import getCompetitorInfo from '../../../api/competition/get/get_competitor_info'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]
@@ -122,6 +123,19 @@ export default function RegistrationAdministrationList() {
     },
   })
 
+  const { data: PIIData } = useQuery({
+    queryKey: ['registrations-pii', competitionInfo.id],
+    queryFn: () => getCompetitorInfo(competitionInfo.id),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+    refetchOnMount: 'always',
+    retry: false,
+    onError: (err) => {
+      setMessage(err.message, 'error')
+    },
+  })
+
   const { waiting, accepted, cancelled, pending } = useMemo(
     () => partitionRegistrations(registrations ?? []),
     [registrations]
@@ -180,6 +194,7 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={pending}
+          PIIData={PIIData}
           selected={partitionedSelected.pending}
           select={select}
           unselect={unselect}
@@ -199,6 +214,7 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={accepted}
+          PIIData={PIIData}
           selected={partitionedSelected.accepted}
           select={select}
           unselect={unselect}
@@ -212,6 +228,7 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={waiting}
+          PIIData={PIIData}
           selected={partitionedSelected.waiting}
           select={select}
           unselect={unselect}
@@ -222,6 +239,7 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={cancelled}
+          PIIData={PIIData}
           selected={partitionedSelected.cancelled}
           select={select}
           unselect={unselect}
@@ -245,6 +263,7 @@ export default function RegistrationAdministrationList() {
 function RegistrationAdministrationTable({
   columnsExpanded,
   registrations,
+  PIIData,
   selected,
   select,
   unselect,
@@ -275,6 +294,7 @@ function RegistrationAdministrationTable({
                 key={id}
                 columnsExpanded={columnsExpanded}
                 registration={registration}
+                PIIData={(PIIData ?? []).find((data) => data.id === id)}
                 isSelected={selected.includes(id)}
                 onCheckboxChange={(_, data) => {
                   if (data.checked) {
@@ -352,6 +372,7 @@ function TableHeader({
 function TableRow({
   columnsExpanded,
   registration,
+  PIIData,
   isSelected,
   onCheckboxChange,
 }) {
@@ -364,10 +385,8 @@ function TableRow({
     registration.competing
   const { payment_status, updated_at } = registration.payment
 
-  // TODO: get actual email
-  const emailAddress = `${registration.user_id}@worldcubeassociation.org`
-  // TODO: get actual dob
-  const dateOfBirth = new Date()
+  const emailAddress = PIIData?.email
+  const dateOfBirth = PIIData?.dob
 
   const copyEmail = () => {
     navigator.clipboard.writeText(emailAddress)
@@ -398,7 +417,7 @@ function TableRow({
 
       <Table.Cell>{name}</Table.Cell>
 
-      {dob && <Table.Cell>{dateOfBirth.toLocaleDateString()}</Table.Cell>}
+      {dob && <Table.Cell>{dateOfBirth}</Table.Cell>}
 
       <Table.Cell>
         {region ? (
