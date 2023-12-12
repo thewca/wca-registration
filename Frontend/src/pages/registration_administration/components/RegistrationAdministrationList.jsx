@@ -66,7 +66,7 @@ const partitionRegistrations = (registrations) => {
 }
 
 const expandableColumns = {
-  dob: 'Date or Birth',
+  dob: 'Date of Birth',
   region: 'Region',
   events: 'Events',
   comments: 'Comment & Note',
