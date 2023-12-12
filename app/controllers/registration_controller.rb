@@ -32,7 +32,7 @@ class RegistrationController < ApplicationController
       lane_name: 'competing',
       step: 'Event Registration',
       step_details: {
-        registration_status: 'waiting',
+        registration_status: 'pending',
         event_ids: event_ids,
         comment: comment,
         guests: guests,
@@ -113,7 +113,7 @@ class RegistrationController < ApplicationController
           waiting_list_position: updated_registration.competing_waiting_list_position,
         },
       } }
-    rescue StandardError => e
+    rescue Dynamoid::Errors::Error => e
       puts e
       Metrics.registration_dynamodb_errors_counter.increment
       render json: { error: "Error Updating Registration: #{e.message}" },
@@ -172,7 +172,7 @@ class RegistrationController < ApplicationController
     competition_id = list_params
     registrations = get_registrations(competition_id, only_attending: true)
     render json: registrations
-  rescue StandardError => e
+  rescue Dynamoid::Errors::Error => e
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
@@ -183,7 +183,7 @@ class RegistrationController < ApplicationController
   def mine
     my_registrations = Registration.where(user_id: @current_user).map { |x| { competition_id: x.competition_id, status: x.competing_status } }
     render json: { registrations: my_registrations }
-  rescue StandardError => e
+  rescue Dynamoid::Errors::Error => e
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
@@ -206,7 +206,7 @@ class RegistrationController < ApplicationController
     end
 
     render json: waiting
-  rescue StandardError => e
+  rescue Dynamoid::Errors::Error => e
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
@@ -226,7 +226,7 @@ class RegistrationController < ApplicationController
   def list_admin
     registrations = get_registrations(@competition_id)
     render json: registrations
-  rescue StandardError => e
+  rescue Dynamoid::Errors::Error => e
     puts e
     # Is there a reason we aren't using an error code here?
     Metrics.registration_dynamodb_errors_counter.increment

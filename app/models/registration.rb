@@ -24,14 +24,14 @@ class Registration
   end
 
   def self.get_registrations_by_status(competition_id, status)
-    Rails.cache.fetch("#{competition_id}-{status}_registrations", expires_in: 60.minutes) do
-      puts 'querying waiting_list registrations'
-      # binding.pry
-      result = Registration.where(competition_id: competition_id, competing_status: status).to_a
-      puts "query result: #{result.inspect}"
-      puts "count: #{result.count}"
-      result
+    result = Rails.cache.fetch("#{competition_id}-#{status}_registrations", expires_in: 60.minutes,) do
+      Registration.where(competition_id: competition_id, competing_status: status).to_a
     end
+    puts "get_registrations_by_status: #{result}"
+    unless result.is_a? Array
+      return []
+    end
+    result
   end
 
   # Returns all event ids irrespective of registration status
@@ -107,16 +107,14 @@ class Registration
 
   def update_competing_lane!(update_params)
     puts "update_competing_lane! called with params: #{update_params}"
-
-    update_waiting_list_caches = false
+    has_waiting_list_changed = waiting_list_changed?(update_params)
 
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'competing'
         puts 'updating competing lane'
 
         # Update status for lane and events
-        if waiting_list_changed?(update_params)
-          update_waiting_list_caches = true
+        if has_waiting_list_changed
           update_waiting_list(lane, update_params)
         end
 
@@ -145,19 +143,18 @@ class Registration
                      else
                        guests
                      end
-    update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
-    if update_waiting_list_caches
+    updated_values = update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+    if has_waiting_list_changed
       # TODO: Update the caches instead of writing them
       puts 'updating caches after waiting list update'
-      Rails.cache.write("#{competition_id}-waiting_list_registrations", expires_in: 60.minutes) do
+      RedisHelper.update("#{competition_id}-waiting_list_registrations") do
         puts 'writing cache'
-        Registration.where(competition_id: competition_id, competing_status: status).to_a
+        Registration.where(competition_id: competition_id, competing_status: "waiting_list").to_a
       end
 
       Rails.cache.delete("#{competition_id}-waiting_list_boundaries")
-      # Rails.cache.delete("#{@competition_id}-waiting_list_registrations")
-
     end
+    updated_values
   end
 
   def init_payment_lane(amount, currency_code, id)
