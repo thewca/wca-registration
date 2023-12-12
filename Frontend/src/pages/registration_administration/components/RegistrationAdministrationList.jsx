@@ -4,6 +4,7 @@ import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
 import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
@@ -179,10 +180,10 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={pending}
+          selected={partitionedSelected.pending}
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
-          selected={partitionedSelected.pending}
         />
 
         <Header>
@@ -198,10 +199,10 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={accepted}
+          selected={partitionedSelected.accepted}
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
-          selected={partitionedSelected.accepted}
         />
 
         <Header>
@@ -211,20 +212,20 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={waiting}
+          selected={partitionedSelected.waiting}
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
-          selected={partitionedSelected.waiting}
         />
 
         <Header>Cancelled registrations ({cancelled.length})</Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={cancelled}
+          selected={partitionedSelected.cancelled}
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
-          selected={partitionedSelected.cancelled}
         />
       </div>
 
@@ -244,62 +245,26 @@ export default function RegistrationAdministrationList() {
 function RegistrationAdministrationTable({
   columnsExpanded,
   registrations,
+  selected,
   select,
   unselect,
-  selected,
 }) {
-  const { competitionInfo } = useContext(CompetitionContext)
-  const { dob, events, comments } = columnsExpanded
+  const handleHeaderCheck = (_, data) => {
+    if (data.checked) {
+      select(registrations.map(({ user }) => user.id))
+    } else {
+      unselect(registrations.map(({ user }) => user.id))
+    }
+  }
 
   return (
     <Table striped textAlign="left">
-      <Table.Header>
-        <Table.Row>
-          <Table.HeaderCell>
-            {registrations.length > 0 && (
-              <Checkbox
-                checked={registrations.length === selected.length}
-                onChange={(_, data) => {
-                  if (data.checked) {
-                    select(registrations.map(({ user }) => user.id))
-                  } else {
-                    unselect(registrations.map(({ user }) => user.id))
-                  }
-                }}
-              />
-            )}
-          </Table.HeaderCell>
-          <Table.HeaderCell />
-          <Table.HeaderCell>WCA ID</Table.HeaderCell>
-          <Table.HeaderCell>Name</Table.HeaderCell>
-          {dob && <Table.HeaderCell>DOB</Table.HeaderCell>}
-          <Table.HeaderCell>Region</Table.HeaderCell>
-          <Table.HeaderCell>Registered on</Table.HeaderCell>
-          {competitionInfo['using_stripe_payments?'] && (
-            <>
-              <Table.HeaderCell>Payment Status</Table.HeaderCell>
-              <Table.HeaderCell>Paid on</Table.HeaderCell>
-            </>
-          )}
-          {events ? (
-            competitionInfo.event_ids.map((eventId) => (
-              <Table.HeaderCell key={`event-${eventId}`}>
-                <CubingIcon event={eventId} size="1x" selected />
-              </Table.HeaderCell>
-            ))
-          ) : (
-            <Table.HeaderCell>Events</Table.HeaderCell>
-          )}
-          <Table.HeaderCell>Guests</Table.HeaderCell>
-          {comments && (
-            <>
-              <Table.HeaderCell>Comment</Table.HeaderCell>
-              <Table.HeaderCell>Admin Note</Table.HeaderCell>
-            </>
-          )}
-          <Table.HeaderCell>Email</Table.HeaderCell>
-        </Table.Row>
-      </Table.Header>
+      <TableHeader
+        columnsExpanded={columnsExpanded}
+        showCheckbox={registrations.length > 0}
+        isChecked={registrations.length === selected.length}
+        onCheckboxChanged={handleHeaderCheck}
+      />
 
       <Table.Body>
         {registrations.length > 0 ? (
@@ -331,23 +296,78 @@ function RegistrationAdministrationTable({
   )
 }
 
+function TableHeader({
+  columnsExpanded,
+  showCheckbox,
+  isChecked,
+  onCheckboxChanged,
+}) {
+  const { competitionInfo } = useContext(CompetitionContext)
+  const { isOrganizerOrDelegate } = useContext(PermissionsContext)
+
+  const { dob, events, comments } = columnsExpanded
+
+  return (
+    <Table.Header>
+      <Table.Row>
+        <Table.HeaderCell>
+          {showCheckbox && (
+            <Checkbox checked={isChecked} onChange={onCheckboxChanged} />
+          )}
+        </Table.HeaderCell>
+        {isOrganizerOrDelegate && <Table.HeaderCell />}
+        <Table.HeaderCell>WCA ID</Table.HeaderCell>
+        <Table.HeaderCell>Name</Table.HeaderCell>
+        {dob && <Table.HeaderCell>DOB</Table.HeaderCell>}
+        <Table.HeaderCell>Region</Table.HeaderCell>
+        <Table.HeaderCell>Registered on</Table.HeaderCell>
+        {competitionInfo['using_stripe_payments?'] && (
+          <>
+            <Table.HeaderCell>Payment Status</Table.HeaderCell>
+            <Table.HeaderCell>Paid on</Table.HeaderCell>
+          </>
+        )}
+        {events ? (
+          competitionInfo.event_ids.map((eventId) => (
+            <Table.HeaderCell key={`event-${eventId}`}>
+              <CubingIcon event={eventId} size="1x" selected />
+            </Table.HeaderCell>
+          ))
+        ) : (
+          <Table.HeaderCell>Events</Table.HeaderCell>
+        )}
+        <Table.HeaderCell>Guests</Table.HeaderCell>
+        {comments && (
+          <>
+            <Table.HeaderCell>Comment</Table.HeaderCell>
+            <Table.HeaderCell>Admin Note</Table.HeaderCell>
+          </>
+        )}
+        <Table.HeaderCell>Email</Table.HeaderCell>
+      </Table.Row>
+    </Table.Header>
+  )
+}
+
 function TableRow({
   columnsExpanded,
   registration,
   isSelected,
   onCheckboxChange,
 }) {
-  const { dob: dobCol, region, events, comments, email } = columnsExpanded
+  const { competitionInfo } = useContext(CompetitionContext)
+  const { isOrganizerOrDelegate } = useContext(PermissionsContext)
+
+  const { dob, region, events, comments, email } = columnsExpanded
   const { id, wca_id, name, country } = registration.user
   const { registered_on, event_ids, comment, admin_comment } =
     registration.competing
   const { payment_status, updated_at } = registration.payment
+
   // TODO: get actual email
   const emailAddress = `${registration.user_id}@worldcubeassociation.org`
   // TODO: get actual dob
-  const dob = new Date()
-
-  const { competitionInfo } = useContext(CompetitionContext)
+  const dateOfBirth = new Date()
 
   const copyEmail = () => {
     navigator.clipboard.writeText(emailAddress)
@@ -360,9 +380,13 @@ function TableRow({
         <Checkbox onChange={onCheckboxChange} checked={isSelected} />
       </Table.Cell>
 
-      <Table.Cell>
-        <Link to={`${BASE_ROUTE}/${competitionInfo.id}/${id}/edit`}>Edit</Link>
-      </Table.Cell>
+      {isOrganizerOrDelegate && (
+        <Table.Cell>
+          <Link to={`${BASE_ROUTE}/${competitionInfo.id}/${id}/edit`}>
+            Edit
+          </Link>
+        </Table.Cell>
+      )}
 
       <Table.Cell>
         {wca_id && (
@@ -374,7 +398,7 @@ function TableRow({
 
       <Table.Cell>{name}</Table.Cell>
 
-      {dobCol && <Table.Cell>{dob.toLocaleDateString()}</Table.Cell>}
+      {dob && <Table.Cell>{dateOfBirth.toLocaleDateString()}</Table.Cell>}
 
       <Table.Cell>
         {region ? (
