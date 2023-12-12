@@ -25,9 +25,13 @@ const getDatesStartingOn = (startDate, numberOfDays) => {
 
 const activitiesByDate = (activities, date, timeZone) => {
   return activities.filter(
+    // not sure how to check startTime *in timeZone* is on date, besides
+    // comparing locale strings, which seems bad
+    // (there's only .getDay() for local time zone and .getUTCDay() for UTC,
+    // but no such function for arbitrary time zone)
     (activity) =>
       new Date(activity.startTime).toLocaleDateString([], { timeZone }) ===
-      date.toLocaleDateString([], { timeZone: 'UTC' })
+      date.toLocaleDateString()
   )
 }
 
