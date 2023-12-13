@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# TODO: Remove getter and setter
-
 class Lane
   attr_accessor :lane_name, :lane_state, :completed_steps, :lane_details
 
@@ -28,79 +26,55 @@ class Lane
   end
 
   def move_within_waiting_list(competition_id, new_position)
-    if new_position < get_lane_detail('waiting_list_position')
-      cascade_waiting_list(competition_id, new_position, get_lane_detail('waiting_list_position')+1)
+    if new_position < lane_details['waiting_list_position']
+      cascade_waiting_list(competition_id, new_position, lane_details['waiting_list_position']+1)
     else
-      cascade_waiting_list(competition_id, get_lane_detail('waiting_list_position'), new_position+1, -1)
+      cascade_waiting_list(competition_id, lane_details['waiting_list_position'], new_position+1, -1)
     end
-    set_lane_detail('waiting_list_position', new_position)
+    lane_details['waiting_list_position'] = new_position
   end
 
   def add_to_waiting_list(competition_id)
-    # TODO: Tests in lane_spec for this function?
-    # TODO: Test cases for when there's actually no change to (a) the status, or (b) the waiting_list_position
-    # TODO: Invalidate Finn's waiting_list cache when this function is called
-    # TODO: Make sure I'm invalidating this cache appropriately
     boundaries = get_waiting_list_boundaries(competition_id)
     waiting_list_max = boundaries['waiting_list_position_max']
     waiting_list_min = boundaries['waiting_list_position_min']
 
     if waiting_list_max.nil? && waiting_list_min.nil?
-      set_lane_detail('waiting_list_position', 1)
+      lane_details['waiting_list_position'] = 1
     else
-      set_lane_detail('waiting_list_position', waiting_list_max+1)
+      lane_details['waiting_list_position'] = waiting_list_max+1
     end
   end
 
   def remove_from_waiting_list(competition_id)
     max_position = get_waiting_list_boundaries(competition_id)['waiting_list_position_max']
-    cascade_waiting_list(competition_id, get_lane_detail('waiting_list_position'), max_position+1, -1)
-    set_lane_detail('waiting_list_position', nil)
+    cascade_waiting_list(competition_id, lane_details['waiting_list_position'], max_position+1, -1)
+    lane_details['waiting_list_position'] = nil
   end
 
   def accept_from_waiting_list
-    set_lane_detail('waiting_list_position', nil)
+    lane_details['waiting_list_position'] = nil
   end
 
   def get_waiting_list_boundaries(competition_id)
-    # TODO: Refactor to use min/max functions
     Rails.cache.fetch("#{competition_id}-waiting_list_boundaries", expires_in: 60.minutes) do
       waiting_list_registrations = Registration.get_registrations_by_status(competition_id, 'waiting_list')
 
-      # Iterate through waiting list registrations and record min/max waiting list positions
       # We aren't just counting the number of registrations in the waiting list. When a registration is
       # accepted from the waiting list, we don't "move up" the waiting_list_position of the registrations
       # behind it - so we can't assume that the position 1 is the min, or that the count of waiting_list
       # registrations is the max.
 
-      waiting_list_position_min = nil
-      waiting_list_position_max = nil
+      waiting_list_positions = waiting_list_registrations.map(&:competing_waiting_list_position).compact
 
-      # NOTE: Doing to_i conversions as the values seem to come back from redis as strings - they are ints when set in set_lane_detail
-      waiting_list_registrations.each do |reg|
-        # waiting_list_registrations.minmax { |a, b| a.competing_waiting_list_position <=> b.competing_waiting_list_position }
-
-        waiting_list_position_min = reg.competing_waiting_list_position if
-          waiting_list_position_min.nil? || reg.competing_waiting_list_position < waiting_list_position_min
-        waiting_list_position_max = reg.competing_waiting_list_position.to_i if
-          waiting_list_position_max.nil? || reg.competing_waiting_list_position > waiting_list_position_max
+      if waiting_list_positions.any?
+        waiting_list_position_min, waiting_list_position_max = waiting_list_positions.minmax
+      else
+        waiting_list_position_min = waiting_list_position_max = nil
       end
 
-      {
-        'waiting_list_position_min' => waiting_list_position_min,
-        'waiting_list_position_max' => waiting_list_position_max,
-      }
+      { 'waiting_list_position_min' => waiting_list_position_min, 'waiting_list_position_max' => waiting_list_position_max }
     end
-  end
-
-  # NOTE: Is this function necessary? I think so? NO
-  def set_lane_detail(property_name, property_value)
-    lane_details[property_name] = property_value
-  end
-
-  # NOTE: Is this function necessary? I think so? NO
-  def get_lane_detail(property_name)
-    lane_details[property_name]
   end
 
   def update_events(new_event_ids)

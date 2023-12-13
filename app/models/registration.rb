@@ -65,7 +65,7 @@ class Registration
   end
 
   def competing_waiting_list_position
-    competing_lane.get_lane_detail('waiting_list_position')
+    competing_lane.lane_details['waiting_list_position']
   end
 
   def competing_comment
@@ -101,7 +101,7 @@ class Registration
       end
       lane
     end
-    update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+    update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: guests)
   end
 
   def update_competing_lane!(update_params)
@@ -140,7 +140,7 @@ class Registration
                      else
                        guests
                      end
-    updated_values = update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
+    updated_values = update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests)
     if has_waiting_list_changed
       # Update waiting list caches
       Rails.cache.delete("#{competition_id}-waiting_list_registrations")
@@ -179,8 +179,6 @@ class Registration
     update_attributes!(lanes: updated_lanes)
   end
 
-  # NOTE: The logic of this method feels wrong, but not sure how to structure it differently
-  # TODO: Update this method to invalidate any cached waiting list/registration data
   def update_waiting_list(lane, update_params)
     update_params[:waiting_list_position]&.to_i
     lane.add_to_waiting_list(competition_id) if update_params[:status] == 'waiting_list'
