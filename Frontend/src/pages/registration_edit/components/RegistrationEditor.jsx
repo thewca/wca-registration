@@ -140,17 +140,18 @@ export default function RegistrationEditor() {
       })
     }
   }, [
-    adminComment,
-    comment,
-    commentIsValid,
-    competitionInfo.id,
-    eventsAreValid,
     hasChanges,
-    selectedEvents,
-    status,
+    commentIsValid,
+    eventsAreValid,
+    maxEvents,
     updateRegistrationMutation,
     user_id,
-    maxEvents,
+    status,
+    selectedEvents,
+    comment,
+    adminComment,
+    waitingListPosition,
+    competitionInfo.id,
   ])
 
   const registrationEditDeadlinePassed = moment(

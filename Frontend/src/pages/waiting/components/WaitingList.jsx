@@ -40,7 +40,7 @@ export default function WaitingList() {
                 <Table.Cell>
                   {w.competing.waiting_list_position === 0
                     ? 'Not yet assigned'
-                    : w.competing.waiting_list_position}
+                    : i + 1}
                 </Table.Cell>
               </Table.Row>
             ))
