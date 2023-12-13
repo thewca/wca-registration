@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'time'
+# Requiring even though it's in lib because the work needs to find it too
+require_relative '../../lib/lane'
 
 class Registration
   include Dynamoid::Document
