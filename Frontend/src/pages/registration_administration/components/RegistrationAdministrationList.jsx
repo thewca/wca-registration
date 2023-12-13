@@ -141,6 +141,17 @@ export default function RegistrationAdministrationList() {
     [registrations, piiData]
   )
 
+  const userEmailMap = useMemo(
+    () =>
+      Object.fromEntries(
+        registrationsWithPii.map((registration) => [
+          registration.user.id,
+          registration.user.email,
+        ])
+      ),
+    [registrationsWithPii]
+  )
+
   const { waiting, accepted, cancelled, pending } = useMemo(
     () => partitionRegistrations(registrationsWithPii ?? []),
     [registrationsWithPii]
@@ -250,6 +261,7 @@ export default function RegistrationAdministrationList() {
 
       <RegistrationActions
         partitionedSelected={partitionedSelected}
+        userEmailMap={userEmailMap}
         refresh={async () => {
           await refetch()
           dispatch({ type: 'clear-selected' })
