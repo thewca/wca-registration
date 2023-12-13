@@ -24,7 +24,7 @@ class Registration
   end
 
   def self.get_registrations_by_status(competition_id, status)
-    result = Rails.cache.fetch("#{competition_id}-#{status}_registrations", expires_in: 60.minutes,) do
+    result = Rails.cache.fetch("#{competition_id}-#{status}_registrations", expires_in: 60.minutes) do
       Registration.where(competition_id: competition_id, competing_status: status).to_a
     end
     puts "get_registrations_by_status: #{result}"
@@ -147,12 +147,16 @@ class Registration
     if has_waiting_list_changed
       # TODO: Update the caches instead of writing them
       puts 'updating caches after waiting list update'
-      RedisHelper.update("#{competition_id}-waiting_list_registrations") do
-        puts 'writing cache'
-        Registration.where(competition_id: competition_id, competing_status: "waiting_list").to_a
-      end
 
+      Rails.cache.delete("#{competition_id}-waiting_list_registrations")
       Rails.cache.delete("#{competition_id}-waiting_list_boundaries")
+      competing_lane.get_waiting_list_boundaries(competition_id)
+
+      # RedisHelper.update("#{competition_id}-waiting_list_registrations") do
+      #   puts 'writing cache'
+      #   Registration.where(competition_id: competition_id, competing_status: "waiting_list").to_a
+      # end
+
     end
     updated_values
   end

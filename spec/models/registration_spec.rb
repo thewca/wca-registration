@@ -46,7 +46,7 @@ describe Registration do
 
   describe '#update_competing_lane!.waiting_list' do
     # TODO: Needs more logic to test whether the logic paths for update_waiting_list (status are same, not change in waiting list position, etc)
-    #
+
     describe '#waiting_list.get_waiting_list_boundaries' do
       it 'both are nil when there are no other registrations' do
         registration = FactoryBot.create(:registration, registration_status: 'pending')
@@ -101,22 +101,70 @@ describe Registration do
         Rails.cache.clear
       end
 
-      # before(:all) do
-      #   Rails.application.config.cache_store = :redis_cache_store, { url: EnvConfig.REDIS_URL }
-      # end
+      describe '#waiting_list.cached_waiting_list_boundaries' do
+        it 'both are nil when there are no other registrations' do
+          registration = FactoryBot.create(:registration, registration_status: 'pending')
+          registration.competing_lane.get_waiting_list_boundaries(registration.competition_id)
 
-      # after(:all) do
-      #   Rails.application.config.cache_store = :null_store
-      # end
+          boundaries = Rails.cache.read("#{registration.competition_id}-waiting_list_boundaries")
+          expect(boundaries['waiting_list_position_min']).to eq(nil)
+          expect(boundaries['waiting_list_position_max']).to eq(nil)
+        end
 
-      it 'with caching: second competitor gets set to position 2' do
-        reg_1 = FactoryBot.create(:registration, registration_status: 'pending')
-        reg_1.update_competing_lane!({ status: 'waiting_list' })
+        it 'both are 1 when there is only one registrations' do
+          registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
+          registration.competing_lane.get_waiting_list_boundaries(registration.competition_id)
 
-        registration = FactoryBot.create(:registration, registration_status: 'pending')
-        registration.update_competing_lane!({ status: 'waiting_list' })
+          boundaries = Rails.cache.read("#{registration.competition_id}-waiting_list_boundaries")
+          expect(boundaries['waiting_list_position_min']).to eq(1)
+          expect(boundaries['waiting_list_position_max']).to eq(1)
+        end
 
-        expect(registration.competing_waiting_list_position).to eq(2)
+        it 'equal to lowest and highest position when there are multiple registrations' do
+          registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
+          FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
+          FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
+          FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
+          FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
+          registration.competing_lane.get_waiting_list_boundaries(registration.competition_id)
+
+          boundaries = Rails.cache.read("#{registration.competition_id}-waiting_list_boundaries")
+          expect(boundaries['waiting_list_position_min']).to eq(1)
+          expect(boundaries['waiting_list_position_max']).to eq(5)
+        end
+      end
+
+      describe '#waiting_list.verify_caches_after_updates' do
+        it 'is empty, then has 1 competitor after theyre added to waiting list' do
+          registration = FactoryBot.create(:registration, registration_status: 'pending')
+
+          waiting_list_registrations = Rails.cache.read("#{registration.competition_id}-waiting_list_registrations")
+          expect(waiting_list_registrations).to eq(nil)
+
+          registration.update_competing_lane!({ status: 'waiting_list' })
+
+          waiting_list_registrations = Rails.cache.read("#{registration.competition_id}-waiting_list_registrations")
+          expect(waiting_list_registrations.count).to eq(1)
+        end
+
+        it 'two competitors yields an array of 2 stored in cache' do
+          FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
+          registration = FactoryBot.create(:registration, registration_status: 'pending')
+          registration.update_competing_lane!({ status: 'waiting_list' })
+
+          waiting_list_registrations = Rails.cache.read("#{registration.competition_id}-waiting_list_registrations")
+          expect(waiting_list_registrations.count).to eq(2)
+        end
+
+        it 'waiting list boundaries are updated after update_competing_lane is called' do
+          FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
+          registration = FactoryBot.create(:registration, registration_status: 'pending')
+          registration.update_competing_lane!({ status: 'waiting_list' })
+
+          boundaries = Rails.cache.read("#{registration.competition_id}-waiting_list_boundaries")
+          expect(boundaries['waiting_list_position_min']).to eq(1)
+          expect(boundaries['waiting_list_position_max']).to eq(2)
+        end
       end
     end
 
