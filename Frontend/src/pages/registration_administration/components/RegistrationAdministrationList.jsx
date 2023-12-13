@@ -199,7 +199,6 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={pending}
-          piiData={piiData}
           selected={partitionedSelected.pending}
           select={select}
           unselect={unselect}
@@ -219,7 +218,6 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={accepted}
-          piiData={piiData}
           selected={partitionedSelected.accepted}
           select={select}
           unselect={unselect}
@@ -233,7 +231,6 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={waiting}
-          piiData={piiData}
           selected={partitionedSelected.waiting}
           select={select}
           unselect={unselect}
@@ -244,7 +241,6 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={cancelled}
-          piiData={piiData}
           selected={partitionedSelected.cancelled}
           select={select}
           unselect={unselect}
@@ -268,7 +264,6 @@ export default function RegistrationAdministrationList() {
 function RegistrationAdministrationTable({
   columnsExpanded,
   registrations,
-  piiData,
   selected,
   select,
   unselect,
@@ -299,7 +294,6 @@ function RegistrationAdministrationTable({
                 key={id}
                 columnsExpanded={columnsExpanded}
                 registration={registration}
-                piiData={(piiData ?? []).find((data) => data.id === id)}
                 isSelected={selected.includes(id)}
                 onCheckboxChange={(_, data) => {
                   if (data.checked) {
@@ -377,7 +371,6 @@ function TableHeader({
 function TableRow({
   columnsExpanded,
   registration,
-  piiData,
   isSelected,
   onCheckboxChange,
 }) {
@@ -385,13 +378,17 @@ function TableRow({
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
 
   const { dob, region, events, comments, email } = columnsExpanded
-  const { id, wca_id, name, country } = registration.user
+  const {
+    id,
+    wca_id,
+    name,
+    country,
+    dob: dateOfBirth,
+    email: emailAddress,
+  } = registration.user
   const { registered_on, event_ids, comment, admin_comment } =
     registration.competing
   const { payment_status, updated_at } = registration.payment
-
-  const emailAddress = piiData?.email
-  const dateOfBirth = piiData?.dob
 
   const copyEmail = () => {
     navigator.clipboard.writeText(emailAddress)
