@@ -5,10 +5,12 @@ interface PermissionsContext {
   permissions?: Permissions
   canAdminCompetition: boolean
   canAttendCompetition: boolean
+  isOrganizerOrDelegate: boolean
 }
 
 export const PermissionsContext = createContext<PermissionsContext>({
   permissions: undefined,
   canAdminCompetition: false,
   canAttendCompetition: false,
+  isOrganizerOrDelegate: false,
 })

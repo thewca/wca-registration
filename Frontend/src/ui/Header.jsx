@@ -28,9 +28,21 @@ const DROPDOWNS = [
         reactRoute: true,
       },
       {
+        path: `${BASE_ROUTE}/LowLimit2023`,
+        icon: 'battery empty',
+        title: 'Low Competitor Limit',
+        reactRoute: true,
+      },
+      {
         path: `${BASE_ROUTE}/PickeringFavouritesAutumn2023`,
         icon: 'heart',
         title: 'Favourites Competition',
+        reactRoute: true,
+      },
+      {
+        path: `${BASE_ROUTE}/FMCCanada2023`,
+        icon: 'warehouse',
+        title: "Multi Venue Competition (Doesn't use WCA reg)",
         reactRoute: true,
       },
       {

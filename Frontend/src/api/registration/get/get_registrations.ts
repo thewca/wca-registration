@@ -12,14 +12,11 @@ const { GET } = createClient<paths>({
   baseUrl: process.env.API_URL.slice(0, -7),
 })
 
-async function addUserInfo(
-  registrations:
-    | components['schemas']['registration'][]
-    | components['schemas']['registrationAdmin'][]
-): Promise<
-  | components['schemas']['registration'][]
-  | components['schemas']['registrationAdmin'][]
-> {
+async function addUserInfo<
+  Type extends
+    | components['schemas']['registration']
+    | components['schemas']['registrationAdmin']
+>(registrations: Type[]): Promise<Type[]> {
   if (registrations.length > 0) {
     const userInfos = await getCompetitorsInfo(
       registrations.map((d) => d.user_id)
@@ -53,7 +50,6 @@ export async function getConfirmedRegistrations(
 export async function getAllRegistrations(
   competitionID: string
 ): Promise<components['schemas']['registrationAdmin'][]> {
-  //TODO: Because there is currently no bulk user fetch route we need to manually add user data here
   const { data, error, response } = await GET(
     '/api/v1/registrations/{competition_id}/admin',
     {
@@ -68,13 +64,12 @@ export async function getAllRegistrations(
     }
     throw new BackendError(error.error, response.status)
   }
-  return (await addUserInfo(
-    data!
-  )) as components['schemas']['registrationAdmin'][]
+
+  return addUserInfo(data!)
 }
 
 export async function getSingleRegistration(
-  userId: string,
+  userId: number,
   competitionId: string
 ): Promise<{ registration: components['schemas']['registrationAdmin'] }> {
   return backendFetch(

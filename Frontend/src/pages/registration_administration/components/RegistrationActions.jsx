@@ -3,6 +3,7 @@ import { UiIcon } from '@thewca/wca-components'
 import React, { useContext } from 'react'
 import { Button } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
+import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
 import styles from './actions.module.scss'
@@ -27,32 +28,31 @@ function csvExport(selected, registrations) {
 }
 
 export default function RegistrationActions({
-  selected,
+  partitionedSelected,
   refresh,
   registrations,
+  spotsRemaining,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
-  const anySelected =
-    selected.pending.length > 0 ||
-    selected.accepted.length > 0 ||
-    selected.cancelled.length > 0 ||
-    selected.waiting > 0
-  const anyApprovable =
-    selected.pending.length > 0 ||
-    selected.cancelled.length > 0 ||
-    selected.waiting.length > 0
-  const anyRejectable =
-    selected.accepted.length > 0 ||
-    selected.cancelled.length > 0 ||
-    selected.waiting.length > 0
-  const anyCancellable =
-    selected.pending.length > 0 ||
-    selected.accepted.length > 0 ||
-    selected.waiting.length > 0
-  const anyWaitlistable =
-    selected.pending.length > 0 ||
-    selected.accepted.length > 0 ||
-    selected.cancelled.length > 0
+  const { isOrganizerOrDelegate } = useContext(PermissionsContext)
+
+  const selectedCount = Object.values(partitionedSelected).reduce(
+    (sum, part) => sum + part.length,
+    0
+  )
+  const anySelected = selectedCount > 0
+
+  const { pending, accepted, cancelled, waiting } = partitionedSelected
+  const anyRejectable = pending.length < selectedCount
+  const anyApprovable = accepted.length < selectedCount
+  const anyCancellable = cancelled.length < selectedCount
+  const anyWaitlistable = waiting.length < selectedCount
+
+  const selectedEmails = [...pending, ...accepted, ...cancelled, ...waiting]
+    // TODO: get real email from backend
+    .map((user) => user + '@worldcubeassociation.org')
+    .join(',')
+
   const { mutate: updateRegistrationMutation } = useMutation({
     mutationFn: updateRegistration,
     onError: (data) => {
@@ -62,6 +62,21 @@ export default function RegistrationActions({
       )
     },
   })
+
+  const attemptToApprove = () => {
+    const idsToAccept = [...pending, ...cancelled, ...waiting]
+    if (idsToAccept.length > spotsRemaining) {
+      setMessage(
+        `Accepting all these registrations would go over the competitor limit by ${
+          idsToAccept.length - spotsRemaining
+        }`,
+        'negative'
+      )
+    } else {
+      changeStatus(idsToAccept, 'accepted')
+    }
+  }
+
   const changeStatus = (attendees, status) => {
     attendees.forEach(async (attendee) => {
       await updateRegistrationMutation(
@@ -82,107 +97,89 @@ export default function RegistrationActions({
     })
   }
 
+  const copyEmails = (emails) => {
+    navigator.clipboard.writeText(emails)
+    setMessage('Copied to clipboard. Remember to use bcc!', 'positive')
+  }
+
   return (
     anySelected && (
       <Button.Group className={styles.actions}>
         <Button
           onClick={() => {
             csvExport(
-              [
-                ...selected.pending,
-                ...selected.accepted,
-                ...selected.cancelled,
-                ...selected.waiting,
-              ],
+              [...pending, ...accepted, ...cancelled, ...waiting],
               registrations
             )
           }}
         >
           <UiIcon name="download" /> Export to CSV
         </Button>
+
         <Button>
           <a
-            href={`mailto:?bcc=${[
-              ...selected.pending,
-              ...selected.accepted,
-              ...selected.cancelled,
-              ...selected.waiting,
-            ]
-              .map((user) => user + '@worldcubeassociation.org')
-              .join(',')}`}
+            href={`mailto:?bcc=${selectedEmails}`}
             id="email-selected"
             target="_blank"
             className="btn btn-info selected-registrations-actions"
           >
-            <UiIcon name="envelope" /> Email
+            <UiIcon name="envelope" /> Send Email
           </a>
         </Button>
-        {anyApprovable && (
-          <Button
-            positive
-            onClick={() =>
-              changeStatus(
-                [
-                  ...selected.pending,
-                  ...selected.cancelled,
-                  ...selected.waiting,
-                ],
-                'accepted'
-              )
-            }
-          >
-            <UiIcon name="check" /> Approve
-          </Button>
-        )}
-        {anyRejectable && (
-          <Button
-            onClick={() =>
-              changeStatus(
-                [
-                  ...selected.accepted,
-                  ...selected.cancelled,
-                  ...selected.waiting,
-                ],
-                'pending'
-              )
-            }
-          >
-            <UiIcon name="times" /> Move to Pending
-          </Button>
-        )}
-        {anyWaitlistable && (
-          <Button
-            color="yellow"
-            onClick={() =>
-              changeStatus(
-                [
-                  ...selected.pending,
-                  ...selected.cancelled,
-                  ...selected.accepted,
-                ],
-                'waiting_list'
-              )
-            }
-          >
-            <UiIcon name="hourglass" /> Move to Waiting List
-          </Button>
-        )}
-        {anyCancellable && (
-          <Button
-            negative
-            onClick={() =>
-              changeStatus(
-                [
-                  ...selected.pending,
-                  ...selected.accepted,
-                  ...selected.waiting,
-                ],
-                'cancelled'
-              )
-            }
-          >
-            <UiIcon name="trash" /> Cancel Registration
-          </Button>
+
+        <Button onClick={() => copyEmails(selectedEmails)}>
+          <UiIcon name="copy" /> Copy Emails
+        </Button>
+
+        {isOrganizerOrDelegate && (
+          <>
+            {anyApprovable && (
+              <Button positive onClick={attemptToApprove}>
+                <UiIcon name="check" /> Approve
+              </Button>
+            )}
+
+            {anyRejectable && (
+              <Button
+                onClick={() =>
+                  changeStatus(
+                    [...accepted, ...cancelled, ...waiting],
+                    'pending'
+                  )
+                }
+              >
+                <UiIcon name="times" /> Move to Pending
+              </Button>
+            )}
+
+            {anyWaitlistable && (
+              <Button
+                color="yellow"
+                onClick={() =>
+                  changeStatus(
+                    [...pending, ...cancelled, ...accepted],
+                    'waiting_list'
+                  )
+                }
+              >
+                <UiIcon name="hourglass" /> Move to Waiting List
+              </Button>
+            )}
+
+            {anyCancellable && (
+              <Button
+                negative
+                onClick={() =>
+                  changeStatus(
+                    [...pending, ...accepted, ...waiting],
+                    'cancelled'
+                  )
+                }
+              >
+                <UiIcon name="trash" /> Cancel Registration
+              </Button>
+            )}
+          </>
         )}
       </Button.Group>
     )

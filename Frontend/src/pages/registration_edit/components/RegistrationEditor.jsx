@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
+import _ from 'lodash'
 import moment from 'moment/moment'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Button,
@@ -24,6 +25,7 @@ import Refunds from './Refunds'
 export default function RegistrationEditor() {
   const { user_id } = useParams()
   const { competitionInfo } = useContext(CompetitionContext)
+
   const [comment, setComment] = useState('')
   const [adminComment, setAdminComment] = useState('')
   const [status, setStatus] = useState('')
@@ -32,10 +34,12 @@ export default function RegistrationEditor() {
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
   const [isCheckingRefunds, setIsCheckingRefunds] = useState(false)
+
   const queryClient = useQueryClient()
   const { data: serverRegistration } = useQuery({
     queryKey: ['registration', competitionInfo.id, user_id],
-    queryFn: () => getSingleRegistration(user_id, competitionInfo.id),
+    queryFn: () =>
+      getSingleRegistration(Number.parseInt(user_id, 10), competitionInfo.id),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
@@ -62,6 +66,7 @@ export default function RegistrationEditor() {
         )
       },
     })
+
   useEffect(() => {
     if (serverRegistration) {
       setRegistration(serverRegistration.registration)
@@ -78,13 +83,83 @@ export default function RegistrationEditor() {
     }
   }, [serverRegistration])
 
+  const hasEventsChanged =
+    serverRegistration &&
+    _.xor(serverRegistration.registration.competing.event_ids, selectedEvents)
+      .length > 0
+  const hasCommentChanged =
+    serverRegistration &&
+    comment !== (serverRegistration.registration.competing.comment ?? '')
+  const hasAdminCommentChanged =
+    serverRegistration &&
+    adminComment !==
+      (serverRegistration.registration.competing.admin_comment ?? '')
+  const hasStatusChanged =
+    serverRegistration &&
+    status !== serverRegistration.registration.competing.registration_status
+  const hasGuestsChanged = false
+
+  const hasChanges =
+    hasEventsChanged ||
+    hasCommentChanged ||
+    hasAdminCommentChanged ||
+    hasStatusChanged ||
+    hasGuestsChanged
+
+  const commentIsValid =
+    comment || !competitionInfo.force_comment_in_registration
+  // TODO: get max events can register for
+  const maxEvents = Infinity
+  const eventsAreValid =
+    selectedEvents.length > 0 && selectedEvents.length <= maxEvents
+
+  const handleRegisterClick = useCallback(() => {
+    if (!hasChanges) {
+      setMessage('There are no changes', 'basic')
+    } else if (!commentIsValid) {
+      setMessage('You must include a comment', 'negative')
+    } else if (!eventsAreValid) {
+      setMessage(
+        maxEvents === Infinity
+          ? 'You must select at least 1 event'
+          : `You must select between 1 and ${maxEvents} events`,
+        'negative'
+      )
+    } else {
+      setMessage('Updating Registration', 'basic')
+      updateRegistrationMutation({
+        user_id,
+        competing: {
+          status,
+          event_ids: selectedEvents,
+          comment,
+          admin_comment: adminComment,
+          waiting_list_position: waitingListPosition,
+        },
+        competition_id: competitionInfo.id,
+      })
+    }
+  }, [
+    adminComment,
+    comment,
+    commentIsValid,
+    competitionInfo.id,
+    eventsAreValid,
+    hasChanges,
+    selectedEvents,
+    status,
+    updateRegistrationMutation,
+    user_id,
+    maxEvents,
+  ])
+
   const registrationEditDeadlinePassed = moment(
     // If no deadline is set default to always be in the future
     competitionInfo.event_change_deadline_date ?? Date.now() + 1
   ).isBefore()
 
   return (
-    <Segment>
+    <Segment padded attached>
       {!registration?.competing?.registration_status || isLoading ? (
         <LoadingMessage />
       ) : (
@@ -97,7 +172,8 @@ export default function RegistrationEditor() {
             events={competitionInfo.event_ids}
             size="2x"
           />
-          <Header> Comment </Header>
+
+          <Header>Comment</Header>
           <TextArea
             id="competitor-comment"
             maxLength={240}
@@ -107,7 +183,8 @@ export default function RegistrationEditor() {
               setComment(data.value)
             }}
           />
-          <Header> Administrative Notes </Header>
+
+          <Header>Administrative Notes</Header>
           <TextArea
             id="admin-comment"
             maxLength={240}
@@ -117,7 +194,8 @@ export default function RegistrationEditor() {
               setAdminComment(data.value)
             }}
           />
-          <Header> Status </Header>
+
+          <Header>Status</Header>
           <div className={styles.registrationStatus}>
             <Checkbox
               radio
@@ -169,45 +247,19 @@ export default function RegistrationEditor() {
               onChange={(_, data) => setGuests(data.value)}
             />
           </div>
-          {status === 'waiting_list' && (
-            <>
-              <Header>Waiting List Position</Header>
-              <Input
-                disabled={registrationEditDeadlinePassed}
-                type="number"
-                min={0}
-                value={waitingListPosition}
-                onChange={(_, data) => setWaitingListPosition(data.value)}
-              />
-              <br />
-              <br />
-            </>
-          )}
+
           {registrationEditDeadlinePassed ? (
             <Message negative>Registration edit deadline has passed.</Message>
           ) : (
             <Button
               color="blue"
-              onClick={() => {
-                setMessage('Updating Registration', 'basic')
-                updateRegistrationMutation({
-                  user_id,
-                  guests,
-                  competing: {
-                    status,
-                    event_ids: selectedEvents,
-                    comment,
-                    admin_comment: adminComment,
-                    waiting_list_position: waitingListPosition,
-                  },
-                  competition_id: competitionInfo.id,
-                })
-              }}
-              disabled={isUpdating || selectedEvents.length === 0}
+              onClick={handleRegisterClick}
+              disabled={isUpdating}
             >
               Update Registration
             </Button>
           )}
+
           {competitionInfo['using_stripe_payments?'] && (
             <>
               <Header>
