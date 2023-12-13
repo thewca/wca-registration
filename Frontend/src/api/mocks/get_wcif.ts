@@ -1,3 +1,4 @@
+import getCompetitionWcif from '../competition/get/get_competition_wcif'
 import { CLOSED_COMPETITION_WCIF } from './fixtures/competitions/closed'
 import { COMMENT_REQUIRED_WCIF } from './fixtures/competitions/comment_required'
 import { FAVOURITES_COMPETITION_WCIF } from './fixtures/competitions/favourites'
@@ -6,7 +7,6 @@ import { MULTI_VENUE_WCIF } from './fixtures/competitions/multi_venue'
 import { NOT_YET_OPEN_WCIF } from './fixtures/competitions/not_yet_open'
 import { OPEN_COMPETITION_WCIF } from './fixtures/competitions/open'
 import { OPEN_WITH_PAYMENTS_WCIF } from './fixtures/competitions/open_with_payments'
-import getCompetitionWcif from '../competition/get/get_competition_wcif'
 
 export default function getWcifMockWithRealFallback(competitionId: string) {
   switch (competitionId) {
