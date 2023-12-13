@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'lane'
 require_relative '../lib/redis_helper'
 require 'time'
 # Requiring even though it's in lib because the work needs to find it too
