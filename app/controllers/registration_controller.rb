@@ -8,7 +8,7 @@ require_relative '../helpers/user_api'
 require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
-  skip_before_action :validate_token, only: [:list, :list_waiting]
+  skip_before_action :validate_token, only: [:list]
   # The order of the validations is important to not leak any non public info via the API
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
@@ -194,17 +194,15 @@ class RegistrationController < ApplicationController
   def list_waiting
     competition_id = list_params
 
-    waiting = Rails.cache.fetch("#{competition_id}-waiting", expires_in: 60.minutes) do
-      registrations = get_registrations(competition_id)
-      registrations.filter_map { |r|
-        if r[:competing][:registration_status] == 'waiting_list'
-          { user_id: r[:user_id],
-            competing: { event_ids: r[:competing][:event_ids],
-                         waiting_list_position: r[:competing][:waiting_list_position] || 0 } }
-        end
-      }.to_a
+    waiting = Registration.get_registrations_by_status(competition_id, 'waiting_list').map do |registration|
+      {
+        user_id: registration[:user_id],
+        competing: {
+          event_ids: registration.event_ids,
+          waiting_list_position: registration.competing_waiting_list_position || 0,
+        },
+      }
     end
-
     render json: waiting
   rescue Dynamoid::Errors::Error => e
     # Render an error response
