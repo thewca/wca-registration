@@ -107,7 +107,7 @@ export default function RegistrationAdministrationList() {
   )
 
   const {
-    isLoading,
+    isLoading: isRegistrationsLoading,
     data: registrations,
     refetch,
   } = useQuery({
@@ -123,7 +123,7 @@ export default function RegistrationAdministrationList() {
     },
   })
 
-  const { data: piiData } = useQuery({
+  const { isLoading: isPiiLoading, data: piiData } = useQuery({
     queryKey: ['registrations-pii', competitionInfo.id],
     queryFn: () => getCompetitorInfo(competitionInfo.id),
     refetchOnWindowFocus: false,
@@ -174,7 +174,7 @@ export default function RegistrationAdministrationList() {
     (competitionInfo.competitor_limit ?? Infinity) - accepted.length
   const spotsRemainingText = `; ${spotsRemaining} spot(s) remaining`
 
-  return isLoading ? (
+  return isRegistrationsLoading || isPiiLoading ? (
     <LoadingMessage />
   ) : (
     <>
