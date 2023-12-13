@@ -137,7 +137,7 @@ export default function RegistrationAdministrationList() {
   })
 
   const registrationsWithPii = useMemo(
-    () => (registrations && piiData ? addPii(registrations, piiData) : []),
+    () => addPii(registrations ?? [], piiData ?? []),
     [registrations, piiData]
   )
 
@@ -523,7 +523,8 @@ function TableRow({
 
 function addPii(registrations, piiData) {
   return registrations.map((registration) => {
-    const { email, dob } = piiData.find((data) => data.id === id) || {}
+    const { email, dob } =
+      piiData.find((data) => data.id === registration.user.id) || {}
     return { ...registration, user: { ...registration.user, email, dob } }
   })
 }
