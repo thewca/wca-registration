@@ -3,6 +3,7 @@ import { CubingIcon, FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
 import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
+import getCompetitorInfo from '../../../api/competition/get/get_competitor_info'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
@@ -11,7 +12,6 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
-import getCompetitorInfo from '../../../api/competition/get/get_competitor_info'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]
@@ -107,7 +107,7 @@ export default function RegistrationAdministrationList() {
   )
 
   const {
-    isLoading,
+    isLoading: isRegistrationsLoading,
     data: registrations,
     refetch,
   } = useQuery({
@@ -123,7 +123,7 @@ export default function RegistrationAdministrationList() {
     },
   })
 
-  const { data: PIIData } = useQuery({
+  const { isLoading: isPiiLoading, data: piiData } = useQuery({
     queryKey: ['registrations-pii', competitionInfo.id],
     queryFn: () => getCompetitorInfo(competitionInfo.id),
     refetchOnWindowFocus: false,
@@ -136,9 +136,25 @@ export default function RegistrationAdministrationList() {
     },
   })
 
+  const registrationsWithPii = useMemo(
+    () => addPii(registrations ?? [], piiData ?? []),
+    [registrations, piiData]
+  )
+
+  const userEmailMap = useMemo(
+    () =>
+      Object.fromEntries(
+        registrationsWithPii.map((registration) => [
+          registration.user.id,
+          registration.user.email,
+        ])
+      ),
+    [registrationsWithPii]
+  )
+
   const { waiting, accepted, cancelled, pending } = useMemo(
-    () => partitionRegistrations(registrations ?? []),
-    [registrations]
+    () => partitionRegistrations(registrationsWithPii ?? []),
+    [registrationsWithPii]
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])
@@ -169,7 +185,7 @@ export default function RegistrationAdministrationList() {
     (competitionInfo.competitor_limit ?? Infinity) - accepted.length
   const spotsRemainingText = `; ${spotsRemaining} spot(s) remaining`
 
-  return isLoading ? (
+  return isRegistrationsLoading || isPiiLoading ? (
     <LoadingMessage />
   ) : (
     <>
@@ -190,11 +206,10 @@ export default function RegistrationAdministrationList() {
       </Form>
 
       <div className={styles.listContainer}>
-        <Header> Pending registrations ({pending.length}) </Header>
+        <Header>Pending registrations ({pending.length})</Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={pending}
-          PIIData={PIIData}
           selected={partitionedSelected.pending}
           select={select}
           unselect={unselect}
@@ -214,7 +229,6 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={accepted}
-          PIIData={PIIData}
           selected={partitionedSelected.accepted}
           select={select}
           unselect={unselect}
@@ -228,7 +242,6 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={waiting}
-          PIIData={PIIData}
           selected={partitionedSelected.waiting}
           select={select}
           unselect={unselect}
@@ -239,7 +252,6 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={cancelled}
-          PIIData={PIIData}
           selected={partitionedSelected.cancelled}
           select={select}
           unselect={unselect}
@@ -249,6 +261,7 @@ export default function RegistrationAdministrationList() {
 
       <RegistrationActions
         partitionedSelected={partitionedSelected}
+        userEmailMap={userEmailMap}
         refresh={async () => {
           await refetch()
           dispatch({ type: 'clear-selected' })
@@ -263,7 +276,6 @@ export default function RegistrationAdministrationList() {
 function RegistrationAdministrationTable({
   columnsExpanded,
   registrations,
-  PIIData,
   selected,
   select,
   unselect,
@@ -294,7 +306,6 @@ function RegistrationAdministrationTable({
                 key={id}
                 columnsExpanded={columnsExpanded}
                 registration={registration}
-                PIIData={(PIIData ?? []).find((data) => data.id === id)}
                 isSelected={selected.includes(id)}
                 onCheckboxChange={(_, data) => {
                   if (data.checked) {
@@ -372,7 +383,6 @@ function TableHeader({
 function TableRow({
   columnsExpanded,
   registration,
-  PIIData,
   isSelected,
   onCheckboxChange,
 }) {
@@ -380,13 +390,17 @@ function TableRow({
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
 
   const { dob, region, events, comments, email } = columnsExpanded
-  const { id, wca_id, name, country } = registration.user
+  const {
+    id,
+    wca_id,
+    name,
+    country,
+    dob: dateOfBirth,
+    email: emailAddress,
+  } = registration.user
   const { registered_on, event_ids, comment, admin_comment } =
     registration.competing
   const { payment_status, updated_at } = registration.payment
-
-  const emailAddress = PIIData?.email
-  const dateOfBirth = PIIData?.dob
 
   const copyEmail = () => {
     navigator.clipboard.writeText(emailAddress)
@@ -517,4 +531,12 @@ function TableRow({
       </Table.Cell>
     </Table.Row>
   )
+}
+
+function addPii(registrations, piiData) {
+  return registrations.map((registration) => {
+    const { email, dob } =
+      piiData.find((data) => data.id === registration.user.id) || {}
+    return { ...registration, user: { ...registration.user, email, dob } }
+  })
 }
