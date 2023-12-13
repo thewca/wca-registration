@@ -40,6 +40,12 @@ const DROPDOWNS = [
         reactRoute: true,
       },
       {
+        path: `${BASE_ROUTE}/FMCCanada2023`,
+        icon: 'warehouse',
+        title: "Multi Venue Competition (Doesn't use WCA reg)",
+        reactRoute: true,
+      },
+      {
         path: `${BASE_ROUTE}/HessenOpen2023`,
         icon: 'close',
         title: 'Closed Competition',
