@@ -96,11 +96,6 @@ class RegistrationController < ApplicationController
       registration = Registration.find("#{@competition_id}-#{@user_id}")
       updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position })
 
-      # Delete Waiting list Cache
-      if status.present? || waiting_list_position.present?
-        Rails.cache.delete("#{@competition_id}-waiting")
-      end
-
       render json: { status: 'ok', registration: {
         user_id: updated_registration['user_id'],
         guests: updated_registration['guests'],
