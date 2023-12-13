@@ -3,6 +3,7 @@ import { CubingIcon, FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
 import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
+import getCompetitorInfo from '../../../api/competition/get/get_competitor_info'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
@@ -11,7 +12,6 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
-import getCompetitorInfo from '../../../api/competition/get/get_competitor_info'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]
