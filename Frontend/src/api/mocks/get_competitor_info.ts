@@ -12,7 +12,7 @@ function competitorInfoMock(userId: string): CompetitorInfo {
     wca_id: '2099XX01',
     name: 'Test Testerton',
     email: userId + '@worldcubeassociation.org',
-    dob: new Date().toLocaleDateString(),
+    dob: new Date('1950 07 01').toLocaleDateString(),
     gender: 'o',
     country_iso2: 'en',
   }
