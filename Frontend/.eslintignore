@@ -1,2 +1,3 @@
 /src/api/schema.d.ts
+/src/api/mocks/fixtures/competitions/*.ts
 dist
