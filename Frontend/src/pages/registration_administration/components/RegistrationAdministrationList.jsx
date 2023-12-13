@@ -136,9 +136,14 @@ export default function RegistrationAdministrationList() {
     },
   })
 
+  const registrationsWithPii = useMemo(
+    () => (registrations && piiData ? addPii(registrations, piiData) : []),
+    [registrations, piiData]
+  )
+
   const { waiting, accepted, cancelled, pending } = useMemo(
-    () => partitionRegistrations(registrations ?? []),
-    [registrations]
+    () => partitionRegistrations(registrationsWithPii ?? []),
+    [registrationsWithPii]
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])
@@ -190,7 +195,7 @@ export default function RegistrationAdministrationList() {
       </Form>
 
       <div className={styles.listContainer}>
-        <Header> Pending registrations ({pending.length}) </Header>
+        <Header>Pending registrations ({pending.length})</Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={pending}
@@ -517,4 +522,11 @@ function TableRow({
       </Table.Cell>
     </Table.Row>
   )
+}
+
+function addPii(registrations, piiData) {
+  return registrations.map((registration) => {
+    const { email, dob } = piiData.find((data) => data.id === id) || {}
+    return { ...registration, user: { ...registration.user, email, dob } }
+  })
 }
