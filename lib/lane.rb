@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# TODO: Remove getter and setter
+
 class Lane
   attr_accessor :lane_name, :lane_state, :completed_steps, :lane_details
 
@@ -26,8 +28,6 @@ class Lane
   end
 
   def move_within_waiting_list(competition_id, new_position)
-    puts 'moving in waiting list'
-    puts "new position: #{new_position}, class #{new_position.class} | current position: #{get_lane_detail('waiting_list_position')}, class #{get_lane_detail('waiting_list_position').class}"
     if new_position < get_lane_detail('waiting_list_position')
       cascade_waiting_list(competition_id, new_position, get_lane_detail('waiting_list_position')+1)
     else
@@ -37,46 +37,35 @@ class Lane
   end
 
   def add_to_waiting_list(competition_id)
-    puts 'adding to waiting list'
     # TODO: Tests in lane_spec for this function?
     # TODO: Test cases for when there's actually no change to (a) the status, or (b) the waiting_list_position
     # TODO: Invalidate Finn's waiting_list cache when this function is called
     # TODO: Make sure I'm invalidating this cache appropriately
     boundaries = get_waiting_list_boundaries(competition_id)
-    puts "boundaries: #{boundaries}"
     waiting_list_max = boundaries['waiting_list_position_max']
     waiting_list_min = boundaries['waiting_list_position_min']
 
     if waiting_list_max.nil? && waiting_list_min.nil?
-      puts 'both nil'
       set_lane_detail('waiting_list_position', 1)
     else
-      puts waiting_list_max
-      puts waiting_list_max.class
       set_lane_detail('waiting_list_position', waiting_list_max+1)
     end
   end
 
   def remove_from_waiting_list(competition_id)
-    puts 'removing from waiting list'
     max_position = get_waiting_list_boundaries(competition_id)['waiting_list_position_max']
     cascade_waiting_list(competition_id, get_lane_detail('waiting_list_position'), max_position+1, -1)
     set_lane_detail('waiting_list_position', nil)
   end
 
   def accept_from_waiting_list
-    puts 'accepting from waiting list'
     set_lane_detail('waiting_list_position', nil)
   end
 
   def get_waiting_list_boundaries(competition_id)
-    puts 'fetching waiting list boundaries'
     # TODO: Refactor to use min/max functions
-    # binding.pry
-    boundaries = Rails.cache.fetch("#{competition_id}-waiting_list_boundaries", expires_in: 60.minutes) do
-      puts 'recalculating waiting list boundaries cache'
+    Rails.cache.fetch("#{competition_id}-waiting_list_boundaries", expires_in: 60.minutes) do
       waiting_list_registrations = Registration.get_registrations_by_status(competition_id, 'waiting_list')
-      puts "waiting_list_registrations: #{waiting_list_registrations}"
 
       # Iterate through waiting list registrations and record min/max waiting list positions
       # We aren't just counting the number of registrations in the waiting list. When a registration is
@@ -88,11 +77,7 @@ class Lane
       waiting_list_position_max = nil
 
       # NOTE: Doing to_i conversions as the values seem to come back from redis as strings - they are ints when set in set_lane_detail
-      puts waiting_list_registrations.count
       waiting_list_registrations.each do |reg|
-        puts reg.inspect
-        puts "checking reg with position #{reg.competing_waiting_list_position} which is class #{reg.competing_waiting_list_position.class}"
-
         # waiting_list_registrations.minmax { |a, b| a.competing_waiting_list_position <=> b.competing_waiting_list_position }
 
         waiting_list_position_min = reg.competing_waiting_list_position if
@@ -106,15 +91,11 @@ class Lane
         'waiting_list_position_max' => waiting_list_position_max,
       }
     end
-    puts boundaries
-    boundaries
   end
 
   # NOTE: Is this function necessary? I think so? NO
   def set_lane_detail(property_name, property_value)
-    puts "setting #{property_name} to #{property_value} with class #{property_value.class}"
     lane_details[property_name] = property_value
-    puts lane_details
   end
 
   # NOTE: Is this function necessary? I think so? NO

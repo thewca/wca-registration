@@ -27,7 +27,6 @@ class Registration
     result = Rails.cache.fetch("#{competition_id}-#{status}_registrations", expires_in: 60.minutes) do
       Registration.where(competition_id: competition_id, competing_status: status).to_a
     end
-    puts "get_registrations_by_status: #{result}"
     unless result.is_a? Array
       return []
     end
@@ -106,12 +105,10 @@ class Registration
   end
 
   def update_competing_lane!(update_params)
-    puts "update_competing_lane! called with params: #{update_params}"
     has_waiting_list_changed = waiting_list_changed?(update_params)
 
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'competing'
-        puts 'updating competing lane'
 
         # Update status for lane and events
         if has_waiting_list_changed
@@ -145,18 +142,10 @@ class Registration
                      end
     updated_values = update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests) # TODO: Apparently update_attributes is deprecated in favor of update! - should we change?
     if has_waiting_list_changed
-      # TODO: Update the caches instead of writing them
-      puts 'updating caches after waiting list update'
-
+      # Update waiting list caches
       Rails.cache.delete("#{competition_id}-waiting_list_registrations")
       Rails.cache.delete("#{competition_id}-waiting_list_boundaries")
       competing_lane.get_waiting_list_boundaries(competition_id)
-
-      # RedisHelper.update("#{competition_id}-waiting_list_registrations") do
-      #   puts 'writing cache'
-      #   Registration.where(competition_id: competition_id, competing_status: "waiting_list").to_a
-      # end
-
     end
     updated_values
   end
@@ -223,9 +212,7 @@ class Registration
     end
 
     def waiting_list_changed?(update_params)
-      result = waiting_list_position_changed?(update_params) || waiting_list_status_changed?(update_params)
-      puts "waiting list changed? #{result}"
-      result
+      waiting_list_position_changed?(update_params) || waiting_list_status_changed?(update_params)
     end
 
     def waiting_list_position_changed?(update_params)

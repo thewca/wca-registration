@@ -101,7 +101,6 @@ class RegistrationChecker
     def validate_waiting_list_position!
       return if (waiting_list_position = @request.dig('competing', 'waiting_list_position')).nil?
 
-      puts waiting_list_position
       # Floats are not allowed
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) if waiting_list_position.is_a? Float
 
@@ -110,9 +109,6 @@ class RegistrationChecker
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) unless converted_position.is_a? Integer
 
       boundaries = @registration.competing_lane.get_waiting_list_boundaries(@competition_info.competition_id)
-      puts "boundaries: #{boundaries}"
-      puts converted_position
-      puts converted_position.class
       if boundaries['waiting_list_position_min'].nil? && boundaries['waiting_list_position_max'].nil?
         raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position != 1
       else
@@ -135,7 +131,6 @@ class RegistrationChecker
 
       # Organizers cant accept someone from the waiting list who isn't in the leading position
       min_waiting_list_position = @registration.competing_lane.get_waiting_list_boundaries(@registration.competition_id)['waiting_list_position_min']
-      puts min_waiting_list_position
       raise RegistrationError.new(:forbidden, ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER) if
         current_status == 'waiting_list' && new_status == 'accepted' && @registration.competing_waiting_list_position != min_waiting_list_position
 
