@@ -37,21 +37,4 @@ FactoryBot.define do
 
   factory :organizer_registration, traits: [:organizer]
   factory :admin_registration, traits: [:admin]
-
-  after(:create) do |registration, evaluator|
-    # unless evaluator.organizer_comment.nil?
-    #   attendee_id = "#{evaluator.competition_id}-#{evaluator.user_id}"
-    #   registration = Registration.find(attendee_id)
-    #   registration.update_competing_lane!({ organizer_comment: evaluator.organizer_comment })
-    # end
-
-    # unless evaluator.waiting_list_position.nil?
-    #   puts 'adding waiting list position in factory'
-    #   attendee_id = "#{evaluator.competition_id}-#{evaluator.user_id}"
-    #   registration = Registration.find(attendee_id)
-    #   registration.update_competing_lane!({ waiting_list_position: evaluator.waiting_list_position })
-    #   puts "registration is now: #{registration.inspect}"
-    #   puts "competing waiting list position: #{registration.competing_waiting_list_position}"
-    # end
-  end
 end

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../lib/lane'
 require 'time'
 
 class Registration
@@ -92,8 +91,6 @@ class Registration
     lanes.filter_map { |x| x.lane_details['payment_history'] if x.lane_name == 'payment' }[0]
   end
 
-  # REFACTOR THIS LOL
-  # NOTE: There must be a better way to do this?
   def update_competing_waiting_list_position(new_position)
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'competing'
