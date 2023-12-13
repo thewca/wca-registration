@@ -123,7 +123,7 @@ export default function RegistrationAdministrationList() {
     },
   })
 
-  const { data: PIIData } = useQuery({
+  const { data: piiData } = useQuery({
     queryKey: ['registrations-pii', competitionInfo.id],
     queryFn: () => getCompetitorInfo(competitionInfo.id),
     refetchOnWindowFocus: false,
@@ -194,7 +194,7 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={pending}
-          PIIData={PIIData}
+          piiData={piiData}
           selected={partitionedSelected.pending}
           select={select}
           unselect={unselect}
@@ -214,7 +214,7 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={accepted}
-          PIIData={PIIData}
+          piiData={piiData}
           selected={partitionedSelected.accepted}
           select={select}
           unselect={unselect}
@@ -228,7 +228,7 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={waiting}
-          PIIData={PIIData}
+          piiData={piiData}
           selected={partitionedSelected.waiting}
           select={select}
           unselect={unselect}
@@ -239,7 +239,7 @@ export default function RegistrationAdministrationList() {
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={cancelled}
-          PIIData={PIIData}
+          piiData={piiData}
           selected={partitionedSelected.cancelled}
           select={select}
           unselect={unselect}
@@ -263,7 +263,7 @@ export default function RegistrationAdministrationList() {
 function RegistrationAdministrationTable({
   columnsExpanded,
   registrations,
-  PIIData,
+  piiData,
   selected,
   select,
   unselect,
@@ -294,7 +294,7 @@ function RegistrationAdministrationTable({
                 key={id}
                 columnsExpanded={columnsExpanded}
                 registration={registration}
-                PIIData={(PIIData ?? []).find((data) => data.id === id)}
+                piiData={(piiData ?? []).find((data) => data.id === id)}
                 isSelected={selected.includes(id)}
                 onCheckboxChange={(_, data) => {
                   if (data.checked) {
@@ -372,7 +372,7 @@ function TableHeader({
 function TableRow({
   columnsExpanded,
   registration,
-  PIIData,
+  piiData,
   isSelected,
   onCheckboxChange,
 }) {
@@ -385,8 +385,8 @@ function TableRow({
     registration.competing
   const { payment_status, updated_at } = registration.payment
 
-  const emailAddress = PIIData?.email
-  const dateOfBirth = PIIData?.dob
+  const emailAddress = piiData?.email
+  const dateOfBirth = piiData?.dob
 
   const copyEmail = () => {
     navigator.clipboard.writeText(emailAddress)
