@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import React, { useContext, useMemo, useState } from 'react'
-import { Message, Segment, Tab } from 'semantic-ui-react'
+import { Checkbox, Form, Message, Segment, Tab } from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { setMessage } from '../../ui/events/messages'
 import LoadingMessage from '../../ui/messages/loadingMessage'
 import TableView from './TableView'
+import CalendarView from './CalendarView'
 
 export default function Schedule() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -20,6 +21,8 @@ export default function Schedule() {
     retry: false,
     onError: (err) => setMessage(err.message, 'error'),
   })
+
+  const [view, setView] = useState('calendar')
 
   const [activeVenueIndex, setActiveVenueIndex] = useState(-1)
   // the 1st tab is all venues combined
@@ -67,19 +70,29 @@ export default function Schedule() {
         />
       )}
 
+      <ViewSelector selected={view} onSelect={setView} />
+
       <VenueAndTimeZoneInfo
         activeVenue={activeVenue}
         venueCount={venueCount}
         timeZone={timeZone}
       />
 
-      {/* TODO: calendar view option */}
-      <TableView
-        timeZone={timeZone}
-        wcifSchedule={wcif.schedule}
-        venuesShown={activeVenue ? [activeVenue] : allVenues}
-        events={wcif.events}
-      />
+      {view === 'calendar' ? (
+        <CalendarView
+          timeZone={timeZone}
+          wcifSchedule={wcif.schedule}
+          venuesShown={activeVenue ? [activeVenue] : allVenues}
+          events={wcif.events}
+        />
+      ) : (
+        <TableView
+          timeZone={timeZone}
+          wcifSchedule={wcif.schedule}
+          venuesShown={activeVenue ? [activeVenue] : allVenues}
+          events={wcif.events}
+        />
+      )}
     </Segment>
   )
 }
@@ -121,5 +134,32 @@ function VenueAndTimeZoneInfo({ activeVenue, venueCount, timeZone }) {
         {timeZoneWithFallback}.
       </Message.Content>
     </Message>
+  )
+}
+
+function ViewSelector({ selected, onSelect }) {
+  return (
+    <Form>
+      <Form.Field>
+        <Checkbox
+          radio
+          label="Calendar"
+          name="viewGroup"
+          value="calendar"
+          checked={selected === 'calendar'}
+          onChange={(_, data) => onSelect(data.value)}
+        />
+      </Form.Field>
+      <Form.Field>
+        <Checkbox
+          radio
+          label="Table"
+          name="viewGroup"
+          value="table"
+          checked={selected === 'table'}
+          onChange={(_, data) => onSelect(data.value)}
+        />
+      </Form.Field>
+    </Form>
   )
 }
