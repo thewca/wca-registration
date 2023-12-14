@@ -140,6 +140,9 @@ class RegistrationChecker
     def validate_update_events!
       return if (event_ids = @request.dig('competing', 'event_ids')).nil?
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if !@competition_info.events_held?(event_ids)
+
+      event_limit = @competition_info.event_limit
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_EVENT_SELECTION) if event_limit.present? && event_ids.count > event_limit
     end
   end
 end
