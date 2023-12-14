@@ -23,7 +23,7 @@ export default function Schedule() {
     onError: (err) => setMessage(err.message, 'error'),
   })
 
-  const [view, setView] = useState('calendar')
+  const [activeView, setActiveView] = useState('calendar')
 
   const allVenues = wcif?.schedule?.venues
   const venueCount = allVenues?.length
@@ -37,14 +37,20 @@ export default function Schedule() {
       ? wcif?.schedule?.venues[activeVenueIndex]
       : null
 
-  // TODO: allow changing time zone
   // TODO: allow toggling rooms on/off
   // TODO: allow toggling events on/off
 
+  const uniqueTimeZones = [
+    ...new Set(allVenues?.map((venue) => venue.timezone)),
+  ]
+  const timeZoneCount = uniqueTimeZones.length
+
   const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
-  const timeZone = activeVenue?.timezone ?? userTimeZone
+  // TODO: allow changing time zone
+  const activeTimeZone = activeVenue?.timezone ?? userTimeZone
+
   // TODO: if time zones are changeable, these may be wrong
-  const dates = wcif
+  const activeDates = wcif
     ? getDatesStartingOn(wcif.schedule.startDate, wcif.schedule.numberOfDays)
     : []
 
@@ -68,6 +74,15 @@ export default function Schedule() {
 
   return (
     <Segment padded attached>
+      {timeZoneCount > 1 && (
+        <Message warning>
+          <Message.Content>
+            Note that not all venues are in the same time zone -- please be
+            careful!
+          </Message.Content>
+        </Message>
+      )}
+
       {venueCount > 1 && (
         <Tab
           menu={{ secondary: true, pointing: true }}
@@ -79,25 +94,26 @@ export default function Schedule() {
         />
       )}
 
-      <ViewSelector selected={view} onSelect={setView} />
+      <ViewSelector selected={activeView} onSelect={setActiveView} />
 
       <VenueAndTimeZoneInfo
         activeVenue={activeVenue}
         venueCount={venueCount}
-        timeZone={timeZone}
+        activeTimeZone={activeTimeZone}
+        timeZoneCount={timeZoneCount}
       />
 
-      {view === 'calendar' ? (
+      {activeView === 'calendar' ? (
         <CalendarView
-          dates={dates}
-          timeZone={timeZone}
+          dates={activeDates}
+          timeZone={activeTimeZone}
           venuesShown={activeVenue ? [activeVenue] : allVenues}
           events={wcif.events}
         />
       ) : (
         <TableView
-          dates={dates}
-          timeZone={timeZone}
+          dates={activeDates}
+          timeZone={activeTimeZone}
           venuesShown={activeVenue ? [activeVenue] : allVenues}
           events={wcif.events}
         />
@@ -106,11 +122,16 @@ export default function Schedule() {
   )
 }
 
-function VenueAndTimeZoneInfo({ activeVenue, venueCount, timeZone }) {
+function VenueAndTimeZoneInfo({
+  activeVenue,
+  venueCount,
+  activeTimeZone,
+  timeZoneCount,
+}) {
   const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
-  const timeZoneWithFallback = timeZone || userTimeZone
-  const isUserTimeZone = timeZoneWithFallback === userTimeZone
-  const isVenueTimeZone = timeZoneWithFallback === activeVenue?.timezone
+  const isUserTimeZone = activeTimeZone === userTimeZone
+  const isVenueTimeZone = activeTimeZone === activeVenue?.timezone
+
   const mapLink =
     activeVenue &&
     `https://www.google.com/maps/place/${activeVenue.latitudeMicrodegrees},${activeVenue.longitudeMicrodegrees}`
@@ -118,31 +139,36 @@ function VenueAndTimeZoneInfo({ activeVenue, venueCount, timeZone }) {
   // TODO: add to calendar icon/functionality
 
   return (
-    <Message>
-      <Message.Content>
-        {activeVenue ? (
-          <>
-            You are viewing the schedule for{' '}
-            <a target="_blank" href={mapLink}>
-              {activeVenue.name}
-            </a>
-            {venueCount === 1
-              ? ', the sole venue for this competition.'
-              : `, one of ${venueCount} venues for this competition.`}{' '}
-            This venue is in the time zone {activeVenue.timezone}.
-          </>
-        ) : (
-          <>You are viewing the schedule for all venues at once.</>
-        )}{' '}
-        The schedule is currently displayed in{' '}
-        {isVenueTimeZone
-          ? "the venue's timezone"
-          : isUserTimeZone // eslint-disable-next-line unicorn/no-nested-ternary
-          ? 'your timezone'
-          : 'the time zone'}{' '}
-        {timeZoneWithFallback}.
-      </Message.Content>
-    </Message>
+    <>
+      <Message>
+        <Message.Content>
+          {activeVenue ? (
+            <>
+              You are viewing the schedule for{' '}
+              <a target="_blank" href={mapLink}>
+                {activeVenue.name}
+              </a>
+              {venueCount === 1
+                ? ', the sole venue for this competition.'
+                : `, one of ${venueCount} venues for this competition.`}{' '}
+              This venue is in the time zone {activeVenue.timezone}
+              {venueCount > 1 && timeZoneCount === 1
+                ? ', as are all other venues for this competition.'
+                : '.'}{' '}
+            </>
+          ) : (
+            <>You are viewing the schedule for all venues at once.</>
+          )}{' '}
+          The schedule is currently displayed in{' '}
+          {isVenueTimeZone
+            ? "the venue's timezone"
+            : isUserTimeZone // eslint-disable-next-line unicorn/no-nested-ternary
+            ? 'your timezone'
+            : 'the time zone'}{' '}
+          {activeTimeZone}.
+        </Message.Content>
+      </Message>
+    </>
   )
 }
 
