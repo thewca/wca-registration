@@ -4,7 +4,10 @@ import { Checkbox, Header, Segment, Table, TableCell } from 'semantic-ui-react'
 
 export default function TableView({ dates, timeZone, venuesShown, events }) {
   const rounds = events.flatMap((event) => event.rounds)
-  const rooms = venuesShown.flatMap((venue) => venue.rooms)
+  const allRooms = venuesShown.flatMap((venue) => venue.rooms)
+  const sortedActivities = allRooms
+    .flatMap((room) => room.activities)
+    .sort(earliestWithLongestTieBreaker)
 
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -19,21 +22,21 @@ export default function TableView({ dates, timeZone, venuesShown, events }) {
       />
 
       {dates.map((date) => {
-        // TODO: combine 'same' activities in different rooms into 1 row
         const activitiesForDay = activitiesByDate(
-          rooms.flatMap((room) => room.activities),
+          sortedActivities,
           date,
           timeZone
         )
+        const groupedActivitiesForDay = groupActivities(activitiesForDay)
 
         return (
           <SingleDayTable
             key={date.getDate()}
             date={date}
             timeZone={timeZone}
-            activities={activitiesForDay}
+            groupedActivities={groupedActivitiesForDay}
             rounds={rounds}
-            rooms={rooms}
+            allRooms={allRooms}
             isExpanded={isExpanded}
           />
         )
@@ -45,13 +48,12 @@ export default function TableView({ dates, timeZone, venuesShown, events }) {
 function SingleDayTable({
   date,
   timeZone,
-  activities,
+  groupedActivities,
   rounds,
-  rooms,
+  allRooms,
   isExpanded,
 }) {
   const title = `Schedule for ${getLongDate(date)}`
-  const sortedActivities = [...activities].sort(earliestWithLongestTieBreaker)
 
   return (
     <Segment basic>
@@ -63,23 +65,18 @@ function SingleDayTable({
         </Table.Header>
 
         <Table.Body>
-          {sortedActivities.map((activity) => {
-            const round = rounds.find(
-              (round) => round.id === activity.activityCode
-            )
-            const room = rooms.find((room) =>
-              room.activities.some(
-                (ac) => ac.activityCode === activity.activityCode
-              )
+          {groupedActivities.map((activityGroup) => {
+            const activityRound = rounds.find(
+              (round) => round.id === activityGroup[0].activityCode
             )
 
             return (
               <ActivityRow
-                key={activity.id}
+                key={activityGroup[0].id}
                 isExpanded={isExpanded}
-                activity={activity}
-                round={round}
-                room={room}
+                activityGroup={activityGroup}
+                round={activityRound}
+                allRooms={allRooms}
                 timeZone={timeZone}
               />
             )
@@ -96,7 +93,7 @@ function HeaderRow({ isExpanded }) {
       <Table.HeaderCell>Start</Table.HeaderCell>
       <Table.HeaderCell>End</Table.HeaderCell>
       <Table.HeaderCell>Activity</Table.HeaderCell>
-      <Table.HeaderCell>Room</Table.HeaderCell>
+      <Table.HeaderCell>Room(s) or Stage(s)</Table.HeaderCell>
       {isExpanded && (
         <>
           <Table.HeaderCell>Format</Table.HeaderCell>
@@ -109,15 +106,17 @@ function HeaderRow({ isExpanded }) {
   )
 }
 
-function ActivityRow({ isExpanded, activity, round, room, timeZone }) {
-  const { name, startTime, endTime } = activity
+function ActivityRow({ isExpanded, activityGroup, round, allRooms, timeZone }) {
+  const { name, startTime, endTime } = activityGroup[0]
+  const activityIds = activityGroup.map((activity) => activity.id)
   // note: round may be undefined for custom activities like lunch
   const { format, timeLimit, cutoff, advancementCondition } = round || {}
+  const rooms = allRooms.filter((room) =>
+    room.activities.some((activity) => activityIds.includes(activity.id))
+  )
 
-  // TODO: room is wrong when viewing all venues
-  // TODO: show venue name when viewing multiple venues
-  // TODO: name is inconsistent with existing wca schedule (and sometimes is in french)
-  // TODO: format and time limit not showing up for FM
+  // TODO: create name from activity code when possible (fallback to name property)
+  // TODO: format and time limit not showing up for attempt-based activities (fm, multi)
 
   return (
     <Table.Row>
@@ -127,7 +126,7 @@ function ActivityRow({ isExpanded, activity, round, room, timeZone }) {
 
       <Table.Cell>{name}</Table.Cell>
 
-      <Table.Cell>{room.name}</Table.Cell>
+      <Table.Cell>{rooms.map((room) => room.name).join(', ')}</Table.Cell>
 
       {isExpanded && (
         <>
@@ -195,4 +194,28 @@ const getLongDate = (date) => {
     month: 'long',
     day: 'numeric',
   })
+}
+
+// assumes they are sorted
+const groupActivities = (activities) => {
+  const grouped = []
+  activities.forEach((activity) => {
+    if (
+      grouped.length > 0 &&
+      areGroupable(activity, grouped[grouped.length - 1][0])
+    ) {
+      grouped[grouped.length - 1].push(activity)
+    } else {
+      grouped.push([activity])
+    }
+  })
+  return grouped
+}
+
+const areGroupable = (act1, act2) => {
+  return (
+    act1.startTime === act2.startTime &&
+    act1.endTime === act2.endTime &&
+    act1.activityCode === act2.activityCode
+  )
 }
