@@ -1,5 +1,5 @@
 import { getFormatName } from '@wca/helpers'
-import React, { useState } from 'react'
+import React, { useReducer, useState } from 'react'
 import { Checkbox, Header, Segment, Table, TableCell } from 'semantic-ui-react'
 import {
   earliestWithLongestTieBreaker,
@@ -7,14 +7,39 @@ import {
 } from '../../lib/activities'
 import { activitiesByDate, getLongDate, getShortTime } from '../../lib/dates'
 
+const roomsReducer = (state, { type, id }) => {
+  let newState = [...state]
+
+  switch (type) {
+    case 'toggle':
+      if (newState.includes(id)) {
+        newState = newState.filter((x) => x !== id)
+      } else {
+        newState.push(id)
+      }
+      return newState
+
+    default:
+      throw new Error('Unknown action.')
+  }
+}
+
 export default function TableView({ dates, timeZone, venuesShown, events }) {
   const rounds = events.flatMap((event) => event.rounds)
   const allRooms = venuesShown.flatMap((venue) => venue.rooms)
-  const sortedActivities = allRooms
-    .flatMap((room) => room.activities)
-    .sort(earliestWithLongestTieBreaker)
 
   const [isExpanded, setIsExpanded] = useState(false)
+
+  // TODO: reset on venue change
+  const [activeRoomIds, dispatchRooms] = useReducer(
+    roomsReducer,
+    allRooms.map((room) => room.id)
+  )
+
+  const activeRooms = allRooms.filter((room) => activeRoomIds.includes(room.id))
+  const sortedActivities = activeRooms
+    .flatMap((room) => room.activities)
+    .sort(earliestWithLongestTieBreaker)
 
   return (
     <>
@@ -24,6 +49,12 @@ export default function TableView({ dates, timeZone, venuesShown, events }) {
         toggle
         checked={isExpanded}
         onChange={(_, data) => setIsExpanded(data.checked)}
+      />
+
+      <RoomSelector
+        allRooms={allRooms}
+        activeRooms={activeRoomIds}
+        toggleRoom={(id) => dispatchRooms({ type: 'toggle', id })}
       />
 
       {dates.map((date) => {
@@ -90,6 +121,18 @@ function SingleDayTable({
       </Table>
     </Segment>
   )
+}
+
+// TODO: clean up UI
+function RoomSelector({ allRooms, activeRooms, toggleRoom }) {
+  return allRooms.map(({ id, name, color }) => (
+    <Checkbox
+      key={id}
+      checked={activeRooms.includes(id)}
+      label={name + ' (' + color + ')'}
+      onChange={() => toggleRoom(id)}
+    />
+  ))
 }
 
 function HeaderRow({ isExpanded }) {
