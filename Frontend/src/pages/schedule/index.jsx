@@ -24,13 +24,17 @@ export default function Schedule() {
 
   const [view, setView] = useState('calendar')
 
+  const allVenues = wcif?.schedule?.venues
+  const venueCount = allVenues?.length
   const [activeVenueIndex, setActiveVenueIndex] = useState(-1)
   // the 1st tab is all venues combined
   const activeTabIndex = activeVenueIndex + 1
   const activeVenue =
-    activeVenueIndex !== -1 ? wcif?.schedule?.venues[activeVenueIndex] : null
-  const allVenues = wcif?.schedule?.venues
-  const venueCount = allVenues?.length
+    venueCount === 1
+      ? allVenues[0]
+      : activeVenueIndex !== -1 // eslint-disable-next-line unicorn/no-nested-ternary
+      ? wcif?.schedule?.venues[activeVenueIndex]
+      : null
 
   // TODO: allow changing time zone
   // TODO: allow toggling rooms on/off
@@ -143,7 +147,7 @@ function ViewSelector({ selected, onSelect }) {
       <Form.Field>
         <Checkbox
           radio
-          label="Calendar"
+          label="Calendar View"
           name="viewGroup"
           value="calendar"
           checked={selected === 'calendar'}
@@ -153,7 +157,7 @@ function ViewSelector({ selected, onSelect }) {
       <Form.Field>
         <Checkbox
           radio
-          label="Table"
+          label="Table View"
           name="viewGroup"
           value="table"
           checked={selected === 'table'}
