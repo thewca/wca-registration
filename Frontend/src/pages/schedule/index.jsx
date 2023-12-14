@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import moment from 'moment'
 import React, { useContext, useMemo, useState } from 'react'
 import { Checkbox, Form, Message, Segment, Tab } from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
+import { getDatesStartingOn } from '../../lib/dates'
 import { setMessage } from '../../ui/events/messages'
 import LoadingMessage from '../../ui/messages/loadingMessage'
 import TableView from './TableView'
@@ -171,15 +171,4 @@ function ViewSelector({ selected, onSelect }) {
       </Form.Field>
     </Form>
   )
-}
-
-// TODO: move to utils file
-
-const getDatesStartingOn = (startDate, numberOfDays, options) => {
-  const { offset } = options || { offset: 0 }
-  const range = []
-  for (let i = offset; i < numberOfDays + offset; i++) {
-    range.push(moment(startDate).add(i, 'days').toDate())
-  }
-  return range
 }
