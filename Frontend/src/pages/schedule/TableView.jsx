@@ -1,23 +1,12 @@
 import { getFormatName } from '@wca/helpers'
-import moment from 'moment'
 import React, { useState } from 'react'
 import { Checkbox, Header, Segment, Table, TableCell } from 'semantic-ui-react'
 
-export default function TableView({
-  timeZone,
-  wcifSchedule,
-  venuesShown,
-  events,
-}) {
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  // TODO: add extra day either end to account for time zone shifts
-  const dates = getDatesStartingOn(
-    wcifSchedule.startDate,
-    wcifSchedule.numberOfDays
-  )
+export default function TableView({ dates, timeZone, venuesShown, events }) {
   const rounds = events.flatMap((event) => event.rounds)
   const rooms = venuesShown.flatMap((venue) => venue.rooms)
+
+  const [isExpanded, setIsExpanded] = useState(false)
 
   return (
     <>
@@ -178,14 +167,6 @@ const earliestWithLongestTieBreaker = (a, b) => {
     return -1
   }
   return 0
-}
-
-const getDatesStartingOn = (startDate, numberOfDays) => {
-  const range = []
-  for (let i = 0; i < numberOfDays; i++) {
-    range.push(moment(startDate).add(i, 'days').toDate())
-  }
-  return range
 }
 
 const activitiesByDate = (activities, date, timeZone) => {

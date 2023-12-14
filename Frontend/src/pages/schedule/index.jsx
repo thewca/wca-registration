@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import moment from 'moment'
 import React, { useContext, useMemo, useState } from 'react'
 import { Checkbox, Form, Message, Segment, Tab } from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
@@ -42,6 +43,10 @@ export default function Schedule() {
 
   const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
   const timeZone = activeVenue?.timezone ?? userTimeZone
+  // TODO: if time zones are changeable, these may be wrong
+  const dates = wcif
+    ? getDatesStartingOn(wcif.schedule.startDate, wcif.schedule.numberOfDays)
+    : []
 
   const panes = useMemo(
     () => [
@@ -84,15 +89,15 @@ export default function Schedule() {
 
       {view === 'calendar' ? (
         <CalendarView
+          dates={dates}
           timeZone={timeZone}
-          wcifSchedule={wcif.schedule}
           venuesShown={activeVenue ? [activeVenue] : allVenues}
           events={wcif.events}
         />
       ) : (
         <TableView
+          dates={dates}
           timeZone={timeZone}
-          wcifSchedule={wcif.schedule}
           venuesShown={activeVenue ? [activeVenue] : allVenues}
           events={wcif.events}
         />
@@ -166,4 +171,15 @@ function ViewSelector({ selected, onSelect }) {
       </Form.Field>
     </Form>
   )
+}
+
+// TODO: move to utils file
+
+const getDatesStartingOn = (startDate, numberOfDays, options) => {
+  const { offset } = options || { offset: 0 }
+  const range = []
+  for (let i = offset; i < numberOfDays + offset; i++) {
+    range.push(moment(startDate).add(i, 'days').toDate())
+  }
+  return range
 }
