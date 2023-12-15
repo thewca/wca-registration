@@ -43,138 +43,6 @@ end
 
 describe RegistrationChecker do
   describe '#create_registration_allowed!' do
-    it 'user can create a registration' do
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-      registration_request = FactoryBot.build(:registration_request)
-
-      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
-        .not_to raise_error
-    end
-
-    it 'users can only register for themselves' do
-      registration_request = FactoryBot.build(:registration_request, :impersonation)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
-      end
-    end
-
-    it 'user cant register if registration is closed' do
-      registration_request = FactoryBot.build(:registration_request)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:forbidden)
-        expect(error.error).to eq(ErrorCodes::REGISTRATION_CLOSED)
-      end
-    end
-
-    it 'organizers can register before registration opens' do
-      registration_request = FactoryBot.build(:registration_request, :organizer)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
-
-      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
-        .not_to raise_error
-    end
-
-    it 'organizers can create registrations for users' do
-      registration_request = FactoryBot.build(:registration_request, :organizer_submits)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
-        .not_to raise_error
-    end
-
-    it 'organizers cant register another user before registration opens' do
-      registration_request = FactoryBot.build(:registration_request, :organizer_submits)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:forbidden)
-        expect(error.error).to eq(ErrorCodes::REGISTRATION_CLOSED)
-      end
-    end
-
-    it 'banned user cant register' do
-      registration_request = FactoryBot.build(:registration_request, :banned)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
-      end
-    end
-
-    it 'user with incomplete profile cant register' do
-      registration_request = FactoryBot.build(:registration_request, :incomplete)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
-      end
-    end
-
-    it 'organizer cant register a banned user' do
-      registration_request = FactoryBot.build(:registration_request, :banned, :organizer_submits)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
-      end
-    end
-
-    it 'organizer cant register an incomplete user' do
-      registration_request = FactoryBot.build(:registration_request, :incomplete, :organizer_submits)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
-      end
-    end
-
-    it 'doesnt leak data if user tries to register for a banned user' do
-      registration_request = FactoryBot.build(:registration_request, :banned, :impersonation)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
-      end
-    end
-
-    it 'doesnt leak data if organizer tries to register for a banned user' do
-      registration_request = FactoryBot.build(:registration_request, :incomplete, :impersonation)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unauthorized)
-        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
-      end
-    end
-
     it 'user must have events selected' do
       registration_request = FactoryBot.build(:registration_request, events: [])
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
@@ -307,6 +175,162 @@ describe RegistrationChecker do
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unprocessable_entity)
         expect(error.error).to eq(ErrorCodes::REQUIRED_COMMENT_MISSING)
+      end
+    end
+  end
+
+  describe '#create_registration_allowed!.user_can_create_registration!' do
+    it 'user can create a registration' do
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      registration_request = FactoryBot.build(:registration_request)
+
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'users can only register for themselves' do
+      registration_request = FactoryBot.build(:registration_request, :impersonation)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+      end
+    end
+
+    it 'user cant register if registration is closed' do
+      registration_request = FactoryBot.build(:registration_request)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::REGISTRATION_CLOSED)
+      end
+    end
+
+    it 'organizers can register before registration opens' do
+      registration_request = FactoryBot.build(:registration_request, :organizer)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
+
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'organizers can create registrations for users' do
+      registration_request = FactoryBot.build(:registration_request, :organizer_submits)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'organizers cant register another user before registration opens' do
+      registration_request = FactoryBot.build(:registration_request, :organizer_submits)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::REGISTRATION_CLOSED)
+      end
+    end
+
+    it 'banned user cant register' do
+      registration_request = FactoryBot.build(:registration_request, :banned)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
+      end
+    end
+
+    it 'user with incomplete profile cant register' do
+      registration_request = FactoryBot.build(:registration_request, :incomplete)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
+      end
+    end
+
+    it 'organizer cant register a banned user' do
+      registration_request = FactoryBot.build(:registration_request, :banned, :organizer_submits)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
+      end
+    end
+
+    it 'organizer cant register an incomplete user' do
+      registration_request = FactoryBot.build(:registration_request, :incomplete, :organizer_submits)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::USER_CANNOT_COMPETE)
+      end
+    end
+
+    it 'doesnt leak data if user tries to register for a banned user' do
+      registration_request = FactoryBot.build(:registration_request, :banned, :impersonation)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+      end
+    end
+
+    it 'doesnt leak data if organizer tries to register for a banned user' do
+      registration_request = FactoryBot.build(:registration_request, :incomplete, :impersonation)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+      end
+    end
+
+    it 'can register if this is the first registration in a series' do
+      registration_request = FactoryBot.build(:registration_request)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.not_to raise_error
+    end
+
+    it 'cant register if already registered for another series competition' do
+      registration_request = FactoryBot.build(:registration_request)
+      FactoryBot.create(:registration, user_id: registration_request['user_id'], competition_id: 'CubingZAWarmup2023')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.error).to eq(ErrorCodes::ALREADY_REGISTERED_IN_SERIES)
+        expect(error.http_status).to eq(:forbidden)
       end
     end
   end

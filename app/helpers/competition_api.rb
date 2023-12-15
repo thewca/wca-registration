@@ -113,4 +113,8 @@ class CompetitionInfo
   def user_can_cancel?
     @competition_json['allow_registration_self_delete_after_acceptance']
   end
+
+  def other_series_ids
+    @competition_json['competition_series_ids']&.reject { |id| id == competition_id }
+  end
 end

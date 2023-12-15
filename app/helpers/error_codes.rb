@@ -16,6 +16,7 @@ module ErrorCodes
 
   # Registration errors
   REGISTRATION_NOT_FOUND = -3000
+  ALREADY_REGISTERED_IN_SERIES = -3001
 
   # Request errors
   INVALID_REQUEST_DATA = -4000

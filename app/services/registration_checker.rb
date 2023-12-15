@@ -41,6 +41,9 @@ class RegistrationChecker
 
       can_compete = UserApi.can_compete?(@request['user_id'])
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
+
+      # Users cannot sign up for multiple competitions in a series
+      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
 
     def user_can_modify_registration!
@@ -137,6 +140,17 @@ class RegistrationChecker
     def validate_update_events!
       return if (event_ids = @request.dig('competing', 'event_ids')).nil?
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if !@competition_info.events_held?(event_ids)
+    end
+
+    def existing_registration_in_series?
+      return false if @competition_info.other_series_ids.nil?
+
+      @competition_info.other_series_ids.each do |comp_id|
+        return Registration.find("#{comp_id}-#{@requestee_user_id}").present?
+      rescue Dynamoid::Errors::RecordNotFound
+        next
+      end
+      false
     end
   end
 end
