@@ -1,6 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import React, { useContext, useMemo, useState } from 'react'
-import { Checkbox, Form, Message, Segment, Tab } from 'semantic-ui-react'
+import {
+  Checkbox,
+  Dropdown,
+  Form,
+  Message,
+  Segment,
+  Tab,
+} from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { getDatesStartingOn } from '../../lib/dates'
@@ -36,8 +43,8 @@ export default function Schedule() {
       : activeVenueIndex !== -1 // eslint-disable-next-line unicorn/no-nested-ternary
       ? wcif?.schedule?.venues[activeVenueIndex]
       : null
+  const venuesShown = activeVenue ? [activeVenue] : allVenues
 
-  // TODO: allow toggling rooms on/off
   // TODO: allow toggling events on/off
 
   const uniqueTimeZones = [
@@ -46,7 +53,6 @@ export default function Schedule() {
   const timeZoneCount = uniqueTimeZones.length
 
   const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
-  // TODO: allow changing time zone
   const activeTimeZone = activeVenue?.timezone ?? userTimeZone
 
   // TODO: if time zones are changeable, these may be wrong
@@ -96,6 +102,12 @@ export default function Schedule() {
 
       <ViewSelector selected={activeView} onSelect={setActiveView} />
 
+      <TimeZoneSelector
+        venues={allVenues}
+        activeTimeZone={activeTimeZone}
+        onSelect={() => 'TODO: handle time zone change'}
+      />
+
       <VenueAndTimeZoneInfo
         activeVenue={activeVenue}
         venueCount={venueCount}
@@ -107,14 +119,14 @@ export default function Schedule() {
         <CalendarView
           dates={activeDates}
           timeZone={activeTimeZone}
-          venuesShown={activeVenue ? [activeVenue] : allVenues}
+          venuesShown={venuesShown}
           events={wcif.events}
         />
       ) : (
         <TableView
           dates={activeDates}
           timeZone={activeTimeZone}
-          venuesShown={activeVenue ? [activeVenue] : allVenues}
+          venuesShown={venuesShown}
           events={wcif.events}
         />
       )}
@@ -196,5 +208,33 @@ function ViewSelector({ selected, onSelect }) {
         />
       </Form.Field>
     </Form>
+  )
+}
+
+// TODO: refine logic
+// TODO: clean up UI
+function TimeZoneSelector({ venues, activeTimeZone, onSelect }) {
+  const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
+  const timeZoneOptions = [
+    {
+      key: 'local',
+      text: `Local time zone: ${userTimeZone}`,
+      value: userTimeZone,
+    },
+    ...venues.map((venue) => ({
+      key: venue.name,
+      text: `${venue.name}: ${venue.timezone}`,
+      value: venue.timezone,
+    })),
+  ]
+  return (
+    <Dropdown
+      placeholder="Time Zone"
+      search
+      selection
+      value={activeTimeZone}
+      onChange={onSelect}
+      options={timeZoneOptions}
+    />
   )
 }
