@@ -321,9 +321,9 @@ describe RegistrationChecker do
       }.not_to raise_error
     end
 
-    it 'cant register if already registered for another series competition' do
+    it 'cant register if already have a non-cancelled registration for another series competition' do
       registration_request = FactoryBot.build(:registration_request)
-      FactoryBot.create(:registration, user_id: registration_request['user_id'], competition_id: 'CubingZAWarmup2023')
+      FactoryBot.create(:registration, user_id: registration_request['user_id'], registration_status: 'accepted', competition_id: 'CubingZAWarmup2023')
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
 
       expect {
@@ -332,6 +332,16 @@ describe RegistrationChecker do
         expect(error.error).to eq(ErrorCodes::ALREADY_REGISTERED_IN_SERIES)
         expect(error.http_status).to eq(:forbidden)
       end
+    end
+
+    it 'can register if they have a cancelled registration for another series comp' do
+      registration_request = FactoryBot.build(:registration_request)
+      FactoryBot.create(:registration, user_id: registration_request['user_id'], registration_status: 'cancelled', competition_id: 'CubingZAWarmup2023')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.not_to raise_error
     end
   end
 

@@ -146,7 +146,7 @@ class RegistrationChecker
       return false if @competition_info.other_series_ids.nil?
 
       @competition_info.other_series_ids.each do |comp_id|
-        return Registration.find("#{comp_id}-#{@requestee_user_id}").present?
+        return Registration.find("#{comp_id}-#{@requestee_user_id}").competing_status != 'cancelled'
       rescue Dynamoid::Errors::RecordNotFound
         next
       end
