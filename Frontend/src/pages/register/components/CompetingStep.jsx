@@ -345,7 +345,7 @@ export default function CompetingStep({ nextStep }) {
           <>
             <Message info icon floating>
               <Popup
-                content="You will only be accepted if you have met all reigstration requirements"
+                content="You will only be accepted if you have met all registration requirements"
                 position="top left"
                 trigger={<Icon name="circle info" />}
               />
