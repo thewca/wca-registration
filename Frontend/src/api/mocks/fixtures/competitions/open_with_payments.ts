@@ -1,6 +1,7 @@
 import { Competition } from '@wca/helpers'
 import { CompetitionInfo } from '../../../types'
 import { dateFromNow } from '../helpers'
+import {competitionFactory} from "../../factories/competitions";
 /* eslint-disable sonarjs/no-duplicate-string */
 export const OPEN_WITH_PAYMENTS_WCIF: Competition = {
   formatVersion: '1.0',
@@ -16470,7 +16471,7 @@ export const OPEN_WITH_PAYMENTS_WCIF: Competition = {
   ],
 }
 
-export const OPEN_WITH_PAYMENTS: CompetitionInfo = {
+export const OPEN_WITH_PAYMENTS: CompetitionInfo = competitionFactory.build({
   'id': 'RheinNeckarAutumn2023',
   'name': 'Rhein-Neckar Autumn 2023',
   'information': '',
@@ -16878,4 +16879,4 @@ export const OPEN_WITH_PAYMENTS: CompetitionInfo = {
     },
   ],
   'class': 'competition',
-}
+})
