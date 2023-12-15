@@ -9,6 +9,7 @@ services:
     environment:
       LOCALSTACK_ENDPOINT: "http://localstack:4566"
       PROMETHEUS_EXPORTER: "prometheus_exporter"
+      REDIS_URL: "redis://redis:6379"
       RAILS_ENV: test
     volumes:
       - .:/app
@@ -22,6 +23,7 @@ services:
     depends_on:
       - localstack
       - prometheus_exporter
+      - redis
 
 
   prometheus_exporter:
@@ -76,11 +78,26 @@ services:
     networks:
       - wca-registration
 
+  # Use redis for tests that enable redis
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data
+    networks:
+      - wca-registration
+
 volumes:
   gems_volume_handler:
     driver: local
   gems_volume_worker:
     driver: local
+  cache:
+    driver: local
+
+
 
 networks:
   wca-registration:
