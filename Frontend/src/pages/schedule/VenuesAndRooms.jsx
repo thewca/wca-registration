@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react'
-import { Checkbox, Tab } from 'semantic-ui-react'
+import { Checkbox, Message, Tab } from 'semantic-ui-react'
 
 export default function VenuesAndRooms({
   venues,
+  activeVenueOrNull,
   activeVenueIndex,
   setActiveVenueIndex,
+  timeZoneCount,
   rooms,
   activeRoomIds,
   dispatchRooms,
@@ -42,6 +44,12 @@ export default function VenuesAndRooms({
         />
       )}
 
+      <VenueInfo
+        activeVenueOrNull={activeVenueOrNull}
+        venueCount={venueCount}
+        timeZoneCount={timeZoneCount}
+      />
+
       <RoomSelector
         rooms={rooms}
         activeRoomIds={activeRoomIds}
@@ -50,6 +58,7 @@ export default function VenuesAndRooms({
     </>
   )
 }
+
 // TODO: clean up UI
 function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
   return rooms.map(({ id, name, color }) => (
@@ -60,4 +69,42 @@ function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
       onChange={() => toggleRoom(id)}
     />
   ))
+}
+
+function VenueInfo({ activeVenueOrNull, venueCount, timeZoneCount }) {
+  const { name, timezone } = activeVenueOrNull || {}
+  // TODO: fix map link
+  const mapLink =
+    activeVenueOrNull &&
+    `https://www.google.com/maps/place/${activeVenueOrNull.latitudeMicrodegrees},${activeVenueOrNull.longitudeMicrodegrees}`
+
+  // TODO: add add-to-calendar icon/functionality
+
+  return (
+    <>
+      <Message>
+        <Message.Content>
+          {activeVenueOrNull ? (
+            <p>
+              You are viewing the schedule for{' '}
+              <a target="_blank" href={mapLink}>
+                {name}
+              </a>
+              {venueCount === 1
+                ? ', the sole venue for this competition.'
+                : `, one of ${venueCount} venues for this competition.`}{' '}
+              This venue is in the time zone {timezone}
+              {venueCount > 1 && timeZoneCount === 1
+                ? ', as are all other venues for this competition.'
+                : '.'}
+            </p>
+          ) : (
+            <p>
+              You are viewing the schedule for all {venueCount} venues at once.
+            </p>
+          )}
+        </Message.Content>
+      </Message>
+    </>
+  )
 }
