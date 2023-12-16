@@ -4,8 +4,9 @@ import { getDatesStartingOn } from '../../lib/dates'
 import CalendarView from './CalendarView'
 import TableView from './TableView'
 import VenuesAndRooms from './VenuesAndRooms'
+import EventsSelector from './EventsSelector'
 
-const roomsReducer = (state, { type, id, ids }) => {
+const activeIdReducer = (state, { type, id, ids }) => {
   let newState = [...state]
 
   switch (type) {
@@ -47,7 +48,7 @@ export default function Schedule({ wcif }) {
 
   const roomsOfActiveVenues = activeVenues.flatMap((venue) => venue.rooms)
   const [activeRoomIds, dispatchRooms] = useReducer(
-    roomsReducer,
+    activeIdReducer,
     roomsOfActiveVenues.map((room) => room.id)
   )
   const activeRooms = roomsOfActiveVenues.filter((room) =>
@@ -56,7 +57,11 @@ export default function Schedule({ wcif }) {
 
   // events
 
-  // TODO: allow toggling events on/off
+  const events = wcif.events
+  const [activeEventIds, dispatchEvents] = useReducer(
+    activeIdReducer,
+    events.map((event) => event.id)
+  )
 
   // time zones
 
@@ -92,6 +97,12 @@ export default function Schedule({ wcif }) {
         rooms={roomsOfActiveVenues}
         activeRoomIds={activeRoomIds}
         dispatchRooms={dispatchRooms}
+      />
+
+      <EventsSelector
+        events={events}
+        activeEventIds={activeEventIds}
+        dispatchEvents={dispatchEvents}
       />
 
       <TimeZoneSelector
