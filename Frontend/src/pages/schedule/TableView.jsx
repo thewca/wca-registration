@@ -1,5 +1,5 @@
 import { getFormatName } from '@wca/helpers'
-import React, { useReducer, useState } from 'react'
+import React, { useState } from 'react'
 import { Checkbox, Header, Segment, Table, TableCell } from 'semantic-ui-react'
 import {
   earliestWithLongestTieBreaker,
@@ -7,37 +7,12 @@ import {
 } from '../../lib/activities'
 import { activitiesByDate, getLongDate, getShortTime } from '../../lib/dates'
 
-const roomsReducer = (state, { type, id }) => {
-  let newState = [...state]
-
-  switch (type) {
-    case 'toggle':
-      if (newState.includes(id)) {
-        newState = newState.filter((x) => x !== id)
-      } else {
-        newState.push(id)
-      }
-      return newState
-
-    default:
-      throw new Error('Unknown action.')
-  }
-}
-
-export default function TableView({ dates, timeZone, venuesShown, events }) {
+export default function TableView({ dates, timeZone, rooms, events }) {
   const rounds = events.flatMap((event) => event.rounds)
-  const allRooms = venuesShown.flatMap((venue) => venue.rooms)
 
   const [isExpanded, setIsExpanded] = useState(false)
 
-  // TODO: reset on venue change
-  const [activeRoomIds, dispatchRooms] = useReducer(
-    roomsReducer,
-    allRooms.map((room) => room.id)
-  )
-
-  const activeRooms = allRooms.filter((room) => activeRoomIds.includes(room.id))
-  const sortedActivities = activeRooms
+  const sortedActivities = rooms
     .flatMap((room) => room.activities)
     .sort(earliestWithLongestTieBreaker)
 
@@ -49,12 +24,6 @@ export default function TableView({ dates, timeZone, venuesShown, events }) {
         toggle
         checked={isExpanded}
         onChange={(_, data) => setIsExpanded(data.checked)}
-      />
-
-      <RoomSelector
-        allRooms={allRooms}
-        activeRooms={activeRoomIds}
-        toggleRoom={(id) => dispatchRooms({ type: 'toggle', id })}
       />
 
       {dates.map((date) => {
@@ -72,7 +41,7 @@ export default function TableView({ dates, timeZone, venuesShown, events }) {
             timeZone={timeZone}
             groupedActivities={groupedActivitiesForDay}
             rounds={rounds}
-            allRooms={allRooms}
+            rooms={rooms}
             isExpanded={isExpanded}
           />
         )
@@ -86,7 +55,7 @@ function SingleDayTable({
   timeZone,
   groupedActivities,
   rounds,
-  allRooms,
+  rooms,
   isExpanded,
 }) {
   const title = `Schedule for ${getLongDate(date)}`
@@ -112,7 +81,7 @@ function SingleDayTable({
                 isExpanded={isExpanded}
                 activityGroup={activityGroup}
                 round={activityRound}
-                allRooms={allRooms}
+                rooms={rooms}
                 timeZone={timeZone}
               />
             )
@@ -121,18 +90,6 @@ function SingleDayTable({
       </Table>
     </Segment>
   )
-}
-
-// TODO: clean up UI
-function RoomSelector({ allRooms, activeRooms, toggleRoom }) {
-  return allRooms.map(({ id, name, color }) => (
-    <Checkbox
-      key={id}
-      checked={activeRooms.includes(id)}
-      label={name + ' (' + color + ')'}
-      onChange={() => toggleRoom(id)}
-    />
-  ))
 }
 
 function HeaderRow({ isExpanded }) {
@@ -154,12 +111,12 @@ function HeaderRow({ isExpanded }) {
   )
 }
 
-function ActivityRow({ isExpanded, activityGroup, round, allRooms, timeZone }) {
+function ActivityRow({ isExpanded, activityGroup, round, rooms, timeZone }) {
   const { name, startTime, endTime } = activityGroup[0]
   const activityIds = activityGroup.map((activity) => activity.id)
   // note: round may be undefined for custom activities like lunch
   const { format, timeLimit, cutoff, advancementCondition } = round || {}
-  const rooms = allRooms.filter((room) =>
+  const roomsUsed = rooms.filter((room) =>
     room.activities.some((activity) => activityIds.includes(activity.id))
   )
 
@@ -174,7 +131,7 @@ function ActivityRow({ isExpanded, activityGroup, round, allRooms, timeZone }) {
 
       <Table.Cell>{name}</Table.Cell>
 
-      <Table.Cell>{rooms.map((room) => room.name).join(', ')}</Table.Cell>
+      <Table.Cell>{roomsUsed.map((room) => room.name).join(', ')}</Table.Cell>
 
       {isExpanded && (
         <>

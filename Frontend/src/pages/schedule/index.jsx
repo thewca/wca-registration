@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useContext, useMemo, useReducer, useState } from 'react'
 import {
   Checkbox,
   Dropdown,
@@ -16,6 +16,26 @@ import LoadingMessage from '../../ui/messages/loadingMessage'
 import TableView from './TableView'
 import CalendarView from './CalendarView'
 
+const roomsReducer = (state, { type, id, ids }) => {
+  let newState = [...state]
+
+  switch (type) {
+    case 'toggle':
+      if (newState.includes(id)) {
+        newState = newState.filter((x) => x !== id)
+      } else {
+        newState.push(id)
+      }
+      return newState
+
+    case 'reset':
+      return ids ?? []
+
+    default:
+      throw new Error('Unknown action.')
+  }
+}
+
 export default function Schedule() {
   const { competitionInfo } = useContext(CompetitionContext)
 
@@ -30,9 +50,13 @@ export default function Schedule() {
     onError: (err) => setMessage(err.message, 'error'),
   })
 
+  // view
+
   const [activeView, setActiveView] = useState('calendar')
 
-  const allVenues = wcif?.schedule?.venues
+  // venues
+
+  const allVenues = wcif?.schedule?.venues ?? []
   const venueCount = allVenues?.length
   const [activeVenueIndex, setActiveVenueIndex] = useState(-1)
   // the 1st tab is all venues combined
@@ -45,7 +69,20 @@ export default function Schedule() {
       : null
   const venuesShown = activeVenue ? [activeVenue] : allVenues
 
+  // rooms
+
+  const roomsShown = venuesShown.flatMap((venue) => venue.rooms)
+  // TODO: initial value is wrong
+  const [activeRoomIds, dispatchRooms] = useReducer(roomsReducer, [])
+  const activeRooms = roomsShown.filter((room) =>
+    activeRoomIds.includes(room.id)
+  )
+
+  // events
+
   // TODO: allow toggling events on/off
+
+  // time zones
 
   const uniqueTimeZones = [
     ...new Set(allVenues?.map((venue) => venue.timezone)),
@@ -60,6 +97,8 @@ export default function Schedule() {
     ? getDatesStartingOn(wcif.schedule.startDate, wcif.schedule.numberOfDays)
     : []
 
+  // panes
+
   const panes = useMemo(
     () => [
       { menuItem: 'All Venues' },
@@ -69,6 +108,17 @@ export default function Schedule() {
     ],
     [wcif?.schedule?.venues]
   )
+
+  // TODO: move room selector into tabs to have fresh render?
+  const handleTabChange = (newTabIndex) => {
+    const newVenueIndex = newTabIndex - 1
+    const newVenues =
+      newVenueIndex > -1 ? [allVenues[newVenueIndex]] : allVenues
+
+    setActiveVenueIndex(newVenueIndex)
+    const ids = newVenues.flatMap((venue) => venue.rooms).map((room) => room.id)
+    dispatchRooms({ type: 'reset', ids })
+  }
 
   if (isLoading) {
     return <LoadingMessage />
@@ -94,13 +144,9 @@ export default function Schedule() {
           menu={{ secondary: true, pointing: true }}
           panes={panes}
           activeIndex={activeTabIndex}
-          onTabChange={(_, { activeIndex }) =>
-            setActiveVenueIndex(activeIndex - 1)
-          }
+          onTabChange={(_, { activeIndex }) => handleTabChange(activeIndex)}
         />
       )}
-
-      <ViewSelector selected={activeView} onSelect={setActiveView} />
 
       <TimeZoneSelector
         venues={allVenues}
@@ -115,6 +161,14 @@ export default function Schedule() {
         timeZoneCount={timeZoneCount}
       />
 
+      <RoomSelector
+        allRooms={roomsShown}
+        activeRoomIds={activeRoomIds}
+        toggleRoom={(id) => dispatchRooms({ type: 'toggle', id })}
+      />
+
+      <ViewSelector selected={activeView} onSelect={setActiveView} />
+
       {activeView === 'calendar' ? (
         <CalendarView
           dates={activeDates}
@@ -126,7 +180,7 @@ export default function Schedule() {
         <TableView
           dates={activeDates}
           timeZone={activeTimeZone}
-          venuesShown={venuesShown}
+          rooms={activeRooms}
           events={wcif.events}
         />
       )}
@@ -182,6 +236,18 @@ function VenueAndTimeZoneInfo({
       </Message>
     </>
   )
+}
+
+// TODO: clean up UI
+function RoomSelector({ allRooms, activeRoomIds, toggleRoom }) {
+  return allRooms.map(({ id, name, color }) => (
+    <Checkbox
+      key={id}
+      checked={activeRoomIds.includes(id)}
+      label={name + ' (' + color + ')'}
+      onChange={() => toggleRoom(id)}
+    />
+  ))
 }
 
 function ViewSelector({ selected, onSelect }) {
