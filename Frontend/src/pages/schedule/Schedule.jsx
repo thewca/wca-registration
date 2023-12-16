@@ -1,15 +1,9 @@
-import React, { useMemo, useReducer, useState } from 'react'
-import {
-  Checkbox,
-  Dropdown,
-  Form,
-  Message,
-  Segment,
-  Tab,
-} from 'semantic-ui-react'
+import React, { useReducer, useState } from 'react'
+import { Checkbox, Dropdown, Form, Message, Segment } from 'semantic-ui-react'
 import { getDatesStartingOn } from '../../lib/dates'
 import CalendarView from './CalendarView'
 import TableView from './TableView'
+import VenuesAndRooms from './VenuesAndRooms'
 
 const roomsReducer = (state, { type, id, ids }) => {
   let newState = [...state]
@@ -38,27 +32,25 @@ export default function Schedule({ wcif }) {
 
   // venues
 
-  const allVenues = wcif.schedule.venues
-  const venueCount = allVenues.length
+  const venues = wcif.schedule.venues
+  const venueCount = venues.length
   const [activeVenueIndex, setActiveVenueIndex] = useState(-1)
-  // the 1st tab is all venues combined
-  const activeTabIndex = activeVenueIndex + 1
-  const activeVenue =
+  const activeVenueOrNull =
     venueCount === 1
-      ? allVenues[0] // eslint-disable-next-line unicorn/no-nested-ternary
+      ? venues[0] // eslint-disable-next-line unicorn/no-nested-ternary
       : activeVenueIndex !== -1
-      ? allVenues[activeVenueIndex]
+      ? venues[activeVenueIndex]
       : null
-  const venuesShown = activeVenue ? [activeVenue] : allVenues
+  const activeVenues = activeVenueOrNull ? [activeVenueOrNull] : venues
 
   // rooms
 
-  const roomsShown = venuesShown.flatMap((venue) => venue.rooms)
+  const roomsOfActiveVenues = activeVenues.flatMap((venue) => venue.rooms)
   const [activeRoomIds, dispatchRooms] = useReducer(
     roomsReducer,
-    roomsShown.map((room) => room.id)
+    roomsOfActiveVenues.map((room) => room.id)
   )
-  const activeRooms = roomsShown.filter((room) =>
+  const activeRooms = roomsOfActiveVenues.filter((room) =>
     activeRoomIds.includes(room.id)
   )
 
@@ -68,38 +60,17 @@ export default function Schedule({ wcif }) {
 
   // time zones
 
-  const uniqueTimeZones = [...new Set(allVenues.map((venue) => venue.timezone))]
+  const uniqueTimeZones = [...new Set(venues.map((venue) => venue.timezone))]
   const timeZoneCount = uniqueTimeZones.length
 
   // const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
-  const activeTimeZone = venuesShown[0].timezone
+  const activeTimeZone = activeVenues[0].timezone
 
   // TODO: if time zones are changeable, these may be wrong
   const activeDates = getDatesStartingOn(
     wcif.schedule.startDate,
     wcif.schedule.numberOfDays
   )
-
-  // panes
-
-  const panes = useMemo(
-    () => [
-      { menuItem: 'All Venues' },
-      ...allVenues.map((venue) => ({ menuItem: venue.name })),
-    ],
-    [allVenues]
-  )
-
-  // TODO: move room selector into tabs to have fresh render?
-  const handleTabChange = (newTabIndex) => {
-    const newVenueIndex = newTabIndex - 1
-    const newVenues =
-      newVenueIndex > -1 ? [allVenues[newVenueIndex]] : allVenues
-
-    setActiveVenueIndex(newVenueIndex)
-    const ids = newVenues.flatMap((venue) => venue.rooms).map((room) => room.id)
-    dispatchRooms({ type: 'reset', ids })
-  }
 
   return (
     <Segment padded attached>
@@ -112,32 +83,26 @@ export default function Schedule({ wcif }) {
         </Message>
       )}
 
-      {venueCount > 1 && (
-        <Tab
-          menu={{ secondary: true, pointing: true }}
-          panes={panes}
-          activeIndex={activeTabIndex}
-          onTabChange={(_, { activeIndex }) => handleTabChange(activeIndex)}
-        />
-      )}
+      <VenuesAndRooms
+        venues={venues}
+        activeVenueIndex={activeVenueIndex}
+        setActiveVenueIndex={setActiveVenueIndex}
+        rooms={roomsOfActiveVenues}
+        activeRoomIds={activeRoomIds}
+        dispatchRooms={dispatchRooms}
+      />
 
       <TimeZoneSelector
-        venues={allVenues}
+        venues={venues}
         activeTimeZone={activeTimeZone}
         onSelect={() => 'TODO: handle time zone change'}
       />
 
       <VenueAndTimeZoneInfo
-        activeVenue={activeVenue}
+        activeVenue={activeVenueOrNull}
         venueCount={venueCount}
         activeTimeZone={activeTimeZone}
         timeZoneCount={timeZoneCount}
-      />
-
-      <RoomSelector
-        allRooms={roomsShown}
-        activeRoomIds={activeRoomIds}
-        toggleRoom={(id) => dispatchRooms({ type: 'toggle', id })}
       />
 
       <ViewSelector selected={activeView} onSelect={setActiveView} />
@@ -146,7 +111,7 @@ export default function Schedule({ wcif }) {
         <CalendarView
           dates={activeDates}
           timeZone={activeTimeZone}
-          venuesShown={venuesShown}
+          venuesShown={activeVenues}
           events={wcif.events}
         />
       ) : (
@@ -209,18 +174,6 @@ function VenueAndTimeZoneInfo({
       </Message>
     </>
   )
-}
-
-// TODO: clean up UI
-function RoomSelector({ allRooms, activeRoomIds, toggleRoom }) {
-  return allRooms.map(({ id, name, color }) => (
-    <Checkbox
-      key={id}
-      checked={activeRoomIds.includes(id)}
-      label={name + ' (' + color + ')'}
-      onChange={() => toggleRoom(id)}
-    />
-  ))
 }
 
 function ViewSelector({ selected, onSelect }) {

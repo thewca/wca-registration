@@ -70,6 +70,7 @@ function SingleDayTable({
         </Table.Header>
 
         <Table.Body>
+          {/* TODO: add message about filters when table is empty */}
           {groupedActivities.map((activityGroup) => {
             const activityRound = rounds.find(
               (round) => round.id === activityGroup[0].activityCode
