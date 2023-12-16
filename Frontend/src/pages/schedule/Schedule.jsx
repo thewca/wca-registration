@@ -1,9 +1,10 @@
 import React, { useReducer, useState } from 'react'
-import { Checkbox, Dropdown, Form, Message, Segment } from 'semantic-ui-react'
+import { Dropdown, Message, Segment } from 'semantic-ui-react'
 import { getDatesStartingOn } from '../../lib/dates'
 import CalendarView from './CalendarView'
 import TableView from './TableView'
 import VenuesAndRooms from './VenuesAndRooms'
+import ViewSelector from './ViewSelector'
 import EventsSelector from './EventsSelector'
 
 const activeIdReducer = (state, { type, id, ids }) => {
@@ -27,10 +28,6 @@ const activeIdReducer = (state, { type, id, ids }) => {
 }
 
 export default function Schedule({ wcif }) {
-  // view
-
-  const [activeView, setActiveView] = useState('calendar')
-
   // venues
 
   const venues = wcif.schedule.venues
@@ -67,9 +64,13 @@ export default function Schedule({ wcif }) {
 
   const uniqueTimeZones = [...new Set(venues.map((venue) => venue.timezone))]
   const timeZoneCount = uniqueTimeZones.length
-
   // const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
   const activeTimeZone = activeVenues[0].timezone
+
+  // view
+
+  // TODO: save in local storage via new `useSavedState` hook
+  const [activeView, setActiveView] = useState('calendar')
 
   // TODO: if time zones are changeable, these may be wrong
   const activeDates = getDatesStartingOn(
@@ -111,7 +112,7 @@ export default function Schedule({ wcif }) {
         onSelect={() => 'TODO: handle time zone change'}
       />
 
-      <ViewSelector selected={activeView} onSelect={setActiveView} />
+      <ViewSelector activeView={activeView} setActiveView={setActiveView} />
 
       {activeView === 'calendar' ? (
         <CalendarView
@@ -129,33 +130,6 @@ export default function Schedule({ wcif }) {
         />
       )}
     </Segment>
-  )
-}
-
-function ViewSelector({ selected, onSelect }) {
-  return (
-    <Form>
-      <Form.Field>
-        <Checkbox
-          radio
-          label="Calendar View"
-          name="viewGroup"
-          value="calendar"
-          checked={selected === 'calendar'}
-          onChange={(_, data) => onSelect(data.value)}
-        />
-      </Form.Field>
-      <Form.Field>
-        <Checkbox
-          radio
-          label="Table View"
-          name="viewGroup"
-          value="table"
-          checked={selected === 'table'}
-          onChange={(_, data) => onSelect(data.value)}
-        />
-      </Form.Field>
-    </Form>
   )
 }
 
