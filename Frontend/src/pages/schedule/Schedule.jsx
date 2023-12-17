@@ -87,6 +87,7 @@ export default function Schedule({ wcif }) {
   // venues
 
   const venues = wcif.schedule.venues
+  const mainVenueIndex = 0
   const venueCount = venues.length
   const [activeVenueIndex, setActiveVenueIndex] = useState(-1)
   const activeVenueOrNull =
@@ -96,6 +97,15 @@ export default function Schedule({ wcif }) {
       ? venues[activeVenueIndex]
       : null
   const activeVenues = activeVenueOrNull ? [activeVenueOrNull] : venues
+
+  const setActiveVenueIndexAndUpdateTimeZone = (newIndex) => {
+    dispatchTimeZone({
+      type: 'update-location',
+      venues,
+      location: newIndex === -1 ? mainVenueIndex : newIndex,
+    })
+    setActiveVenueIndex(newIndex)
+  }
 
   // rooms
 
@@ -118,13 +128,12 @@ export default function Schedule({ wcif }) {
 
   // time zones
 
-  // TODO: update on venue switch
   const [
     { location: activeTimeZoneLocation, timeZone: activeTimeZone },
     dispatchTimeZone,
   ] = useReducer(timeZoneReducer, {
-    location: 0,
-    timeZone: activeVenues[0].timezone,
+    location: mainVenueIndex,
+    timeZone: venues[mainVenueIndex].timezone,
   })
 
   const uniqueTimeZones = [...new Set(venues.map((venue) => venue.timezone))]
@@ -156,7 +165,7 @@ export default function Schedule({ wcif }) {
         venues={venues}
         activeVenueOrNull={activeVenueOrNull}
         activeVenueIndex={activeVenueIndex}
-        setActiveVenueIndex={setActiveVenueIndex}
+        setActiveVenueIndex={setActiveVenueIndexAndUpdateTimeZone}
         timeZoneCount={timeZoneCount}
         rooms={roomsOfActiveVenues}
         activeRoomIds={activeRoomIds}
