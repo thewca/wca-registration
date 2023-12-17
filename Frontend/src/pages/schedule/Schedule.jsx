@@ -34,6 +34,9 @@ const timeZoneReducer = (state, { type, venues, location, timeZone }) => {
   switch (type) {
     case 'update-location':
       if (venues && (location || location === 0)) {
+        if (location === 'custom') {
+          return { location, timeZone: state.timeZone }
+        }
         const newTimeZone = getTimeZone(venues, location)
         if (newTimeZone) {
           return { location, timeZone: newTimeZone }
