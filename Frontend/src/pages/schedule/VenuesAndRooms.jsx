@@ -36,6 +36,7 @@ export default function VenuesAndRooms({
   return (
     <>
       {venueCount > 1 && (
+        // TODO: should be menu, not tabs (or something else, like a dropdown)
         <Tab
           menu={{ secondary: true, pointing: true }}
           panes={panes}
