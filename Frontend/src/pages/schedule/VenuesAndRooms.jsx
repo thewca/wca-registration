@@ -1,5 +1,5 @@
 import React from 'react'
-import { Checkbox, Menu, Message } from 'semantic-ui-react'
+import { Form, Grid, Menu, Message } from 'semantic-ui-react'
 
 export default function VenuesAndRooms({
   venues,
@@ -63,16 +63,22 @@ export default function VenuesAndRooms({
   )
 }
 
-// TODO: clean up UI
 function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
-  return rooms.map(({ id, name, color }) => (
-    <Checkbox
-      key={id}
-      checked={activeRoomIds.includes(id)}
-      label={name + ' (' + color + ')'}
-      onChange={() => toggleRoom(id)}
-    />
-  ))
+  return (
+    <Grid stackable columns={Math.min(5, rooms.length)}>
+      {rooms.map(({ id, name }) => (
+        // TODO: show color
+        <Grid.Column key={id}>
+          <Form.Checkbox
+            slider
+            checked={activeRoomIds.includes(id)}
+            label={name}
+            onChange={() => toggleRoom(id)}
+          />
+        </Grid.Column>
+      ))}
+    </Grid>
+  )
 }
 
 function VenueInfo({ activeVenueOrNull, venueCount, timeZoneCount }) {

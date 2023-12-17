@@ -130,6 +130,7 @@ function ActivityRow({ isExpanded, activityGroup, round, rooms, timeZone }) {
 
   // TODO: create name from activity code when possible (fallback to name property)
   // TODO: format and time limit not showing up for attempt-based activities (fm, multi)
+  // TODO: display times in appropriate format
 
   return (
     <Table.Row>
