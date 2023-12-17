@@ -2,6 +2,7 @@ import React from 'react'
 
 // TODO
 
-export default function CalendarView({ dates, timeZone, venuesShown, events }) {
+// { dates, timeZone, venuesShown, events }
+export default function CalendarView() {
   return <p>Calendar view does not exist yet.</p>
 }

@@ -2,11 +2,11 @@ import React, { useReducer, useState } from 'react'
 import { Message, Segment } from 'semantic-ui-react'
 import { getDatesStartingOn } from '../../lib/dates'
 import CalendarView from './CalendarView'
+import EventsSelector from './EventsSelector'
 import TableView from './TableView'
+import TimeZoneSelector from './TimeZone'
 import VenuesAndRooms from './VenuesAndRooms'
 import ViewSelector from './ViewSelector'
-import EventsSelector from './EventsSelector'
-import TimeZoneSelector from './TimeZone'
 
 const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
 
