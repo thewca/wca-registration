@@ -8,12 +8,8 @@ import Register from './pages/register'
 import RegistrationAdministration from './pages/registration_administration'
 import RegistrationEdit from './pages/registration_edit'
 import Registrations from './pages/registrations'
-<<<<<<< HEAD
-import Schedule from './pages/schedule'
-import Waiting from './pages/waiting'
-=======
 import ScheduleTab from './pages/schedule'
->>>>>>> 53f1213 (Create ScheduleTab purely for data fetch)
+import Waiting from './pages/waiting'
 import App from './ui/App'
 import Competition from './ui/Competition'
 import CustomTab from './ui/CustomTab'
