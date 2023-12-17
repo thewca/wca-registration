@@ -1,36 +1,69 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Dropdown } from 'semantic-ui-react'
 
-// TODO: refine logic
-// TODO: clean up UI
+const timeZoneOptions = Intl.supportedValuesOf('timeZone').map((timeZone) => ({
+  key: timeZone,
+  text: timeZone,
+  value: timeZone,
+}))
+
 export default function TimeZoneSelector({
   venues,
   activeTimeZone,
+  activeTimeZoneLocation,
   dispatchTimeZone,
 }) {
-  const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
-  const timeZoneOptions = [
-    {
-      key: 'local',
-      text: `Your time zone: ${userTimeZone}`,
-      value: userTimeZone,
-    },
-    ...venues.map((venue) => ({
-      key: venue.name,
-      text: `${venue.name}: ${venue.timezone}`,
-      value: venue.timezone,
-    })),
-  ]
+  const locationOptions = useMemo(
+    () => [
+      {
+        key: 'local',
+        text: 'your local',
+        value: 'local',
+      },
+      ...venues.map((venue, index) => ({
+        key: venue.name,
+        text: `${venue.name}'s`,
+        value: index,
+      })),
+      {
+        key: 'custom',
+        text: 'a custom',
+        value: 'custom',
+      },
+    ],
+    [venues]
+  )
 
   return (
-    <Dropdown
-      search
-      selection
-      value={activeTimeZone}
-      onChange={(_, data) =>
-        dispatchTimeZone({ action: 'update', timeZone: data.value })
-      }
-      options={timeZoneOptions}
-    />
+    <div>
+      The schedule is currently displayed in{' '}
+      <Dropdown
+        search
+        selection
+        value={activeTimeZoneLocation}
+        onChange={(_, data) =>
+          dispatchTimeZone({
+            type: 'update-location',
+            location: data.value,
+            venues,
+          })
+        }
+        options={locationOptions}
+      />{' '}
+      time zone:{' '}
+      <Dropdown
+        search
+        selection
+        value={activeTimeZone}
+        onChange={(_, data) =>
+          dispatchTimeZone({
+            type: 'update-time-zone',
+            timeZone: data.value,
+          })
+        }
+        options={timeZoneOptions}
+      />
+      .
+    </div>
   )
 }

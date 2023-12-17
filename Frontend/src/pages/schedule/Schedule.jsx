@@ -28,6 +28,47 @@ const activeIdReducer = (state, { type, id, ids }) => {
   }
 }
 
+const timeZoneReducer = (state, { type, venues, location, timeZone }) => {
+  switch (type) {
+    case 'update-location':
+      if (venues && location) {
+        const newTimeZone = getTimeZone(venues, location)
+        if (newTimeZone) {
+          return { location, timeZone: newTimeZone }
+        }
+        console.error('Must supply valid location.')
+      } else {
+        console.error('Must supply venues and location.')
+      }
+      break
+
+    case 'update-time-zone':
+      // TODO: check if there's a matching venue and return that?
+      if (timeZone) {
+        return { location: 'custom', timeZone }
+      }
+      console.error('Must supply custom time zone.')
+      break
+
+    default:
+      break
+  }
+
+  return state
+}
+
+const getTimeZone = (venues, location) => {
+  const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
+
+  if (Number.isInteger(location)) {
+    return venues[location].timezone
+  }
+  if (location === 'local') {
+    return userTimeZone
+  }
+  return undefined
+}
+
 export default function Schedule({ wcif }) {
   // venues
 
@@ -63,10 +104,17 @@ export default function Schedule({ wcif }) {
 
   // time zones
 
+  // TODO: update on venue switch
+  const [
+    { location: activeTimeZoneLocation, timeZone: activeTimeZone },
+    dispatchTimeZone,
+  ] = useReducer(timeZoneReducer, {
+    location: 0,
+    timeZone: activeVenues[0].timezone,
+  })
+
   const uniqueTimeZones = [...new Set(venues.map((venue) => venue.timezone))]
   const timeZoneCount = uniqueTimeZones.length
-  // const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
-  const activeTimeZone = activeVenues[0].timezone
 
   // view
 
@@ -110,7 +158,8 @@ export default function Schedule({ wcif }) {
       <TimeZoneSelector
         venues={venues}
         activeTimeZone={activeTimeZone}
-        dispatchTimeZone={() => 'TODO: handle time zone change'}
+        activeTimeZoneLocation={activeTimeZoneLocation}
+        dispatchTimeZone={dispatchTimeZone}
       />
 
       <ViewSelector activeView={activeView} setActiveView={setActiveView} />
