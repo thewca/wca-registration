@@ -8,6 +8,8 @@ import ViewSelector from './ViewSelector'
 import EventsSelector from './EventsSelector'
 import TimeZoneSelector from './TimeZone'
 
+const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
+
 const activeIdReducer = (state, { type, id, ids }) => {
   let newState = [...state]
 
@@ -43,11 +45,11 @@ const timeZoneReducer = (state, { type, venues, location, timeZone }) => {
       break
 
     case 'update-time-zone':
-      // TODO: check if there's a matching venue and return that?
       if (timeZone) {
-        return { location: 'custom', timeZone }
+        const newLocation = getLocation(venues, timeZone)
+        return { location: newLocation, timeZone }
       }
-      console.error('Must supply custom time zone.')
+      console.error('Must supply time zone.')
       break
 
     default:
@@ -58,8 +60,6 @@ const timeZoneReducer = (state, { type, venues, location, timeZone }) => {
 }
 
 const getTimeZone = (venues, location) => {
-  const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
-
   if (Number.isInteger(location)) {
     return venues[location].timezone
   }
@@ -67,6 +67,20 @@ const getTimeZone = (venues, location) => {
     return userTimeZone
   }
   return undefined
+}
+
+const getLocation = (venues, timeZone) => {
+  const matchingVenueIndex = venues.findIndex(
+    (venue) => venue.timezone === timeZone
+  )
+
+  if (matchingVenueIndex !== -1) {
+    return matchingVenueIndex
+  }
+  if (timeZone === userTimeZone) {
+    return 'local'
+  }
+  return 'custom'
 }
 
 export default function Schedule({ wcif }) {

@@ -59,6 +59,7 @@ export default function TimeZoneSelector({
           dispatchTimeZone({
             type: 'update-time-zone',
             timeZone: data.value,
+            venues,
           })
         }
         options={timeZoneOptions}
