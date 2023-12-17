@@ -21,11 +21,17 @@ export default function VenuesAndRooms({
     setActiveVenueIndex(newVenueIndex)
   }
 
-  // TODO: UI issues with lots of venues (FMC World) or small screens (phones)
   return (
     <>
       {venueCount > 1 && (
-        <Menu pointing secondary fluid widths={venueCount + 1}>
+        <Menu
+          pointing
+          secondary
+          fluid
+          stackable
+          widths={Math.min(6, venueCount + 1)}
+          style={{ overflowX: 'auto', overflowY: 'hidden' }}
+        >
           <Menu.Item
             name="All Venues"
             active={activeVenueIndex === -1}
