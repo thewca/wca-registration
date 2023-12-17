@@ -1,11 +1,12 @@
 import React, { useReducer, useState } from 'react'
-import { Dropdown, Message, Segment } from 'semantic-ui-react'
+import { Message, Segment } from 'semantic-ui-react'
 import { getDatesStartingOn } from '../../lib/dates'
 import CalendarView from './CalendarView'
 import TableView from './TableView'
 import VenuesAndRooms from './VenuesAndRooms'
 import ViewSelector from './ViewSelector'
 import EventsSelector from './EventsSelector'
+import TimeZoneSelector from './TimeZone'
 
 const activeIdReducer = (state, { type, id, ids }) => {
   let newState = [...state]
@@ -109,7 +110,7 @@ export default function Schedule({ wcif }) {
       <TimeZoneSelector
         venues={venues}
         activeTimeZone={activeTimeZone}
-        onSelect={() => 'TODO: handle time zone change'}
+        dispatchTimeZone={() => 'TODO: handle time zone change'}
       />
 
       <ViewSelector activeView={activeView} setActiveView={setActiveView} />
@@ -130,33 +131,5 @@ export default function Schedule({ wcif }) {
         />
       )}
     </Segment>
-  )
-}
-
-// TODO: refine logic
-// TODO: clean up UI
-function TimeZoneSelector({ venues, activeTimeZone, onSelect }) {
-  const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
-  const timeZoneOptions = [
-    {
-      key: 'local',
-      text: `Local time zone: ${userTimeZone}`,
-      value: userTimeZone,
-    },
-    ...venues.map((venue) => ({
-      key: venue.name,
-      text: `${venue.name}: ${venue.timezone}`,
-      value: venue.timezone,
-    })),
-  ]
-  return (
-    <Dropdown
-      placeholder="Time Zone"
-      search
-      selection
-      value={activeTimeZone}
-      onChange={onSelect}
-      options={timeZoneOptions}
-    />
   )
 }
