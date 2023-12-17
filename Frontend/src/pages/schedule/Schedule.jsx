@@ -33,7 +33,7 @@ const activeIdReducer = (state, { type, id, ids }) => {
 const timeZoneReducer = (state, { type, venues, location, timeZone }) => {
   switch (type) {
     case 'update-location':
-      if (venues && location) {
+      if (venues && (location || location === 0)) {
         const newTimeZone = getTimeZone(venues, location)
         if (newTimeZone) {
           return { location, timeZone: newTimeZone }
