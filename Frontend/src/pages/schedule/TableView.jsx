@@ -70,23 +70,30 @@ function SingleDayTable({
         </Table.Header>
 
         <Table.Body>
-          {/* TODO: add message about filters when table is empty */}
-          {groupedActivities.map((activityGroup) => {
-            const activityRound = rounds.find(
-              (round) => round.id === activityGroup[0].activityCode
-            )
+          {groupedActivities.length > 0 ? (
+            groupedActivities.map((activityGroup) => {
+              const activityRound = rounds.find(
+                (round) => round.id === activityGroup[0].activityCode
+              )
 
-            return (
-              <ActivityRow
-                key={activityGroup[0].id}
-                isExpanded={isExpanded}
-                activityGroup={activityGroup}
-                round={activityRound}
-                rooms={rooms}
-                timeZone={timeZone}
-              />
-            )
-          })}
+              return (
+                <ActivityRow
+                  key={activityGroup[0].id}
+                  isExpanded={isExpanded}
+                  activityGroup={activityGroup}
+                  round={activityRound}
+                  rooms={rooms}
+                  timeZone={timeZone}
+                />
+              )
+            })
+          ) : (
+            <Table.Row>
+              <Table.Cell colSpan={4}>
+                <em>No activities for the selected rooms/events.</em>
+              </Table.Cell>
+            </Table.Row>
+          )}
         </Table.Body>
       </Table>
     </Segment>
