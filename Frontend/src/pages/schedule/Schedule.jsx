@@ -144,7 +144,7 @@ export default function Schedule({ wcif }) {
 
   // view
 
-  // TODO: save in local storage via new `useSavedState` hook
+  // TODO: save in local storage via a new `useSavedState` hook
   const [activeView, setActiveView] = useState('calendar')
 
   // TODO: if time zones are changeable, these may be wrong

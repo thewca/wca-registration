@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react'
-import { Checkbox, Message, Tab } from 'semantic-ui-react'
+import React from 'react'
+import { Checkbox, Menu, Message } from 'semantic-ui-react'
 
 export default function VenuesAndRooms({
   venues,
@@ -11,38 +11,35 @@ export default function VenuesAndRooms({
   activeRoomIds,
   dispatchRooms,
 }) {
-  // the 1st tab is all venues combined
-  const activeTabIndex = activeVenueIndex + 1
   const venueCount = venues.length
 
-  const panes = useMemo(
-    () => [
-      { menuItem: 'All Venues' },
-      ...venues.map((venue) => ({ menuItem: venue.name })),
-    ],
-    [venues]
-  )
-
-  // TODO: move room selector into tabs to have fresh render?
-  const handleTabChange = (newTabIndex) => {
-    const newVenueIndex = newTabIndex - 1
+  const setActiveVenueIndexAndResetRooms = (newVenueIndex) => {
     const newVenues = newVenueIndex > -1 ? [venues[newVenueIndex]] : venues
-
-    setActiveVenueIndex(newVenueIndex)
     const ids = newVenues.flatMap((venue) => venue.rooms).map((room) => room.id)
     dispatchRooms({ type: 'reset', ids })
+
+    setActiveVenueIndex(newVenueIndex)
   }
 
+  // TODO: UI issues with lots of venues (FMC World) or small screens (phones)
   return (
     <>
       {venueCount > 1 && (
-        // TODO: should be menu, not tabs (or something else, like a dropdown)
-        <Tab
-          menu={{ secondary: true, pointing: true }}
-          panes={panes}
-          activeIndex={activeTabIndex}
-          onTabChange={(_, { activeIndex }) => handleTabChange(activeIndex)}
-        />
+        <Menu pointing secondary fluid widths={venueCount + 1}>
+          <Menu.Item
+            name="All Venues"
+            active={activeVenueIndex === -1}
+            onClick={() => setActiveVenueIndexAndResetRooms(-1)}
+          />
+          {venues.map((venue, index) => (
+            <Menu.Item
+              key={venue.id}
+              name={venue.name}
+              active={index === activeVenueIndex}
+              onClick={() => setActiveVenueIndexAndResetRooms(index)}
+            />
+          ))}
+        </Menu>
       )}
 
       <VenueInfo
