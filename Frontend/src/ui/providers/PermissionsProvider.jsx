@@ -32,7 +32,7 @@ export default function PermissionsProvider({ children }) {
           ),
         isOrganizerOrDelegate: competitionInfo.organizers
           .concat(competitionInfo.delegates)
-          .some((organizer) => organizer.id === user.id),
+          .some((organizer) => organizer.id === user?.id),
       }}
     >
       {children}
