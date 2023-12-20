@@ -1,12 +1,13 @@
 import React, { useReducer, useState } from 'react'
 import { Message, Segment } from 'semantic-ui-react'
-import { getDatesStartingOn } from '../../lib/dates'
+import { getDatesBetweenInclusive } from '../../lib/dates'
 import CalendarView from './CalendarView'
 import EventsSelector from './EventsSelector'
 import TableView from './TableView'
 import TimeZoneSelector from './TimeZone'
 import VenuesAndRooms from './VenuesAndRooms'
 import ViewSelector from './ViewSelector'
+import { earliestWithLongestTieBreaker } from '../../lib/activities'
 
 const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
 
@@ -147,10 +148,18 @@ export default function Schedule({ wcif }) {
   // TODO: save in local storage via a new `useSavedState` hook
   const [activeView, setActiveView] = useState('calendar')
 
-  // TODO: if time zones are changeable, these may be wrong
-  const activeDates = getDatesStartingOn(
-    wcif.schedule.startDate,
-    wcif.schedule.numberOfDays
+  const allActivitiesSorted = venues
+    .flatMap((venue) => venue.rooms)
+    .flatMap((room) => room.activities)
+    .sort(earliestWithLongestTieBreaker)
+  // use this, rather than wcif's startDate, in-case viewing in different time zone
+  const firstStartTime = allActivitiesSorted[0].startTime
+  const lastStartTime =
+    allActivitiesSorted[allActivitiesSorted.length - 1].startTime
+  const activeDates = getDatesBetweenInclusive(
+    firstStartTime,
+    lastStartTime,
+    activeTimeZone
   )
 
   return (
