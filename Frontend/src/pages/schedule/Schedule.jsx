@@ -1,5 +1,6 @@
 import React, { useReducer, useState } from 'react'
 import { Message, Segment } from 'semantic-ui-react'
+import { useStoredState } from '../../hooks/useStoredState'
 import { getDatesStartingOn } from '../../lib/dates'
 import CalendarView from './CalendarView'
 import EventsSelector from './EventsSelector'
@@ -144,8 +145,7 @@ export default function Schedule({ wcif }) {
 
   // view
 
-  // TODO: save in local storage via a new `useSavedState` hook
-  const [activeView, setActiveView] = useState('calendar')
+  const [activeView, setActiveView] = useStoredState('calendar', 'scheduleView')
 
   // TODO: if time zones are changeable, these may be wrong
   const activeDates = getDatesStartingOn(
