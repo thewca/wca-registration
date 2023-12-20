@@ -1,13 +1,14 @@
 import { useState } from 'react'
 
-/*
- * Only works for strings as-is, but can use JSON.parse and JSON.stringify
- * to generalize it.
- */
-
 /**
  * This functions like the useState hook, but it fetches the state stored in
  * local storage, via the given key, on subsequent uses.
+ *
+ * Do NOT call this twice with the same key - updating one of such a pair
+ * will not update the other's state.
+ *
+ * Currently only works for strings, but can be generalized with JSON.parse
+ * and JSON.stringify if needed.
  */
 export function useStoredState(initialState, key) {
   const storedState = localStorage.getItem(key)
