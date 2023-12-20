@@ -83,10 +83,9 @@ function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
 
 function VenueInfo({ activeVenueOrNull, venueCount, timeZoneCount }) {
   const { name, timezone } = activeVenueOrNull || {}
-  // TODO: fix map link
-  const mapLink =
-    activeVenueOrNull &&
-    `https://www.google.com/maps/place/${activeVenueOrNull.latitudeMicrodegrees},${activeVenueOrNull.longitudeMicrodegrees}`
+  const latitude = toDegrees(activeVenueOrNull?.latitudeMicrodegrees)
+  const longitude = toDegrees(activeVenueOrNull?.longitudeMicrodegrees)
+  const mapLink = `https://google.com/maps/place/${latitude},${longitude}`
 
   // TODO: add add-to-calendar icon/functionality
 
@@ -117,4 +116,8 @@ function VenueInfo({ activeVenueOrNull, venueCount, timeZoneCount }) {
       </Message>
     </>
   )
+}
+
+const toDegrees = (microDegrees) => {
+  return microDegrees / 1_000_000
 }
