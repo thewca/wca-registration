@@ -44,8 +44,9 @@ export default function Competition({ children }) {
     isFetching: bookmarkLoading,
     refetch,
   } = useQuery({
-    queryKey: [user.id, 'bookmarks'],
+    queryKey: [user?.id, 'bookmarks'],
     queryFn: () => getBookmarkedCompetitions(),
+    enabled: user !== null,
   })
 
   const competitionIsBookmarked = (bookmarkedCompetitions ?? []).includes(
