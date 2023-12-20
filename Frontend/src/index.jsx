@@ -1,5 +1,6 @@
 // External Styles (this is probably not the best way to load this?)
 import '@thewca/wca-components/dist/index.esm.css'
+import './i18n'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'

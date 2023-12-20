@@ -1,0 +1,28 @@
+{
+  "errors" : {
+    "-1": "You have sent an invalid token, please refresh the page. If this issue persists contact WST",
+    "-2": "Authentication Expired, please refresh the page",
+    "-3": "Missing Authentication, please log in",
+    "-1000": "Competition does not exist",
+    "-1001": "Error fetching Competition details, please try again later",
+    "-2001": "You are banned from competing at WCA Competitions",
+    "-2002": "Your profile is incomplete",
+    "-2003": "You don't have the permissions to complete this action",
+    "-3000": "Registration does not exist",
+    "-3001": "WCA Payment is not enabled for this competition",
+    "-3002": "Payment Process is still initializing",
+    "-4000": "The Request contains invalid data",
+    "-4001": "The event edit deadline has passed",
+    "-4002": "The number of guests are over the allowed limit",
+    "-4003": "The comment provided is too long",
+    "-4004": "Invalid event selection submitted",
+    "-4005": "This competition requires a comment",
+    "-4006": "Competitor limit has been reached",
+    "-4007": "Invalid registration status provided",
+    "-4008": "Registration has closed"
+  },
+  "bookmarks": {
+    "bookmark": "Unbookmarked this competition.",
+    "unbookmark": "You bookmarked this competition. You will get an email 24h before Registration Opens."
+  }
+}
