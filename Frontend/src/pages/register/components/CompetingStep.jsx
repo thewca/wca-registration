@@ -58,7 +58,7 @@ export default function CompetingStep({ nextStep }) {
         const { errorCode } = data
         setMessage(
           errorCode
-            ? t(String(errorCode))
+            ? t(`errors.${errorCode}`)
             : 'Registration update failed with error: ' + data.message,
           'negative'
         )
@@ -76,8 +76,11 @@ export default function CompetingStep({ nextStep }) {
     useMutation({
       mutationFn: submitEventRegistration,
       onError: (data) => {
+        const { errorCode } = data
         setMessage(
-          'Registration failed with error: ' + data.message,
+          errorCode
+            ? t(`errors.${errorCode}`)
+            : 'Registration failed with error: ' + data.message,
           'negative'
         )
       },

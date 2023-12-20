@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { UiIcon } from '@thewca/wca-components'
 import React, { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
@@ -35,6 +36,7 @@ export default function RegistrationActions({
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
+  const { t } = useTranslation()
 
   const selectedCount = Object.values(partitionedSelected).reduce(
     (sum, part) => sum + part.length,
@@ -56,8 +58,11 @@ export default function RegistrationActions({
   const { mutate: updateRegistrationMutation } = useMutation({
     mutationFn: updateRegistration,
     onError: (data) => {
+      const { errorCode } = data
       setMessage(
-        'Registration update failed with error: ' + data.message,
+        errorCode
+          ? t(`errors.${errorCode}`)
+          : 'Registration update failed with error: ' + data.message,
         'negative'
       )
     },
