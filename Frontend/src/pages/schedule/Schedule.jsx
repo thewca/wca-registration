@@ -1,5 +1,6 @@
 import React, { useReducer, useState } from 'react'
 import { Message, Segment } from 'semantic-ui-react'
+import { earliestWithLongestTieBreaker } from '../../lib/activities'
 import { getDatesBetweenInclusive } from '../../lib/dates'
 import CalendarView from './CalendarView'
 import EventsSelector from './EventsSelector'
@@ -7,7 +8,6 @@ import TableView from './TableView'
 import TimeZoneSelector from './TimeZone'
 import VenuesAndRooms from './VenuesAndRooms'
 import ViewSelector from './ViewSelector'
-import { earliestWithLongestTieBreaker } from '../../lib/activities'
 
 const { timeZone: userTimeZone } = Intl.DateTimeFormat().resolvedOptions()
 
