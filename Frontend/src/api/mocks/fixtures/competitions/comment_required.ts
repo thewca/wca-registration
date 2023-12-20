@@ -1,6 +1,7 @@
 import { Competition } from '@wca/helpers'
 import { CompetitionInfo } from '../../../types'
 import { dateFromNow } from '../helpers'
+import {competitionFactory} from "../../factories/competitions";
 /* eslint-disable sonarjs/no-duplicate-string */
 
 export const COMMENT_REQUIRED_WCIF: Competition = {
@@ -670,7 +671,7 @@ export const COMMENT_REQUIRED_WCIF: Competition = {
   competitorLimit: null,
   extensions: [],
 }
-export const COMMENT_REQUIRED: CompetitionInfo = {
+export const COMMENT_REQUIRED: CompetitionInfo = competitionFactory.build({
   'id': 'FMCFrance2023',
   'name': 'FMC France 2023',
   'information':
@@ -1126,4 +1127,4 @@ export const COMMENT_REQUIRED: CompetitionInfo = {
     },
   ],
   'class': 'competition',
-}
+})
