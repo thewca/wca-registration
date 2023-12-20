@@ -3,6 +3,7 @@ import { EventSelector, UiIcon } from '@thewca/wca-components'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Button,
   ButtonGroup,
@@ -31,6 +32,8 @@ export default function CompetingStep({ nextStep }) {
   const { registration, isRegistered, refetch } =
     useContext(RegistrationContext)
 
+  const { t } = useTranslation()
+
   const [comment, setComment] = useState('')
   const [selectedEvents, setSelectedEvents] = useState(
     preferredEvents.filter((event) => competitionInfo.event_ids.includes(event))
@@ -52,8 +55,11 @@ export default function CompetingStep({ nextStep }) {
     useMutation({
       mutationFn: updateRegistration,
       onError: (data) => {
+        const { errorCode } = data
         setMessage(
-          'Registration update failed with error: ' + data.message,
+          errorCode
+            ? t(String(errorCode))
+            : 'Registration update failed with error: ' + data.message,
           'negative'
         )
       },

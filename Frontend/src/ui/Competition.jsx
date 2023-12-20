@@ -3,6 +3,7 @@ import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import moment from 'moment'
 import React, { Fragment, useContext, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import {
   Container,
@@ -33,6 +34,8 @@ export default function Competition({ children }) {
   const { competition_id } = useParams()
 
   const { user } = useContext(UserContext)
+
+  const { t } = useTranslation()
 
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
@@ -232,14 +235,11 @@ export default function Competition({ children }) {
                     if (competitionIsBookmarked) {
                       await unbookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage('Unbookmarked this competition.', 'basic')
+                      setMessage(t('bookmarks.bookmark'), 'basic')
                     } else {
                       await bookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage(
-                        'You bookmarked this competition. You will get an email 24h before Registration Opens.',
-                        'positive'
-                      )
+                      setMessage(t('bookmarks.unbookmark'), 'positive')
                     }
                   }}
                   name={bookmarkLoading ? 'spinner' : 'bookmark'}
