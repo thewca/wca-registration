@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../app/helpers/competition_api'
 
-# Add a test where one comp has a lot of competitors and another doesnt but you can still accept, to ensure that we're checking the reg count
+# TODO: Add a test where one comp has a lot of competitors and another doesnt but you can still accept, to ensure that we're checking the reg count
 # for the COMPETITION, not all registrations
 
 RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
@@ -561,6 +561,19 @@ describe RegistrationChecker do
         expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
       end
     end
+
+    it 'user cant submit waiting_list_position' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'waiting_list_position' => '1' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unauthorized)
+        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+      end
+    end
   end
 
   describe '#update_registration_allowed!.validate_organizer_comment!' do
@@ -1000,6 +1013,94 @@ describe RegistrationChecker do
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:forbidden)
         expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
+      end
+    end
+  end
+
+  describe '#update_registration_allowed!.validate_waiting_list_position!' do
+    it 'must be an integer, not string' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'waiting_list_position' => 'b' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_WAITING_LIST_POSITION)
+      end
+    end
+
+    it 'can be an integer given as a string' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'waiting_list_position' => '1' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.not_to raise_error
+    end
+
+    it 'must be an integer, not float' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'waiting_list_position' => 2.0 })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_WAITING_LIST_POSITION)
+      end
+    end
+
+    it 'organizer cant accept anyone except the min position on the waiting list' do
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => '1')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => '2')
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER)
+      end
+    end
+
+    it 'cannot move to less than current min position' do
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
+
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'waiting_list_position' => '10' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::INVALID_WAITING_LIST_POSITION)
+      end
+    end
+
+    it 'cannot move to greater than current max position' do
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 6)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
+      FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
+
+      update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'waiting_list_position' => '1' })
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::INVALID_WAITING_LIST_POSITION)
       end
     end
   end

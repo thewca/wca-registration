@@ -1,6 +1,7 @@
 import { Competition } from '@wca/helpers'
 import { CompetitionInfo } from '../../../types'
 import { dateFromNow } from '../helpers'
+import {competitionFactory} from "../../factories/competitions";
 /* eslint-disable sonarjs/no-duplicate-string */
 
 export const OPEN_COMPETITION_WCIF: Competition = {
@@ -13443,7 +13444,7 @@ export const OPEN_COMPETITION_WCIF: Competition = {
     },
   ],
 }
-export const OPEN_COMPETITION: CompetitionInfo = {
+export const OPEN_COMPETITION: CompetitionInfo = competitionFactory.build({
   'id': 'KoelnerKubing2023',
   'name': 'Kölner Kubing 2023',
   'information':
@@ -13800,4 +13801,4 @@ export const OPEN_COMPETITION: CompetitionInfo = {
     },
   ],
   'class': 'competition',
-}
+})

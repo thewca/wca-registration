@@ -18,9 +18,10 @@ import Register from './pages/register'
 import RegistrationAdministration from './pages/registration_administration'
 import RegistrationEdit from './pages/registration_edit'
 import Registrations from './pages/registrations'
-import Schedule from './pages/schedule'
+import ScheduleTab from './pages/schedule'
 import TestLogin from './pages/test/login'
 import TestLogout from './pages/test/logout'
+import Waiting from './pages/waiting'
 import { BASE_ROUTE } from './routes'
 import App from './ui/App'
 import Competition from './ui/Competition'
@@ -97,11 +98,15 @@ const router = createBrowserRouter([
           },
           {
             path: 'schedule',
-            element: <Schedule />,
+            element: <ScheduleTab />,
           },
           {
             path: 'register',
             element: <Register />,
+          },
+          {
+            path: `waiting`,
+            element: <Waiting />,
           },
           {
             path: 'tabs/:tab_id',

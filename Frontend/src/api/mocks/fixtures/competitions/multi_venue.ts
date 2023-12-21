@@ -1,5 +1,6 @@
 import { Competition } from '@wca/helpers'
 import { CompetitionInfo } from '../../../types'
+import {competitionFactory} from "../../factories/competitions";
 /* eslint-disable sonarjs/no-duplicate-string */
 
 export const MULTI_VENUE_WCIF: Competition = {
@@ -884,7 +885,7 @@ export const MULTI_VENUE_WCIF: Competition = {
   extensions: [],
 }
 
-export const MULTI_VENUE: CompetitionInfo = {
+export const MULTI_VENUE: CompetitionInfo = competitionFactory.build({
   'id': 'FMCCanada2023',
   'name': 'FMC Canada 2023',
   'information':
@@ -1385,4 +1386,4 @@ export const MULTI_VENUE: CompetitionInfo = {
     },
   ],
   'class': 'competition',
-}
+})

@@ -8,6 +8,7 @@ import {
   Button,
   Checkbox,
   Header,
+  Input,
   Message,
   Segment,
   TextArea,
@@ -28,6 +29,8 @@ export default function RegistrationEditor() {
   const [comment, setComment] = useState('')
   const [adminComment, setAdminComment] = useState('')
   const [status, setStatus] = useState('')
+  const [waitingListPosition, setWaitingListPosition] = useState(0)
+  const [guests, setGuests] = useState(0)
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
   const [isCheckingRefunds, setIsCheckingRefunds] = useState(false)
@@ -73,6 +76,10 @@ export default function RegistrationEditor() {
       setAdminComment(
         serverRegistration.registration.competing.admin_comment ?? ''
       )
+      setWaitingListPosition(
+        serverRegistration.registration.competing.waiting_list_position ?? 0
+      )
+      setGuests(serverRegistration.registration.guests ?? 0)
     }
   }, [serverRegistration])
 
@@ -127,22 +134,24 @@ export default function RegistrationEditor() {
           event_ids: selectedEvents,
           comment,
           admin_comment: adminComment,
+          waiting_list_position: waitingListPosition,
         },
         competition_id: competitionInfo.id,
       })
     }
   }, [
-    adminComment,
-    comment,
-    commentIsValid,
-    competitionInfo.id,
-    eventsAreValid,
     hasChanges,
-    selectedEvents,
-    status,
+    commentIsValid,
+    eventsAreValid,
+    maxEvents,
     updateRegistrationMutation,
     user_id,
-    maxEvents,
+    status,
+    selectedEvents,
+    comment,
+    adminComment,
+    waitingListPosition,
+    competitionInfo.id,
   ])
 
   const registrationEditDeadlinePassed = moment(
@@ -227,6 +236,16 @@ export default function RegistrationEditor() {
               disabled={registrationEditDeadlinePassed}
               checked={status === 'cancelled'}
               onChange={(_, data) => setStatus(data.value)}
+            />
+            <br />
+            <Header>Guests</Header>
+            <Input
+              disabled={registrationEditDeadlinePassed}
+              type="number"
+              min={0}
+              max={99}
+              value={guests}
+              onChange={(_, data) => setGuests(data.value)}
             />
           </div>
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-raise "Tests should be run in 'test' environment only" if Rails.env != 'test'
+raise "Tests should be run in 'test' environment only" unless Rails.env == 'test' || Rails.env == 'cache-test'
 
 # This is required so that the first test that is run doesn't fail due to table not being created yet - https://github.com/Dynamoid/dynamoid/issues/277
 Dir[File.join(Dynamoid::Config.models_dir, '**/*.rb')].each { |file| require file }
