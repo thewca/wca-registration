@@ -1,5 +1,6 @@
 import { CompetitionInfo } from '../../../types'
 import { Competition } from '@wca/helpers'
+import {competitionFactory} from "../../factories/competitions";
 /* eslint-disable sonarjs/no-duplicate-string */
 export const CLOSED_COMPETITION_WCIF: Competition = {
   formatVersion: '1.0',
@@ -11570,7 +11571,7 @@ export const CLOSED_COMPETITION_WCIF: Competition = {
   ],
 }
 
-export const CLOSED_COMPETITION: CompetitionInfo = {
+export const CLOSED_COMPETITION: CompetitionInfo = competitionFactory.build({
   'id': 'HessenOpen2023',
   'name': 'Hessen Open 2023',
   'information':
@@ -11903,4 +11904,4 @@ export const CLOSED_COMPETITION: CompetitionInfo = {
     },
   ],
   'class': 'competition',
-}
+});

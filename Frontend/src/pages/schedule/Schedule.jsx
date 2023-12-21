@@ -1,5 +1,6 @@
 import React, { useReducer, useState } from 'react'
 import { Message, Segment } from 'semantic-ui-react'
+import { useStoredState } from '../../hooks/useStoredState'
 import { earliestWithLongestTieBreaker } from '../../lib/activities'
 import { getDatesBetweenInclusive } from '../../lib/dates'
 import CalendarView from './CalendarView'
@@ -145,8 +146,7 @@ export default function Schedule({ wcif }) {
 
   // view
 
-  // TODO: save in local storage via a new `useSavedState` hook
-  const [activeView, setActiveView] = useState('calendar')
+  const [activeView, setActiveView] = useStoredState('calendar', 'scheduleView')
 
   const allActivitiesSorted = venues
     .flatMap((venue) => venue.rooms)
