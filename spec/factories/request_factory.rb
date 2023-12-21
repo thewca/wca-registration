@@ -80,3 +80,21 @@ FactoryBot.define do
     end
   end
 end
+
+FactoryBot.define do
+  factory :bulk_update_request, class: Hash do
+    transient do
+      user_ids { [] }
+    end
+
+    submitted_by { '1306' }
+    jwt_token { fetch_jwt_token(submitted_by) }
+    requests do
+      user_ids.map do |user_id|
+        FactoryBot.build(:update_request, user_id: user_id)
+      end
+    end
+
+    initialize_with { attributes.stringify_keys }
+  end
+end

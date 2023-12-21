@@ -145,6 +145,20 @@ class RegistrationController < ApplicationController
       @current_user.to_s == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
   end
 
+  def bulk_update
+    puts "params: #{params}"
+    puts "requests: #{params[:bulk_update_request]['requests']}"
+
+    requests = params[:bulk_update_request][:requests]
+    requests.each do |request|
+      comp = CompetitionApi.find!(request[:competition_id])
+      puts comp
+      # RegistrationChecker.update_registration_allowed!(request, CompetitionApi.find!(request[:competition_id]), params[:submitted_by])
+    end
+
+    render json: { response: 'received' }
+  end
+
   def payment_ticket
     refresh = params[:refresh]
     if refresh || @registration.payment_ticket.nil?
