@@ -935,17 +935,32 @@ describe RegistrationChecker do
 
   describe '#bulk_update_allowed!' do
     it 'doesnt raise an error if all checks pass - single update' do
-      expect(true).to eq(false)
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
+
+      expect {
+        RegistrationChecker.bulk_update_allowed!(bulk_update_request, competition_info, bulk_update_request['submitted_by'])
+      }.not_to raise_error
     end
 
     it 'doesnt raise an error if all checks pass - 3 updates' do
-      expect(true).to eq(false)
+      registration = FactoryBot.create(:registration)
+      registration2 = FactoryBot.create(:registration)
+      registration3 = FactoryBot.create(:registration)
+      registrations = [registration[:user_id], registration2[:user_id], registration3[:user_id]]
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: registrations)
+
+      expect {
+        RegistrationChecker.bulk_update_allowed!(bulk_update_request, competition_info, bulk_update_request['submitted_by'])
+      }.not_to raise_error
     end
 
-    it 'doesnt raise an error if all checks pass' do
-      expect(true).to eq(false)
-    end
-
+    #      - single item fails
+    #      - multiple items fail
+    #      - some items fail at validation
+    #      - other items have user_ids which arent registrations
     it 'returns a map of user_id:error_code for all validations that fail' do
       expect(true).to eq(false)
     end
