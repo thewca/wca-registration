@@ -125,8 +125,6 @@ class RegistrationController < ApplicationController
     @competition_id = params[:competition_id]
 
     RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
-  rescue Dynamoid::Errors::RecordNotFound
-    render_error(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
   end

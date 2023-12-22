@@ -29,9 +29,27 @@ class RegistrationChecker
     validate_organizer_comment!
     validate_update_status!
     validate_update_events!
+  rescue Dynamoid::Errors::RecordNotFound
+    # We capture and convert the error so that it can be included in the error array of a bulk update request
+    raise RegistrationError.new(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
   end
 
-  def self.bulk_update_allowed!(update_request, competition_info, requesting_user)
+  def self.bulk_update_allowed!(bulk_update_request, competition_info, requesting_user)
+    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
+      competition_info.is_organizer_or_delegate?(requesting_user)
+
+    puts bulk_update_request.inspect
+    errors = {}
+    bulk_update_request['requests'].each do |update_request|
+      puts "processing request: #{update_request}"
+      begin
+        update_registration_allowed!(update_request, competition_info, requesting_user)
+      rescue RegistrationError => e
+        errors[update_request['user_id']] = e.error
+      end
+    end
+    puts errors
+    raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors == {}
   end
 
   class << self
