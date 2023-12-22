@@ -22,19 +22,7 @@ describe RegistrationController do
       patch :bulk_update, params: { bulk_update_request: bulk_update_request }, format: :json
     end
 
-    it 'user cannot submit bulk update request' do
-      expect(true).to eq(false)
-    end
-
-    it 'admin submits a bulk update with 3 updates' do
-      expect(true).to eq(false)
-    end
-
     it 'bulk update request returns ok if all updates succeed' do
-      expect(true).to eq(false)
-    end
-
-    it 'returns a map of user_id:error_code for all validations that fail' do
       expect(true).to eq(false)
     end
 

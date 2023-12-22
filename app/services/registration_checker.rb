@@ -31,6 +31,9 @@ class RegistrationChecker
     validate_update_events!
   end
 
+  def self.bulk_update_allowed!(update_request, competition_info, requesting_user)
+  end
+
   class << self
     def user_can_create_registration!
       # Only an organizer or the user themselves can create a registration for the user

@@ -932,4 +932,26 @@ describe RegistrationChecker do
       end
     end
   end
+
+  describe '#bulk_update_allowed!' do
+    it 'doesnt raise an error if all checks pass - single update' do
+      expect(true).to eq(false)
+    end
+
+    it 'doesnt raise an error if all checks pass - 3 updates' do
+      expect(true).to eq(false)
+    end
+
+    it 'doesnt raise an error if all checks pass' do
+      expect(true).to eq(false)
+    end
+
+    it 'returns a map of user_id:error_code for all validations that fail' do
+      expect(true).to eq(false)
+    end
+
+    it 'user cannot submit bulk update request' do
+      expect(true).to eq(false)
+    end
+  end
 end
