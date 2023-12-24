@@ -4,7 +4,7 @@ COMMENT_CHARACTER_LIMIT = 240
 
 class RegistrationChecker
   def self.create_registration_allowed!(registration_request, competition_info, requesting_user)
-    @request = registration_request
+    @request = registration_request.stringify_keys
     @competition_info = competition_info
     @requestee_user_id = @request['user_id']
     @requester_user_id = requesting_user.to_s
@@ -16,7 +16,7 @@ class RegistrationChecker
   end
 
   def self.update_registration_allowed!(update_request, competition_info, requesting_user)
-    @request = update_request
+    @request = update_request.stringify_keys
     @competition_info = competition_info
     @requestee_user_id = @request['user_id']
     @requester_user_id = requesting_user.to_s
@@ -38,17 +38,16 @@ class RegistrationChecker
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
       competition_info.is_organizer_or_delegate?(requesting_user)
 
-    puts bulk_update_request.inspect
     errors = {}
     bulk_update_request['requests'].each do |update_request|
-      puts "processing request: #{update_request}"
+      # rubocop:disable Style/RedundantBegin
       begin
+        # rubocop:enable Style/RedundantBegin
         update_registration_allowed!(update_request, competition_info, requesting_user)
       rescue RegistrationError => e
         errors[update_request['user_id']] = e.error
       end
     end
-    puts errors
     raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors == {}
   end
 
@@ -87,10 +86,10 @@ class RegistrationChecker
     end
 
     def validate_guests!
-      return unless @request.key?('guests')
+      return if (guests = @request['guests'].to_i).nil?
 
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if @request['guests'] < 0
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if @competition_info.guest_limit_exceeded?(@request['guests'])
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if guests < 0
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if @competition_info.guest_limit_exceeded?(guests)
     end
 
     def validate_comment!

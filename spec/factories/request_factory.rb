@@ -91,7 +91,7 @@ FactoryBot.define do
     jwt_token { fetch_jwt_token(submitted_by) }
     requests do
       user_ids.map do |user_id|
-        FactoryBot.build(:update_request, user_id: user_id)
+        FactoryBot.build(:update_request, user_id: user_id, competing: { 'status' => 'cancelled' })
       end
     end
 
