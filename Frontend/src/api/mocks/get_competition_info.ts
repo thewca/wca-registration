@@ -8,8 +8,7 @@ import { MULTI_VENUE } from './fixtures/competitions/multi_venue'
 import { NOT_YET_OPEN } from './fixtures/competitions/not_yet_open'
 import { OPEN_COMPETITION } from './fixtures/competitions/open'
 import { OPEN_WITH_PAYMENTS } from './fixtures/competitions/open_with_payments'
-import { SERIES_COMP_1 } from './fixtures/competitions/series_competitions'
-import { SERIES_COMP_2 } from './fixtures/competitions/series_competitions'
+import { SERIES_COMP_1, SERIES_COMP_2 } from './fixtures/competitions/series_competitions'
 
 export default async function getCompetitionInfoMockWithRealFallback(
   competitionId: string
