@@ -343,6 +343,20 @@ describe RegistrationChecker do
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
       }.not_to raise_error
     end
+
+    it 'cant re-register (register after cancelling) if they have a registration for another series comp' do
+      registration = FactoryBot.create(:registration, registration_status: 'cancelled')
+      FactoryBot.create(:registration, user_id: registration['user_id'], registration_status: 'accepted', competition_id: 'CubingZAWarmup2023')
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'pending' })
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.error).to eq(ErrorCodes::ALREADY_REGISTERED_IN_SERIES)
+        expect(error.http_status).to eq(:forbidden)
+      end
+    end
   end
 
   describe '#update_registration_allowed!.user_can_modify_registration!' do

@@ -8,6 +8,8 @@ import { MULTI_VENUE } from './fixtures/competitions/multi_venue'
 import { NOT_YET_OPEN } from './fixtures/competitions/not_yet_open'
 import { OPEN_COMPETITION } from './fixtures/competitions/open'
 import { OPEN_WITH_PAYMENTS } from './fixtures/competitions/open_with_payments'
+import { SERIES_COMP_1 } from './fixtures/competitions/series_competitions'
+import { SERIES_COMP_2 } from './fixtures/competitions/series_competitions'
 
 export default async function getCompetitionInfoMockWithRealFallback(
   competitionId: string
@@ -30,6 +32,12 @@ export default async function getCompetitionInfoMockWithRealFallback(
     }
     case 'PickeringFavouritesAutumn2023': {
       return FAVOURITES_COMPETITION
+    }
+    case 'SeriesComp1': {
+      return SERIES_COMP_1
+    }
+    case 'SeriesComp2': {
+      return SERIES_COMP_2
     }
     case 'LowLimit2023': {
       return LOW_COMPETITOR_LIMIT
