@@ -77,9 +77,9 @@ export default function RegistrationActions({
     }
   }
 
-  const changeStatus = async (attendees, status) => {
-    attendees.forEach((attendee) => {
-      updateRegistrationMutation(
+  const changeStatus = (attendees, status) => {
+    attendees.forEach(async (attendee) => {
+      await updateRegistrationMutation(
         {
           user_id: attendee,
           competing: {

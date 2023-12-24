@@ -26,13 +26,15 @@ import Processing from './Processing'
 const maxCommentLength = 240
 
 export default function CompetingStep({ nextStep }) {
-  const { user } = useContext(UserContext)
+  const { user, preferredEvents } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const { registration, isRegistered, refetch } =
     useContext(RegistrationContext)
 
   const [comment, setComment] = useState('')
-  const [selectedEvents, setSelectedEvents] = useState([])
+  const [selectedEvents, setSelectedEvents] = useState(
+    preferredEvents.filter((event) => competitionInfo.event_ids.includes(event))
+  )
   const [guests, setGuests] = useState(0)
 
   const [processing, setProcessing] = useState(false)
@@ -345,7 +347,7 @@ export default function CompetingStep({ nextStep }) {
           <>
             <Message info icon floating>
               <Popup
-                content="You will only be accepted if you have met all reigstration requirements"
+                content="You will only be accepted if you have met all registration requirements"
                 position="top left"
                 trigger={<Icon name="circle info" />}
               />

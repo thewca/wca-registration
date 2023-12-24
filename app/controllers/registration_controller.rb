@@ -8,7 +8,7 @@ require_relative '../helpers/user_api'
 require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
-  skip_before_action :validate_token, only: [:list]
+  skip_before_action :validate_token, only: [:list, :list_waiting]
   # The order of the validations is important to not leak any non public info via the API
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
@@ -33,7 +33,7 @@ class RegistrationController < ApplicationController
       lane_name: 'competing',
       step: 'Event Registration',
       step_details: {
-        registration_status: 'waiting',
+        registration_status: 'pending',
         event_ids: event_ids,
         comment: comment,
         guests: guests,
@@ -190,7 +190,39 @@ class RegistrationController < ApplicationController
     competition_id = list_params
     registrations = get_registrations(competition_id, only_attending: true)
     render json: registrations
-  rescue StandardError => e
+  rescue Dynamoid::Errors::Error => e
+    # Render an error response
+    puts e
+    Metrics.registration_dynamodb_errors_counter.increment
+    render json: { error: "Error getting registrations #{e}" },
+           status: :internal_server_error
+  end
+
+  def mine
+    my_registrations = Registration.where(user_id: @current_user).map { |x| { competition_id: x.competition_id, status: x.competing_status } }
+    render json: { registrations: my_registrations }
+  rescue Dynamoid::Errors::Error => e
+    # Render an error response
+    puts e
+    Metrics.registration_dynamodb_errors_counter.increment
+    render json: { error: "Error getting registrations #{e}" },
+           status: :internal_server_error
+  end
+
+  def list_waiting
+    competition_id = list_params
+
+    waiting = Registration.get_registrations_by_status(competition_id, 'waiting_list').map do |registration|
+      {
+        user_id: registration[:user_id],
+        competing: {
+          event_ids: registration.event_ids,
+          waiting_list_position: registration.competing_waiting_list_position || 0,
+        },
+      }
+    end
+    render json: waiting
+  rescue Dynamoid::Errors::Error => e
     # Render an error response
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
@@ -210,7 +242,7 @@ class RegistrationController < ApplicationController
   def list_admin
     registrations = get_registrations(@competition_id)
     render json: registrations
-  rescue StandardError => e
+  rescue Dynamoid::Errors::Error => e
     puts e
     # Is there a reason we aren't using an error code here?
     Metrics.registration_dynamodb_errors_counter.increment
@@ -274,6 +306,7 @@ class RegistrationController < ApplicationController
               registered_on: x['created_at'],
               comment: x.competing_comment,
               admin_comment: x.admin_comment,
+              waiting_list_position: x.competing_waiting_list_position,
             },
             payment: {
               payment_status: x.payment_status,
@@ -295,6 +328,7 @@ class RegistrationController < ApplicationController
           registered_on: registration['created_at'],
           comment: registration.competing_comment,
           admin_comment: registration.admin_comment,
+          waiting_list_position: registration.competing_waiting_list_position,
         },
         payment: {
           payment_status: registration.payment_status,

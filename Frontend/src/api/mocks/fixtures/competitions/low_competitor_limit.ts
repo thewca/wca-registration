@@ -1,6 +1,7 @@
 import { Competition } from '@wca/helpers'
 import { CompetitionInfo } from '../../../types'
 import { dateFromNow } from '../helpers'
+import {competitionFactory} from "../../factories/competitions";
 /* eslint-disable sonarjs/no-duplicate-string */
 
 export const LOW_COMPETITOR_LIMIT_WCIF: Competition = {
@@ -13443,7 +13444,7 @@ export const LOW_COMPETITOR_LIMIT_WCIF: Competition = {
     },
   ],
 }
-export const LOW_COMPETITOR_LIMIT: CompetitionInfo = {
+export const LOW_COMPETITOR_LIMIT: CompetitionInfo = competitionFactory.build({
   'id': 'LowLimit2023',
   'name': 'Low Limit 2023',
   'information': 'This Competition has a low Limit',
@@ -13595,4 +13596,4 @@ export const LOW_COMPETITOR_LIMIT: CompetitionInfo = {
     },
   ],
   'class': 'competition',
-}
+})
