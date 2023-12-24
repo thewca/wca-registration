@@ -132,6 +132,8 @@ class RegistrationController < ApplicationController
     RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find!(@competition_id), params[:submitted_by])
   rescue BulkUpdateError => e
     render_error(e.http_status, e.errors)
+  rescue NoMethodError
+    render_error(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA)
   end
 
   # Shared update logic used by both `update` and `bulk_update`

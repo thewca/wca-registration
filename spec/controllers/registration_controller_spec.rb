@@ -2,10 +2,7 @@
 
 require 'rails_helper'
 
-# TODO: Could I refactor the repetitive calls to endpoints to be in a context/in the describe block, and then have a bunch of
-# one-expect "it" blocks
 describe RegistrationController do
-  # TODO: Add a basic failure case to make sure validations are running
   describe '#update' do
     # NOTE: This code only needs to run once before the assertions, but before(:create) doesnt work because `request` defined then
     before do
@@ -45,9 +42,7 @@ describe RegistrationController do
   end
 
   describe '#bulk_update' do
-    # TODO: Add a test that checks for correct json output from failure case
-    # TODO: Add a case where an empty json is submitted to bulk_update
-
+    # TODO: Consider refactor into separate contexts with one expect() per it-block
     it 'returns a 422 if there are validation errors' do
       registration = FactoryBot.create(:registration)
       update = FactoryBot.build(:update_request, user_id: registration[:user_id])
@@ -149,6 +144,18 @@ describe RegistrationController do
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: bulk_update_request, format: :json
       expect(response.code).to eq('200')
+    end
+
+    it 'returns 422 if blank json submitted' do
+      registration = FactoryBot.create(:registration)
+      bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
+
+      competition = FactoryBot.build(:competition, mock_competition: true)
+      stub_request(:get, comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+
+      request.headers['Authorization'] = bulk_update_request['jwt_token']
+      patch :bulk_update, params: {}, format: :json
+      expect(response.code).to eq('422')
     end
   end
 end
