@@ -38,7 +38,7 @@ export default async function getCompetitionInfoMockWithRealFallback(
     case 'FMCCanada2023': {
       return MULTI_VENUE
     }
-    case 'EventRegLimit' : {
+    case 'EventRegLimit': {
       return EVENT_REGISTRATION_LIMIT
     }
     default: {

@@ -63,7 +63,6 @@ const DROPDOWNS = [
         title: 'Event Registration Limit',
         reactRoute: true,
       },
-
     ],
   },
   {

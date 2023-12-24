@@ -36,7 +36,7 @@ export default function getWcifMockWithRealFallback(competitionId: string) {
       return MULTI_VENUE_WCIF
     }
     case 'EventRegLimit': {
-      return 
+      return EVENT_REGISTRATION_LIMIT_WCIF 
     }
     default: {
       // This allows non mocked response when debugging a certain competition
