@@ -8,7 +8,7 @@ import { MULTI_VENUE } from './fixtures/competitions/multi_venue'
 import { NOT_YET_OPEN } from './fixtures/competitions/not_yet_open'
 import { OPEN_COMPETITION } from './fixtures/competitions/open'
 import { OPEN_WITH_PAYMENTS } from './fixtures/competitions/open_with_payments'
-import { OPEN_WITH_PAYMENTS } from './fixtures/competitions/open_with_payments'
+import { EVENT_REGISTRATION_LIMIT } from './fixtures/competitions/event_registration_limit'
 
 export default async function getCompetitionInfoMockWithRealFallback(
   competitionId: string
