@@ -1,13 +1,13 @@
 import getCompetitionWcif from '../competition/get/get_competition_wcif'
 import { CLOSED_COMPETITION_WCIF } from './fixtures/competitions/closed'
 import { COMMENT_REQUIRED_WCIF } from './fixtures/competitions/comment_required'
+import { EVENT_REGISTRATION_LIMIT_WCIF } from './fixtures/competitions/event_registration_limit'
 import { FAVOURITES_COMPETITION_WCIF } from './fixtures/competitions/favourites'
 import { LOW_COMPETITOR_LIMIT_WCIF } from './fixtures/competitions/low_competitor_limit'
 import { MULTI_VENUE_WCIF } from './fixtures/competitions/multi_venue'
 import { NOT_YET_OPEN_WCIF } from './fixtures/competitions/not_yet_open'
 import { OPEN_COMPETITION_WCIF } from './fixtures/competitions/open'
 import { OPEN_WITH_PAYMENTS_WCIF } from './fixtures/competitions/open_with_payments'
-import { EVENT_REGISTRATION_LIMIT_WCIF } from './fixtures/competitions/event_registration_limit'
 
 export default function getWcifMockWithRealFallback(competitionId: string) {
   switch (competitionId) {
@@ -36,7 +36,7 @@ export default function getWcifMockWithRealFallback(competitionId: string) {
       return MULTI_VENUE_WCIF
     }
     case 'EventRegLimit': {
-      return EVENT_REGISTRATION_LIMIT_WCIF 
+      return EVENT_REGISTRATION_LIMIT_WCIF
     }
     default: {
       // This allows non mocked response when debugging a certain competition
