@@ -37,6 +37,10 @@ export const getShortTime = (date: string, timeZone: string) => {
   })
 }
 
+export const getMediumDate = (date: string) => {
+  return DateTime.fromISO(date).toLocaleString(DateTime.DATE_MED)
+}
+
 export const getLongDate = (date: string) => {
   return new Date(date).toLocaleDateString([], {
     weekday: 'long',
