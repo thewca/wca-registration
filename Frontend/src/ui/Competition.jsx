@@ -3,6 +3,7 @@ import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import moment from 'moment'
 import React, { Fragment, useContext, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import {
   Container,
@@ -25,6 +26,7 @@ import {
   userProfileRoute,
 } from '../api/helper/routes'
 import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
+import i18n from '../i18n'
 import logo from '../static/wca2020.svg'
 import { setMessage } from './events/messages'
 import LoadingMessage from './messages/loadingMessage'
@@ -33,6 +35,8 @@ export default function Competition({ children }) {
   const { competition_id } = useParams()
 
   const { user } = useContext(UserContext)
+
+  const { t, ready } = useTranslation('translation', { i18n })
 
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
@@ -67,7 +71,7 @@ export default function Competition({ children }) {
     <CompetitionContext.Provider
       value={{ competitionInfo: competitionInfo ?? {} }}
     >
-      {isLoading ? (
+      {isLoading || !ready ? (
         <LoadingMessage />
       ) : (
         <>
@@ -209,9 +213,7 @@ export default function Competition({ children }) {
               <List.Item>
                 <List.Icon name="print" />
                 <List.Content>
-                  <List.Header>
-                    Download all of the competitions details
-                  </List.Header>
+                  <List.Header>{t('test.test')}</List.Header>
                   <List.List>
                     <List.Item>
                       <List.Icon name="file pdf" />
@@ -232,14 +234,11 @@ export default function Competition({ children }) {
                     if (competitionIsBookmarked) {
                       await unbookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage('Unbookmarked this competition.', 'basic')
+                      setMessage(t('bookmarks.unbookmark'), 'basic')
                     } else {
                       await bookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage(
-                        'You bookmarked this competition. You will get an email 24h before Registration Opens.',
-                        'positive'
-                      )
+                      setMessage(t('bookmarks.bookmark'), 'positive')
                     }
                   }}
                   name={bookmarkLoading ? 'spinner' : 'bookmark'}
