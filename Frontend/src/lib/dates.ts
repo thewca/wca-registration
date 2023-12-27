@@ -14,6 +14,10 @@ export const getDatesStartingOn = (
   return range
 }
 
+export function isAfterNow(date: string): boolean {
+  return DateTime.fromISO(date) > DateTime.now()
+}
+
 export const activitiesByDate = (
   activities: Activity[],
   date: Date,
