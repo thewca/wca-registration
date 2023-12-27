@@ -26,6 +26,7 @@ import {
   userProfileRoute,
 } from '../api/helper/routes'
 import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
+import i18n from '../i18n'
 import logo from '../static/wca2020.svg'
 import { setMessage } from './events/messages'
 import LoadingMessage from './messages/loadingMessage'
@@ -35,7 +36,7 @@ export default function Competition({ children }) {
 
   const { user } = useContext(UserContext)
 
-  const { t } = useTranslation()
+  const { t, ready } = useTranslation('translation', { i18n })
 
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
@@ -70,7 +71,7 @@ export default function Competition({ children }) {
     <CompetitionContext.Provider
       value={{ competitionInfo: competitionInfo ?? {} }}
     >
-      {isLoading ? (
+      {isLoading || !ready ? (
         <LoadingMessage />
       ) : (
         <>
@@ -212,9 +213,7 @@ export default function Competition({ children }) {
               <List.Item>
                 <List.Icon name="print" />
                 <List.Content>
-                  <List.Header>
-                    Download all of the competitions details
-                  </List.Header>
+                  <List.Header>{t('test.test')}</List.Header>
                   <List.List>
                     <List.Item>
                       <List.Icon name="file pdf" />
@@ -235,11 +234,11 @@ export default function Competition({ children }) {
                     if (competitionIsBookmarked) {
                       await unbookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage(t('bookmarks.bookmark'), 'basic')
+                      setMessage(t('bookmarks.unbookmark'), 'basic')
                     } else {
                       await bookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage(t('bookmarks.unbookmark'), 'positive')
+                      setMessage(t('bookmarks.bookmark'), 'positive')
                     }
                   }}
                   name={bookmarkLoading ? 'spinner' : 'bookmark'}

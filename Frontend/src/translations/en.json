@@ -22,7 +22,10 @@
     "-4008": "Registration has closed"
   },
   "bookmarks": {
-    "bookmark": "Unbookmarked this competition.",
-    "unbookmark": "You bookmarked this competition. You will get an email 24h before Registration Opens."
+    "unbookmark": "Unbookmarked this competition.",
+    "bookmark": "You bookmarked this competition. You will get an email 24h before Registration Opens."
+  },
+  "test": {
+    "test": "Download all of the competitions details"
   }
 }
