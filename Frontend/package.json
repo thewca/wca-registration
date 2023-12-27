@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.12.1",
+    "@types/luxon": "^3.3.7",
     "@types/node": "20.10.3",
     "esbuild": "0.19.8",
     "esbuild-sass-plugin": "2.16.0",
