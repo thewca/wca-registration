@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
 import _ from 'lodash'
-import moment from 'moment'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -21,6 +20,7 @@ import { RegistrationContext } from '../../../api/helper/context/registration_co
 import { UserContext } from '../../../api/helper/context/user_context'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
+import { getMediumDate } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import Processing from './Processing'
 
@@ -296,10 +296,10 @@ export default function CompetingStep({ nextStep }) {
                 position="top center"
                 content={
                   canUpdateRegistration
-                    ? `You can update your registration until ${moment(
+                    ? `You can update your registration until ${getMediumDate(
                         competitionInfo.event_change_deadline_date ??
                           competitionInfo.start_date
-                      ).format('ll')}`
+                      )}`
                     : 'You can no longer update your registration'
                 }
               />
