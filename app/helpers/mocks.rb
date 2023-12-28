@@ -9,7 +9,7 @@ module Mocks
   end
 
   def self.pii_mock(user_ids)
-    user_ids.map { |u| { :dob => "1993-01-01", :email => "#{u.user_id}@worldcubeassociation.org" } }
+    user_ids.map { |u| { "user_id" => u,  "dob" => "1993-01-01", "email" => "#{u}@worldcubeassociation.org" } }
   end
 
   def self.permissions_mock(user_id)

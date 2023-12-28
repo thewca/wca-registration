@@ -190,7 +190,7 @@ class RegistrationController < ApplicationController
   def list_admin
     registrations = get_registrations(@competition_id)
     render json: add_pii(registrations)
-  rescue StandardError => e
+  rescue Dynamoid::Errors::Error => e
     puts e
     # Is there a reason we aren't using an error code here?
     Metrics.registration_dynamodb_errors_counter.increment
@@ -237,16 +237,16 @@ class RegistrationController < ApplicationController
       params.require(:competition_id)
     end
 
-    def add_pii(registrations)
-      pii = UserApi.get_competitor_info(registrations.pluck(:user_id))
-      registrations.each do | r |
-        r[:email] = pii[user_id][:email]
-        r[:dob] = pii[user_id][:dob]
-      end
-      registrations
-    end
+  def add_pii(registrations)
+    pii = UserApi.get_competitor_info(registrations.pluck(:user_id))
 
-    def get_registrations(competition_id, only_attending: false)
+    registrations.map do |r|
+      user = pii.find { |u| u["user_id"] == r[:user_id] }
+      r.merge(email: user["email"], dob: user["dob"])
+    end
+  end
+
+  def get_registrations(competition_id, only_attending: false)
       if only_attending
         Registration.where(competition_id: competition_id, is_competing: true).all.map do |x|
           { user_id: x['user_id'],
