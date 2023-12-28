@@ -113,4 +113,8 @@ class CompetitionInfo
   def user_can_cancel?
     @competition_json['allow_registration_self_delete_after_acceptance']
   end
+
+  def qualifications
+    @competition_json['qualifications']
+  end
 end
