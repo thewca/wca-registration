@@ -41,13 +41,9 @@ class RegistrationChecker
 
     errors = {}
     bulk_update_request['requests'].each do |update_request|
-      # rubocop:disable Style/RedundantBegin
-      begin
-        # rubocop:enable Style/RedundantBegin
-        update_registration_allowed!(update_request, competition_info, requesting_user)
-      rescue RegistrationError => e
-        errors[update_request['user_id']] = e.error
-      end
+      update_registration_allowed!(update_request, competition_info, requesting_user)
+    rescue RegistrationError => e
+      errors[update_request['user_id']] = e.error
     end
     raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors == {}
   end
