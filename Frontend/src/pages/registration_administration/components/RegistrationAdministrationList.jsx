@@ -3,7 +3,6 @@ import { CubingIcon, FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { Link } from 'react-router-dom'
 import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
-import getCompetitorInfo from '../../../api/competition/get/get_competitor_info'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
@@ -123,38 +122,9 @@ export default function RegistrationAdministrationList() {
     },
   })
 
-  const { isLoading: isPiiLoading, data: piiData } = useQuery({
-    queryKey: ['registrations-pii', competitionInfo.id],
-    queryFn: () => getCompetitorInfo(competitionInfo.id),
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    staleTime: Infinity,
-    refetchOnMount: 'always',
-    retry: false,
-    onError: (err) => {
-      setMessage(err.message, 'error')
-    },
-  })
-
-  const registrationsWithPii = useMemo(
-    () => addPii(registrations ?? [], piiData ?? []),
-    [registrations, piiData]
-  )
-
-  const userEmailMap = useMemo(
-    () =>
-      Object.fromEntries(
-        registrationsWithPii.map((registration) => [
-          registration.user.id,
-          registration.user.email,
-        ])
-      ),
-    [registrationsWithPii]
-  )
-
   const { waiting, accepted, cancelled, pending } = useMemo(
-    () => partitionRegistrations(registrationsWithPii ?? []),
-    [registrationsWithPii]
+    () => partitionRegistrations(registrations ?? []),
+    [registrations]
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])
@@ -185,7 +155,7 @@ export default function RegistrationAdministrationList() {
     (competitionInfo.competitor_limit ?? Infinity) - accepted.length
   const spotsRemainingText = `; ${spotsRemaining} spot(s) remaining`
 
-  return isRegistrationsLoading || isPiiLoading ? (
+  return isRegistrationsLoading ? (
     <LoadingMessage />
   ) : (
     <>
@@ -261,7 +231,6 @@ export default function RegistrationAdministrationList() {
 
       <RegistrationActions
         partitionedSelected={partitionedSelected}
-        userEmailMap={userEmailMap}
         refresh={async () => {
           await refetch()
           dispatch({ type: 'clear-selected' })
@@ -531,12 +500,4 @@ function TableRow({
       </Table.Cell>
     </Table.Row>
   )
-}
-
-function addPii(registrations, piiData) {
-  return registrations.map((registration) => {
-    const { email, dob } =
-      piiData.find((data) => data.id === registration.user.id) || {}
-    return { ...registration, user: { ...registration.user, email, dob } }
-  })
 }

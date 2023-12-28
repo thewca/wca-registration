@@ -43,13 +43,4 @@ class InternalController < ApplicationController
     registration.update_payment_lane(payment_id, iso_amount, currency_iso, payment_status)
     render json: { status: 'ok' }
   end
-
-  def list_registrations
-    competition_id = params.require(:competition_id)
-    status = params[:status]
-    if status.present?
-      return render json: Registration.where(competition_id: competition_id, competing_status: status).to_a
-    end
-    render json: Registration.where(competition_id: competition_id).to_a
-  end
 end

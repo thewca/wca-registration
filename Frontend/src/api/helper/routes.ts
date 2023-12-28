@@ -40,9 +40,6 @@ export const usersInfoRoute = (ids: string[]) =>
     .join('&')}`
 export const competitionInfoRoute = (id: string) =>
   `${process.env.WCA_URL}/api/v0/competitions/${id}`
-
-export const competitorInfoRoute = (id: string) =>
-  `${process.env.WCA_URL}/api/v0/competitions/${id}/competitor-info`
 export const competitionWCIFRoute = (id: string) =>
   `${process.env.WCA_URL}/api/v0/competitions/${id}/wcif/public`
 export const userInfoRoute = (id: string) =>

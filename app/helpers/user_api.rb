@@ -9,12 +9,24 @@ def permissions_path(user_id)
   "https://#{EnvConfig.WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
 end
 
+def competitor_info_path
+  "https://#{EnvConfig.WCA_HOST}/api/internal/v1/users/competitor_info"
+end
+
 class UserApi < WcaApi
   def self.get_permissions(user_id)
     if Rails.env.production?
       HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.get_wca_token })
     else
       Mocks.permissions_mock(user_id)
+    end
+  end
+
+  def self.get_competitor_info(user_ids)
+    if Rails.env.production?
+      HTTParty.post(competitor_info_path, headers: { WCA_API_HEADER => self.get_wca_token }, body: { ids: user_ids })
+    else
+      Mocks.pii_mock(user_id)
     end
   end
 

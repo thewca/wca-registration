@@ -189,7 +189,7 @@ class RegistrationController < ApplicationController
 
   def list_admin
     registrations = get_registrations(@competition_id)
-    render json: registrations
+    render json: add_pii(registrations)
   rescue StandardError => e
     puts e
     # Is there a reason we aren't using an error code here?
@@ -235,6 +235,15 @@ class RegistrationController < ApplicationController
 
     def list_params
       params.require(:competition_id)
+    end
+
+    def add_pii(registrations)
+      pii = UserApi.get_competitor_info(registrations.pluck(:user_id))
+      registrations.each do | r |
+        r[:email] = pii[user_id][:email]
+        r[:dob] = pii[user_id][:dob]
+      end
+      registrations
     end
 
     def get_registrations(competition_id, only_attending: false)
