@@ -3,8 +3,8 @@ import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import { useQuery } from '@tanstack/react-query'
 import React, { useContext, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
-import { PAYMENT_NOT_READY } from '../../../api/helper/error_codes'
 import getStripeConfig from '../../../api/payment/get/get_stripe_config'
 import getPaymentId from '../../../api/registration/get/get_payment_intent'
 import { setMessage } from '../../../ui/events/messages'
@@ -13,6 +13,7 @@ import PaymentStep from './PaymentStep'
 export default function StripeWrapper() {
   const [stripePromise, setStripePromise] = useState(null)
   const { competitionInfo } = useContext(CompetitionContext)
+  const { t } = useTranslation()
   const {
     data: paymentInfo,
     isLoading: isPaymentIdLoading,
@@ -25,14 +26,13 @@ export default function StripeWrapper() {
     staleTime: Infinity,
     refetchOnMount: 'always',
     onError: (err) => {
-      if (err.error === PAYMENT_NOT_READY) {
-        setMessage(
-          'You need to finish your registration before you can pay',
-          'error'
-        )
-      } else {
-        setMessage(err.error, 'error')
-      }
+      const { errorCode } = err
+      setMessage(
+        errorCode
+          ? t(`errors.${errorCode}`)
+          : 'Fetching Payment Information failed with error: ' + err.message,
+        'negative'
+      )
     },
   })
 

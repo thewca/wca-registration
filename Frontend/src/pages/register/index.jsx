@@ -1,4 +1,4 @@
-import moment from 'moment'
+import { DateTime } from 'luxon'
 import React, { useContext, useState } from 'react'
 import {
   Button,
@@ -12,6 +12,7 @@ import {
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { UserContext } from '../../api/helper/context/user_context'
+import { getLongDate, getMediumDate, isAfterNow } from '../../lib/dates'
 import { displayMoneyISO4217 } from '../../lib/money'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
@@ -20,7 +21,7 @@ function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {
     return 'OPEN'
   }
-  return moment(competitionInfo.registration_open).isAfter()
+  return isAfterNow(competitionInfo.registration_open)
     ? 'NOT YET OPEN'
     : 'CLOSED'
 }
@@ -105,9 +106,9 @@ export default function Register() {
                     <List.Icon name="pencil" />
                     <List.Content>
                       <List.Header>
-                        {moment(competitionInfo.registration_open).calendar()}
+                        {getMediumDate(competitionInfo.registration_open)}
                         {' until '}
-                        {moment(competitionInfo.registration_close).calendar()}
+                        {getMediumDate(competitionInfo.registration_close)}
                       </List.Header>
                       <List.Description>Registration Period</List.Description>
                       <List.List>
@@ -117,10 +118,10 @@ export default function Register() {
                             <List.Header>
                               {competitionInfo.refund_policy_percent}
                               {'% before '}
-                              {moment(
+                              {getMediumDate(
                                 competitionInfo.refund_policy_limit_date ??
                                   competitionInfo.start_date
-                              ).calendar()}
+                              )}
                             </List.Header>
                             <List.Description>Refund policy</List.Description>
                           </List.Content>
@@ -129,10 +130,10 @@ export default function Register() {
                           <List.Icon name="save" />
                           <List.Content>
                             <List.Header>
-                              {moment(
+                              {getMediumDate(
                                 competitionInfo.event_change_deadline_date ??
                                   competitionInfo.end_date
-                              ).calendar()}
+                              )}
                             </List.Header>
                             <List.Description>
                               Edit registration deadline
@@ -143,10 +144,10 @@ export default function Register() {
                           <List.Icon name="hourglass half" />
                           <List.Content>
                             <List.Header>
-                              {moment(
+                              {getMediumDate(
                                 competitionInfo.waiting_list_deadline_date ??
                                   competitionInfo.start_date
-                              ).calendar()}
+                              )}
                             </List.Header>
                             <List.Description>
                               Waiting list acceptance date
@@ -218,15 +219,15 @@ export default function Register() {
         </div>
       ) : (
         <Message warning>
-          {moment(competitionInfo.registration_open).diff(moment.now()) < 0
-            ? `Competition Registration closed on ${moment(
+          {!isAfterNow(competitionInfo.registration_close)
+            ? `Competition Registration closed on ${getMediumDate(
                 competitionInfo.registration_close
-              ).format('ll')}`
-            : `Competition Registration will open in ${moment(
+              )}`
+            : `Competition Registration will open ${DateTime.fromISO(
                 competitionInfo.registration_open
-              ).fromNow()} on ${moment(
+              ).toRelativeCalendar()} on ${getLongDate(
                 competitionInfo.registration_open
-              ).format('lll')}, ${
+              )}, ${
                 !loggedIn ? 'you will need a WCA Account to register' : ''
               }`}
         </Message>

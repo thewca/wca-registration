@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, FlagIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
@@ -35,12 +36,20 @@ function sortReducer(state, action) {
 
 export default function RegistrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
+  const { t } = useTranslation()
+
   const { isLoading, data: registrations } = useQuery({
     queryKey: ['registrations', competitionInfo.id],
     queryFn: () => getConfirmedRegistrations(competitionInfo.id),
     retry: false,
     onError: (err) => {
-      setMessage(err.message, 'error')
+      const { errorCode } = err
+      setMessage(
+        errorCode
+          ? t(`errors.${errorCode}`)
+          : 'Fetching Registrations failed with error: ' + err.message,
+        'negative'
+      )
     },
   })
 

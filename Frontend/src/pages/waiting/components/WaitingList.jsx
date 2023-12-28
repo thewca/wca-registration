@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import React, { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Table, TableFooter } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getWaitingCompetitors } from '../../../api/registration/get/get_registrations'
@@ -8,12 +9,19 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 
 export default function WaitingList() {
   const { competitionInfo } = useContext(CompetitionContext)
+  const { t } = useTranslation()
   const { isLoading, data: waiting } = useQuery({
     queryKey: ['waiting', competitionInfo.id],
     queryFn: () => getWaitingCompetitors(competitionInfo.id),
     retry: false,
     onError: (err) => {
-      setMessage(err.message, 'error')
+      const { errorCode } = err
+      setMessage(
+        errorCode
+          ? t(`errors.${errorCode}`)
+          : 'Fetching Registrations failed with error: ' + err.message,
+        'negative'
+      )
     },
   })
   return isLoading ? (
