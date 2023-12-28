@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/dist/bundle.css">
     <script>
         // For Live Reload
-        new EventSource('/esbuild').addEventListener('change', () => location.reload())
+        new EventSource('http://localhost:3000/esbuild').addEventListener('change', () => location.reload())
     </script>
 </head>
 <body>
