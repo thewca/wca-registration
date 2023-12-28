@@ -106,13 +106,9 @@ export default function Register() {
                     <List.Icon name="pencil" />
                     <List.Content>
                       <List.Header>
-                        {DateTime.fromISO(
-                          competitionInfo.registration_open
-                        ).toRelativeCalendar()}
+                        {getMediumDate(competitionInfo.registration_open)}
                         {' until '}
-                        {DateTime.fromISO(
-                          competitionInfo.registration_close
-                        ).toRelativeCalendar()}
+                        {getMediumDate(competitionInfo.registration_close)}
                       </List.Header>
                       <List.Description>Registration Period</List.Description>
                       <List.List>
@@ -122,10 +118,10 @@ export default function Register() {
                             <List.Header>
                               {competitionInfo.refund_policy_percent}
                               {'% before '}
-                              {DateTime.fromISO(
+                              {getMediumDate(
                                 competitionInfo.refund_policy_limit_date ??
                                   competitionInfo.start_date
-                              ).toRelativeCalendar()}
+                              )}
                             </List.Header>
                             <List.Description>Refund policy</List.Description>
                           </List.Content>
@@ -134,10 +130,10 @@ export default function Register() {
                           <List.Icon name="save" />
                           <List.Content>
                             <List.Header>
-                              {DateTime.fromISO(
+                              {getMediumDate(
                                 competitionInfo.event_change_deadline_date ??
                                   competitionInfo.end_date
-                              ).toRelativeCalendar()}
+                              )}
                             </List.Header>
                             <List.Description>
                               Edit registration deadline
@@ -148,10 +144,10 @@ export default function Register() {
                           <List.Icon name="hourglass half" />
                           <List.Content>
                             <List.Header>
-                              {DateTime.fromISO(
+                              {getMediumDate(
                                 competitionInfo.waiting_list_deadline_date ??
                                   competitionInfo.start_date
-                              ).toRelativeCalendar()}
+                              )}
                             </List.Header>
                             <List.Description>
                               Waiting list acceptance date
@@ -223,11 +219,11 @@ export default function Register() {
         </div>
       ) : (
         <Message warning>
-          {isAfterNow(competitionInfo.registration_close)
+          {!isAfterNow(competitionInfo.registration_close)
             ? `Competition Registration closed on ${getMediumDate(
                 competitionInfo.registration_close
               )}`
-            : `Competition Registration will open in ${DateTime.fromISO(
+            : `Competition Registration will open ${DateTime.fromISO(
                 competitionInfo.registration_open
               ).toRelativeCalendar()} on ${getLongDate(
                 competitionInfo.registration_open

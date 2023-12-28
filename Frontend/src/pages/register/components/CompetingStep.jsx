@@ -220,7 +220,7 @@ export default function CompetingStep({ nextStep }) {
       )}
 
       <>
-        {registration?.registration_status && (
+        {registration?.competing?.registration_status && (
           <Message info>You have registered for {competitionInfo.name}</Message>
         )}
         {!competitionInfo['registration_opened?'] && (
