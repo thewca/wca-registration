@@ -26,7 +26,7 @@ class UserApi < WcaApi
     if Rails.env.production?
       HTTParty.post(competitor_info_path, headers: { WCA_API_HEADER => self.get_wca_token }, body: { ids: user_ids })
     else
-      Mocks.pii_mock(user_id)
+      Mocks.pii_mock(user_ids)
     end
   end
 
