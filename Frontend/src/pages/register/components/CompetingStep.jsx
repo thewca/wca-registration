@@ -104,8 +104,7 @@ export default function CompetingStep({ nextStep }) {
 
   const commentIsValid =
     comment.trim() || !competitionInfo.force_comment_in_registration
-  // TODO: get max events can register for
-  const maxEvents = competitionInfo.events_per_registration_limit
+  const maxEvents = competitionInfo.events_per_registration_limit ?? Infinity
   const eventsAreValid =
     selectedEvents.length > 0 && selectedEvents.length <= maxEvents
 
