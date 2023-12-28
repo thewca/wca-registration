@@ -155,6 +155,17 @@ export default function RegistrationAdministrationList() {
     (competitionInfo.competitor_limit ?? Infinity) - accepted.length
   const spotsRemainingText = `; ${spotsRemaining} spot(s) remaining`
 
+  const userEmailMap = useMemo(
+    () =>
+      Object.fromEntries(
+        (registrations ?? []).map((registration) => [
+          registration.user.id,
+          registration.email,
+        ])
+      ),
+    [registrations]
+  )
+
   return isRegistrationsLoading ? (
     <LoadingMessage />
   ) : (
@@ -237,6 +248,7 @@ export default function RegistrationAdministrationList() {
         }}
         registrations={registrations}
         spotsRemaining={spotsRemaining}
+        userEmailMap={userEmailMap}
       />
     </>
   )
@@ -359,16 +371,10 @@ function TableRow({
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
 
   const { dob, region, events, comments, email } = columnsExpanded
-  const {
-    id,
-    wca_id,
-    name,
-    country,
-    dob: dateOfBirth,
-    email: emailAddress,
-  } = registration.user
+  const { id, wca_id, name, country } = registration.user
   const { registered_on, event_ids, comment, admin_comment } =
     registration.competing
+  const { dob: dateOfBirth, email: emailAddress } = registration
   const { payment_status, updated_at } = registration.payment
 
   const copyEmail = () => {
