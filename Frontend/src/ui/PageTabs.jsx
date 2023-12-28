@@ -21,6 +21,7 @@ export default function PageTabs() {
     }
     if (canAdminCompetition) {
       optionalTabs.push(registrationsMenuConfig)
+      optionalTabs.push(waitingMenuConfig)
     }
     if (new Date(competitionInfo.registration_open) < Date.now()) {
       optionalTabs.push(competitorsMenuConfig)
@@ -142,6 +143,12 @@ const registrationsMenuConfig = {
   route: 'registrations/edit',
   icon: 'list ul',
   label: 'Registrations',
+}
+const waitingMenuConfig = {
+  key: 'waiting',
+  route: 'waiting',
+  icon: 'clock',
+  label: 'Waiting list',
 }
 const competitorsMenuConfig = {
   key: 'competitors',

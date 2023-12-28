@@ -69,6 +69,12 @@ const DROPDOWNS = [
         title: 'Not yet open Competition',
         reactRoute: true,
       },
+      {
+        path: `${BASE_ROUTE}/EventRegLimit`,
+        icon: 'time',
+        title: 'Event Registration Limit',
+        reactRoute: true,
+      },
     ],
   },
   {

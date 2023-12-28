@@ -1,6 +1,7 @@
 import { Competition } from '@wca/helpers'
 import { CompetitionInfo } from '../../../types'
 import { dateFromNow } from '../helpers'
+import {competitionFactory} from "../../factories/competitions";
 /* eslint-disable sonarjs/no-duplicate-string */
 export const FAVOURITES_COMPETITION_WCIF: Competition = {
   formatVersion: '1.0',
@@ -1551,7 +1552,7 @@ export const FAVOURITES_COMPETITION_WCIF: Competition = {
   ],
 }
 
-export const FAVOURITES_COMPETITION: CompetitionInfo = {
+export const FAVOURITES_COMPETITION: CompetitionInfo = competitionFactory.build({
   'id': 'PickeringFavouritesAutumn2023',
   'name': 'Pickering Favourites Autumn 2023',
   'information':
@@ -2007,4 +2008,4 @@ export const FAVOURITES_COMPETITION: CompetitionInfo = {
     },
   ],
   'class': 'competition',
-}
+})

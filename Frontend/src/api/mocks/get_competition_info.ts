@@ -2,6 +2,7 @@ import getCompetitionInfo from '../competition/get/get_competition_info'
 import { CompetitionInfo } from '../types'
 import { CLOSED_COMPETITION } from './fixtures/competitions/closed'
 import { COMMENT_REQUIRED } from './fixtures/competitions/comment_required'
+import { EVENT_REGISTRATION_LIMIT } from './fixtures/competitions/event_registration_limit'
 import { FAVOURITES_COMPETITION } from './fixtures/competitions/favourites'
 import { LOW_COMPETITOR_LIMIT } from './fixtures/competitions/low_competitor_limit'
 import { MULTI_VENUE } from './fixtures/competitions/multi_venue'
@@ -46,6 +47,9 @@ export default async function getCompetitionInfoMockWithRealFallback(
     } // Doesn't need a backend mock equivalent as the competition is marked as not using wca-registrations
     case 'FMCCanada2023': {
       return MULTI_VENUE
+    }
+    case 'EventRegLimit': {
+      return EVENT_REGISTRATION_LIMIT
     }
     default: {
       // This allows non mocked response when debugging a certain competition

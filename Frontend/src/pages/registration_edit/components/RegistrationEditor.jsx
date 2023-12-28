@@ -1,13 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import _ from 'lodash'
-import moment from 'moment/moment'
+import { DateTime } from 'luxon'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import {
   Button,
   Checkbox,
   Header,
+  Input,
   Message,
   Segment,
   TextArea,
@@ -24,15 +26,19 @@ import Refunds from './Refunds'
 export default function RegistrationEditor() {
   const { user_id } = useParams()
   const { competitionInfo } = useContext(CompetitionContext)
+  const { t } = useTranslation()
 
   const [comment, setComment] = useState('')
   const [adminComment, setAdminComment] = useState('')
   const [status, setStatus] = useState('')
+  const [waitingListPosition, setWaitingListPosition] = useState(0)
+  const [guests, setGuests] = useState(0)
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
   const [isCheckingRefunds, setIsCheckingRefunds] = useState(false)
 
   const queryClient = useQueryClient()
+
   const { data: serverRegistration } = useQuery({
     queryKey: ['registration', competitionInfo.id, user_id],
     queryFn: () =>
@@ -42,16 +48,21 @@ export default function RegistrationEditor() {
     staleTime: Infinity,
     refetchOnMount: 'always',
   })
+
   const { isLoading, data: competitorInfo } = useQuery({
     queryKey: ['info', user_id],
     queryFn: () => getCompetitorInfo(user_id),
   })
+
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
     useMutation({
       mutationFn: updateRegistration,
       onError: (data) => {
+        const { errorCode } = data
         setMessage(
-          'Registration update failed with error: ' + data.errorCode,
+          errorCode
+            ? t(`errors.${errorCode}`)
+            : 'Registration update failed with error: ' + data.message,
           'negative'
         )
       },
@@ -73,6 +84,10 @@ export default function RegistrationEditor() {
       setAdminComment(
         serverRegistration.registration.competing.admin_comment ?? ''
       )
+      setWaitingListPosition(
+        serverRegistration.registration.competing.waiting_list_position ?? 0
+      )
+      setGuests(serverRegistration.registration.guests ?? 0)
     }
   }, [serverRegistration])
 
@@ -101,8 +116,7 @@ export default function RegistrationEditor() {
 
   const commentIsValid =
     comment || !competitionInfo.force_comment_in_registration
-  // TODO: get max events can register for
-  const maxEvents = Infinity
+  const maxEvents = competitionInfo.events_per_registration_limit ?? Infinity
   const eventsAreValid =
     selectedEvents.length > 0 && selectedEvents.length <= maxEvents
 
@@ -127,28 +141,30 @@ export default function RegistrationEditor() {
           event_ids: selectedEvents,
           comment,
           admin_comment: adminComment,
+          waiting_list_position: waitingListPosition,
         },
         competition_id: competitionInfo.id,
       })
     }
   }, [
-    adminComment,
-    comment,
-    commentIsValid,
-    competitionInfo.id,
-    eventsAreValid,
     hasChanges,
-    selectedEvents,
-    status,
+    commentIsValid,
+    eventsAreValid,
+    maxEvents,
     updateRegistrationMutation,
     user_id,
-    maxEvents,
+    status,
+    selectedEvents,
+    comment,
+    adminComment,
+    waitingListPosition,
+    competitionInfo.id,
   ])
 
-  const registrationEditDeadlinePassed = moment(
-    // If no deadline is set default to always be in the future
-    competitionInfo.event_change_deadline_date ?? Date.now() + 1
-  ).isBefore()
+  const registrationEditDeadlinePassed =
+    DateTime.fromISO(
+      competitionInfo.event_change_deadline_date ?? new Date().toISOString()
+    ) < DateTime.fromJSDate(new Date())
 
   return (
     <Segment padded attached>
@@ -227,6 +243,16 @@ export default function RegistrationEditor() {
               disabled={registrationEditDeadlinePassed}
               checked={status === 'cancelled'}
               onChange={(_, data) => setStatus(data.value)}
+            />
+            <br />
+            <Header>Guests</Header>
+            <Input
+              disabled={registrationEditDeadlinePassed}
+              type="number"
+              min={0}
+              max={99}
+              value={guests}
+              onChange={(_, data) => setGuests(data.value)}
             />
           </div>
 

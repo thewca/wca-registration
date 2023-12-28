@@ -64,6 +64,7 @@ export async function getAllRegistrations(
     }
     throw new BackendError(error.error, response.status)
   }
+
   return addUserInfo(data!)
 }
 
@@ -76,4 +77,20 @@ export async function getSingleRegistration(
     'GET',
     { needsAuthentication: true }
   ) as Promise<{ registration: components['schemas']['registrationAdmin'] }>
+}
+
+export async function getWaitingCompetitors(
+  competitionId: string
+): Promise<components['schemas']['registrationAdmin'][]> {
+  const registrations = (await backendFetch(
+    `/registrations/${competitionId}/waiting`,
+    'GET',
+    {
+      needsAuthentication: false,
+    }
+  )) as components['schemas']['registrationAdmin'][]
+
+  return (await addUserInfo(
+    registrations
+  )) as components['schemas']['registrationAdmin'][]
 }

@@ -74,6 +74,14 @@ class CompetitionInfo
     @competition_json['guest_entry_status'] == 'restricted' && @competition_json['guests_per_registration_limit'] < guest_count
   end
 
+  def event_limit
+    if @competition_json['events_per_registration_limit'].is_a? Integer
+      @competition_json['events_per_registration_limit']
+    else
+      nil
+    end
+  end
+
   def guest_limit
     @competition_json['guests_per_registration_limit']
   end
