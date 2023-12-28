@@ -87,7 +87,7 @@ class RegistrationController < ApplicationController
 
   def update
     render json: { status: 'ok', registration: process_update(params) }
-  rescue StandardError => e
+  rescue Dynamoid::Errors::Error => e
     puts e
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error Updating Registration: #{e.message}" },
@@ -124,7 +124,7 @@ class RegistrationController < ApplicationController
       updated_registrations[update['user_id']] = process_update(update)
     end
 
-    render json: updated_registrations
+    render json: { status: 'ok', updated_registrations: updated_registrations }
   end
 
   def validate_bulk_update_request

@@ -104,7 +104,7 @@ describe RegistrationController do
       patch :bulk_update, params: bulk_update_request, format: :json
       expect(response.code).to eq('200')
 
-      body = JSON.parse(response.body)
+      body = JSON.parse(response.body)['updated_registrations']
       expect(body[registration[:user_id]]['competing']['registration_status']).to eq('accepted')
       expect(body[registration3[:user_id]]['competing']['comment']).to eq('test comment update')
     end
