@@ -175,30 +175,6 @@ describe RegistrationChecker do
       end
     end
 
-    it 'user must have events selected' do
-      registration_request = FactoryBot.build(:registration_request, events: [])
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unprocessable_entity)
-        expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
-      end
-    end
-
-    it 'events must be held at the competition' do
-      registration_request = FactoryBot.build(:registration_request, events: ['333', '333fm'])
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unprocessable_entity)
-        expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
-      end
-    end
-
     it 'guests can equal the maximum allowed' do
       registration_request = FactoryBot.build(:registration_request, guests: 2)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
@@ -307,6 +283,64 @@ describe RegistrationChecker do
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unprocessable_entity)
         expect(error.error).to eq(ErrorCodes::REQUIRED_COMMENT_MISSING)
+      end
+    end
+  end
+
+  describe '#create_registration_allowed!.validate_create_events!' do
+    it 'user must have events selected' do
+      registration_request = FactoryBot.build(:registration_request, events: [])
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
+      end
+    end
+
+    it 'events must be held at the competition' do
+      registration_request = FactoryBot.build(:registration_request, events: ['333', '333fm'])
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
+      end
+    end
+
+    it 'competitor can register up to the events_per_registration_limit limit' do
+      registration_request = FactoryBot.build(:registration_request, events: ['333', '222', '444', '555', '666'])
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, events_per_registration_limit: 5))
+
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'competitor cant register more events than the events_per_registration_limit' do
+      registration_request = FactoryBot.build(:registration_request, events: ['333', '222', '444', '555', '666', '777'])
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, events_per_registration_limit: 5))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
+      end
+    end
+
+    it 'organizer cant register more events than the events_per_registration_limit' do
+      registration_request = FactoryBot.build(:registration_request, :organizer, events: ['333', '222', '444', '555', '666', '777'])
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, events_per_registration_limit: 5))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
       end
     end
   end
@@ -941,6 +975,43 @@ describe RegistrationChecker do
         RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
       }.to raise_error(RegistrationError) do |error|
         expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
+      end
+    end
+
+    it 'competitor can update registration with events up to the events_per_registration_limit limit' do
+      registration = FactoryBot.create(:registration)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, events_per_registration_limit: 5))
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'event_ids' => ['333', '222', '444', '555', '666'] })
+
+      expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'competitor cant update registration to more events than the events_per_registration_limit' do
+      registration = FactoryBot.create(:registration)
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'event_ids' => ['333', '222', '444', '555', '666', '777'] })
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, events_per_registration_limit: 5))
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
+      end
+    end
+
+    it 'organizer cant update their registration with more events than the events_per_registration_limit' do
+      registration = FactoryBot.create(:registration)
+      update_request = FactoryBot.build(
+        :update_request, user_id: registration[:user_id], competing: { 'event_ids' => ['333', '222', '444', '555', '666', '777'] }
+      )
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, events_per_registration_limit: 5))
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
         expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
       end
     end

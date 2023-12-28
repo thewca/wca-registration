@@ -116,8 +116,7 @@ export default function RegistrationEditor() {
 
   const commentIsValid =
     comment || !competitionInfo.force_comment_in_registration
-  // TODO: get max events can register for
-  const maxEvents = Infinity
+  const maxEvents = competitionInfo.events_per_registration_limit ?? Infinity
   const eventsAreValid =
     selectedEvents.length > 0 && selectedEvents.length <= maxEvents
 
