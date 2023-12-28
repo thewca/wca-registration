@@ -52,6 +52,18 @@ const DROPDOWNS = [
         reactRoute: true,
       },
       {
+        path: `${BASE_ROUTE}/SeriesComp1`,
+        icon: 'time',
+        title: 'Series comp 1',
+        reactRoute: true,
+      },
+      {
+        path: `${BASE_ROUTE}/SeriesComp2`,
+        icon: 'time',
+        title: 'Series comp 2',
+        reactRoute: true,
+      },
+      {
         path: `${BASE_ROUTE}/ManchesterSpring2024`,
         icon: 'time',
         title: 'Not yet open Competition',

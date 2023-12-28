@@ -43,6 +43,143 @@ end
 
 describe RegistrationChecker do
   describe '#create_registration_allowed!' do
+    it 'user must have events selected' do
+      registration_request = FactoryBot.build(:registration_request, events: [])
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
+      end
+    end
+
+    it 'events must be held at the competition' do
+      registration_request = FactoryBot.build(:registration_request, events: ['333', '333fm'])
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
+      end
+    end
+
+    it 'guests can equal the maximum allowed' do
+      registration_request = FactoryBot.build(:registration_request, guests: 2)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'guests may equal 0' do
+      registration_request = FactoryBot.build(:registration_request, guests: 0)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'guests cant exceed 0 if not allowed' do
+      registration_request = FactoryBot.build(:registration_request, guests: 2)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, guests_per_registration_limit: 0))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::GUEST_LIMIT_EXCEEDED)
+      end
+    end
+
+    it 'guests cannot exceed the maximum allowed' do
+      registration_request = FactoryBot.build(:registration_request, guests: 3)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::GUEST_LIMIT_EXCEEDED)
+      end
+    end
+
+    it 'guests cannot be negative' do
+      registration_request = FactoryBot.build(:registration_request, guests: -1)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::INVALID_REQUEST_DATA)
+      end
+    end
+
+    it 'comment cant exceed character limit' do
+      long_comment = 'comment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer
+        than 240 characterscomment longer than 240 characters'
+
+      registration_request = FactoryBot.build(:registration_request, :comment, raw_comment: long_comment)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::USER_COMMENT_TOO_LONG)
+      end
+    end
+
+    it 'comment can match character limit' do
+      at_character_limit = 'comment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than' \
+                           '240 characterscomment longer longer than 240 12345'
+
+      registration_request = FactoryBot.build(:registration_request, :comment, raw_comment: at_character_limit)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'comment can be blank' do
+      comment = ''
+      registration_request = FactoryBot.build(:registration_request, :comment, raw_comment: comment)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'comment must be included if required' do
+      registration_request = FactoryBot.build(:registration_request)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, force_comment_in_registration: true))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::REQUIRED_COMMENT_MISSING)
+      end
+    end
+
+    it 'comment cant be blank if required' do
+      registration_request = FactoryBot.build(:registration_request, :comment, raw_comment: '')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, force_comment_in_registration: true))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.error).to eq(ErrorCodes::REQUIRED_COMMENT_MISSING)
+      end
+    end
+  end
+
+  describe '#create_registration_allowed!.user_can_create_registration!' do
     it 'user can create a registration' do
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
       registration_request = FactoryBot.build(:registration_request)
@@ -175,114 +312,49 @@ describe RegistrationChecker do
       end
     end
 
-    it 'guests can equal the maximum allowed' do
-      registration_request = FactoryBot.build(:registration_request, guests: 2)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
-        .not_to raise_error
-    end
-
-    it 'guests may equal 0' do
-      registration_request = FactoryBot.build(:registration_request, guests: 0)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
-        .not_to raise_error
-    end
-
-    it 'guests cant exceed 0 if not allowed' do
-      registration_request = FactoryBot.build(:registration_request, guests: 2)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, guests_per_registration_limit: 0))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unprocessable_entity)
-        expect(error.error).to eq(ErrorCodes::GUEST_LIMIT_EXCEEDED)
-      end
-    end
-
-    it 'guests cannot exceed the maximum allowed' do
-      registration_request = FactoryBot.build(:registration_request, guests: 3)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unprocessable_entity)
-        expect(error.error).to eq(ErrorCodes::GUEST_LIMIT_EXCEEDED)
-      end
-    end
-
-    it 'guests cannot be negative' do
-      registration_request = FactoryBot.build(:registration_request, guests: -1)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unprocessable_entity)
-        expect(error.error).to eq(ErrorCodes::INVALID_REQUEST_DATA)
-      end
-    end
-
-    it 'comment cant exceed character limit' do
-      long_comment = 'comment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer
-        than 240 characterscomment longer than 240 characters'
-
-      registration_request = FactoryBot.build(:registration_request, :comment, raw_comment: long_comment)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unprocessable_entity)
-        expect(error.error).to eq(ErrorCodes::USER_COMMENT_TOO_LONG)
-      end
-    end
-
-    it 'comment can match character limit' do
-      at_character_limit = 'comment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than 240 characterscomment longer than' \
-                           '240 characterscomment longer longer than 240 12345'
-
-      registration_request = FactoryBot.build(:registration_request, :comment, raw_comment: at_character_limit)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
-        .not_to raise_error
-    end
-
-    it 'comment can be blank' do
-      comment = ''
-      registration_request = FactoryBot.build(:registration_request, :comment, raw_comment: comment)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
-      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
-        .not_to raise_error
-    end
-
-    it 'comment must be included if required' do
+    it 'can register if this is the first registration in a series' do
       registration_request = FactoryBot.build(:registration_request)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, force_comment_in_registration: true))
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.not_to raise_error
+    end
+
+    it 'cant register if already have a non-cancelled registration for another series competition' do
+      registration_request = FactoryBot.build(:registration_request)
+      FactoryBot.create(:registration, user_id: registration_request['user_id'], registration_status: 'accepted', competition_id: 'CubingZAWarmup2023')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
 
       expect {
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
       }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unprocessable_entity)
-        expect(error.error).to eq(ErrorCodes::REQUIRED_COMMENT_MISSING)
+        expect(error.error).to eq(ErrorCodes::ALREADY_REGISTERED_IN_SERIES)
+        expect(error.http_status).to eq(:forbidden)
       end
     end
 
-    it 'comment cant be blank if required' do
-      registration_request = FactoryBot.build(:registration_request, :comment, raw_comment: '')
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, force_comment_in_registration: true))
+    it 'can register if they have a cancelled registration for another series comp' do
+      registration_request = FactoryBot.build(:registration_request)
+      FactoryBot.create(:registration, user_id: registration_request['user_id'], registration_status: 'cancelled', competition_id: 'CubingZAWarmup2023')
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
 
       expect {
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.not_to raise_error
+    end
+
+    it 'cant re-register (register after cancelling) if they have a registration for another series comp' do
+      registration = FactoryBot.create(:registration, registration_status: 'cancelled')
+      FactoryBot.create(:registration, user_id: registration['user_id'], registration_status: 'accepted', competition_id: 'CubingZAWarmup2023')
+      update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'pending' })
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
       }.to raise_error(RegistrationError) do |error|
-        expect(error.http_status).to eq(:unprocessable_entity)
-        expect(error.error).to eq(ErrorCodes::REQUIRED_COMMENT_MISSING)
+        expect(error.error).to eq(ErrorCodes::ALREADY_REGISTERED_IN_SERIES)
+        expect(error.http_status).to eq(:forbidden)
       end
     end
   end
