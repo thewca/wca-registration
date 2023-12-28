@@ -16,7 +16,7 @@ FactoryBot.define do
     start_date { '2023-06-16' }
     end_date { '2023-06-18' }
     competitor_limit { 120 }
-    cancelled_at { 'null' }
+    cancelled_at { nil }
     url { 'https://www.worldcubeassociation.org/competitions/CubingZANationalChampionship2023' }
     website { 'https://www.worldcubeassociation.org/competitions/CubingZANationalChampionship2023' }
     short_name { 'CubingZA Nationals 2023' }
@@ -29,7 +29,9 @@ FactoryBot.define do
     guest_entry_status { 'restricted' }
     guests_per_registration_limit { 2 }
     event_change_deadline_date { '2024-06-14T00:00:00.000Z' }
+    events_per_registration_limit { 'null' }
     using_stripe_payments? { true }
+    competition_series_ids { nil }
     force_comment_in_registration { false }
     allow_registration_self_delete_after_acceptance { true }
     allow_registration_edits { true }
@@ -44,7 +46,7 @@ FactoryBot.define do
 
     trait :no_guest_limit do
       guest_entry_status { 'free' }
-      guests_per_registration_limit { 'null' }
+      guests_per_registration_limit { nil }
     end
 
     trait :closed do
@@ -58,6 +60,15 @@ FactoryBot.define do
 
     trait :no_guests do
       guest_entry_status { '' }
+    end
+
+    trait :series do
+      competition_series_ids { ['CubingZANationalChampionship2023', 'CubingZAWarmup2023'] }
+    end
+
+    # TODO: Create a flag that returns either the raw JSON (for mocking) or a CompetitionInfo object
+    after(:create) do |competition, evaluator|
+      stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: evalutor.mocked_status_code, body: competition) if evaluator.mock_competition
     end
   end
 end
