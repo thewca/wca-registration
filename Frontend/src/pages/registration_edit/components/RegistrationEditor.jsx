@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import _ from 'lodash'
-import moment from 'moment/moment'
+import { DateTime } from 'luxon'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
@@ -162,10 +162,10 @@ export default function RegistrationEditor() {
     competitionInfo.id,
   ])
 
-  const registrationEditDeadlinePassed = moment(
-    // If no deadline is set default to always be in the future
-    competitionInfo.event_change_deadline_date ?? Date.now() + 1
-  ).isBefore()
+  const registrationEditDeadlinePassed =
+    DateTime.fromISO(
+      competitionInfo.event_change_deadline_date ?? new Date().toISOString()
+    ) < DateTime.fromJSDate(new Date())
 
   return (
     <Segment padded attached>
