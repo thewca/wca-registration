@@ -43,6 +43,7 @@ interface CompetitionInfo {
   'url': string
   'qualification_results': boolean
   'event_restrictions': boolean
+  'events_per_registration_limit': number
   'website': string
   'short_name': string
   'city': string

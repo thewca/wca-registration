@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, FlagIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
@@ -100,6 +101,8 @@ const truncateComment = (comment) =>
 export default function RegistrationAdministrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
 
+  const { t } = useTranslation()
+
   const [expandedColumns, dispatchColumns] = useReducer(
     columnReducer,
     initialExpandedColumns
@@ -118,7 +121,13 @@ export default function RegistrationAdministrationList() {
     refetchOnMount: 'always',
     retry: false,
     onError: (err) => {
-      setMessage(err.message, 'error')
+      const { errorCode } = err
+      setMessage(
+        errorCode
+          ? t(`errors.${errorCode}`)
+          : 'Fetching Registrations failed with error: ' + err.message,
+        'negative'
+      )
     },
   })
 

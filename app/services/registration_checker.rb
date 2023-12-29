@@ -27,6 +27,7 @@ class RegistrationChecker
     validate_comment!
     validate_organizer_fields!
     validate_organizer_comment!
+    validate_waiting_list_position!
     validate_update_status!
     validate_update_events!
   end
@@ -41,11 +42,15 @@ class RegistrationChecker
 
       can_compete = UserApi.can_compete?(@request['user_id'])
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
+
+      # Users cannot sign up for multiple competitions in a series
+      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
 
     def user_can_modify_registration!
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_organizer_or_current_user?
       raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || @competition_info.is_organizer_or_delegate?(@requester_user_id)
+      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
 
     def organizer_modifying_own_registration?
@@ -63,12 +68,15 @@ class RegistrationChecker
       event_ids = @request['competing']['event_ids']
       # Event submitted must be held at the competition
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) unless @competition_info.events_held?(event_ids)
+
+      event_limit = @competition_info.event_limit
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_EVENT_SELECTION) if event_limit.present? && event_ids.count > event_limit
     end
 
     def validate_guests!
       return unless @request.key?('guests')
 
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if @request['guests'] < 0
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if @request['guests'].to_i < 0
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if @competition_info.guest_limit_exceeded?(@request['guests'])
     end
 
@@ -86,7 +94,7 @@ class RegistrationChecker
     end
 
     def validate_organizer_fields!
-      @organizer_fields = ['organizer_comment']
+      @organizer_fields = ['organizer_comment', 'waiting_list_position']
 
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if contains_organizer_fields? && !@competition_info.is_organizer_or_delegate?(@requester_user_id)
     end
@@ -95,6 +103,25 @@ class RegistrationChecker
       organizer_comment = @request.dig('competing', 'organizer_comment')
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::USER_COMMENT_TOO_LONG) if
         !organizer_comment.nil? && organizer_comment.length > COMMENT_CHARACTER_LIMIT
+    end
+
+    def validate_waiting_list_position!
+      return if (waiting_list_position = @request.dig('competing', 'waiting_list_position')).nil?
+
+      # Floats are not allowed
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) if waiting_list_position.is_a? Float
+
+      # We convert strings to integers and then check if they are an integer
+      converted_position = Integer(waiting_list_position, exception: false)
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) unless converted_position.is_a? Integer
+
+      boundaries = @registration.competing_lane.get_waiting_list_boundaries(@competition_info.competition_id)
+      if boundaries['waiting_list_position_min'].nil? && boundaries['waiting_list_position_max'].nil?
+        raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position != 1
+      else
+        raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if
+          converted_position < boundaries['waiting_list_position_min'] || converted_position > boundaries['waiting_list_position_max']
+      end
     end
 
     def contains_organizer_fields?
@@ -109,7 +136,12 @@ class RegistrationChecker
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
         new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
 
-      # Organizers can make any status change they want to - no checks performed
+      # Organizers cant accept someone from the waiting list who isn't in the leading position
+      min_waiting_list_position = @registration.competing_lane.get_waiting_list_boundaries(@registration.competition_id)['waiting_list_position_min']
+      raise RegistrationError.new(:forbidden, ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER) if
+        current_status == 'waiting_list' && new_status == 'accepted' && @registration.competing_waiting_list_position != min_waiting_list_position
+
+      # Otherwise, organizers can make any status change they want to
 
       return if @competition_info.is_organizer_or_delegate?(@requester_user_id)
       # A user (ie not an organizer) is only allowed to:
@@ -137,6 +169,20 @@ class RegistrationChecker
     def validate_update_events!
       return if (event_ids = @request.dig('competing', 'event_ids')).nil?
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if !@competition_info.events_held?(event_ids)
+
+      event_limit = @competition_info.event_limit
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_EVENT_SELECTION) if event_limit.present? && event_ids.count > event_limit
+    end
+
+    def existing_registration_in_series?
+      return false if @competition_info.other_series_ids.nil?
+
+      @competition_info.other_series_ids.each do |comp_id|
+        return Registration.find("#{comp_id}-#{@requestee_user_id}").competing_status != 'cancelled'
+      rescue Dynamoid::Errors::RecordNotFound
+        next
+      end
+      false
     end
   end
 end

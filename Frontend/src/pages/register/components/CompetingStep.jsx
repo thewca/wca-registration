@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
 import _ from 'lodash'
-import moment from 'moment'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Button,
   ButtonGroup,
@@ -20,19 +20,24 @@ import { RegistrationContext } from '../../../api/helper/context/registration_co
 import { UserContext } from '../../../api/helper/context/user_context'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
+import { getMediumDate } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import Processing from './Processing'
 
 const maxCommentLength = 240
 
 export default function CompetingStep({ nextStep }) {
-  const { user } = useContext(UserContext)
+  const { user, preferredEvents } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const { registration, isRegistered, refetch } =
     useContext(RegistrationContext)
 
+  const { t } = useTranslation()
+
   const [comment, setComment] = useState('')
-  const [selectedEvents, setSelectedEvents] = useState([])
+  const [selectedEvents, setSelectedEvents] = useState(
+    preferredEvents.filter((event) => competitionInfo.event_ids.includes(event))
+  )
   const [guests, setGuests] = useState(0)
 
   const [processing, setProcessing] = useState(false)
@@ -50,8 +55,11 @@ export default function CompetingStep({ nextStep }) {
     useMutation({
       mutationFn: updateRegistration,
       onError: (data) => {
+        const { errorCode } = data
         setMessage(
-          'Registration update failed with error: ' + data.message,
+          errorCode
+            ? t(`errors.${errorCode}`)
+            : 'Registration update failed with error: ' + data.message,
           'negative'
         )
       },
@@ -68,8 +76,11 @@ export default function CompetingStep({ nextStep }) {
     useMutation({
       mutationFn: submitEventRegistration,
       onError: (data) => {
+        const { errorCode } = data
         setMessage(
-          'Registration failed with error: ' + data.message,
+          errorCode
+            ? t(`errors.${errorCode}`)
+            : 'Registration failed with error: ' + data.message,
           'negative'
         )
       },
@@ -102,8 +113,7 @@ export default function CompetingStep({ nextStep }) {
 
   const commentIsValid =
     comment.trim() || !competitionInfo.force_comment_in_registration
-  // TODO: get max events can register for
-  const maxEvents = Infinity
+  const maxEvents = competitionInfo.events_per_registration_limit ?? Infinity
   const eventsAreValid =
     selectedEvents.length > 0 && selectedEvents.length <= maxEvents
 
@@ -209,7 +219,7 @@ export default function CompetingStep({ nextStep }) {
       )}
 
       <>
-        {registration?.registration_status && (
+        {registration?.competing?.registration_status && (
           <Message info>You have registered for {competitionInfo.name}</Message>
         )}
         {!competitionInfo['registration_opened?'] && (
@@ -285,10 +295,10 @@ export default function CompetingStep({ nextStep }) {
                 position="top center"
                 content={
                   canUpdateRegistration
-                    ? `You can update your registration until ${moment(
+                    ? `You can update your registration until ${getMediumDate(
                         competitionInfo.event_change_deadline_date ??
                           competitionInfo.start_date
-                      ).format('ll')}`
+                      )}`
                     : 'You can no longer update your registration'
                 }
               />
@@ -345,7 +355,7 @@ export default function CompetingStep({ nextStep }) {
           <>
             <Message info icon floating>
               <Popup
-                content="You will only be accepted if you have met all reigstration requirements"
+                content="You will only be accepted if you have met all registration requirements"
                 position="top left"
                 trigger={<Icon name="circle info" />}
               />
