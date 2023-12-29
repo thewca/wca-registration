@@ -317,7 +317,7 @@ describe RegistrationChecker do
       registration_request = FactoryBot.build(:registration_request, events: ['333', '444', '555'])
 
       # Mock the qualification endpoint
-      stub_request(:get, "#{comp_api_url(competition.competition_id)}/qualification").to_return(status: 200, body: competition.qualifications)
+      stub_request(:get, "#{comp_api_url(competition.competition_id)}/qualification").to_return(status: 200, body: competition.qualifications.to_s)
 
       expect {
         RegistrationChecker.create_registration_allowed!(registration_request, competition, registration_request['submitted_by'])

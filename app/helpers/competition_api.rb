@@ -117,4 +117,12 @@ class CompetitionInfo
   def qualifications
     @competition_json['qualifications']
   end
+
+  def get_qualification_for(event)
+    @competition_json['qualifications'][event]
+  end
+
+  def enforces_qualifications?
+    @competition_json['qualification_results'] == 1 && @competition_json['allow_registration_without_qualification'] == 0
+  end
 end

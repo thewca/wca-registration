@@ -51,7 +51,7 @@ FactoryBot.define do
     end
 
     trait :enforces_qualifications do
-      qualifications { [{ 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 1000 }] }
+      qualifications { { '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 1000 } } }
       qualification_results { 1 }
       allow_registration_without_qualification { 0 }
     end

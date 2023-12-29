@@ -64,6 +64,15 @@ class RegistrationChecker
       event_ids = @request['competing']['event_ids']
       # Event submitted must be held at the competition
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) unless @competition_info.events_held?(event_ids)
+
+      # User must meet qualification for events
+      return unless @competition_info.enforces_qualifications?
+      event_ids.each do |event|
+        qualification = @competition_info.get_qualification_for(event)
+        next if qualification.nil?
+
+        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET) unless competitor_qualifies_for_event?(event, qualification)
+      end
     end
 
     def validate_guests!
@@ -162,6 +171,15 @@ class RegistrationChecker
     def validate_update_events!
       return if (event_ids = @request.dig('competing', 'event_ids')).nil?
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if !@competition_info.events_held?(event_ids)
+    end
+
+    def competitor_qualifies_for_event?(event, qualification)
+      result_type = qualification['resultType']
+
+      case qualification['type']
+      when 'attemptResult'
+        competitor_personal_records[result_type][event]['best'] < qualification['level']
+      end
     end
   end
 end
