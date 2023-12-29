@@ -179,10 +179,10 @@ describe RegistrationChecker do
     end
   end
 
-  describe '#create_registration_allowed!.validate_create_events!' do
-    it 'rejects registration if user doesnt meet qualification for any of the selected events', focus: true do
+  describe '#create_registration_allowed!.validate_create_events!', focus: true do
+    it 'rejects registration if user doesnt meet qualification for any of the selected events' do
       competition = CompetitionInfo.new(FactoryBot.build(:competition, :enforces_qualifications))
-      registration_request = FactoryBot.build(:registration_request, events: ['333', '444', '555'])
+      registration_request = FactoryBot.build(:registration_request, events: ['333', '444', '333mbf'])
 
       # Mock the qualification endpoint
       stub_request(:get, "#{comp_api_url(competition.competition_id)}/qualification").to_return(status: 200, body: competition.qualifications.to_s)
@@ -196,20 +196,42 @@ describe RegistrationChecker do
     end
 
     it 'user can register for all events if they meet all qualifications' do
-      expect(true).to eq(false)
+      competition = CompetitionInfo.new(FactoryBot.build(:competition, :enforces_qualifications))
+      registration_request = FactoryBot.build(:registration_request, events: ['444', '333mbf'])
+
+      # Mock the qualification endpoint
+      stub_request(:get, "#{comp_api_url(competition.competition_id)}/qualification").to_return(status: 200, body: competition.qualifications.to_s)
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition, registration_request['submitted_by'])
+      }.not_to raise_error
     end
 
     it 'user without a result in an event doesnt qualify for it' do
-      expect(true).to eq(false)
-    end
+      competition = CompetitionInfo.new(FactoryBot.build(:competition, :enforces_qualifications))
+      registration_request = FactoryBot.build(:registration_request, events: ['555'])
 
-    # NOTE: This may be the same as the above case
-    it 'user with only DNFs in an event doesnt qualify for it' do
-      expect(true).to eq(false)
+      # Mock the qualification endpoint
+      stub_request(:get, "#{comp_api_url(competition.competition_id)}/qualification").to_return(status: 200, body: competition.qualifications.to_s)
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.error).to eq(ErrorCodes::QUALIFICATION_NOT_MET)
+        expect(error.http_status).to eq(:unprocessable_entity)
+      end
     end
 
     it 'users can register even if they dont meet qualification when qualification isnt enforced' do
-      expect(true).to eq(false)
+      competition = CompetitionInfo.new(FactoryBot.build(:competition, :qualification_not_enforced))
+      registration_request = FactoryBot.build(:registration_request, events: ['555'])
+
+      # Mock the qualification endpoint
+      stub_request(:get, "#{comp_api_url(competition.competition_id)}/qualification").to_return(status: 200, body: competition.qualifications.to_s)
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition, registration_request['submitted_by'])
+      }.not_to raise_error
     end
   end
 

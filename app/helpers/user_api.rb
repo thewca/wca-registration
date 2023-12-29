@@ -10,7 +10,7 @@ def permissions_path(user_id)
 end
 
 def personal_records_path(user_id)
-  "https://#{EnvConfig.WCA_HOST}/api/v0/results/records/#{user_id}"
+  "https://#{EnvConfig.WCA_HOST}/api/v0/results/personal_records/#{user_id}"
 end
 
 class UserApi < WcaApi
@@ -40,7 +40,7 @@ class UserApi < WcaApi
 
   def self.personal_records(user_id)
     if Rails.env.production?
-      HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.get_wca_token })
+      HTTParty.get(personal_records_path(user_id))
     else
       Mocks.personal_records_mock(user_id)
     end
