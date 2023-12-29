@@ -272,16 +272,16 @@ class RegistrationController < ApplicationController
       params.require(:competition_id)
     end
 
-  def add_pii(registrations)
-    pii = UserApi.get_competitor_info(registrations.pluck(:user_id))
+    def add_pii(registrations)
+      pii = UserApi.get_competitor_info(registrations.pluck(:user_id))
 
-    registrations.map do |r|
-      user = pii.find { |u| u["user_id"] == r[:user_id] }
-      r.merge(email: user["email"], dob: user["dob"])
+      registrations.map do |r|
+        user = pii.find { |u| u['user_id'] == r[:user_id] }
+        r.merge(email: user['email'], dob: user['dob'])
+      end
     end
-  end
 
-  def get_registrations(competition_id, only_attending: false)
+    def get_registrations(competition_id, only_attending: false)
       if only_attending
         Registration.where(competition_id: competition_id, is_competing: true).all.map do |x|
           { user_id: x['user_id'],
