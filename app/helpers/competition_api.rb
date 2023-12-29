@@ -74,6 +74,14 @@ class CompetitionInfo
     @competition_json['guest_entry_status'] == 'restricted' && @competition_json['guests_per_registration_limit'] < guest_count
   end
 
+  def event_limit
+    if @competition_json['events_per_registration_limit'].is_a? Integer
+      @competition_json['events_per_registration_limit']
+    else
+      nil
+    end
+  end
+
   def guest_limit
     @competition_json['guests_per_registration_limit']
   end
@@ -124,5 +132,9 @@ class CompetitionInfo
 
   def enforces_qualifications?
     @competition_json['qualification_results'] == 1 && @competition_json['allow_registration_without_qualification'] == 0
+  end
+
+  def other_series_ids
+    @competition_json['competition_series_ids']&.reject { |id| id == competition_id }
   end
 end
