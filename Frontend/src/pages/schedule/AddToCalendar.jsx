@@ -2,12 +2,22 @@ import { UiIcon } from '@thewca/wca-components'
 import { DateTime } from 'luxon'
 import React from 'react'
 
-export default function AddToCalendar({ startDate, endDate, name, address }) {
-  const formattedStartDate = DateTime.fromISO(startDate).toFormat('yyyyMMdd')
+export default function AddToCalendar({
+  startDate,
+  endDate,
+  name,
+  address,
+  allDay,
+}) {
   // note: date corresponds to midnight for all-day events, so need to use the day after
+  const endDateOffset = allDay ? { days: 1 } : {}
+  const format = allDay ? 'yyyyMMdd' : "yyyyMMdd'T'HHmmssZ"
+
+  const formattedStartDate = DateTime.fromISO(startDate).toFormat(format)
   const formattedEndDate = DateTime.fromISO(endDate)
-    .plus({ days: 1 })
-    .toFormat('yyyyMMdd')
+    .plus(endDateOffset)
+    .toFormat(format)
+
   const googleCalendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${name}&dates=${formattedStartDate}/${formattedEndDate}&location=${address}`
 
   return (
