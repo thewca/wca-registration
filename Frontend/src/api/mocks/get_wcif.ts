@@ -1,6 +1,7 @@
 import getCompetitionWcif from '../competition/get/get_competition_wcif'
 import { CLOSED_COMPETITION_WCIF } from './fixtures/competitions/closed'
 import { COMMENT_REQUIRED_WCIF } from './fixtures/competitions/comment_required'
+import { EVENT_REGISTRATION_LIMIT_WCIF } from './fixtures/competitions/event_registration_limit'
 import { FAVOURITES_COMPETITION_WCIF } from './fixtures/competitions/favourites'
 import { LOW_COMPETITOR_LIMIT_WCIF } from './fixtures/competitions/low_competitor_limit'
 import { MULTI_VENUE_WCIF } from './fixtures/competitions/multi_venue'
@@ -33,6 +34,9 @@ export default function getWcifMockWithRealFallback(competitionId: string) {
     } // Doesn't need a backend mock equivalent as the competition is marked as not using wca-registrations
     case 'FMCCanada2023': {
       return MULTI_VENUE_WCIF
+    }
+    case 'EventRegLimit': {
+      return EVENT_REGISTRATION_LIMIT_WCIF
     }
     default: {
       // This allows non mocked response when debugging a certain competition

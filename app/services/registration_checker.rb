@@ -4,7 +4,7 @@ COMMENT_CHARACTER_LIMIT = 240
 
 class RegistrationChecker
   def self.create_registration_allowed!(registration_request, competition_info, requesting_user)
-    @request = registration_request
+    @request = registration_request.stringify_keys
     @competition_info = competition_info
     @requestee_user_id = @request['user_id']
     @requester_user_id = requesting_user.to_s
@@ -16,7 +16,7 @@ class RegistrationChecker
   end
 
   def self.update_registration_allowed!(update_request, competition_info, requesting_user)
-    @request = update_request
+    @request = update_request.stringify_keys
     @competition_info = competition_info
     @requestee_user_id = @request['user_id']
     @requester_user_id = requesting_user.to_s
@@ -30,6 +30,22 @@ class RegistrationChecker
     validate_waiting_list_position!
     validate_update_status!
     validate_update_events!
+  rescue Dynamoid::Errors::RecordNotFound
+    # We capture and convert the error so that it can be included in the error array of a bulk update request
+    raise RegistrationError.new(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
+  end
+
+  def self.bulk_update_allowed!(bulk_update_request, competition_info, requesting_user)
+    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
+      competition_info.is_organizer_or_delegate?(requesting_user)
+
+    errors = {}
+    bulk_update_request['requests'].each do |update_request|
+      update_registration_allowed!(update_request, competition_info, requesting_user)
+    rescue RegistrationError => e
+      errors[update_request['user_id']] = e.error
+    end
+    raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors == {}
   end
 
   class << self
@@ -42,11 +58,15 @@ class RegistrationChecker
 
       can_compete = UserApi.can_compete?(@request['user_id'])
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
+
+      # Users cannot sign up for multiple competitions in a series
+      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
 
     def user_can_modify_registration!
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_organizer_or_current_user?
       raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || @competition_info.is_organizer_or_delegate?(@requester_user_id)
+      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
 
     def organizer_modifying_own_registration?
@@ -64,13 +84,16 @@ class RegistrationChecker
       event_ids = @request['competing']['event_ids']
       # Event submitted must be held at the competition
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) unless @competition_info.events_held?(event_ids)
+
+      event_limit = @competition_info.event_limit
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_EVENT_SELECTION) if event_limit.present? && event_ids.count > event_limit
     end
 
     def validate_guests!
-      return unless @request.key?('guests')
+      return if (guests = @request['guests'].to_i).nil?
 
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if @request['guests'].to_i < 0
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if @competition_info.guest_limit_exceeded?(@request['guests'])
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) if guests < 0
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::GUEST_LIMIT_EXCEEDED) if @competition_info.guest_limit_exceeded?(guests)
     end
 
     def validate_comment!
@@ -162,6 +185,20 @@ class RegistrationChecker
     def validate_update_events!
       return if (event_ids = @request.dig('competing', 'event_ids')).nil?
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_EVENT_SELECTION) if !@competition_info.events_held?(event_ids)
+
+      event_limit = @competition_info.event_limit
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_EVENT_SELECTION) if event_limit.present? && event_ids.count > event_limit
+    end
+
+    def existing_registration_in_series?
+      return false if @competition_info.other_series_ids.nil?
+
+      @competition_info.other_series_ids.each do |comp_id|
+        return Registration.find("#{comp_id}-#{@requestee_user_id}").competing_status != 'cancelled'
+      rescue Dynamoid::Errors::RecordNotFound
+        next
+      end
+      false
     end
   end
 end

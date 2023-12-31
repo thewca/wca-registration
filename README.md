@@ -67,3 +67,23 @@ Tests are grouped by "context" into success/fail groups. Add the `-e` flag to ru
 ### Resources for Generating Hashes with FactoryBot
 
 https://medium.com/@josisusan/factorygirl-as-json-response-a70f4a4e92a0
+
+## Populating Registrations in Staging Environment
+
+We use a rake task to import registrations into the DynamoDB database. The import bypasses all validations, so it is possible to create registrations in invalid states this way. 
+
+1. Generate the CSV(s)
+    1. You'll probably need to generate multiple versions, currently we do the following:
+        1. "Base" version with 5 registrations for each registration status - this is imported into all competitions, except the special cases defiend below
+        1. 50, 100, 500, 1000, 3000 registrations - we generate files with the specified number of registrations, and import them into competitions
+    1. Go to https://docs.google.com/spreadsheets/d/1lWsonsWxDzkEMmcmmcBvyki31V5ktwfh9d8nSedZcxQ/edit#gid=842709564 to generate CSVs
+2. Connect to the staging registration handler
+    1. AWS Console -> Elastic Container Service -> wca-registration-staging
+    2. Tasks -> copy ID of the task in the task list
+    3. Run the command `aws ecs execute-command --cluster wca-registration-staging --task {task-id} --container staging-handler --interactive --command "/bin/bash"`
+        1. {task-id} is in the ARN, highlighted in the following example: arn:aws:ecs:us-west-2:**285938427530**:cluster/wca-registration-staging
+        1. You need to install aws-cli for this to work
+3. Now that we're connected to the container, we will need to:
+    1. Copy across the rake task and CSVs (so far I've done this by creating the files with vi and manually copying across the raw text of the rake task/CSV)
+    2. Run the rake task for each set of CSVs (changing the list of competitions and CSV name for each set of registrations you want to import)
+
