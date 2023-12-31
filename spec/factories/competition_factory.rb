@@ -27,8 +27,8 @@ FactoryBot.define do
     longitude_degrees { 28.06449 }
     country_iso2 { 'ZA' }
     qualifications { nil }
-    qualification_results { 0 }
-    allow_registration_without_qualification { 0 }
+    qualification_results { false }
+    allow_registration_without_qualification { false }
     guest_entry_status { 'restricted' }
     guests_per_registration_limit { 2 }
     event_change_deadline_date { '2024-06-14T00:00:00.000Z' }
@@ -59,8 +59,8 @@ FactoryBot.define do
           '555' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 1000 },
         }
       }
-      qualification_results { 1 }
-      allow_registration_without_qualification { 0 }
+      qualification_results { true }
+      allow_registration_without_qualification { false }
     end
 
     trait :qualification_not_enforced do
@@ -70,8 +70,8 @@ FactoryBot.define do
           '555' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 1000 },
         }
       }
-      qualification_results { 1 }
-      allow_registration_without_qualification { 1 }
+      qualification_results { true }
+      allow_registration_without_qualification { true }
     end
 
     trait :closed do

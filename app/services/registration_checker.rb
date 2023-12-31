@@ -201,10 +201,6 @@ class RegistrationChecker
       case qualification['type']
       when 'attemptResult'
         competitor_pr = competitor_personal_records.dig(result_type, event, 'best')
-        puts "competitor pr: #{competitor_pr}"
-        puts "result type: #{result_type}"
-        puts "PRs > result type: #{competitor_personal_records[result_type]}"
-        puts "event: #{event}"
         competitor_pr.present? && competitor_pr < qualification['level']
       end
     end

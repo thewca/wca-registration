@@ -8,9 +8,7 @@ require_relative 'error_codes'
 require_relative 'wca_api'
 
 def comp_api_url(competition_id)
-  url = "https://#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
-  puts url
-  url
+  "https://#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
 end
 
 class CompetitionApi < WcaApi
@@ -54,7 +52,6 @@ class CompetitionApi < WcaApi
   class << self
     def fetch_competition_data(url_suffix)
       Rails.cache.fetch(url_suffix, expires_in: 5.minutes) do
-        puts "fetching: #{comp_api_url(url_suffix)}"
         response = HTTParty.get(comp_api_url(url_suffix))
         case response.code
         when 200
@@ -78,7 +75,6 @@ class CompetitionInfo
   def initialize(competition_json)
     @competition_json = competition_json
     @competition_id = competition_json['id']
-    puts @competition_json.class
     @qualifications = @competition_json['qualifications']
   end
 
@@ -145,7 +141,6 @@ class CompetitionInfo
 
   def fetch_qualifications
     @qualifications = CompetitionApi.find(@competition_id, 'qualifications')
-    puts "qualifications: #{@qualifications.inspect}"
   end
 
   def qualifications
@@ -159,7 +154,7 @@ class CompetitionInfo
   end
 
   def enforces_qualifications?
-    @competition_json['qualification_results'] == 1 && @competition_json['allow_registration_without_qualification'] == 0
+    @competition_json['qualification_results'] && !@competition_json['allow_registration_without_qualification']
   end
 
   def other_series_ids
