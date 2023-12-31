@@ -87,8 +87,6 @@ function VenueInfo({ activeVenueOrNull, venueCount, timeZoneCount }) {
   const longitude = toDegrees(activeVenueOrNull?.longitudeMicrodegrees)
   const mapLink = `https://google.com/maps/place/${latitude},${longitude}`
 
-  // TODO: add add-to-calendar icon/functionality
-
   return (
     <>
       <Message>

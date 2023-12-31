@@ -6,6 +6,7 @@ import {
   groupActivities,
 } from '../../lib/activities'
 import { activitiesByDate, getLongDate, getShortTime } from '../../lib/dates'
+import AddToCalendar from './AddToCalendar'
 
 export default function TableView({ dates, timeZone, rooms, events }) {
   const rounds = events.flatMap((event) => event.rounds)
@@ -58,11 +59,24 @@ function SingleDayTable({
   rooms,
   isExpanded,
 }) {
+  const startTime = groupedActivities[0][0].startTime
+  const endTime = groupedActivities[groupedActivities.length - 1][0].endTime
+  const name = 'Temporary Name'
+  const address = 'Temporary Address'
+
   const title = `Schedule for ${getLongDate(date, timeZone)}`
 
   return (
     <Segment basic>
-      <Header as="h2">{title}</Header>
+      <Header as="h2">
+        <AddToCalendar
+          startDate={startTime}
+          endDate={endTime}
+          name={name}
+          address={address}
+        />{' '}
+        {title}
+      </Header>
 
       <Table striped>
         <Table.Header>
