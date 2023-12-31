@@ -107,7 +107,9 @@ export default function Competition({ children }) {
                         competitionInfo.start_date
                       ).toFormat('yyyyMMdd')}/${DateTime.fromISO(
                         competitionInfo.end_date
-                      ).toFormat('yyyyMMdd')}&location=${
+                      )
+                        .plus({ days: 1 })
+                        .toFormat('yyyyMMdd')}&location=${
                         competitionInfo.venue_address
                       }`}
                       target="_blank"
