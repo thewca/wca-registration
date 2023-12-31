@@ -22,14 +22,9 @@ export const getDatesBetweenInclusive = (
 }
 
 export const areOnSameDate = (date1: Date, date2: Date, timeZone: string) => {
-  // Not sure how to check 2 dates are the same **in a specific time zone**,
-  // besides printing them as strings (which feels wrong).
-  // (There's only .getDay() for local time zone and .getUTCDay() for UTC,
-  // but no such function for an arbitrary time zone.)
-  return (
-    date1.toLocaleDateString([], { timeZone }) ===
-    date2.toLocaleDateString([], { timeZone })
-  )
+  return DateTime.fromJSDate(date1)
+    .setZone(timeZone)
+    .hasSame(DateTime.fromJSDate(date2).setZone(timeZone), 'day')
 }
 
 export function isAfterNow(date: string): boolean {
