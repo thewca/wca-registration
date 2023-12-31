@@ -59,8 +59,10 @@ function SingleDayTable({
   rooms,
   isExpanded,
 }) {
-  const startTime = groupedActivities[0][0].startTime
-  const endTime = groupedActivities[groupedActivities.length - 1][0].endTime
+  const hasActivities = groupedActivities.length > 0
+  const startTime = hasActivities && groupedActivities[0][0].startTime
+  const endTime =
+    hasActivities && groupedActivities[groupedActivities.length - 1][0].endTime
   const name = 'Temporary Name'
   const address = 'Temporary Address'
 
@@ -69,12 +71,15 @@ function SingleDayTable({
   return (
     <Segment basic>
       <Header as="h2">
-        <AddToCalendar
-          startDate={startTime}
-          endDate={endTime}
-          name={name}
-          address={address}
-        />{' '}
+        {hasActivities && (
+          <AddToCalendar
+            startDate={startTime}
+            endDate={endTime}
+            name={name}
+            address={address}
+          />
+        )}
+        {hasActivities && ' '}
         {title}
       </Header>
 
@@ -84,7 +89,7 @@ function SingleDayTable({
         </Table.Header>
 
         <Table.Body>
-          {groupedActivities.length > 0 ? (
+          {hasActivities ? (
             groupedActivities.map((activityGroup) => {
               const activityRound = rounds.find(
                 (round) => round.id === activityGroup[0].activityCode
