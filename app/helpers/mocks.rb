@@ -777,8 +777,8 @@ module Mocks
         'class' => 'competition',
       }
     else
-
-      CompetitionApi.find!(competition_id)
+      nil
+      # CompetitionApi.find!(competition_id)
     end
   end
 

@@ -8,35 +8,54 @@ require_relative 'error_codes'
 require_relative 'wca_api'
 
 def comp_api_url(competition_id)
-  "https://#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
+  url = "https://#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
+  puts url
+  url
 end
 
 class CompetitionApi < WcaApi
-  def self.find(competition_id)
-    competition_json = if Rails.env.production?
-                         fetch_competition(competition_id)
-                       else
-                         Mocks.mock_competition(competition_id)
-                       end
-    CompetitionInfo.new(competition_json)
+  def self.find(competition_id, child = nil)
+    child.present? ? url_suffix = "#{competition_id}/#{child}" : url_suffix
+    competition_json = fetch_competition_data(url_suffix)
+
+    if child.present?
+      competition_json
+    else
+      CompetitionInfo.new(competition_json)
+    end
   rescue RegistrationError
-    nil
+    # Try fetch the mock if fetch_competition_data yields an error and we're not in prod
+    if Rails.env.production?
+      nil
+    else
+      Mocks.mock_competition(url_suffix)
+    end
   end
 
-  def self.find!(competition_id)
-    competition_json = if Rails.env.production?
-                         fetch_competition(competition_id)
-                       else
-                         Mocks.mock_competition(competition_id)
-                       end
-    CompetitionInfo.new(competition_json)
+  def self.find!(competition_id, child = nil)
+    child.present? ? url_suffix = "#{competition_id}/#{child}" : url_suffix
+    competition_json = fetch_competition_data(url_suffix)
+
+    if child.present?
+      competition_json
+    else
+      CompetitionInfo.new(competition_json)
+    end
+  rescue RegistrationError => e
+    # Try fetch the mock if fetch_competition_data yields an error and we're not in prod
+    unless Rails.env.production?
+      mock_result = Mocks.mock_competition(url_suffix)
+      return mock_result unless mock_result.nil?
+    end
+    raise RegistrationError.new(e.http_status, e.error)
   end
 
   # This is how you make a private class method
   class << self
-    def fetch_competition(competition_id)
-      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        response = HTTParty.get(comp_api_url(competition_id))
+    def fetch_competition_data(url_suffix)
+      Rails.cache.fetch(url_suffix, expires_in: 5.minutes) do
+        puts "fetching: #{comp_api_url(url_suffix)}"
+        response = HTTParty.get(comp_api_url(url_suffix))
         case response.code
         when 200
           @status = 200
@@ -59,6 +78,8 @@ class CompetitionInfo
   def initialize(competition_json)
     @competition_json = competition_json
     @competition_id = competition_json['id']
+    puts @competition_json.class
+    @qualifications = @competition_json['qualifications']
   end
 
   def within_event_change_deadline?
@@ -122,12 +143,19 @@ class CompetitionInfo
     @competition_json['allow_registration_self_delete_after_acceptance']
   end
 
+  def fetch_qualifications
+    @qualifications = CompetitionApi.find(@competition_id, 'qualifications')
+    puts "qualifications: #{@qualifications.inspect}"
+  end
+
   def qualifications
+    fetch_qualifications unless @qualifications.present?
     @competition_json['qualifications']
   end
 
   def get_qualification_for(event)
-    @competition_json['qualifications'][event]
+    fetch_qualifications unless @qualifications.present?
+    @qualifications[event]
   end
 
   def enforces_qualifications?
