@@ -17,6 +17,7 @@ class RegistrationController < ApplicationController
   before_action :ensure_lane_exists, only: [:create]
   before_action :validate_list_admin, only: [:list_admin]
   before_action :validate_update_request, only: [:update]
+  before_action :validate_bulk_update_request, only: [:bulk_update]
   before_action :validate_payment_ticket_request, only: [:payment_ticket]
 
   def create
@@ -85,51 +86,19 @@ class RegistrationController < ApplicationController
   end
 
   def update
-    guests = params[:guests]
-    status = params.dig('competing', 'status')
-    comment = params.dig('competing', 'comment')
-    event_ids = params.dig('competing', 'event_ids')
-    admin_comment = params.dig('competing', 'admin_comment')
-    waiting_list_position = params.dig('competing', 'waiting_list_position')
-
-    begin
-      registration = Registration.find("#{@competition_id}-#{@user_id}")
-      old_status = registration.competing_status
-      if old_status == 'accepted' && status != 'accepted'
-        Registration.decrement_competitors_count(@competition_id)
-      elsif old_status != 'accepted' && status == 'accepted'
-        Registration.increment_competitors_count(@competition_id)
-      end
-      updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position })
-
-      render json: { status: 'ok', registration: {
-        user_id: updated_registration['user_id'],
-        guests: updated_registration['guests'],
-        competing: {
-          event_ids: updated_registration.registered_event_ids,
-          registration_status: updated_registration.competing_status,
-          registered_on: updated_registration['created_at'],
-          comment: updated_registration.competing_comment,
-          admin_comment: updated_registration.admin_comment,
-          waiting_list_position: updated_registration.competing_waiting_list_position,
-        },
-      } }
-    rescue Dynamoid::Errors::Error => e
-      puts e
-      Metrics.registration_dynamodb_errors_counter.increment
-      render json: { error: "Error Updating Registration: #{e.message}" },
-             status: :internal_server_error
-    end
+    render json: { status: 'ok', registration: process_update(params) }
+  rescue Dynamoid::Errors::Error => e
+    puts e
+    Metrics.registration_dynamodb_errors_counter.increment
+    render json: { error: "Error Updating Registration: #{e.message}" },
+           status: :internal_server_error
   end
 
-  # You can either update your own registration or one for a competition you administer
   def validate_update_request
     @user_id = params[:user_id]
     @competition_id = params[:competition_id]
 
     RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
-  rescue Dynamoid::Errors::RecordNotFound
-    render_error(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
   end
@@ -146,6 +115,56 @@ class RegistrationController < ApplicationController
     @user_id, @competition_id = show_params
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
       @current_user.to_s == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
+  end
+
+  def bulk_update
+    updated_registrations = {}
+    update_requests = params[:requests]
+    update_requests.each do |update|
+      updated_registrations[update['user_id']] = process_update(update)
+    end
+
+    render json: { status: 'ok', updated_registrations: updated_registrations }
+  end
+
+  def validate_bulk_update_request
+    @competition_id = params[:requests][0]['competition_id']
+    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find!(@competition_id), params[:submitted_by])
+  rescue BulkUpdateError => e
+    render_error(e.http_status, e.errors)
+  rescue NoMethodError
+    render_error(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA)
+  end
+
+  # Shared update logic used by both `update` and `bulk_update`
+  def process_update(update_request)
+    guests = update_request[:guests]
+    status = update_request.dig('competing', 'status')
+    comment = update_request.dig('competing', 'comment')
+    event_ids = update_request.dig('competing', 'event_ids')
+    admin_comment = update_request.dig('competing', 'admin_comment')
+
+    registration = Registration.find("#{@competition_id}-#{update_request[:user_id]}")
+    old_status = registration.competing_status
+    updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
+
+    if old_status == 'accepted' && status != 'accepted'
+      Registration.decrement_competitors_count(@competition_id)
+    elsif old_status != 'accepted' && status == 'accepted'
+      Registration.increment_competitors_count(@competition_id)
+    end
+
+    {
+      user_id: updated_registration['user_id'],
+      guests: updated_registration.guests,
+      competing: {
+        event_ids: updated_registration.registered_event_ids,
+        registration_status: updated_registration.competing_status,
+        registered_on: updated_registration['created_at'],
+        comment: updated_registration.competing_comment,
+        admin_comment: updated_registration.admin_comment,
+      },
+    }
   end
 
   def payment_ticket
