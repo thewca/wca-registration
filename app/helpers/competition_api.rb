@@ -13,7 +13,7 @@ end
 
 class CompetitionApi < WcaApi
   def self.find(competition_id, child = nil)
-    child.present? ? url_suffix = "#{competition_id}/#{child}" : url_suffix
+    url_suffix = child.present? ? "#{competition_id}/#{child}" : competition_id
     competition_json = fetch_competition_data(url_suffix)
 
     if child.present?
