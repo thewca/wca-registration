@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
-import { DateTime } from 'luxon'
 import { marked } from 'marked'
 import React, { Fragment, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -28,6 +27,7 @@ import {
 import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
 import i18n from '../i18n'
 import { getMediumDate } from '../lib/dates'
+import AddToCalendar from '../pages/schedule/AddToCalendar'
 import logo from '../static/wca2020.svg'
 import { setMessage } from './events/messages'
 import LoadingMessage from './messages/loadingMessage'
@@ -100,22 +100,13 @@ export default function Competition({ children }) {
               <List divided relaxed size="huge">
                 <List.Item>
                   <List.Content floated="right">
-                    <a
-                      href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${
-                        competitionInfo.id
-                      }&dates=${DateTime.fromISO(
-                        competitionInfo.start_date
-                      ).toFormat('yyyyMMdd')}/${DateTime.fromISO(
-                        competitionInfo.end_date
-                      )
-                        .plus({ days: 1 })
-                        .toFormat('yyyyMMdd')}&location=${
-                        competitionInfo.venue_address
-                      }`}
-                      target="_blank"
-                    >
-                      <UiIcon name="calendar plus" />
-                    </a>
+                    <AddToCalendar
+                      startDate={competitionInfo.start_date}
+                      endDate={competitionInfo.end_date}
+                      name={competitionInfo.name}
+                      address={competitionInfo.venue_address}
+                      allDay
+                    />
                   </List.Content>
                   <List.Icon name="calendar alternate" />
                   <List.Content>
