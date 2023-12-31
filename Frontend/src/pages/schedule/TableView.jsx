@@ -58,7 +58,7 @@ function SingleDayTable({
   rooms,
   isExpanded,
 }) {
-  const title = `Schedule for ${getLongDate(date)}`
+  const title = `Schedule for ${getLongDate(date, timeZone)}`
 
   return (
     <Segment basic>
