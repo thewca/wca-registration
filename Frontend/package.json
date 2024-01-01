@@ -50,7 +50,7 @@
     "@types/luxon": "^3.3.7",
     "@types/node": "20.10.3",
     "esbuild": "0.19.8",
-    "esbuild-sass-plugin": "2.16.0",
+    "esbuild-sass-plugin": "2.16.1",
     "eslint": "8.52.0",
     "eslint-kit": "9.5.1",
     "fishery": "^2.2.2",
