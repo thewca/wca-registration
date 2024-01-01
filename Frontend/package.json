@@ -36,7 +36,7 @@
     "luxon": "3.4.4",
     "marked": "11.0.0",
     "openapi-fetch": "0.8.2",
-    "openapi-typescript": "6.7.2",
+    "openapi-typescript": "6.7.3",
     "postcss": "8.4.31",
     "postcss-modules": "6.0.0",
     "react": "18.2.0",
