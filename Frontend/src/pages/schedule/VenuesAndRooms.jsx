@@ -1,5 +1,6 @@
 import React from 'react'
 import { Form, Grid, Menu, Message } from 'semantic-ui-react'
+import { toDegrees } from '../../lib/venues'
 
 export default function VenuesAndRooms({
   venues,
@@ -114,8 +115,4 @@ function VenueInfo({ activeVenueOrNull, venueCount, timeZoneCount }) {
       </Message>
     </>
   )
-}
-
-export const toDegrees = (microDegrees) => {
-  return microDegrees / 1_000_000
 }

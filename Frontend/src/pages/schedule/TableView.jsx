@@ -7,8 +7,8 @@ import {
   groupActivities,
 } from '../../lib/activities'
 import { activitiesByDate, getLongDate, getShortTime } from '../../lib/dates'
+import { toDegrees } from '../../lib/venues'
 import AddToCalendar from './AddToCalendar'
-import { toDegrees } from './VenuesAndRooms'
 
 export default function TableView({
   dates,
