@@ -1,14 +1,22 @@
 import { getFormatName } from '@wca/helpers'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Checkbox, Header, Segment, Table, TableCell } from 'semantic-ui-react'
+import { CompetitionContext } from '../../api/helper/context/competition_context'
 import {
   earliestWithLongestTieBreaker,
   groupActivities,
 } from '../../lib/activities'
 import { activitiesByDate, getLongDate, getShortTime } from '../../lib/dates'
 import AddToCalendar from './AddToCalendar'
+import { toDegrees } from './VenuesAndRooms'
 
-export default function TableView({ dates, timeZone, rooms, events }) {
+export default function TableView({
+  dates,
+  timeZone,
+  rooms,
+  events,
+  activeVenueOrNull,
+}) {
   const rounds = events.flatMap((event) => event.rounds)
 
   const [isExpanded, setIsExpanded] = useState(false)
@@ -44,6 +52,7 @@ export default function TableView({ dates, timeZone, rooms, events }) {
             rounds={rounds}
             rooms={rooms}
             isExpanded={isExpanded}
+            activeVenueOrNull={activeVenueOrNull}
           />
         )
       })}
@@ -58,15 +67,21 @@ function SingleDayTable({
   rounds,
   rooms,
   isExpanded,
+  activeVenueOrNull,
 }) {
+  const { competitionInfo } = useContext(CompetitionContext)
+
+  const title = `Schedule for ${getLongDate(date, timeZone)}`
+
   const hasActivities = groupedActivities.length > 0
   const startTime = hasActivities && groupedActivities[0][0].startTime
   const endTime =
     hasActivities && groupedActivities[groupedActivities.length - 1][0].endTime
-  const name = 'Temporary Name'
-  const address = 'Temporary Address'
-
-  const title = `Schedule for ${getLongDate(date, timeZone)}`
+  const activeVenueAddress =
+    activeVenueOrNull &&
+    `${toDegrees(activeVenueOrNull.latitudeMicrodegrees)},${toDegrees(
+      activeVenueOrNull.longitudeMicrodegrees
+    )}`
 
   return (
     <Segment basic>
@@ -75,8 +90,8 @@ function SingleDayTable({
           <AddToCalendar
             startDate={startTime}
             endDate={endTime}
-            name={name}
-            address={address}
+            name={competitionInfo.name}
+            address={activeVenueAddress}
           />
         )}
         {hasActivities && ' '}

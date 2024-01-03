@@ -212,6 +212,7 @@ export default function Schedule({ wcif }) {
           timeZone={activeTimeZone}
           rooms={activeRooms}
           events={wcif.events}
+          activeVenueOrNull={activeVenueOrNull}
         />
       )}
     </Segment>

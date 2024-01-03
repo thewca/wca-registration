@@ -116,6 +116,6 @@ function VenueInfo({ activeVenueOrNull, venueCount, timeZoneCount }) {
   )
 }
 
-const toDegrees = (microDegrees) => {
+export const toDegrees = (microDegrees) => {
   return microDegrees / 1_000_000
 }

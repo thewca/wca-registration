@@ -18,7 +18,9 @@ export default function AddToCalendar({
     .plus(endDateOffset)
     .toFormat(format)
 
-  const googleCalendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${name}&dates=${formattedStartDate}/${formattedEndDate}&location=${address}`
+  const googleCalendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${name}&dates=${formattedStartDate}/${formattedEndDate}${
+    address ? `&location=${address}` : ''
+  }`
 
   return (
     <a href={googleCalendarLink} target="_blank">
