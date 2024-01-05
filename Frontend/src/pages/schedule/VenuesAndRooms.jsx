@@ -1,5 +1,6 @@
 import React from 'react'
 import { Form, Grid, Menu, Message } from 'semantic-ui-react'
+import { toDegrees } from '../../lib/venues'
 
 export default function VenuesAndRooms({
   venues,
@@ -83,12 +84,9 @@ function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
 
 function VenueInfo({ activeVenueOrNull, venueCount, timeZoneCount }) {
   const { name, timezone } = activeVenueOrNull || {}
-  // TODO: fix map link
-  const mapLink =
-    activeVenueOrNull &&
-    `https://www.google.com/maps/place/${activeVenueOrNull.latitudeMicrodegrees},${activeVenueOrNull.longitudeMicrodegrees}`
-
-  // TODO: add add-to-calendar icon/functionality
+  const latitude = toDegrees(activeVenueOrNull?.latitudeMicrodegrees)
+  const longitude = toDegrees(activeVenueOrNull?.longitudeMicrodegrees)
+  const mapLink = `https://google.com/maps/place/${latitude},${longitude}`
 
   return (
     <>
