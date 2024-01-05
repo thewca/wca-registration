@@ -1,10 +1,10 @@
+import { EventSelector } from '@thewca/wca-components'
 import React, { useReducer, useState } from 'react'
 import { Message, Segment } from 'semantic-ui-react'
 import { useStoredState } from '../../hooks/useStoredState'
 import { earliestWithLongestTieBreaker } from '../../lib/activities'
 import { getDatesBetweenInclusive } from '../../lib/dates'
 import CalendarView from './CalendarView'
-import EventsSelector from './EventsSelector'
 import TableView from './TableView'
 import TimeZoneSelector from './TimeZone'
 import VenuesAndRooms from './VenuesAndRooms'
@@ -130,6 +130,7 @@ export default function Schedule({ wcif }) {
     activeIdReducer,
     events.map((event) => event.id)
   )
+  const activeEvents = events.filter(({ id }) => activeEventIds.includes(id))
 
   // time zones
 
@@ -192,11 +193,14 @@ export default function Schedule({ wcif }) {
         dispatchRooms={dispatchRooms}
       />
 
-      <EventsSelector
-        events={events}
-        activeEventIds={activeEventIds}
-        dispatchEvents={dispatchEvents}
-      />
+      <Segment>
+        <EventSelector
+          events={events.map(({ id }) => id)}
+          selected={activeEventIds}
+          handleEventSelection={(ids) => dispatchEvents({ type: 'reset', ids })}
+          size="2x"
+        />
+      </Segment>
 
       <TimeZoneSelector
         venues={venues}
@@ -212,14 +216,14 @@ export default function Schedule({ wcif }) {
           dates={activeDates}
           timeZone={activeTimeZone}
           venuesShown={activeVenues}
-          events={wcif.events}
+          activeEvents={activeEvents}
         />
       ) : (
         <TableView
           dates={activeDates}
           timeZone={activeTimeZone}
           rooms={activeRooms}
-          events={wcif.events}
+          activeEvents={activeEvents}
           activeVenueOrNull={activeVenueOrNull}
         />
       )}
