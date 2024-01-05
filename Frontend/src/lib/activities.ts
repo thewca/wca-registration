@@ -1,4 +1,6 @@
-export const earliestWithLongestTieBreaker = (a, b) => {
+import { Activity } from '@wca/helpers'
+
+export const earliestWithLongestTieBreaker = (a: Activity, b: Activity) => {
   if (a.startTime < b.startTime) {
     return -1
   }
@@ -15,8 +17,8 @@ export const earliestWithLongestTieBreaker = (a, b) => {
 }
 
 // assumes they are sorted
-export const groupActivities = (activities) => {
-  const grouped = []
+export const groupActivities = (activities: Activity[]) => {
+  const grouped: Activity[][] = []
   activities.forEach((activity) => {
     if (
       grouped.length > 0 &&
@@ -30,18 +32,18 @@ export const groupActivities = (activities) => {
   return grouped
 }
 
-const areGroupable = (act1, act2) => {
+const areGroupable = (a: Activity, b: Activity) => {
   return (
-    act1.startTime === act2.startTime &&
-    act1.endTime === act2.endTime &&
-    act1.activityCode === act2.activityCode
+    a.startTime === b.startTime &&
+    a.endTime === b.endTime &&
+    a.activityCode === b.activityCode
   )
 }
 
-export const getActivityEvent = (activity) => {
+export const getActivityEvent = (activity: Activity) => {
   return activity.activityCode.split('-')[0]
 }
 
-export const getActivityRoundId = (activity) => {
+export const getActivityRoundId = (activity: Activity) => {
   return activity.activityCode.split('-').slice(0, 2).join('-')
 }
