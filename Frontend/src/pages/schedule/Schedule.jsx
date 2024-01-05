@@ -173,6 +173,14 @@ export default function Schedule({ wcif }) {
         </Message>
       )}
 
+      <Message>
+        <Message.Content>
+          Schedules are subject to adjustments, especially once registration
+          totals are known. Registered competitors will be notified by email of
+          any major changes.
+        </Message.Content>
+      </Message>
+
       <VenuesAndRooms
         venues={venues}
         activeVenueOrNull={activeVenueOrNull}
@@ -212,6 +220,7 @@ export default function Schedule({ wcif }) {
           timeZone={activeTimeZone}
           rooms={activeRooms}
           events={wcif.events}
+          activeVenueOrNull={activeVenueOrNull}
         />
       )}
     </Segment>

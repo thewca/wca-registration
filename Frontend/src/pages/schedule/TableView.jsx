@@ -1,13 +1,22 @@
 import { getFormatName } from '@wca/helpers'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Checkbox, Header, Segment, Table, TableCell } from 'semantic-ui-react'
+import { CompetitionContext } from '../../api/helper/context/competition_context'
 import {
   earliestWithLongestTieBreaker,
   groupActivities,
 } from '../../lib/activities'
 import { activitiesByDate, getLongDate, getShortTime } from '../../lib/dates'
+import { toDegrees } from '../../lib/venues'
+import AddToCalendar from './AddToCalendar'
 
-export default function TableView({ dates, timeZone, rooms, events }) {
+export default function TableView({
+  dates,
+  timeZone,
+  rooms,
+  events,
+  activeVenueOrNull,
+}) {
   const rounds = events.flatMap((event) => event.rounds)
 
   const [isExpanded, setIsExpanded] = useState(false)
@@ -43,6 +52,7 @@ export default function TableView({ dates, timeZone, rooms, events }) {
             rounds={rounds}
             rooms={rooms}
             isExpanded={isExpanded}
+            activeVenueOrNull={activeVenueOrNull}
           />
         )
       })}
@@ -57,12 +67,36 @@ function SingleDayTable({
   rounds,
   rooms,
   isExpanded,
+  activeVenueOrNull,
 }) {
+  const { competitionInfo } = useContext(CompetitionContext)
+
   const title = `Schedule for ${getLongDate(date, timeZone)}`
+
+  const hasActivities = groupedActivities.length > 0
+  const startTime = hasActivities && groupedActivities[0][0].startTime
+  const endTime =
+    hasActivities && groupedActivities[groupedActivities.length - 1][0].endTime
+  const activeVenueAddress =
+    activeVenueOrNull &&
+    `${toDegrees(activeVenueOrNull.latitudeMicrodegrees)},${toDegrees(
+      activeVenueOrNull.longitudeMicrodegrees
+    )}`
 
   return (
     <Segment basic>
-      <Header as="h2">{title}</Header>
+      <Header as="h2">
+        {hasActivities && (
+          <AddToCalendar
+            startDate={startTime}
+            endDate={endTime}
+            name={competitionInfo.name}
+            address={activeVenueAddress}
+          />
+        )}
+        {hasActivities && ' '}
+        {title}
+      </Header>
 
       <Table striped>
         <Table.Header>
@@ -70,7 +104,7 @@ function SingleDayTable({
         </Table.Header>
 
         <Table.Body>
-          {groupedActivities.length > 0 ? (
+          {hasActivities ? (
             groupedActivities.map((activityGroup) => {
               const activityRound = rounds.find(
                 (round) => round.id === activityGroup[0].activityCode
