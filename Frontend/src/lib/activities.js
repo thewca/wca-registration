@@ -30,10 +30,14 @@ export const groupActivities = (activities) => {
   return grouped
 }
 
-export const areGroupable = (act1, act2) => {
+const areGroupable = (act1, act2) => {
   return (
     act1.startTime === act2.startTime &&
     act1.endTime === act2.endTime &&
     act1.activityCode === act2.activityCode
   )
+}
+
+export const getActivityEvent = (activity) => {
+  return activity.activityCode.split('-')[0]
 }

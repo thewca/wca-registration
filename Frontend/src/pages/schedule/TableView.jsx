@@ -3,18 +3,24 @@ import React, { useState } from 'react'
 import { Checkbox, Header, Segment, Table, TableCell } from 'semantic-ui-react'
 import {
   earliestWithLongestTieBreaker,
+  getActivityEvent,
   groupActivities,
 } from '../../lib/activities'
 import { activitiesByDate, getLongDate, getShortTime } from '../../lib/dates'
 
-export default function TableView({ dates, timeZone, rooms, events }) {
-  const rounds = events.flatMap((event) => event.rounds)
+export default function TableView({ dates, timeZone, rooms, activeEvents }) {
+  const rounds = activeEvents.flatMap((event) => event.rounds)
 
   const [isExpanded, setIsExpanded] = useState(false)
 
   const sortedActivities = rooms
     .flatMap((room) => room.activities)
     .sort(earliestWithLongestTieBreaker)
+
+  const eventIds = activeEvents.map(({ id }) => id)
+  const visibleActivities = sortedActivities.filter((activity) =>
+    ['other', ...eventIds].includes(getActivityEvent(activity))
+  )
 
   return (
     <>
@@ -28,7 +34,7 @@ export default function TableView({ dates, timeZone, rooms, events }) {
 
       {dates.map((date) => {
         const activitiesForDay = activitiesByDate(
-          sortedActivities,
+          visibleActivities,
           date,
           timeZone
         )

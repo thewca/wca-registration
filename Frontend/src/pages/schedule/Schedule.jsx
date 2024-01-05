@@ -130,6 +130,7 @@ export default function Schedule({ wcif }) {
     activeIdReducer,
     events.map((event) => event.id)
   )
+  const activeEvents = events.filter(({ id }) => activeEventIds.includes(id))
 
   // time zones
 
@@ -207,14 +208,14 @@ export default function Schedule({ wcif }) {
           dates={activeDates}
           timeZone={activeTimeZone}
           venuesShown={activeVenues}
-          events={wcif.events}
+          activeEvents={activeEvents}
         />
       ) : (
         <TableView
           dates={activeDates}
           timeZone={activeTimeZone}
           rooms={activeRooms}
-          events={wcif.events}
+          activeEvents={activeEvents}
         />
       )}
     </Segment>
