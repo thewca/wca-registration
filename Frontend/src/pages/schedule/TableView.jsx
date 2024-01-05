@@ -4,6 +4,7 @@ import { Checkbox, Header, Segment, Table, TableCell } from 'semantic-ui-react'
 import {
   earliestWithLongestTieBreaker,
   getActivityEvent,
+  getActivityRoundId,
   groupActivities,
 } from '../../lib/activities'
 import { activitiesByDate, getLongDate, getShortTime } from '../../lib/dates'
@@ -79,7 +80,7 @@ function SingleDayTable({
           {groupedActivities.length > 0 ? (
             groupedActivities.map((activityGroup) => {
               const activityRound = rounds.find(
-                (round) => round.id === activityGroup[0].activityCode
+                (round) => round.id === getActivityRoundId(activityGroup[0])
               )
 
               return (
@@ -135,7 +136,7 @@ function ActivityRow({ isExpanded, activityGroup, round, rooms, timeZone }) {
   )
 
   // TODO: create name from activity code when possible (fallback to name property)
-  // TODO: format and time limit not showing up for attempt-based activities (fm, multi)
+  // TODO: time limit not showing up for fm & multi
   // TODO: display times in appropriate format
 
   return (

@@ -41,3 +41,7 @@ const areGroupable = (act1, act2) => {
 export const getActivityEvent = (activity) => {
   return activity.activityCode.split('-')[0]
 }
+
+export const getActivityRoundId = (activity) => {
+  return activity.activityCode.split('-').slice(0, 2).join('-')
+}
