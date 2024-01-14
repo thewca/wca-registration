@@ -79,7 +79,6 @@ function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
             }}
           >
             <Form.Checkbox
-              slider
               label={
                 <label style={{ color: getTextColor(color) }}>{name}</label>
               }
