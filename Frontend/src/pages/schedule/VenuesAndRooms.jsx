@@ -1,6 +1,7 @@
 import React from 'react'
 import { Form, Grid, Menu, Message } from 'semantic-ui-react'
 import { toDegrees } from '../../lib/venues'
+import { getTextColor } from '../../lib/colors'
 
 export default function VenuesAndRooms({
   venues,
@@ -67,15 +68,25 @@ export default function VenuesAndRooms({
 function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
   return (
     <Grid stackable columns={Math.min(5, rooms.length)}>
-      {rooms.map(({ id, name }) => (
-        // TODO: show color
+      {rooms.map(({ id, name, color }) => (
         <Grid.Column key={id}>
-          <Form.Checkbox
-            slider
-            checked={activeRoomIds.includes(id)}
-            label={name}
-            onChange={() => toggleRoom(id)}
-          />
+          <div
+            style={{
+              backgroundColor: color,
+              opacity: activeRoomIds.includes(id) ? 1 : 0.5,
+              border: 'solid black 1px',
+              padding: '1em',
+            }}
+          >
+            <Form.Checkbox
+              slider
+              label={
+                <label style={{ color: getTextColor(color) }}>{name}</label>
+              }
+              checked={activeRoomIds.includes(id)}
+              onChange={() => toggleRoom(id)}
+            />
+          </div>
         </Grid.Column>
       ))}
     </Grid>
