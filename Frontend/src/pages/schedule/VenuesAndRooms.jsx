@@ -67,7 +67,7 @@ export default function VenuesAndRooms({
 
 function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
   return (
-    <Grid stackable columns={Math.min(5, rooms.length)}>
+    <Grid stackable columns={Math.min(4, rooms.length)}>
       {rooms.map(({ id, name, color }) => (
         <Grid.Column key={id}>
           <div
