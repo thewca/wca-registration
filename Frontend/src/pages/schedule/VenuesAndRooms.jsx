@@ -79,6 +79,7 @@ function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
               opacity: activeRoomIds.includes(id) ? 1 : 0.5,
               border: 'solid black 1px',
               padding: '1em',
+              height: '100%',
             }}
           >
             <Form.Checkbox
