@@ -31,6 +31,7 @@ export default function VenuesAndRooms({
           secondary
           fluid
           stackable
+          // TODO: can't scroll left when 6+ venues
           widths={Math.min(6, venueCount + 1)}
           style={{ overflowX: 'auto', overflowY: 'hidden' }}
         >
@@ -56,11 +57,13 @@ export default function VenuesAndRooms({
         timeZoneCount={timeZoneCount}
       />
 
-      <RoomSelector
-        rooms={rooms}
-        activeRoomIds={activeRoomIds}
-        toggleRoom={(id) => dispatchRooms({ type: 'toggle', id })}
-      />
+      {rooms.length > 1 && (
+        <RoomSelector
+          rooms={rooms}
+          activeRoomIds={activeRoomIds}
+          toggleRoom={(id) => dispatchRooms({ type: 'toggle', id })}
+        />
+      )}
     </>
   )
 }
