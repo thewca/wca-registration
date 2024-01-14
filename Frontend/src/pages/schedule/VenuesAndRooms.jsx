@@ -1,7 +1,7 @@
 import React from 'react'
 import { Form, Grid, Menu, Message } from 'semantic-ui-react'
-import { toDegrees } from '../../lib/venues'
 import { getTextColor } from '../../lib/colors'
+import { toDegrees } from '../../lib/venues'
 
 export default function VenuesAndRooms({
   venues,

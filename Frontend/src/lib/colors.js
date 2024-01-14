@@ -20,9 +20,9 @@ export const hexToRgb = (hexColor) => {
 
   if (match !== null) {
     return [
-      parseInt(match.groups.r, HEX_BASE),
-      parseInt(match.groups.g, HEX_BASE),
-      parseInt(match.groups.b, HEX_BASE),
+      Number.parseInt(match.groups.r, HEX_BASE),
+      Number.parseInt(match.groups.g, HEX_BASE),
+      Number.parseInt(match.groups.b, HEX_BASE),
     ]
   }
 
