@@ -49,12 +49,12 @@ class InternalController < ApplicationController
     status = params[:status]
     event_id = params[:event_id]
     registrations = if status.present?
-      Registration.where(competition_id: competition_id, competing_status: status).to_a
-    else
-      Registration.where(competition_id: competition_id).to_a
+                      Registration.where(competition_id: competition_id, competing_status: status).to_a
+                    else
+                      Registration.where(competition_id: competition_id).to_a
                     end
     if event_id.present?
-      return render json: registrations.filter { |r| r.event_details.pluck("event_id").include?(event_id) }
+      return render json: registrations.filter { |r| r.event_details.pluck('event_id').include?(event_id) }
     end
     render json: registrations
   end
