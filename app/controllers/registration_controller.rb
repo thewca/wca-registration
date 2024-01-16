@@ -293,7 +293,7 @@ class RegistrationController < ApplicationController
 
     def get_registrations(competition_id, only_attending: false)
       if only_attending
-        Registration.where(competition_id: competition_id, competing_status: "accepted").all.map do |x|
+        Registration.where(competition_id: competition_id, competing_status: 'accepted').all.map do |x|
           { user_id: x['user_id'],
             competing: {
               event_ids: x.event_ids,
