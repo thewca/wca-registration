@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, FlagIcon } from '@thewca/wca-components'
-import React, { useContext, useMemo, useReducer } from 'react'
+import React, { useContext, useEffect, useMemo, useReducer, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Icon, Loader, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
@@ -33,12 +33,6 @@ function sortReducer(state, action) {
       }
     }
   }
-  if (action.type === 'PSYCH_SHEET') {
-    return {
-      ...state,
-      psychSheet: action.event,
-    }
-  }
   throw new Error('Unknown Action')
 }
 
@@ -68,10 +62,12 @@ export default function RegistrationList() {
   const [state, dispatch] = useReducer(sortReducer, {
     sortColumn: '',
     sortDirection: undefined,
-    psychSheet: null,
   })
 
-  const { sortColumn, sortDirection, psychSheet } = state
+  const { sortColumn, sortDirection } = state
+
+  const [psychSheetEvent, setPsychSheetEvent] = useState();
+  const [psychSheetSortBy, setPsychSheetSortBy] = useState();
 
   const registrationsWithUser = useMemo(() => {
     if (registrations && userInfo) {
@@ -81,15 +77,27 @@ export default function RegistrationList() {
   }, [registrations, userInfo])
 
   const { isLoading: isLoadingPsychSheet, data: psychSheetResults } = useQuery({
-    queryKey: ['psychSheet', competitionInfo.id, psychSheet],
-    queryFn: () => getPsychSheetForEvent(competitionInfo.id, psychSheet),
+    queryKey: ['psychSheet', competitionInfo.id, psychSheetEvent],
+    queryFn: () => getPsychSheetForEvent(competitionInfo.id, psychSheetEvent),
     retry: false,
-    enabled: psychSheet !== null,
+    enabled: psychSheetEvent !== undefined,
   });
+
+  useEffect(() => {
+    if (psychSheetResults !== undefined) {
+      setPsychSheetSortBy(psychSheetResults.sort_by);
+    }
+  }, [psychSheetResults]);
+
+  const getPsychResult = (userId) => psychSheetResults.sorted_rankings.find((r) => r.user_id === userId);
+  const getPsychRanking = (userId) => psychSheetSortBy === 'single' ? getPsychResult(userId).single_rank : getPsychResult(userId).average_rank;
 
   const data = useMemo(() => {
     if (registrationsWithUser) {
-      const sorted = registrationsWithUser.sort((a, b) => {
+      const sorted = registrations.sort((a, b) => {
+        if (psychSheetEvent !== undefined && psychSheetResults) {
+          return getPsychRanking(a.user.id) - getPsychRanking(b.user.id);
+        }
         if (sortColumn === 'name') {
           return a.user.name.localeCompare(b.user.name)
         }
@@ -101,13 +109,13 @@ export default function RegistrationList() {
         }
         return 0
       })
-      if (sortDirection === 'descending') {
-        return sorted.reverse()
+      if (sortDirection === 'descending' && psychSheetEvent === undefined) {
+        return sorted.toReversed()
       }
       return sorted
     }
     return []
-  }, [registrationsWithUser, sortColumn, sortDirection])
+  }, [registrationsWithUser, sortColumn, sortDirection, psychSheetEvent, psychSheetResults])
 
   const { newcomers, totalEvents, countrySet, eventCounts } = useMemo(() => {
     if (!data) {
@@ -146,6 +154,21 @@ export default function RegistrationList() {
     )
   }, [competitionInfo.event_ids, data]);
 
+  const PsychSheetBody = ({ userId }) => {
+    if (isLoadingPsychSheet) return null;
+
+    const psychResultForUser = getPsychResult(userId);
+    const psychRanking = getPsychRanking(userId);
+
+    return (
+      <>
+        <Table.Cell>{psychRanking}</Table.Cell>
+        <Table.Cell>{psychResultForUser.single_best}</Table.Cell>
+        <Table.Cell>{psychResultForUser.average_best}</Table.Cell>
+      </>
+    );
+  }
+
   return isLoadingRegistrations || infoLoading ? (
     <LoadingMessage />
   ) : (
@@ -169,14 +192,14 @@ export default function RegistrationList() {
             >
               Citizen Of
             </Table.HeaderCell>
-            {psychSheet === null ? (
+            {!psychSheetEvent ? (
               <>
                 {(
                   competitionInfo.event_ids.map((id) => (
                     <Table.HeaderCell
                       key={`registration-table-header-${id}`}
                       onClick={() =>
-                        dispatch({ type: 'PSYCH_SHEET', event: id })
+                        setPsychSheetEvent(id)
                       }
                     >
                       <CubingIcon event={id} selected />
@@ -196,20 +219,30 @@ export default function RegistrationList() {
               <>
                 <Table.HeaderCell
                   onClick={() =>
-                    dispatch({ type: 'PSYCH_SHEET', event: null })
+                    setPsychSheetEvent(undefined)
                   }
                 >
-                  <CubingIcon event={psychSheet} selected size="2x" />
+                  <CubingIcon event={psychSheetEvent} selected size="2x" />
                   {isLoadingPsychSheet ? (
                     <Loader active inline />
                   ) : (
                     <Icon name="delete" />
                   )}
                 </Table.HeaderCell>
-                <Table.HeaderCell>
+                <Table.HeaderCell
+                  sorted={psychSheetSortBy === 'single' ? 'ascending' : undefined}
+                  onClick={() =>
+                    setPsychSheetSortBy('single')
+                  }
+                >
                   Single
                 </Table.HeaderCell>
-                <Table.HeaderCell>
+                <Table.HeaderCell
+                  sorted={psychSheetSortBy === 'average' ? 'ascending' : undefined}
+                  onClick={() =>
+                    setPsychSheetSortBy('average')
+                  }
+                >
                   Average
                 </Table.HeaderCell>
               </>
@@ -235,7 +268,7 @@ export default function RegistrationList() {
                   <FlagIcon iso2={registration.user.country.iso2.toLowerCase()} />
                   {registration.user.country.name}
                 </Table.Cell>
-                {psychSheet === null ? (
+                {psychSheetEvent === undefined || isLoadingPsychSheet ? (
                   <>
                     {competitionInfo.event_ids.map((id) => (
                       <Table.Cell
@@ -248,13 +281,7 @@ export default function RegistrationList() {
                       {registration.competing.event_ids.length}
                     </Table.Cell>
                   </>
-                ) : (
-                  <>
-                    <Table.Cell></Table.Cell>
-                    <Table.Cell>12.34</Table.Cell>
-                    <Table.Cell>13.45</Table.Cell>
-                  </>
-                )}
+                ) : <PsychSheetBody userId={registration.user.id} />}
               </Table.Row>
             ))
           ) : (
@@ -269,7 +296,7 @@ export default function RegistrationList() {
               registrations.length - newcomers
             } Returners = ${registrations.length} People`}</Table.Cell>
             <Table.Cell>{`${countrySet.size}  Countries`}</Table.Cell>
-            {psychSheet === null ? (
+            {psychSheetEvent === undefined ? (
               <>
                 {[...eventCounts.entries()].map(([id, count]) => (
                   <Table.Cell key={`footer-count-${id}`}>{count}</Table.Cell>

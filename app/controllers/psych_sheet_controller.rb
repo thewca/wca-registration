@@ -10,10 +10,10 @@ class PsychSheetController < ApplicationController
     user_ids = registrations.map { |reg| reg[:user_id] }
     pseudo_rankings = user_ids.map { |uid|
       {
-        user_id: uid,
+        user_id: uid.to_i,
         single_rank: uid.to_i * 3,
         single_best: '12.34',
-        average_rank: uid.to_i ** 3,
+        average_rank: uid.to_i ** 2,
         average_best: '59.99',
       }
     }
