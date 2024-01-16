@@ -152,6 +152,25 @@ export interface paths {
       };
     };
   };
+  "/api/v1/psych_sheet/{competition_id}/{event_id}": {
+    /** Private: fetch the psych sheet for a given competition_id and event_id */
+    get: {
+      parameters: {
+        path: {
+          competition_id: string;
+          event_id: string;
+        };
+      };
+      responses: {
+        /** @description  -> PASSING comp service down but registrations exist */
+        200: {
+          content: {
+            "application/json": components["schemas"]["psychSheet"][];
+          };
+        };
+      };
+    };
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -188,6 +207,13 @@ export interface components {
         event_ids: EventId[];
       };
     };
+    psychSheet: {
+      user_id: number;
+      singleResult: string;
+      singleRank: number;
+      averageResult: string;
+      averageRank: number;
+    }
     registrationAdmin: {
       user_id: number;
       competing: {

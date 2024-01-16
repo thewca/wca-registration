@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, FlagIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Table } from 'semantic-ui-react'
+import { Icon, Loader, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
-import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
+import { getConfirmedRegistrations, getPsychSheetForEvent } from '../../../api/registration/get/get_registrations'
 import { useUserData } from '../../../hooks/useUserData'
 import { addUserData } from '../../../lib/users'
 import { setMessage } from '../../../ui/events/messages'
@@ -33,6 +33,12 @@ function sortReducer(state, action) {
       }
     }
   }
+  if (action.type === 'PSYCH_SHEET') {
+    return {
+      ...state,
+      psychSheet: action.event,
+    }
+  }
   throw new Error('Unknown Action')
 }
 
@@ -40,7 +46,7 @@ export default function RegistrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { t } = useTranslation()
 
-  const { isLoading, data: registrations } = useQuery({
+  const { isLoading: isLoadingRegistrations, data: registrations } = useQuery({
     queryKey: ['registrations', competitionInfo.id],
     queryFn: () => getConfirmedRegistrations(competitionInfo.id),
     retry: false,
@@ -62,8 +68,10 @@ export default function RegistrationList() {
   const [state, dispatch] = useReducer(sortReducer, {
     sortColumn: '',
     sortDirection: undefined,
+    psychSheet: null,
   })
-  const { sortColumn, sortDirection } = state
+
+  const { sortColumn, sortDirection, psychSheet } = state
 
   const registrationsWithUser = useMemo(() => {
     if (registrations && userInfo) {
@@ -71,6 +79,13 @@ export default function RegistrationList() {
     }
     return []
   }, [registrations, userInfo])
+
+  const { isLoading: isLoadingPsychSheet, data: psychSheetResults } = useQuery({
+    queryKey: ['psychSheet', competitionInfo.id, psychSheet],
+    queryFn: () => getPsychSheetForEvent(competitionInfo.id, psychSheet),
+    retry: false,
+    enabled: psychSheet !== null,
+  });
 
   const data = useMemo(() => {
     if (registrationsWithUser) {
@@ -93,6 +108,7 @@ export default function RegistrationList() {
     }
     return []
   }, [registrationsWithUser, sortColumn, sortDirection])
+
   const { newcomers, totalEvents, countrySet, eventCounts } = useMemo(() => {
     if (!data) {
       return {
@@ -128,9 +144,9 @@ export default function RegistrationList() {
         }, new Map()),
       },
     )
-  }, [competitionInfo.event_ids, data])
+  }, [competitionInfo.event_ids, data]);
 
-  return isLoading || infoLoading ? (
+  return isLoadingRegistrations || infoLoading ? (
     <LoadingMessage />
   ) : (
     <div>
@@ -153,19 +169,51 @@ export default function RegistrationList() {
             >
               Citizen Of
             </Table.HeaderCell>
-            {competitionInfo.event_ids.map((id) => (
-              <Table.HeaderCell key={`registration-table-header-${id}`}>
-                <CubingIcon event={id} selected />
-              </Table.HeaderCell>
-            ))}
-            <Table.HeaderCell
-              sorted={sortColumn === 'total' ? sortDirection : undefined}
-              onClick={() =>
-                dispatch({ type: 'CHANGE_SORT', sortColumn: 'total' })
-              }
-            >
-              Total
-            </Table.HeaderCell>
+            {psychSheet === null ? (
+              <>
+                {(
+                  competitionInfo.event_ids.map((id) => (
+                    <Table.HeaderCell
+                      key={`registration-table-header-${id}`}
+                      onClick={() =>
+                        dispatch({ type: 'PSYCH_SHEET', event: id })
+                      }
+                    >
+                      <CubingIcon event={id} selected />
+                    </Table.HeaderCell>
+                  ))
+                )}
+                <Table.HeaderCell
+                  sorted={sortColumn === 'total' ? sortDirection : undefined}
+                  onClick={() =>
+                    dispatch({ type: 'CHANGE_SORT', sortColumn: 'total' })
+                  }
+                >
+                  Total
+                </Table.HeaderCell>
+              </>
+            ) : (
+              <>
+                <Table.HeaderCell
+                  onClick={() =>
+                    dispatch({ type: 'PSYCH_SHEET', event: null })
+                  }
+                >
+                  <CubingIcon event={psychSheet} selected size="2x" />
+                  {isLoadingPsychSheet ? (
+                    <Loader active inline />
+                  ) : (
+                    <Icon name="delete" />
+                  )}
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  Single
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  Average
+                </Table.HeaderCell>
+              </>
+            )}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -184,28 +232,29 @@ export default function RegistrationList() {
                   )}
                 </Table.Cell>
                 <Table.Cell>
-                  <FlagIcon iso2={registration.user.country.iso2} />
+                  <FlagIcon iso2={registration.user.country.iso2.toLowerCase()} />
                   {registration.user.country.name}
                 </Table.Cell>
-                {competitionInfo.event_ids.map((id) => {
-                  if (registration.competing.event_ids.includes(id)) {
-                    return (
+                {psychSheet === null ? (
+                  <>
+                    {competitionInfo.event_ids.map((id) => (
                       <Table.Cell
                         key={`registration-table-row-${registration.user.id}-${id}`}
                       >
-                        <CubingIcon event={id} selected={true} />
+                        {registration.competing.event_ids.includes(id) ? <CubingIcon event={id} selected /> : null}
                       </Table.Cell>
-                    )
-                  }
-                  return (
-                    <Table.Cell
-                      key={`registration-table-row-${registration.user.id}-${id}`}
-                    />
-                  )
-                })}
-                <Table.Cell>
-                  {registration.competing.event_ids.length}
-                </Table.Cell>
+                    ))}
+                    <Table.Cell>
+                      {registration.competing.event_ids.length}
+                    </Table.Cell>
+                  </>
+                ) : (
+                  <>
+                    <Table.Cell></Table.Cell>
+                    <Table.Cell>12.34</Table.Cell>
+                    <Table.Cell>13.45</Table.Cell>
+                  </>
+                )}
               </Table.Row>
             ))
           ) : (
@@ -220,10 +269,20 @@ export default function RegistrationList() {
               registrations.length - newcomers
             } Returners = ${registrations.length} People`}</Table.Cell>
             <Table.Cell>{`${countrySet.size}  Countries`}</Table.Cell>
-            {[...eventCounts.entries()].map(([id, count]) => (
-              <Table.Cell key={`footer-count-${id}`}>{count}</Table.Cell>
-            ))}
-            <Table.Cell>{totalEvents}</Table.Cell>
+            {psychSheet === null ? (
+              <>
+                {[...eventCounts.entries()].map(([id, count]) => (
+                  <Table.Cell key={`footer-count-${id}`}>{count}</Table.Cell>
+                ))}
+                <Table.Cell>{totalEvents}</Table.Cell>
+              </>
+            ) : (
+              <>
+                <Table.Cell />
+                <Table.Cell />
+                <Table.Cell />
+              </>
+            )}
           </Table.Row>
         </Table.Footer>
       </Table>
