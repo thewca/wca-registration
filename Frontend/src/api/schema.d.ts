@@ -43,6 +43,25 @@ export interface paths {
       };
     };
   };
+  "/api/v1/psych_sheet/{competition_id}/{event_id}": {
+    /** Private: Fetches the Psych Sheet for a given competition. The actual computation is handled by other Microservices */
+    get: {
+      parameters: {
+        path: {
+          competition_id: string;
+          event_id: EventId;
+        };
+      };
+      responses: {
+        /** @description Successfully passed down the Psych Sheet */
+        200: {
+          content: {
+            "application/json": components["schemas"]["psychSheet"];
+          };
+        };
+      };
+    };
+  };
   "/api/v1/registrations/{competition_id}/admin": {
     /** Public: list registrations for a given competition_id */
     get: {
@@ -152,25 +171,6 @@ export interface paths {
       };
     };
   };
-  "/api/v1/psych_sheet/{competition_id}/{event_id}": {
-    /** Private: fetch the psych sheet for a given competition_id and event_id */
-    get: {
-      parameters: {
-        path: {
-          competition_id: string;
-          event_id: string;
-        };
-      };
-      responses: {
-        /** @description  -> PASSING comp service down but registrations exist */
-        200: {
-          content: {
-            "application/json": components["schemas"]["psychSheet"][];
-          };
-        };
-      };
-    };
-  };
 }
 
 export type webhooks = Record<string, never>;
@@ -207,13 +207,18 @@ export interface components {
         event_ids: EventId[];
       };
     };
-    psychSheet: {
+    sortedRanking: {
       user_id: number;
-      singleResult: string;
-      singleRank: number;
-      averageResult: string;
-      averageRank: number;
-    }
+      single_rank: number;
+      single_best: string;
+      average_rank: number;
+      average_best: string;
+    };
+    psychSheet: {
+      sort_by: string;
+      sort_by_secondary: string;
+      sorted_rankings: components["schemas"]["sortedRanking"][];
+    };
     registrationAdmin: {
       user_id: number;
       competing: {

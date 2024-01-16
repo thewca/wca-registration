@@ -29,7 +29,7 @@ export async function getConfirmedRegistrations(
 export async function getPsychSheetForEvent(
   competitionId: string,
   eventId: string,
-): Promise<Record<number, components['schemas']['psychSheet']>> {
+): Promise<components['schemas']['psychSheet']> {
   //TODO: Because there is currently no bulk user fetch route we need to manually add user data here
   const { data, response } = await GET(
     '/api/v1/psych_sheet/{competition_id}/{event_id}',
@@ -40,9 +40,7 @@ export async function getPsychSheetForEvent(
   if (!response.ok) {
     throw new BackendError(500, response.status)
   }
-  const keyedData = new Map(data!.map((row) => [row.user_id, row]));
-  // TODO how to make TS recognize Map<> as Record<> type?
-  return { ...keyedData }
+  return data!
 }
 
 export async function getAllRegistrations(

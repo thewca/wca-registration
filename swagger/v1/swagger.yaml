@@ -82,6 +82,40 @@ components:
       required:
       - user_id
       - competing
+    sortedRanking:
+      type: object
+      properties:
+        user_id:
+          type: number
+        single_rank:
+          type: number
+        single_best:
+          type: string
+        average_rank:
+          type: number
+        average_best:
+          type: string
+      required:
+      - user_id
+      - single_rank
+      - single_best
+      - average_rank
+      - average_best
+    psychSheet:
+      type: object
+      properties:
+        sort_by:
+          type: string
+        sort_by_secondary:
+          type: string
+        sorted_rankings:
+          type: array
+          items:
+            "$ref": "#/components/schemas/sortedRanking"
+      required:
+      - sort_by
+      - sort_by_secondary
+      - sorted_rankings
     registrationAdmin:
       type: object
       properties:
@@ -203,6 +237,28 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/registration"
+  "/api/v1/psych_sheet/{competition_id}/{event_id}":
+    get:
+      summary: 'Private: Fetches the Psych Sheet for a given competition. The actual computation is handled by other Microservices'
+      parameters:
+      - name: competition_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: event_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: EventId
+      responses:
+        '200':
+          description: "Successfully passed down the Psych Sheet"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/psychSheet"
   "/api/v1/registrations/{competition_id}/admin":
     get:
       summary: 'Public: list registrations for a given competition_id'
