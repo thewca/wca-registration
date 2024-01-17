@@ -4,29 +4,12 @@ class PsychSheetController < ApplicationController
   skip_before_action :validate_token, only: [:fetch]
 
   def fetch
-    competition_id = list_params
-    registrations = get_attending_registrations(competition_id)
+    competition_id = params.require(:competition_id)
+    event_id = params.require(:event_id)
 
-    user_ids = registrations.map { |reg| reg[:user_id] }
-    pseudo_rankings = user_ids.map { |uid|
-      {
-        user_id: uid.to_i,
-        single_rank: uid.to_i * 3,
-        single_best: '12.34',
-        average_rank: uid.to_i ** 2,
-        average_best: '59.99',
-      }
-    }
+    sort_by = params[:sort_by]
 
-    render json: {
-      sort_by: 'single',
-      sort_by_secondary: 'average',
-      sorted_rankings: pseudo_rankings,
-    }
-  end
-
-  def list_params
-    params.require(:competition_id)
+    render json: ResultsApi.get_psych_sheet(competition_id, event_id, sort_by: sort_by)
   end
 
   def get_attending_registrations(competition_id)

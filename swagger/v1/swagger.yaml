@@ -252,6 +252,11 @@ paths:
         schema:
           type: string
           format: EventId
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: "Successfully passed down the Psych Sheet"
