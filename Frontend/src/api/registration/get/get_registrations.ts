@@ -29,12 +29,13 @@ export async function getConfirmedRegistrations(
 export async function getPsychSheetForEvent(
   competitionId: string,
   eventId: string,
+  sortBy: string,
 ): Promise<components['schemas']['psychSheet']> {
   //TODO: Because there is currently no bulk user fetch route we need to manually add user data here
   const { data, response } = await GET(
     '/api/v1/psych_sheet/{competition_id}/{event_id}',
     {
-      params: { path: { competition_id: competitionId, event_id: eventId } },
+      params: { path: { competition_id: competitionId, event_id: eventId }, query: { sort_by: sortBy } },
     }
   )
   if (!response.ok) {

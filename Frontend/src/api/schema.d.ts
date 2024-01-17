@@ -47,6 +47,9 @@ export interface paths {
     /** Private: Fetches the Psych Sheet for a given competition. The actual computation is handled by other Microservices */
     get: {
       parameters: {
+        query?: {
+          sort_by?: string;
+        };
         path: {
           competition_id: string;
           event_id: EventId;
@@ -208,7 +211,7 @@ export interface components {
       };
     };
     sortedRanking: {
-      user_id: number;
+      user_id: string;
       single_rank: number;
       single_best: string;
       average_rank: number;

@@ -86,7 +86,7 @@ components:
       type: object
       properties:
         user_id:
-          type: number
+          type: string
         single_rank:
           type: number
         single_best:
