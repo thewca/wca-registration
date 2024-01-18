@@ -11,13 +11,4 @@ class PsychSheetController < ApplicationController
 
     render json: ResultsApi.get_psych_sheet(competition_id, event_id, sort_by: sort_by)
   end
-
-  def get_attending_registrations(competition_id)
-    Registration.where(competition_id: competition_id, competing_status: 'accepted').all.map do |x|
-      { user_id: x['user_id'],
-        competing: {
-          event_ids: x.event_ids,
-        } }
-    end
-  end
 end
