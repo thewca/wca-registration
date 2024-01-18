@@ -110,6 +110,9 @@ export default function RegistrationList() {
   }, [psychSheetResults])
 
   const data = useMemo(() => {
+    if (psychSheetEvent !== undefined && psychSheetResults) {
+      return psychSheetResults.sorted_rankings
+    }
     if (registrationsWithUser) {
       const sorted = registrations.sort((a, b) => {
         if (sortColumn === 'name') {
@@ -128,9 +131,6 @@ export default function RegistrationList() {
       }
       return sorted
     }
-    if (psychSheetEvent !== undefined && psychSheetResults) {
-      return psychSheetResults.sorted_rankings
-    }
     return []
   }, [
     registrationsWithUser,
@@ -140,42 +140,32 @@ export default function RegistrationList() {
     psychSheetResults,
   ])
 
-  const { newcomers, totalEvents, countrySet, eventCounts } = useMemo(() => {
-    if (!data) {
-      return {
-        newcomers: 0,
-        totalEvents: 0,
-        countrySet: new Set(),
-        eventCounts: new Map(),
-      }
-    }
-    return data.reduce(
-      (info, registration) => {
-        if (registration.user.wca_id === undefined) {
-          info.newcomers++
-        }
-        info.countrySet.add(registration.user.country.iso2)
-        info.totalEvents += registration.competing.event_ids.length
-        competitionInfo.event_ids.forEach((id) => {
-          if (registration.competing.event_ids.includes(id)) {
-            // We can safely ignore the undefined case here because we initialize the map with zeroes
-            info.eventCounts.set(id, info.eventCounts.get(id) + 1)
-          }
-        })
-        return info
-      },
-      {
-        newcomers: 0,
-        totalEvents: 0,
-        countrySet: new Set(),
-        // We have to use a Map instead of an object to preserve event order
-        eventCounts: competitionInfo.event_ids.reduce((counts, eventId) => {
-          counts.set(eventId, 0)
-          return counts
-        }, new Map()),
-      },
-    )
-  }, [competitionInfo.event_ids, data])
+  const newcomerCount = useMemo(() => {
+    if (!registrations) return 0;
+
+    return registrations.filter((reg) => reg.user.wca_id === undefined).length
+  }, [registrations])
+
+  const countryCount = useMemo(() => {
+    if (!registrations) return 0;
+
+    return new Set(registrations.map((reg) => reg.user.country.iso2)).size
+  }, [registrations])
+
+  const totalEvents = useMemo(() => {
+    if (!registrations) return 0;
+
+    return data.map((reg) => reg.competing.event_ids.length).reduce((a, b) => a + b, 0)
+  }, [registrations])
+
+  const eventCounts = useMemo(() => {
+    if (!registrations) return 0;
+
+    return Object.fromEntries(competitionInfo.event_ids.map((evt) => {
+      const competingCount = registrations.filter((reg) => reg.competing.event_ids.includes(evt)).reduce((a, b) => a + b, 0)
+      return [evt, competingCount]
+    }))
+  }, [registrations])
 
   const PsychSheetBody = ({ userId }) => {
     if (isLoadingPsychSheet) return null;
@@ -328,14 +318,14 @@ export default function RegistrationList() {
         </Table.Body>
         <Table.Footer>
           <Table.Row>
-            <Table.Cell>{`${newcomers} First-Timers + ${
-              registrations.length - newcomers
+            <Table.Cell>{`${newcomerCount} First-Timers + ${
+              registrations.length - newcomerCount
             } Returners = ${registrations.length} People`}</Table.Cell>
-            <Table.Cell>{`${countrySet.size}  Countries`}</Table.Cell>
+            <Table.Cell>{`${countryCount}  Countries`}</Table.Cell>
             {psychSheetEvent === undefined ? (
               <>
-                {[...eventCounts.entries()].map(([id, count]) => (
-                  <Table.Cell key={`footer-count-${id}`}>{count}</Table.Cell>
+                {competitionInfo.event_ids.map((evt) => (
+                  <Table.Cell key={`footer-count-${evt}`}>{eventCounts[evt]}</Table.Cell>
                 ))}
                 <Table.Cell>{totalEvents}</Table.Cell>
               </>
