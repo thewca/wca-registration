@@ -5,8 +5,7 @@ require_relative 'wca_api'
 
 class ResultsApi < WcaApi
   def self.get_psych_sheet(competition_id, event_id, sort_by: nil)
-    response = HTTParty.post(psych_sheet_path(competition_id, event_id, sort_by: sort_by),
-                             headers: { WCA_API_HEADER => self.get_wca_token })
+    response = HTTParty.get(psych_sheet_path(competition_id, event_id, sort_by: sort_by))
     unless response.ok?
       raise 'Error from the results service'
     end
