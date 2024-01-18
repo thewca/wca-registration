@@ -215,7 +215,7 @@ export default function RegistrationList() {
             >
               Citizen Of
             </Table.HeaderCell>
-            {!psychSheetEvent ? (
+            {psychSheetEvent === undefined ? (
               <>
                 {competitionInfo.event_ids.map((id) => (
                   <Table.HeaderCell

@@ -87,20 +87,28 @@ components:
       properties:
         user_id:
           type: string
+        wca_id:
+          type: string
         single_rank:
           type: number
         single_best:
-          type: string
+          type: number
         average_rank:
           type: number
         average_best:
-          type: string
+          type: number
+        pos:
+          type: number
+        tied_previous:
+          type: boolean
       required:
       - user_id
       - single_rank
       - single_best
       - average_rank
       - average_best
+      - pos
+      - tied_previous
     psychSheet:
       type: object
       properties:

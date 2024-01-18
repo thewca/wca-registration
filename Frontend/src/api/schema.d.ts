@@ -212,10 +212,13 @@ export interface components {
     };
     sortedRanking: {
       user_id: string;
+      wca_id?: string;
       single_rank: number;
-      single_best: string;
+      single_best: number;
       average_rank: number;
-      average_best: string;
+      average_best: number;
+      pos: number;
+      tied_previous: boolean;
     };
     psychSheet: {
       sort_by: string;
