@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, FlagIcon } from '@thewca/wca-components'
+import { formatCentiseconds } from '@wca/helpers'
 import React, {
   useContext,
   useEffect,
@@ -19,7 +20,6 @@ import {
 } from '../../../api/registration/get/get_registrations'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
-import { formatCentiseconds } from '@wca/helpers'
 
 function sortReducer(state, action) {
   if (action.type === 'CHANGE_SORT') {
@@ -113,10 +113,8 @@ export default function RegistrationList() {
   const data = useMemo(() => {
     if (psychSheetEvent !== undefined) {
       if (!psychSheetResults) {
-        console.log('returning empty array')
-        return [];
+        return []
       }
-      console.log('returning somethingTM')
       return psychSheetResults.sorted_rankings
     }
     if (registrationsWithUser) {
@@ -147,15 +145,23 @@ export default function RegistrationList() {
   ])
 
   const FooterContent = () => {
-    if (!registrations) return null;
+    if (!registrations) return null
 
-    const newcomerCount = registrations.filter((reg) => reg.user.wca_id === undefined).length
-    const countryCount = new Set(registrations.map((reg) => reg.user.country.iso2)).size
+    const newcomerCount = registrations.filter(
+      (reg) => reg.user.wca_id === undefined
+    ).length
+    const countryCount = new Set(
+      registrations.map((reg) => reg.user.country.iso2)
+    ).size
 
-    const eventCounts = Object.fromEntries(competitionInfo.event_ids.map((evt) => {
-      const competingCount = registrations.filter((reg) => reg.competing.event_ids.includes(evt)).length
-      return [evt, competingCount]
-    }))
+    const eventCounts = Object.fromEntries(
+      competitionInfo.event_ids.map((evt) => {
+        const competingCount = registrations.filter((reg) =>
+          reg.competing.event_ids.includes(evt)
+        ).length
+        return [evt, competingCount]
+      })
+    )
 
     const totalEvents = Object.values(eventCounts).reduce((a, b) => a + b, 0)
 
@@ -168,7 +174,9 @@ export default function RegistrationList() {
         {psychSheetEvent === undefined ? (
           <>
             {competitionInfo.event_ids.map((evt) => (
-              <Table.Cell key={`footer-count-${evt}`}>{eventCounts[evt]}</Table.Cell>
+              <Table.Cell key={`footer-count-${evt}`}>
+                {eventCounts[evt]}
+              </Table.Cell>
             ))}
             <Table.Cell>{totalEvents}</Table.Cell>
           </>
@@ -277,7 +285,7 @@ export default function RegistrationList() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {data.length !== 0 ? (
+          {data.length > 0 ? (
             data.map((registration) => (
               <Table.Row key={`registration-table-row-${registration.user.id}`}>
                 <Table.Cell>
@@ -315,22 +323,41 @@ export default function RegistrationList() {
                 ) : (
                   <>
                     <Table.Cell />
-                    <Table.Cell collapsing textAlign="right" disabled={registration.tied_previous}>{registration.pos}</Table.Cell>
+                    <Table.Cell
+                      collapsing
+                      textAlign="right"
+                      disabled={registration.tied_previous}
+                    >
+                      {registration.pos}
+                    </Table.Cell>
                     <Table.Cell>
                       {psychSheetSortBy === 'single'
                         ? registration.single_rank
                         : registration.average_rank}
                     </Table.Cell>
-                    <Table.Cell>{formatCentiseconds(registration.single_best)}</Table.Cell>
-                    <Table.Cell>{formatCentiseconds(registration.average_best)}</Table.Cell>
+                    <Table.Cell>
+                      {formatCentiseconds(registration.single_best)}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {formatCentiseconds(registration.average_best)}
+                    </Table.Cell>
                   </>
                 )}
               </Table.Row>
             ))
           ) : (
             <Table.Row>
-              <Table.Cell textAlign="center" colSpan={psychSheetEvent === undefined ? (competitionInfo.event_ids.length + 3) : 7}>
-                {psychSheetEvent === undefined ? 'No matching records found' : 'Crunching the data, please wait'}
+              <Table.Cell
+                textAlign="center"
+                colSpan={
+                  psychSheetEvent === undefined
+                    ? competitionInfo.event_ids.length + 3
+                    : 7
+                }
+              >
+                {psychSheetEvent && isLoadingPsychSheet
+                  ? 'Crunching the data, please wait'
+                  : 'No matching records found'}
               </Table.Cell>
             </Table.Row>
           )}
