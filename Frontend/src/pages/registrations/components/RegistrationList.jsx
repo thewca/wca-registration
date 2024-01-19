@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Dimmer, DimmerDimmable, Icon, Loader, Table } from 'semantic-ui-react'
+import { Icon, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getConfirmedRegistrations, getPsychSheetForEvent } from '../../../api/registration/get/get_registrations'
 import { useUserData } from '../../../hooks/useUserData'
@@ -110,7 +110,12 @@ export default function RegistrationList() {
   }, [psychSheetResults])
 
   const data = useMemo(() => {
-    if (psychSheetEvent !== undefined && psychSheetResults) {
+    if (psychSheetEvent !== undefined) {
+      if (!psychSheetResults) {
+        console.log('returning empty array')
+        return [];
+      }
+      console.log('returning somethingTM')
       return psychSheetResults.sorted_rankings
     }
     if (registrationsWithUser) {
@@ -140,32 +145,44 @@ export default function RegistrationList() {
     psychSheetResults,
   ])
 
-  const newcomerCount = useMemo(() => {
-    if (!registrations) return 0;
+  const FooterContent = () => {
+    if (!registrations) return null;
 
-    return registrations.filter((reg) => reg.user.wca_id === undefined).length
-  }, [registrations])
+    const newcomerCount = registrations.filter((reg) => reg.user.wca_id === undefined).length
+    const countryCount = new Set(registrations.map((reg) => reg.user.country.iso2)).size
 
-  const countryCount = useMemo(() => {
-    if (!registrations) return 0;
-
-    return new Set(registrations.map((reg) => reg.user.country.iso2)).size
-  }, [registrations])
-
-  const totalEvents = useMemo(() => {
-    if (!registrations) return 0;
-
-    return data.map((reg) => reg.competing.event_ids.length).reduce((a, b) => a + b, 0)
-  }, [registrations])
-
-  const eventCounts = useMemo(() => {
-    if (!registrations) return 0;
-
-    return Object.fromEntries(competitionInfo.event_ids.map((evt) => {
-      const competingCount = registrations.filter((reg) => reg.competing.event_ids.includes(evt)).reduce((a, b) => a + b, 0)
+    const eventCounts = Object.fromEntries(competitionInfo.event_ids.map((evt) => {
+      const competingCount = registrations.filter((reg) => reg.competing.event_ids.includes(evt)).length
       return [evt, competingCount]
     }))
-  }, [registrations])
+
+    const totalEvents = Object.values(eventCounts).reduce((a, b) => a + b, 0)
+
+    return (
+      <Table.Row>
+        <Table.Cell>{`${newcomerCount} First-Timers + ${
+          registrations.length - newcomerCount
+        } Returners = ${registrations.length} People`}</Table.Cell>
+        <Table.Cell>{`${countryCount}  Countries`}</Table.Cell>
+        {psychSheetEvent === undefined ? (
+          <>
+            {competitionInfo.event_ids.map((evt) => (
+              <Table.Cell key={`footer-count-${evt}`}>{eventCounts[evt]}</Table.Cell>
+            ))}
+            <Table.Cell>{totalEvents}</Table.Cell>
+          </>
+        ) : (
+          <>
+            <Table.Cell />
+            <Table.Cell />
+            <Table.Cell />
+            <Table.Cell />
+            <Table.Cell />
+          </>
+        )}
+      </Table.Row>
+    )
+  }
 
   const PsychSheetBody = ({ userId }) => {
     if (isLoadingPsychSheet) return null;
@@ -227,14 +244,16 @@ export default function RegistrationList() {
             ) : (
               <>
                 <Table.HeaderCell
-                  icon
+                  collapsing
                   onClick={() => setPsychSheetEvent(undefined)}
                 >
-                  <CubingIcon event={psychSheetEvent} selected size="2x" />
-                  <Icon name="delete" />
+                  <Icon name="backward" /> Go back
                 </Table.HeaderCell>
-                <Table.HeaderCell icon>
-                  <Icon name="trophy" />
+                <Table.HeaderCell>
+                  <CubingIcon event={psychSheetEvent} selected size="2x" />
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  <Icon name="trophy" /> WR
                 </Table.HeaderCell>
                 <Table.HeaderCell
                   sorted={
@@ -257,7 +276,7 @@ export default function RegistrationList() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {data ? (
+          {data.length !== 0 ? (
             data.map((registration) => (
               <Table.Row key={`registration-table-row-${registration.user.id}`}>
                 <Table.Cell>
@@ -294,7 +313,8 @@ export default function RegistrationList() {
                   </>
                 ) : (
                   <>
-                    <Table.Cell>{registration.pos}</Table.Cell>
+                    <Table.Cell />
+                    <Table.Cell collapsing textAlign="right" disabled={registration.tied_previous}>{registration.pos}</Table.Cell>
                     <Table.Cell>
                       {psychSheetSortBy === 'single'
                         ? registration.single_rank
@@ -308,32 +328,14 @@ export default function RegistrationList() {
             ))
           ) : (
             <Table.Row>
-              <Table.Cell width={12}> No matching records found</Table.Cell>
+              <Table.Cell textAlign="center" colSpan={psychSheetEvent === undefined ? (competitionInfo.event_ids.length + 3) : 7}>
+                {psychSheetEvent === undefined ? 'No matching records found' : 'Crunching the data, please wait'}
+              </Table.Cell>
             </Table.Row>
           )}
         </Table.Body>
         <Table.Footer>
-          <Table.Row>
-            <Table.Cell>{`${newcomerCount} First-Timers + ${
-              registrations.length - newcomerCount
-            } Returners = ${registrations.length} People`}</Table.Cell>
-            <Table.Cell>{`${countryCount}  Countries`}</Table.Cell>
-            {psychSheetEvent === undefined ? (
-              <>
-                {competitionInfo.event_ids.map((evt) => (
-                  <Table.Cell key={`footer-count-${evt}`}>{eventCounts[evt]}</Table.Cell>
-                ))}
-                <Table.Cell>{totalEvents}</Table.Cell>
-              </>
-            ) : (
-              <>
-                <Table.Cell />
-                <Table.Cell />
-                <Table.Cell />
-                <Table.Cell />
-              </>
-            )}
-          </Table.Row>
+          <FooterContent />
         </Table.Footer>
       </Table>
     </div>
