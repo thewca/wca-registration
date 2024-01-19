@@ -19,6 +19,7 @@ import {
 } from '../../../api/registration/get/get_registrations'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
+import { formatCentiseconds } from '@wca/helpers'
 
 function sortReducer(state, action) {
   if (action.type === 'CHANGE_SORT') {
@@ -320,8 +321,8 @@ export default function RegistrationList() {
                         ? registration.single_rank
                         : registration.average_rank}
                     </Table.Cell>
-                    <Table.Cell>{registration.single_best}</Table.Cell>
-                    <Table.Cell>{registration.average_best}</Table.Cell>
+                    <Table.Cell>{formatCentiseconds(registration.single_best)}</Table.Cell>
+                    <Table.Cell>{formatCentiseconds(registration.average_best)}</Table.Cell>
                   </>
                 )}
               </Table.Row>
