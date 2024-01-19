@@ -293,7 +293,7 @@ export default function RegistrationList() {
                     </Table.Cell>
                   </>
                 ) : (
-                  <DimmerDimmable dimmed={isLoadingPsychSheet}>
+                  <>
                     <Table.Cell>{registration.pos}</Table.Cell>
                     <Table.Cell>
                       {psychSheetSortBy === 'single'
@@ -302,11 +302,7 @@ export default function RegistrationList() {
                     </Table.Cell>
                     <Table.Cell>{registration.single_best}</Table.Cell>
                     <Table.Cell>{registration.average_best}</Table.Cell>
-
-                    <Dimmer active={isLoadingPsychSheet} inverted>
-                      <Loader inverted />
-                    </Dimmer>
-                  </DimmerDimmable>
+                  </>
                 )}
               </Table.Row>
             ))
