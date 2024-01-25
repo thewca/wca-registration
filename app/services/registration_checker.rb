@@ -87,6 +87,15 @@ class RegistrationChecker
 
       event_limit = @competition_info.event_limit
       raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_EVENT_SELECTION) if event_limit.present? && event_ids.count > event_limit
+
+      # User must meet qualification for events
+      return unless @competition_info.enforces_qualifications?
+      event_ids.each do |event|
+        qualification = @competition_info.get_qualification_for(event)
+        next if qualification.nil?
+
+        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET) unless competitor_qualifies_for_event?(event, qualification)
+      end
     end
 
     def validate_guests!
@@ -199,6 +208,17 @@ class RegistrationChecker
         next
       end
       false
+    end
+
+    def competitor_qualifies_for_event?(event, qualification)
+      competitor_personal_records = UserApi.personal_records(@requestee_user_id)
+      result_type = qualification['resultType']
+
+      case qualification['type']
+      when 'attemptResult'
+        competitor_pr = competitor_personal_records.dig(result_type, event, 'best')
+        competitor_pr.present? && competitor_pr < qualification['level']
+      end
     end
   end
 end

@@ -12,27 +12,47 @@ def comp_api_url(competition_id)
 end
 
 class CompetitionApi < WcaApi
-  def self.find(competition_id)
-    competition_json = if Rails.env.production?
-                         fetch_competition(competition_id)
-                       else
-                         Mocks.mock_competition(competition_id)
-                       end
-    CompetitionInfo.new(competition_json)
+  def self.find(competition_id, child = nil)
+    url_suffix = child.present? ? "#{competition_id}/#{child}" : competition_id
+    competition_json = fetch_competition_data(url_suffix)
+
+    if child.present?
+      competition_json
+    else
+      CompetitionInfo.new(competition_json)
+    end
   rescue RegistrationError
-    nil
+    # Try fetch the mock if fetch_competition_data yields an error and we're not in prod
+    if Rails.env.production?
+      nil
+    else
+      Mocks.mock_competition(url_suffix)
+    end
   end
 
-  def self.find!(competition_id)
-    competition_json = fetch_competition(competition_id)
-    CompetitionInfo.new(competition_json)
+  def self.find!(competition_id, child = nil)
+    url_suffix = child.present? ? "#{competition_id}/#{child}" : competition_id
+    competition_json = fetch_competition_data(url_suffix)
+
+    if child.present?
+      competition_json
+    else
+      CompetitionInfo.new(competition_json)
+    end
+  rescue RegistrationError => e
+    # Try fetch the mock if fetch_competition_data yields an error and we're not in prod
+    unless Rails.env.production?
+      mock_result = Mocks.mock_competition(url_suffix)
+      return mock_result unless mock_result.nil?
+    end
+    raise RegistrationError.new(e.http_status, e.error)
   end
 
   # This is how you make a private class method
   class << self
-    def fetch_competition(competition_id)
-      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        response = HTTParty.get(comp_api_url(competition_id))
+    def fetch_competition_data(url_suffix)
+      Rails.cache.fetch(url_suffix, expires_in: 5.minutes) do
+        response = HTTParty.get(comp_api_url(url_suffix))
         case response.code
         when 200
           @status = 200
@@ -55,6 +75,7 @@ class CompetitionInfo
   def initialize(competition_json)
     @competition_json = competition_json
     @competition_id = competition_json['id']
+    @qualifications = @competition_json['qualifications']
   end
 
   def within_event_change_deadline?
@@ -116,6 +137,24 @@ class CompetitionInfo
 
   def user_can_cancel?
     @competition_json['allow_registration_self_delete_after_acceptance']
+  end
+
+  def fetch_qualifications
+    @qualifications = CompetitionApi.find(@competition_id, 'qualifications')
+  end
+
+  def qualifications
+    fetch_qualifications unless @qualifications.present?
+    @competition_json['qualifications']
+  end
+
+  def get_qualification_for(event)
+    fetch_qualifications unless @qualifications.present?
+    @qualifications[event]
+  end
+
+  def enforces_qualifications?
+    @competition_json['qualification_results'] && !@competition_json['allow_registration_without_qualification']
   end
 
   def other_series_ids
