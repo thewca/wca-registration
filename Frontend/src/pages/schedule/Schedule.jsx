@@ -215,14 +215,14 @@ export default function Schedule({ wcif }) {
         <CalendarView
           dates={activeDates}
           timeZone={activeTimeZone}
-          venuesShown={activeVenues}
+          activeRooms={activeRooms}
           activeEvents={activeEvents}
         />
       ) : (
         <TableView
           dates={activeDates}
           timeZone={activeTimeZone}
-          rooms={activeRooms}
+          activeRooms={activeRooms}
           activeEvents={activeEvents}
           activeVenueOrNull={activeVenueOrNull}
         />

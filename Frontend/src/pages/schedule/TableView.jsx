@@ -15,7 +15,7 @@ import AddToCalendar from './AddToCalendar'
 export default function TableView({
   dates,
   timeZone,
-  rooms,
+  activeRooms,
   activeEvents,
   activeVenueOrNull,
 }) {
@@ -23,7 +23,7 @@ export default function TableView({
 
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const sortedActivities = rooms
+  const sortedActivities = activeRooms
     .flatMap((room) => room.activities)
     .sort(earliestWithLongestTieBreaker)
 
@@ -57,7 +57,7 @@ export default function TableView({
             timeZone={timeZone}
             groupedActivities={groupedActivitiesForDay}
             rounds={rounds}
-            rooms={rooms}
+            rooms={activeRooms}
             isExpanded={isExpanded}
             activeVenueOrNull={activeVenueOrNull}
           />
