@@ -43,7 +43,7 @@
     "react-dom": "18.2.0",
     "react-i18next": "14.0.0",
     "react-router-dom": "6.21.3",
-    "semantic-ui-react": "2.1.4"
+    "semantic-ui-react": "2.1.5"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.14.6",
