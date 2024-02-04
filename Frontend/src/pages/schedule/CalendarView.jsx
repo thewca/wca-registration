@@ -13,8 +13,6 @@ import { getTextColor } from '../../lib/colors'
 
 // TODO: make column date consistent with table view dates
 // TODO: add tooltip or popup on events for more details
-// TODO: initialDate change doesn't update calendar
-// > can set explicit range, see https://fullcalendar.io/docs/visibleRange
 // TODO: set calendar's locale
 // TODO: table has 24h, calendar has 12h - make consistent (fixed by setting locale?)
 // TODO: indicate that event split across days are such?
@@ -63,15 +61,16 @@ export default function CalendarView({
         //   - timeGridPlugin: Display days as vertical grid
         //   - luxonPlugin: Support timezones
         plugins={[timeGridPlugin, luxonPlugin]}
-        // define our "own" view (which is basically just saying how many days we want)
+        // define our "own" view
         initialView="agendaForComp"
         views={{
           agendaForComp: {
             type: 'timeGrid',
-            duration: { days: dates.length },
+            // specify start/end rather than duration/initialDate, since
+            // dates may change when changing time zone
+            visibleRange: { start: dates[0], end: dates[dates.length - 1] },
           },
         }}
-        initialDate={dates[0]}
         // by default, FC offers support for separate "whole-day" events
         allDaySlot={false}
         // by default, FC would show a "skip to next day" toolbar
