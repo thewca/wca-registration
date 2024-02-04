@@ -1,10 +1,10 @@
+import luxonPlugin from '@fullcalendar/luxon3'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
-import luxonPlugin from '@fullcalendar/luxon3'
 import React from 'react'
 import {
-  getActivityEvent,
   earliestTimeOfDayWithBuffer,
+  getActivityEvent,
   latestTimeOfDayWithBuffer,
 } from '../../lib/activities'
 import { getTextColor } from '../../lib/colors'

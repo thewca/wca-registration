@@ -90,7 +90,6 @@ export const addEndBufferWithinDay = (date: DateTime) => {
   const buffered = date.plus({ minutes: 10 })
   if (buffered.day !== date.day) {
     return date
-  } else {
-    return buffered
   }
+  return buffered
 }

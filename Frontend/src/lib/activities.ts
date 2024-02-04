@@ -1,11 +1,11 @@
 import { Activity } from '@wca/helpers'
+import { DateTime } from 'luxon'
 import {
+  addEndBufferWithinDay,
   doesRangeCrossMidnight,
   roundBackToHour,
-  addEndBufferWithinDay,
   todayWithTime,
 } from './dates'
-import { DateTime } from 'luxon'
 
 export const earliestWithLongestTieBreaker = (a: Activity, b: Activity) => {
   if (a.startTime < b.startTime) {
@@ -100,7 +100,6 @@ export const latestTimeOfDayWithBuffer = (
 
   if (result === '00:00:00') {
     return '24:00:00'
-  } else {
-    return result
   }
+  return result
 }
