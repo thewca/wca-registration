@@ -215,6 +215,7 @@ export default function Schedule({ wcif }) {
         <CalendarView
           dates={activeDates}
           timeZone={activeTimeZone}
+          activeVenues={activeVenues}
           activeRooms={activeRooms}
           activeEvents={activeEvents}
         />

@@ -11,7 +11,6 @@ import { getTextColor } from '../../lib/colors'
 
 // based on monolith code: https://github.com/thewca/worldcubeassociation.org/blob/0882a86cf5d83c3a0dbc667a59be05ce8845c3e4/WcaOnRails/app/webpacker/components/EditSchedule/EditActivities/index.js
 
-// TODO: calculate bounds from all venue activities, not just active rooms
 // TODO: make column date consistent with table view dates
 // TODO: add tooltip or popup on events for more details
 // TODO: initialDate change doesn't update calendar
@@ -24,6 +23,7 @@ import { getTextColor } from '../../lib/colors'
 export default function CalendarView({
   dates,
   timeZone,
+  activeVenues,
   activeRooms,
   activeEvents,
 }) {
@@ -42,12 +42,15 @@ export default function CalendarView({
       }))
   )
 
-  // ignore which events are (in)active to avoid the calendar height jumping around
-  const activeRoomsActivities = activeRooms.flatMap((room) => room.activities)
+  // independent of which activities are visible,
+  // to prevent calendar height jumping around
+  const activeVenuesActivities = activeVenues.flatMap((venue) =>
+    venue.rooms.flatMap((room) => room.activities)
+  )
   const calendarStart =
-    earliestTimeOfDayWithBuffer(activeRoomsActivities, timeZone) ?? '00:00:00'
+    earliestTimeOfDayWithBuffer(activeVenuesActivities, timeZone) ?? '00:00:00'
   const calendarEnd =
-    latestTimeOfDayWithBuffer(activeRoomsActivities, timeZone) ?? '00:00:00'
+    latestTimeOfDayWithBuffer(activeVenuesActivities, timeZone) ?? '00:00:00'
 
   const onEventClick = () => {
     /* TODO */
