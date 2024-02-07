@@ -1,4 +1,11 @@
 import { Activity } from '@wca/helpers'
+import { DateTime } from 'luxon'
+import {
+  addEndBufferWithinDay,
+  doesRangeCrossMidnight,
+  roundBackToHour,
+  todayWithTime,
+} from './dates'
 
 export const earliestWithLongestTieBreaker = (a: Activity, b: Activity) => {
   if (a.startTime < b.startTime) {
@@ -46,4 +53,53 @@ export const getActivityEvent = (activity: Activity) => {
 
 export const getActivityRoundId = (activity: Activity) => {
   return activity.activityCode.split('-').slice(0, 2).join('-')
+}
+
+export const earliestTimeOfDayWithBuffer = (
+  activities: Activity[],
+  timeZone: string
+) => {
+  if (activities.length === 0) return undefined
+
+  const doesAnyCrossMidnight = activities.some(({ startTime, endTime }) =>
+    doesRangeCrossMidnight(startTime, endTime, timeZone)
+  )
+  if (doesAnyCrossMidnight) {
+    return '00:00:00'
+  }
+
+  const startTimes = activities.map(({ startTime }) =>
+    todayWithTime(startTime, timeZone)
+  )
+  return roundBackToHour(DateTime.min(...startTimes)).toISOTime({
+    suppressMilliseconds: true,
+    includeOffset: false,
+  })
+}
+
+export const latestTimeOfDayWithBuffer = (
+  activities: Activity[],
+  timeZone: string
+) => {
+  if (activities.length === 0) return undefined
+
+  const doesAnyCrossMidnight = activities.some(({ startTime, endTime }) =>
+    doesRangeCrossMidnight(startTime, endTime, timeZone)
+  )
+  if (doesAnyCrossMidnight) {
+    return '24:00:00'
+  }
+
+  const endTimes = activities.map(({ endTime }) =>
+    todayWithTime(endTime, timeZone)
+  )
+  const result = addEndBufferWithinDay(DateTime.max(...endTimes)).toISOTime({
+    suppressMilliseconds: true,
+    includeOffset: false,
+  })
+
+  if (result === '00:00:00') {
+    return '24:00:00'
+  }
+  return result
 }

@@ -61,3 +61,35 @@ export const getLongDate = (date: string, timeZone: string) => {
     timeZone,
   })
 }
+
+export const doesRangeCrossMidnight = (
+  start: string,
+  end: string,
+  timeZone: string
+) => {
+  const luxonStart = DateTime.fromISO(start).setZone(timeZone)
+  const luxonEnd = DateTime.fromISO(end).setZone(timeZone)
+  return luxonStart.day !== luxonEnd.day
+}
+
+export const todayWithTime = (date: string, timeZone: string) => {
+  const luxonDate = DateTime.fromISO(date).setZone(timeZone)
+  return DateTime.utc().set({
+    hour: luxonDate.hour,
+    minute: luxonDate.minute,
+    second: luxonDate.second,
+    millisecond: luxonDate.millisecond,
+  })
+}
+
+export const roundBackToHour = (date: DateTime) => {
+  return date.set({ minute: 0, second: 0, millisecond: 0 })
+}
+
+export const addEndBufferWithinDay = (date: DateTime) => {
+  const buffered = date.plus({ minutes: 10 })
+  if (buffered.day !== date.day) {
+    return date
+  }
+  return buffered
+}
