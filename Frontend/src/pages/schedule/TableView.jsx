@@ -1,20 +1,36 @@
 import { getFormatName } from '@wca/helpers'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Checkbox, Header, Segment, Table, TableCell } from 'semantic-ui-react'
+import { CompetitionContext } from '../../api/helper/context/competition_context'
 import {
   earliestWithLongestTieBreaker,
+  getActivityEvent,
+  getActivityRoundId,
   groupActivities,
 } from '../../lib/activities'
 import { activitiesByDate, getLongDate, getShortTime } from '../../lib/dates'
+import { toDegrees } from '../../lib/venues'
+import AddToCalendar from './AddToCalendar'
 
-export default function TableView({ dates, timeZone, rooms, events }) {
-  const rounds = events.flatMap((event) => event.rounds)
+export default function TableView({
+  dates,
+  timeZone,
+  activeRooms,
+  activeEvents,
+  activeVenueOrNull,
+}) {
+  const rounds = activeEvents.flatMap((event) => event.rounds)
 
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const sortedActivities = rooms
+  const sortedActivities = activeRooms
     .flatMap((room) => room.activities)
     .sort(earliestWithLongestTieBreaker)
+
+  const eventIds = activeEvents.map(({ id }) => id)
+  const visibleActivities = sortedActivities.filter((activity) =>
+    ['other', ...eventIds].includes(getActivityEvent(activity))
+  )
 
   return (
     <>
@@ -28,7 +44,7 @@ export default function TableView({ dates, timeZone, rooms, events }) {
 
       {dates.map((date) => {
         const activitiesForDay = activitiesByDate(
-          sortedActivities,
+          visibleActivities,
           date,
           timeZone
         )
@@ -41,8 +57,9 @@ export default function TableView({ dates, timeZone, rooms, events }) {
             timeZone={timeZone}
             groupedActivities={groupedActivitiesForDay}
             rounds={rounds}
-            rooms={rooms}
+            rooms={activeRooms}
             isExpanded={isExpanded}
+            activeVenueOrNull={activeVenueOrNull}
           />
         )
       })}
@@ -57,12 +74,36 @@ function SingleDayTable({
   rounds,
   rooms,
   isExpanded,
+  activeVenueOrNull,
 }) {
-  const title = `Schedule for ${getLongDate(date)}`
+  const { competitionInfo } = useContext(CompetitionContext)
+
+  const title = `Schedule for ${getLongDate(date, timeZone)}`
+
+  const hasActivities = groupedActivities.length > 0
+  const startTime = hasActivities && groupedActivities[0][0].startTime
+  const endTime =
+    hasActivities && groupedActivities[groupedActivities.length - 1][0].endTime
+  const activeVenueAddress =
+    activeVenueOrNull &&
+    `${toDegrees(activeVenueOrNull.latitudeMicrodegrees)},${toDegrees(
+      activeVenueOrNull.longitudeMicrodegrees
+    )}`
 
   return (
     <Segment basic>
-      <Header as="h2">{title}</Header>
+      <Header as="h2">
+        {hasActivities && (
+          <AddToCalendar
+            startDate={startTime}
+            endDate={endTime}
+            name={competitionInfo.name}
+            address={activeVenueAddress}
+          />
+        )}
+        {hasActivities && ' '}
+        {title}
+      </Header>
 
       <Table striped>
         <Table.Header>
@@ -70,10 +111,10 @@ function SingleDayTable({
         </Table.Header>
 
         <Table.Body>
-          {groupedActivities.length > 0 ? (
+          {hasActivities ? (
             groupedActivities.map((activityGroup) => {
               const activityRound = rounds.find(
-                (round) => round.id === activityGroup[0].activityCode
+                (round) => round.id === getActivityRoundId(activityGroup[0])
               )
 
               return (
@@ -129,7 +170,7 @@ function ActivityRow({ isExpanded, activityGroup, round, rooms, timeZone }) {
   )
 
   // TODO: create name from activity code when possible (fallback to name property)
-  // TODO: format and time limit not showing up for attempt-based activities (fm, multi)
+  // TODO: time limit not showing up for fm & multi
   // TODO: display times in appropriate format
 
   return (

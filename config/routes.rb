@@ -11,9 +11,12 @@ Rails.application.routes.draw do
 
   get '/healthcheck', to: 'healthcheck#index'
   post '/api/internal/v1/update_payment', to: 'internal#update_payment_status'
+  get '/api/internal/v1/:competition_id/registrations', to: 'internal#list_registrations'
   get '/api/v1/register', to: 'registration#show'
   post '/api/v1/register', to: 'registration#create'
   patch '/api/v1/register', to: 'registration#update'
+  patch '/api/v1/bulk_update', to: 'registration#bulk_update'
+  get '/api/v1/registrations/:competition_id/admin', to: 'registration#list_admin'
   get '/api/v1/registrations/mine', to: 'registration#mine'
   get '/api/v1/registrations/:competition_id', to: 'registration#list'
   get '/api/v1/registrations/:competition_id/admin', to: 'registration#list_admin'

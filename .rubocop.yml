@@ -15,6 +15,7 @@ Bundler/OrderedGems:
 Lint/MissingSuper:
   Exclude: 
     - 'lib/registration_error.rb'
+    - 'lib/bulk_update_error.rb'
     - 'app/helpers/competition_api.rb'
 
 Lint/EmptyWhen:
