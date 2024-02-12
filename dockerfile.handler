@@ -1,7 +1,9 @@
 FROM ruby:3.2.2
 EXPOSE 3000
+ARG BUILD_TAG=local
+ENV DEBIAN_FRONTEND noninteractive \
+    BUILD_TAG=$BUILD_TAG
 
-ENV DEBIAN_FRONTEND noninteractive
 WORKDIR /app
 
 # Add PPA needed to install nodejs.
