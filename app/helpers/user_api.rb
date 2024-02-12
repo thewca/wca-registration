@@ -10,7 +10,7 @@ def permissions_path(user_id)
 end
 
 def competitor_info_path
-  "https://#{EnvConfig.WCA_HOST}/api/internal/v1/users/competitor_info"
+  "https://#{EnvConfig.WCA_HOST}/api/internal/v1/users/competitor-info"
 end
 
 class UserApi < WcaApi
