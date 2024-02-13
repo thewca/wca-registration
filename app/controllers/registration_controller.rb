@@ -295,7 +295,7 @@ class RegistrationController < ApplicationController
       pii = UserApi.get_competitor_info(registrations.pluck(:user_id))
 
       registrations.map do |r|
-        user = pii.find { |u| u['user_id'] == r[:user_id] }
+        user = pii.find { |u| u['id'].to_s == r[:user_id] }
         r.merge(email: user['email'], dob: user['dob'])
       end
     end
