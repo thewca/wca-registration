@@ -37,11 +37,10 @@ module RedisHelper
       end
       Rails.cache.write_multi(
         keys,
-        expires_in: 60.minutes
+        expires_in: 60.minutes,
       )
     end
 
     info.values
   end
-
 end
