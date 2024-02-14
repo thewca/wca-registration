@@ -109,7 +109,7 @@ export default function RegistrationAdministrationList() {
   )
 
   const {
-    isLoading,
+    isLoading: isRegistrationsLoading,
     data: registrations,
     refetch,
   } = useQuery({
@@ -164,7 +164,18 @@ export default function RegistrationAdministrationList() {
     (competitionInfo.competitor_limit ?? Infinity) - accepted.length
   const spotsRemainingText = `; ${spotsRemaining} spot(s) remaining`
 
-  return isLoading ? (
+  const userEmailMap = useMemo(
+    () =>
+      Object.fromEntries(
+        (registrations ?? []).map((registration) => [
+          registration.user.id,
+          registration.email,
+        ])
+      ),
+    [registrations]
+  )
+
+  return isRegistrationsLoading ? (
     <LoadingMessage />
   ) : (
     <>
@@ -185,7 +196,7 @@ export default function RegistrationAdministrationList() {
       </Form>
 
       <div className={styles.listContainer}>
-        <Header> Pending registrations ({pending.length}) </Header>
+        <Header>Pending registrations ({pending.length})</Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={pending}
@@ -246,6 +257,7 @@ export default function RegistrationAdministrationList() {
         }}
         registrations={registrations}
         spotsRemaining={spotsRemaining}
+        userEmailMap={userEmailMap}
       />
     </>
   )
@@ -371,12 +383,8 @@ function TableRow({
   const { id, wca_id, name, country } = registration.user
   const { registered_on, event_ids, comment, admin_comment } =
     registration.competing
+  const { dob: dateOfBirth, email: emailAddress } = registration
   const { payment_status, updated_at } = registration.payment
-
-  // TODO: get actual email
-  const emailAddress = `${registration.user_id}@worldcubeassociation.org`
-  // TODO: get actual dob
-  const dateOfBirth = new Date()
 
   const copyEmail = () => {
     navigator.clipboard.writeText(emailAddress)
@@ -407,7 +415,7 @@ function TableRow({
 
       <Table.Cell>{name}</Table.Cell>
 
-      {dob && <Table.Cell>{dateOfBirth.toLocaleDateString()}</Table.Cell>}
+      {dob && <Table.Cell>{dateOfBirth}</Table.Cell>}
 
       <Table.Cell>
         {region ? (

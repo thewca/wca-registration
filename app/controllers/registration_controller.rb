@@ -243,7 +243,7 @@ class RegistrationController < ApplicationController
 
   def list_admin
     registrations = get_registrations(@competition_id)
-    render json: registrations
+    render json: add_pii(registrations)
   rescue Dynamoid::Errors::Error => e
     puts e
     # Is there a reason we aren't using an error code here?
@@ -289,6 +289,17 @@ class RegistrationController < ApplicationController
 
     def list_params
       params.require(:competition_id)
+    end
+
+    def add_pii(registrations)
+      pii = RedisHelper.cache_info_by_ids('pii', registrations.pluck(:user_id)) do |ids|
+        UserApi.get_competitor_info(ids)
+      end
+
+      registrations.map do |r|
+        user = pii.find { |u| u['id'].to_s == r[:user_id] }
+        r.merge(email: user['email'], dob: user['dob'])
+      end
     end
 
     def get_registrations(competition_id, only_attending: false)

@@ -8,6 +8,10 @@ module Mocks
     Date.today.prev_month(months).next_day(days).to_s
   end
 
+  def self.pii_mock(user_ids)
+    user_ids.map { |u| { 'id' => u, 'dob' => '1993-01-01', 'email' => "#{u}@worldcubeassociation.org" } }
+  end
+
   def self.permissions_mock(user_id)
     case user_id
     when '1' # Test Organizer

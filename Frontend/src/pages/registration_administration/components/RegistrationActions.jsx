@@ -30,6 +30,7 @@ function csvExport(selected, registrations) {
 
 export default function RegistrationActions({
   partitionedSelected,
+  userEmailMap,
   refresh,
   registrations,
   spotsRemaining,
@@ -51,8 +52,7 @@ export default function RegistrationActions({
   const anyWaitlistable = waiting.length < selectedCount
 
   const selectedEmails = [...pending, ...accepted, ...cancelled, ...waiting]
-    // TODO: get real email from backend
-    .map((user) => user + '@worldcubeassociation.org')
+    .map((userId) => userEmailMap[userId])
     .join(',')
 
   const { mutate: updateRegistrationMutation } = useMutation({

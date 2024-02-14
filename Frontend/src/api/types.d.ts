@@ -8,6 +8,16 @@ interface Tabs {
   display_order: number
 }
 
+interface CompetitorInfo {
+  id: number
+  wca_id: string
+  name: string
+  gender: 'm' | 'f' | 'o'
+  country_iso2: string
+  email: string
+  dob: string
+}
+
 // This needs to be moved to WCA-helpers
 interface CompetitionInfo {
   'id': string
