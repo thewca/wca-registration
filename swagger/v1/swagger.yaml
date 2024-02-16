@@ -170,7 +170,11 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/userIds"
+              type: object
+              properties:
+                ids:
+                  "$ref": "#/components/schemas/userIds"
+              required: [ids]
         required: true
       responses:
         '200':
@@ -178,7 +182,9 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/userInfo"
+                type: array
+                items:
+                  "$ref": "#/components/schemas/userInfo"
   "/api/v1/registrations/{competition_id}":
     get:
       summary: 'Public: list registrations for a given competition_id'

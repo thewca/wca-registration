@@ -17,7 +17,7 @@ import {
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
-import { getCompetitorInfo } from '../../../api/user/get/get_user_info'
+import { getCompetitorInfo } from '../../../api/user/post/get_user_info'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'

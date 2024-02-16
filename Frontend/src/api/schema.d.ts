@@ -10,14 +10,16 @@ export interface paths {
     post: {
       requestBody: {
         content: {
-          "application/json": components["schemas"]["userIds"];
+          "application/json": {
+            ids: components["schemas"]["userIds"];
+          };
         };
       };
       responses: {
         /** @description Successfully passed down the Psych Sheet */
         200: {
           content: {
-            "application/json": components["schemas"]["userInfo"];
+            "application/json": components["schemas"]["userInfo"][];
           };
         };
       };
