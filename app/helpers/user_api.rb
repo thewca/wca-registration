@@ -13,6 +13,12 @@ def competitor_info_path
   "https://#{EnvConfig.WCA_HOST}/api/internal/v1/users/competitor-info"
 end
 
+def users_info_path(ids)
+  ids_query = ids.map { |id| "ids[]=#{id}" }.join('&')
+  "https://#{EnvConfig.WCA_HOST}/api/v0/users?#{ids_query}"
+end
+
+
 class UserApi < WcaApi
   def self.get_permissions(user_id)
     if Rails.env.production?
@@ -22,11 +28,19 @@ class UserApi < WcaApi
     end
   end
 
-  def self.get_competitor_info(user_ids)
+  def self.get_user_info_pii(user_ids)
     if Rails.env.production?
       HTTParty.post(competitor_info_path, headers: { WCA_API_HEADER => self.get_wca_token }, body: { ids: user_ids.to_a })
     else
       Mocks.pii_mock(user_ids)
+    end
+  end
+
+  def self.get_user_info(user_ids)
+    if Rails.env.production?
+      HTTParty.get(users_info_path(user_ids))
+    else
+      Mocks.user_info_mock(user_ids)
     end
   end
 

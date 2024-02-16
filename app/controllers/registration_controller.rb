@@ -293,7 +293,7 @@ class RegistrationController < ApplicationController
 
     def add_pii(registrations)
       pii = RedisHelper.cache_info_by_ids('pii', registrations.pluck(:user_id)) do |ids|
-        UserApi.get_competitor_info(ids)
+        UserApi.get_user_info_pii(ids)
       end
 
       registrations.map do |r|

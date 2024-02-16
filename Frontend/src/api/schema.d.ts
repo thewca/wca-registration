@@ -5,6 +5,24 @@
 
 
 export interface paths {
+  "/api/v1/users": {
+    /** Private: Returns info about a list of users */
+    post: {
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["userIds"];
+        };
+      };
+      responses: {
+        /** @description Successfully passed down the Psych Sheet */
+        200: {
+          content: {
+            "application/json": components["schemas"]["userInfo"];
+          };
+        };
+      };
+    };
+  };
   "/api/v1/registrations/{competition_id}": {
     /** Public: list registrations for a given competition_id */
     get: {
@@ -144,6 +162,23 @@ export interface components {
     success_response: {
       status: string;
       message: string;
+    };
+    userIds: components["schemas"]["userId"][];
+    userId: number;
+    userInfo: {
+      id: number;
+      name: string;
+      wca_id: string;
+      gender: string;
+      country_iso2: string;
+      url: string;
+      country: {
+        id: string;
+        name: string;
+        continentId: string;
+        iso2: string;
+      };
+      class: string;
     };
     registration: {
       user_id: string;
