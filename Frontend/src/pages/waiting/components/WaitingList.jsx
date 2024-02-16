@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { Table, TableFooter } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getWaitingCompetitors } from '../../../api/registration/get/get_registrations'
+import { useUserData } from '../../../hooks/useUserData'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
-import { useUserData } from '../../../hooks/useUserData'
 
 export default function WaitingList() {
   const { competitionInfo } = useContext(CompetitionContext)

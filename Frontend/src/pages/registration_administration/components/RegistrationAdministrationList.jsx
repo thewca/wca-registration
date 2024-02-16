@@ -7,12 +7,12 @@ import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
+import { useUserData } from '../../../hooks/useUserData'
 import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
-import { useUserData } from '../../../hooks/useUserData'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]

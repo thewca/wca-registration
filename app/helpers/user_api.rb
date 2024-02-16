@@ -18,7 +18,6 @@ def users_info_path(ids)
   "https://#{EnvConfig.WCA_HOST}/api/v0/users?#{ids_query}"
 end
 
-
 class UserApi < WcaApi
   def self.get_permissions(user_id)
     if Rails.env.production?

@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
+import { useUserData } from '../../../hooks/useUserData'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
-import { useUserData } from '../../../hooks/useUserData'
 
 function sortReducer(state, action) {
   if (action.type === 'CHANGE_SORT') {
