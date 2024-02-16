@@ -182,12 +182,12 @@ export default function RegistrationAdministrationList() {
   const userEmailMap = useMemo(
     () =>
       Object.fromEntries(
-        (registrations ?? []).map((registration) => [
+        (registrationsWithUser ?? []).map((registration) => [
           registration.user.id,
           registration.email,
         ])
       ),
-    [registrations]
+    [registrationsWithUser]
   )
 
   return isRegistrationsLoading || infoLoading ? (
