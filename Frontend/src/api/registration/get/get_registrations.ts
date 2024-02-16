@@ -51,11 +51,11 @@ export async function getSingleRegistration(
   userId: number,
   competitionId: string
 ): Promise<{ registration: components['schemas']['registrationAdmin'] }> {
-  return backendFetch(
+  return (await backendFetch(
     `/register?user_id=${userId}&competition_id=${competitionId}`,
     'GET',
     { needsAuthentication: true }
-  ) as Promise<{ registration: components['schemas']['registrationAdmin'] }>
+  )) as { registration: components['schemas']['registrationAdmin'] }
 }
 
 export async function getWaitingCompetitors(

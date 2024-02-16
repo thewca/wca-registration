@@ -5,5 +5,10 @@ export function useUserData(ids: number[]) {
   return useQuery({
     queryFn: () => getCompetitorsInfo(ids),
     queryKey: ['user-info', ...ids],
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+    refetchOnMount: 'always',
+    retry: false,
   })
 }

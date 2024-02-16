@@ -12,6 +12,7 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
+import { useUserData } from '../../../hooks/useUserData'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]
@@ -131,9 +132,23 @@ export default function RegistrationAdministrationList() {
     },
   })
 
+  const { isLoading: infoLoading, data: userInfo } = useUserData(
+    (registrations ?? []).map((r) => r.user_id)
+  )
+
+  const registrationsWithUser = useMemo(() => {
+    if (registrations && userInfo) {
+      return registrations.map((r) => {
+        r.user = userInfo.find((u) => u.id === r.user_id)
+        return r
+      })
+    }
+    return []
+  }, [registrations, userInfo])
+
   const { waiting, accepted, cancelled, pending } = useMemo(
-    () => partitionRegistrations(registrations ?? []),
-    [registrations]
+    () => partitionRegistrations(registrationsWithUser ?? []),
+    [registrationsWithUser]
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])
@@ -175,7 +190,7 @@ export default function RegistrationAdministrationList() {
     [registrations]
   )
 
-  return isRegistrationsLoading ? (
+  return isRegistrationsLoading || infoLoading ? (
     <LoadingMessage />
   ) : (
     <>
