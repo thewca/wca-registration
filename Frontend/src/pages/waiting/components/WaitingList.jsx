@@ -7,6 +7,7 @@ import { getWaitingCompetitors } from '../../../api/registration/get/get_registr
 import { useUserData } from '../../../hooks/useUserData'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
+import { addUserData } from '../../../lib/users'
 
 export default function WaitingList() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -32,10 +33,7 @@ export default function WaitingList() {
 
   const registrationsWithUser = useMemo(() => {
     if (waiting && userInfo) {
-      return waiting.map((r) => {
-        r.user = userInfo.find((u) => u.id === r.user_id)
-        return r
-      })
+      return addUserData(waiting, userInfo)
     }
     return []
   }, [waiting, userInfo])

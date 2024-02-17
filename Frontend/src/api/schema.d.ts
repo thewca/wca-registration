@@ -16,7 +16,7 @@ export interface paths {
         };
       };
       responses: {
-        /** @description Successfully passed down the Psych Sheet */
+        /** @description Successfully returns UserInfo */
         200: {
           content: {
             "application/json": components["schemas"]["userInfo"][];
@@ -183,13 +183,13 @@ export interface components {
       class: string;
     };
     registration: {
-      user_id: string;
+      user_id: number;
       competing: {
         event_ids: EventId[];
       };
     };
     registrationAdmin: {
-      user_id: string;
+      user_id: number;
       competing: {
         event_ids: EventId[];
         registered_on: string;

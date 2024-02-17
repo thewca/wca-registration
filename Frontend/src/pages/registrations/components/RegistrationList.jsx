@@ -8,6 +8,7 @@ import { getConfirmedRegistrations } from '../../../api/registration/get/get_reg
 import { useUserData } from '../../../hooks/useUserData'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
+import { addUserData } from '../../../lib/users'
 
 function sortReducer(state, action) {
   if (action.type === 'CHANGE_SORT') {
@@ -66,10 +67,7 @@ export default function RegistrationList() {
 
   const registrationsWithUser = useMemo(() => {
     if (registrations && userInfo) {
-      return registrations.map((r) => {
-        r.user = userInfo.find((u) => u.id === r.user_id)
-        return r
-      })
+      return addUserData(registrations, userInfo)
     }
     return []
   }, [registrations, userInfo])

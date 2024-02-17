@@ -13,6 +13,7 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
+import { addUserData } from '../../../lib/users'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]
@@ -138,10 +139,7 @@ export default function RegistrationAdministrationList() {
 
   const registrationsWithUser = useMemo(() => {
     if (registrations && userInfo) {
-      return registrations.map((r) => {
-        r.user = userInfo.find((u) => u.id === r.user_id)
-        return r
-      })
+      return addUserData(registrations, userInfo)
     }
     return []
   }, [registrations, userInfo])

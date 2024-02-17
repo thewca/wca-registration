@@ -68,7 +68,7 @@ components:
       type: object
       properties:
         user_id:
-          type: string
+          type: number
         competing:
           type: object
           properties:
@@ -86,7 +86,7 @@ components:
       type: object
       properties:
         user_id:
-          type: string
+          type: number
         competing:
           type: object
           properties:
@@ -178,7 +178,7 @@ paths:
         required: true
       responses:
         '200':
-          description: "Successfully passed down the Psych Sheet"
+          description: "Successfully returns UserInfo"
           content:
             application/json:
               schema:
