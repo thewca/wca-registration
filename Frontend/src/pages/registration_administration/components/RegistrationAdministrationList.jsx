@@ -8,12 +8,12 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import { useUserData } from '../../../hooks/useUserData'
+import { addUserData } from '../../../lib/users'
 import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
-import { addUserData } from '../../../lib/users'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]

@@ -6,9 +6,9 @@ import { Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
 import { useUserData } from '../../../hooks/useUserData'
+import { addUserData } from '../../../lib/users'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
-import { addUserData } from '../../../lib/users'
 
 function sortReducer(state, action) {
   if (action.type === 'CHANGE_SORT') {
