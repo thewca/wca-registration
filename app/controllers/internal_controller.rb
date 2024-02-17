@@ -62,4 +62,10 @@ class InternalController < ApplicationController
 
     render json: registrations
   end
+
+  def registrations_for_user
+    user_id = params.require(:id)
+    registrations = Registration.where(user_id: user_id).map { |x| { competition_id: x.competition_id, status: x.competing_status } }
+    render json: { registrations: registrations }
+  end
 end
