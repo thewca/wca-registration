@@ -15,15 +15,7 @@ import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { setMessage } from '../../ui/events/messages'
 import LoadingMessage from '../../ui/messages/loadingMessage'
-
-function centiSecondsToHumanReadable(centiSeconds) {
-  const seconds = centiSeconds / 100
-  if (seconds < 60) {
-    return `${seconds} seconds`
-  }
-  const minutes = Math.floor(seconds / 60)
-  return `${minutes}:${(seconds % 60).toString().padStart(2, '0')}`
-}
+import { centiSecondsToHumanReadable } from '../../lib/solveTime'
 
 export default function Events() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -82,14 +74,16 @@ export default function Events() {
                   <TableCell>{getFormatName(round.format)}</TableCell>
                   <TableCell>
                     {round.timeLimit &&
-                      centiSecondsToHumanReadable(round.timeLimit.centiseconds)}
+                      centiSecondsToHumanReadable({
+                        c: round.timeLimit.centiseconds,
+                      })}
                   </TableCell>
                   {competitionInfo['uses_cutoff?'] && (
                     <TableCell>
                       {round.cutoff &&
-                        centiSecondsToHumanReadable(
-                          round.timeLimit.centiseconds
-                        )}
+                        centiSecondsToHumanReadable({
+                          c: round.timeLimit.centiseconds,
+                        })}
                     </TableCell>
                   )}
                   <TableCell>
