@@ -19,6 +19,7 @@ module RedisHelper
 
   # The Hydration block needs to return an array of hashes that have an 'id' field
   def self.cache_info_by_ids(key_prefix, ids, &hydration_block)
+    return [] if ids.empty?
     keys = ids.map { |id| "#{key_prefix}-#{id}" }.to_a
 
     info = Rails.cache.read_multi(*keys)
