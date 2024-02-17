@@ -9,13 +9,13 @@ const { POST } = createClient<paths>({
   baseUrl: process.env.API_URL.slice(0, -7),
 })
 
-export async function getCompetitorInfo(
+export async function getUserInfo(
   userId: number
 ): Promise<components['schemas']['userInfo']> {
-  return (await getCompetitorsInfo([userId]))[0]
+  return (await getUsersInfo([userId]))[0]
 }
 
-export async function getCompetitorsInfo(
+export async function getUsersInfo(
   userIds: number[]
 ): Promise<components['schemas']['userInfo'][]> {
   const { data, error, response } = await POST('/api/v1/users', {

@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { getCompetitorsInfo } from '../api/user/post/get_user_info'
+import { getUsersInfo } from '../api/user/post/get_user_info'
 
 export function useUserData(ids: number[]) {
   return useQuery({
-    queryFn: () => (ids.length > 0 ? getCompetitorsInfo(ids) : []),
+    queryFn: () => getUsersInfo(ids),
     queryKey: ['user-info', ...ids],
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
