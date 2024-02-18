@@ -17,5 +17,4 @@ class EmailApi < WcaApi
   def self.send_creation_email(competition_id, user_id)
     HTTParty.post(registration_email_path, headers: { WCA_API_HEADER => self.get_wca_token }, body: { competition_id: competition_id, user_id: user_id, status: 'pending', action: 'create' })
   end
-
 end

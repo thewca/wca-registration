@@ -51,6 +51,6 @@ class RegistrationProcessor
       else
         registration.update_attributes(lanes: registration.lanes.append(competing_lane), guests: guests)
       end
-      EmailApi.send_creation_email(competition_id,user_id)
+      EmailApi.send_creation_email(competition_id, user_id)
     end
 end
