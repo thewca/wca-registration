@@ -154,6 +154,8 @@ class RegistrationController < ApplicationController
       Registration.increment_competitors_count(@competition_id)
     end
 
+    EmailApi.send_update_email(@competition_id, update_request[:user_id], status)
+
     {
       user_id: updated_registration['user_id'],
       guests: updated_registration.guests,
