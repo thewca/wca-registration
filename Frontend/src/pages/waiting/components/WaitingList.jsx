@@ -1,18 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
-import React, { useContext, useMemo } from 'react'
+import React, { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Table, TableFooter } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getWaitingCompetitors } from '../../../api/registration/get/get_registrations'
-import { useUserData } from '../../../hooks/useUserData'
-import { addUserData } from '../../../lib/users'
+import { useWithUserData } from '../../../hooks/useUserData'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
 export default function WaitingList() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { t } = useTranslation()
-  const { isLoading, data: waiting } = useQuery({
+  const { isLoading: waitingLoading, data: waiting } = useQuery({
     queryKey: ['waiting', competitionInfo.id],
     queryFn: () => getWaitingCompetitors(competitionInfo.id),
     retry: false,
@@ -27,18 +26,9 @@ export default function WaitingList() {
     },
   })
 
-  const { isLoading: infoLoading, data: userInfo } = useUserData(
-    (waiting ?? []).map((r) => r.user_id),
-  )
+  const { isLoading: infoLoading, data: registrationsWithUser } = useWithUserData(waiting ?? [])
 
-  const registrationsWithUser = useMemo(() => {
-    if (waiting && userInfo) {
-      return addUserData(waiting, userInfo)
-    }
-    return []
-  }, [waiting, userInfo])
-
-  return isLoading || infoLoading ? (
+  return waitingLoading || infoLoading ? (
     <LoadingMessage />
   ) : (
     <Table>
