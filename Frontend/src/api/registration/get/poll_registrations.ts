@@ -12,7 +12,7 @@ export interface RegistrationStatus {
 
 export async function pollRegistrations(
   userId: string,
-  competitionId: string
+  competitionId: string,
 ): Promise<RegistrationStatus> {
   if (process.env.NODE_ENV === 'production') {
     return externalServiceFetch(pollingRoute(userId, competitionId))

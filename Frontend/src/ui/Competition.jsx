@@ -55,7 +55,7 @@ export default function Competition({ children }) {
   })
 
   const competitionIsBookmarked = (bookmarkedCompetitions ?? []).includes(
-    competitionInfo?.id
+    competitionInfo?.id,
   )
 
   // Hack before we have an image Icon field in the DB
@@ -113,7 +113,7 @@ export default function Competition({ children }) {
                     {competitionInfo.start_date === competitionInfo.end_date
                       ? getMediumDate(competitionInfo.start_date)
                       : `${getMediumDate(
-                          competitionInfo.start_date
+                          competitionInfo.start_date,
                         )} to ${getMediumDate(competitionInfo.end_date)}`}
                   </List.Content>
                 </List.Item>

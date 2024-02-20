@@ -9,7 +9,7 @@ export interface PaymentInfo {
 // We get the user_id out of the JWT key, which is why we only send the
 // competition_id
 export default async function getPaymentId(
-  competitionId: string
+  competitionId: string,
 ): Promise<PaymentInfo> {
   return backendFetch(`/${competitionId}/payment`, 'GET', {
     needsAuthentication: true,

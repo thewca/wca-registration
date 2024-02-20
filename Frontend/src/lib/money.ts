@@ -7,6 +7,6 @@ export function displayMoneyISO4217(amount: number, currencyCode: string) {
       amount,
       currency: currencies[currencyCode],
     }),
-    ({ value, currency }) => `${currency.code} ${value}`
+    ({ value, currency }) => `${currency.code} ${value}`,
   )
 }

@@ -11,7 +11,7 @@ const { POST } = createClient<paths>({
   baseUrl: process.env.API_URL.slice(0, -7),
 })
 export default async function submitEventRegistration(
-  body: components['schemas']['submitRegistrationBody']
+  body: components['schemas']['submitRegistrationBody'],
 ): Promise<components['schemas']['success_response']> {
   const { data, error, response } = await POST('/api/v1/register', {
     headers: { Authorization: await getJWT() },

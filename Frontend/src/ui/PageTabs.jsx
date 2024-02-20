@@ -46,7 +46,7 @@ export default function PageTabs() {
 
   const customTabActive = useMemo(() => {
     return competitionInfo.tabs.some((competitionTab) =>
-      pathMatch(competitionTab.id, location.pathname)
+      pathMatch(competitionTab.id, location.pathname),
     )
   }, [competitionInfo.tabs, location])
 
@@ -68,7 +68,7 @@ export default function PageTabs() {
             navigate(
               `${BASE_ROUTE}/${competitionInfo.id}/${
                 menuConfig.route ?? menuConfig.key
-              }`
+              }`,
             )
           }
           active={pathMatch(menuConfig.key, location.pathname)}
@@ -89,7 +89,7 @@ export default function PageTabs() {
                 key={competitionTab.id}
                 onClick={() =>
                   navigate(
-                    `${BASE_ROUTE}/${competitionInfo.id}/tabs/${competitionTab.id}`
+                    `${BASE_ROUTE}/${competitionInfo.id}/tabs/${competitionTab.id}`,
                   )
                 }
                 active={pathMatch(competitionTab.id, location.pathname)}

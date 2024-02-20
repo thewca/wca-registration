@@ -12,13 +12,13 @@ const { GET } = createClient<paths>({
 })
 
 export async function getConfirmedRegistrations(
-  competitionID: string
+  competitionID: string,
 ): Promise<components['schemas']['registration'][]> {
   const { data, response } = await GET(
     '/api/v1/registrations/{competition_id}',
     {
       params: { path: { competition_id: competitionID } },
-    }
+    },
   )
   if (!response.ok) {
     throw new BackendError(500, response.status)
@@ -27,14 +27,14 @@ export async function getConfirmedRegistrations(
 }
 
 export async function getAllRegistrations(
-  competitionID: string
+  competitionID: string,
 ): Promise<components['schemas']['registrationAdmin'][]> {
   const { data, error, response } = await GET(
     '/api/v1/registrations/{competition_id}/admin',
     {
       params: { path: { competition_id: competitionID } },
       headers: { Authorization: await getJWT() },
-    }
+    },
   )
   if (error) {
     if (error.error === EXPIRED_TOKEN) {
@@ -49,17 +49,17 @@ export async function getAllRegistrations(
 
 export async function getSingleRegistration(
   userId: number,
-  competitionId: string
+  competitionId: string,
 ): Promise<{ registration: components['schemas']['registrationAdmin'] }> {
   return (await backendFetch(
     `/register?user_id=${userId}&competition_id=${competitionId}`,
     'GET',
-    { needsAuthentication: true }
+    { needsAuthentication: true },
   )) as { registration: components['schemas']['registrationAdmin'] }
 }
 
 export async function getWaitingCompetitors(
-  competitionId: string
+  competitionId: string,
 ): Promise<components['schemas']['registrationAdmin'][]> {
   return (await backendFetch(`/registrations/${competitionId}/waiting`, 'GET', {
     needsAuthentication: false,

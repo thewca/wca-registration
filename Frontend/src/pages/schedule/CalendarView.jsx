@@ -29,7 +29,7 @@ export default function CalendarView({
   const fcActivities = activeRooms.flatMap((room) =>
     room.activities
       .filter((activity) =>
-        ['other', ...activeEventIds].includes(getActivityEvent(activity))
+        ['other', ...activeEventIds].includes(getActivityEvent(activity)),
       )
       .map((activity) => ({
         title: activity.name,
@@ -37,13 +37,13 @@ export default function CalendarView({
         end: activity.endTime,
         backgroundColor: room.color,
         textColor: getTextColor(room.color),
-      }))
+      })),
   )
 
   // independent of which activities are visible,
   // to prevent calendar height jumping around
   const activeVenuesActivities = activeVenues.flatMap((venue) =>
-    venue.rooms.flatMap((room) => room.activities)
+    venue.rooms.flatMap((room) => room.activities),
   )
   const calendarStart =
     earliestTimeOfDayWithBuffer(activeVenuesActivities, timeZone) ?? '00:00:00'

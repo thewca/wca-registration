@@ -12,7 +12,7 @@ const { PATCH } = createClient<paths>({
 })
 
 export async function updateRegistration(
-  body: components['schemas']['updateRegistrationBody']
+  body: components['schemas']['updateRegistrationBody'],
 ): Promise<{
   status?: string
   registration?: components['schemas']['registrationAdmin']

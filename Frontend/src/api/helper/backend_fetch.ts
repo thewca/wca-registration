@@ -19,7 +19,7 @@ export default async function backendFetch(
   options: {
     body?: Body
     needsAuthentication: boolean
-  }
+  },
 ): Promise<unknown> {
   let init
   let headers = {}

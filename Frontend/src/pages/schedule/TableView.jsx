@@ -29,7 +29,7 @@ export default function TableView({
 
   const eventIds = activeEvents.map(({ id }) => id)
   const visibleActivities = sortedActivities.filter((activity) =>
-    ['other', ...eventIds].includes(getActivityEvent(activity))
+    ['other', ...eventIds].includes(getActivityEvent(activity)),
   )
 
   return (
@@ -46,7 +46,7 @@ export default function TableView({
         const activitiesForDay = activitiesByDate(
           visibleActivities,
           date,
-          timeZone
+          timeZone,
         )
         const groupedActivitiesForDay = groupActivities(activitiesForDay)
 
@@ -87,7 +87,7 @@ function SingleDayTable({
   const activeVenueAddress =
     activeVenueOrNull &&
     `${toDegrees(activeVenueOrNull.latitudeMicrodegrees)},${toDegrees(
-      activeVenueOrNull.longitudeMicrodegrees
+      activeVenueOrNull.longitudeMicrodegrees,
     )}`
 
   return (
@@ -114,7 +114,7 @@ function SingleDayTable({
           {hasActivities ? (
             groupedActivities.map((activityGroup) => {
               const activityRound = rounds.find(
-                (round) => round.id === getActivityRoundId(activityGroup[0])
+                (round) => round.id === getActivityRoundId(activityGroup[0]),
               )
 
               return (
@@ -166,7 +166,7 @@ function ActivityRow({ isExpanded, activityGroup, round, rooms, timeZone }) {
   // note: round may be undefined for custom activities like lunch
   const { format, timeLimit, cutoff, advancementCondition } = round || {}
   const roomsUsed = rooms.filter((room) =>
-    room.activities.some((activity) => activityIds.includes(activity.id))
+    room.activities.some((activity) => activityIds.includes(activity.id)),
   )
 
   // TODO: create name from activity code when possible (fallback to name property)

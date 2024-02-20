@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 export const getDatesBetweenInclusive = (
   startDate: string,
   endDate: string,
-  timeZone: string
+  timeZone: string,
 ) => {
   // avoid infinite loop on invalid params
   if (startDate > endDate) return []
@@ -34,10 +34,10 @@ export function isAfterNow(date: string): boolean {
 export const activitiesByDate = (
   activities: Activity[],
   date: Date,
-  timeZone: string
+  timeZone: string,
 ) => {
   return activities.filter((activity) =>
-    areOnSameDate(new Date(activity.startTime), date, timeZone)
+    areOnSameDate(new Date(activity.startTime), date, timeZone),
   )
 }
 
@@ -65,7 +65,7 @@ export const getLongDate = (date: string, timeZone: string) => {
 export const doesRangeCrossMidnight = (
   start: string,
   end: string,
-  timeZone: string
+  timeZone: string,
 ) => {
   const luxonStart = DateTime.fromISO(start).setZone(timeZone)
   const luxonEnd = DateTime.fromISO(end).setZone(timeZone)

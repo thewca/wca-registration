@@ -22,13 +22,13 @@ export default function WaitingList() {
         errorCode
           ? t(`errors.${errorCode}`)
           : 'Fetching Registrations failed with error: ' + err.message,
-        'negative'
+        'negative',
       )
     },
   })
 
   const { isLoading: infoLoading, data: userInfo } = useUserData(
-    (waiting ?? []).map((r) => r.user_id)
+    (waiting ?? []).map((r) => r.user_id),
   )
 
   const registrationsWithUser = useMemo(() => {
@@ -54,7 +54,7 @@ export default function WaitingList() {
             .sort(
               (w1, w2) =>
                 w1.competing.waiting_list_position -
-                w2.competing.waiting_list_position
+                w2.competing.waiting_list_position,
             ) // Once a waiting list is established, we just care about the order of the waitlisted competitors
             .map((w, i) => (
               <Table.Row key={w.user_id}>

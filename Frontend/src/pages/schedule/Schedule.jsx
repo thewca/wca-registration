@@ -76,7 +76,7 @@ const getTimeZone = (venues, location) => {
 
 const getLocation = (venues, timeZone) => {
   const matchingVenueIndex = venues.findIndex(
-    (venue) => venue.timezone === timeZone
+    (venue) => venue.timezone === timeZone,
   )
 
   if (matchingVenueIndex !== -1) {
@@ -99,8 +99,8 @@ export default function Schedule({ wcif }) {
     venueCount === 1
       ? venues[0] // eslint-disable-next-line unicorn/no-nested-ternary
       : activeVenueIndex !== -1
-      ? venues[activeVenueIndex]
-      : null
+        ? venues[activeVenueIndex]
+        : null
   const activeVenues = activeVenueOrNull ? [activeVenueOrNull] : venues
 
   const setActiveVenueIndexAndUpdateTimeZone = (newIndex) => {
@@ -117,10 +117,10 @@ export default function Schedule({ wcif }) {
   const roomsOfActiveVenues = activeVenues.flatMap((venue) => venue.rooms)
   const [activeRoomIds, dispatchRooms] = useReducer(
     activeIdReducer,
-    roomsOfActiveVenues.map((room) => room.id)
+    roomsOfActiveVenues.map((room) => room.id),
   )
   const activeRooms = roomsOfActiveVenues.filter((room) =>
-    activeRoomIds.includes(room.id)
+    activeRoomIds.includes(room.id),
   )
 
   // events
@@ -128,7 +128,7 @@ export default function Schedule({ wcif }) {
   const events = wcif.events
   const [activeEventIds, dispatchEvents] = useReducer(
     activeIdReducer,
-    events.map((event) => event.id)
+    events.map((event) => event.id),
   )
   const activeEvents = events.filter(({ id }) => activeEventIds.includes(id))
 
@@ -160,7 +160,7 @@ export default function Schedule({ wcif }) {
   const activeDates = getDatesBetweenInclusive(
     firstStartTime,
     lastStartTime,
-    activeTimeZone
+    activeTimeZone,
   )
 
   return (

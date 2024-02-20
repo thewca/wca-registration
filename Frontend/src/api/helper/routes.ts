@@ -16,7 +16,7 @@ export const refundRoute = (
   competitionId: string,
   userId: string,
   paymentId: string,
-  amount: number
+  amount: number,
 ) =>
   `${process.env.WCA_URL}/payment/refund?attendee_id=${competitionId}-${userId}&payment_id=${paymentId}&refund_amount=${amount}`
 

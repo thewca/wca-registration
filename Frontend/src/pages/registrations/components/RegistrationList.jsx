@@ -50,13 +50,13 @@ export default function RegistrationList() {
         errorCode
           ? t(`errors.${errorCode}`)
           : 'Fetching Registrations failed with error: ' + err.message,
-        'negative'
+        'negative',
       )
     },
   })
 
   const { isLoading: infoLoading, data: userInfo } = useUserData(
-    (registrations ?? []).map((r) => r.user_id)
+    (registrations ?? []).map((r) => r.user_id),
   )
 
   const [state, dispatch] = useReducer(sortReducer, {
@@ -126,7 +126,7 @@ export default function RegistrationList() {
           counts.set(eventId, 0)
           return counts
         }, new Map()),
-      }
+      },
     )
   }, [competitionInfo.event_ids, data])
 
