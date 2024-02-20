@@ -3,7 +3,7 @@ import { sassPlugin, postcssModules } from 'esbuild-sass-plugin'
 import statsPlugin from './statsplugin.js'
 import openapiTS from "openapi-typescript";
 import fs from "fs";
-const localPath = new URL('/swagger/v1/swagger.yaml', import.meta.url) // may be YAML or JSON format
+const localPath = new URL('../../swagger/v1/swagger.yaml', import.meta.url) // may be YAML or JSON format
 const output = await openapiTS(localPath, {
   transform(schemaObject) {
     if ('format' in schemaObject && schemaObject.format === 'EventId') {
