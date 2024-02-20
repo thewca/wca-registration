@@ -11,13 +11,12 @@ import React, {
 import { useTranslation } from 'react-i18next'
 import { Icon, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
-import { getConfirmedRegistrations, getPsychSheetForEvent } from '../../../api/registration/get/get_registrations'
-import { useUserData } from '../../../hooks/useUserData'
-import { addUserData } from '../../../lib/users'
 import {
   getConfirmedRegistrations,
   getPsychSheetForEvent,
 } from '../../../api/registration/get/get_registrations'
+import { useUserData } from '../../../hooks/useUserData'
+import { addUserData } from '../../../lib/users'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
@@ -98,7 +97,7 @@ export default function RegistrationList() {
       getPsychSheetForEvent(
         competitionInfo.id,
         psychSheetEvent,
-        psychSheetSortBy
+        psychSheetSortBy,
       ),
     retry: false,
     enabled: psychSheetEvent !== undefined,
@@ -118,7 +117,7 @@ export default function RegistrationList() {
       return psychSheetResults.sorted_rankings
     }
     if (registrationsWithUser) {
-      const sorted = registrations.sort((a, b) => {
+      const sorted = registrationsWithUser.sort((a, b) => {
         if (sortColumn === 'name') {
           return a.user.name.localeCompare(b.user.name)
         }
@@ -148,19 +147,19 @@ export default function RegistrationList() {
     if (!registrations) return null
 
     const newcomerCount = registrations.filter(
-      (reg) => reg.user.wca_id === undefined
+      (reg) => reg.user.wca_id === undefined,
     ).length
     const countryCount = new Set(
-      registrations.map((reg) => reg.user.country.iso2)
+      registrations.map((reg) => reg.user.country.iso2),
     ).size
 
     const eventCounts = Object.fromEntries(
       competitionInfo.event_ids.map((evt) => {
         const competingCount = registrations.filter((reg) =>
-          reg.competing.event_ids.includes(evt)
+          reg.competing.event_ids.includes(evt),
         ).length
         return [evt, competingCount]
-      })
+      }),
     )
 
     const totalEvents = Object.values(eventCounts).reduce((a, b) => a + b, 0)
@@ -191,21 +190,6 @@ export default function RegistrationList() {
         )}
       </Table.Row>
     )
-  }
-
-  const PsychSheetBody = ({ userId }) => {
-    if (isLoadingPsychSheet) return null;
-
-    const psychResultForUser = getPsychResult(userId);
-    const psychRanking = getPsychRanking(userId);
-
-    return (
-      <>
-        <Table.Cell>{psychRanking}</Table.Cell>
-        <Table.Cell>{psychResultForUser.single_best}</Table.Cell>
-        <Table.Cell>{psychResultForUser.average_best}</Table.Cell>
-      </>
-    );
   }
 
   return isLoadingRegistrations || infoLoading ? (
