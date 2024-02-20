@@ -28,11 +28,47 @@ components:
       required:
       - status
       - message
+    userIds:
+      type: array
+      items:
+        $ref: "#/components/schemas/userId"
+    userId:
+      type: number
+    userInfo:
+      type: object
+      required: [id, name, wca_id, gender, country, country_iso2, url, class]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        wca_id:
+          type: string
+        gender:
+          type: string
+        country_iso2:
+          type: string
+        url:
+          type: string
+        country:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            continentId:
+              type: string
+            iso2:
+              type: string
+          required: [id, name, continentId, iso2]
+        class:
+          type: string
     registration:
       type: object
       properties:
         user_id:
-          type: string
+          type: number
         competing:
           type: object
           properties:
@@ -50,7 +86,7 @@ components:
       type: object
       properties:
         user_id:
-          type: string
+          type: number
         competing:
           type: object
           properties:
@@ -127,6 +163,28 @@ components:
       - user_id
       - competition_id
 paths:
+  "/api/v1/users":
+    post:
+      summary: 'Private: Returns info about a list of users'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  "$ref": "#/components/schemas/userIds"
+              required: [ids]
+        required: true
+      responses:
+        '200':
+          description: "Successfully returns UserInfo"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/userInfo"
   "/api/v1/registrations/{competition_id}":
     get:
       summary: 'Public: list registrations for a given competition_id'

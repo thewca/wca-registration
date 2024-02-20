@@ -12,6 +12,40 @@ module Mocks
     user_ids.map { |u| { 'id' => u, 'dob' => '1993-01-01', 'email' => "#{u}@worldcubeassociation.org" } }
   end
 
+  def self.user_info_mock(user_ids)
+    iso = %w[AD AE AI AL BW BY BZ CA CC NU NZ OM PA PE PN PR PS PTF TG TH TJ WS ZW].sample
+    {
+      'users' => user_ids.map do |u|
+        wca_id = "2023TEST#{u % 99}"
+        {
+          'id' => u,
+          'created_at' => Time.now.to_s,
+          'updated_at' => Time.now.to_s,
+          'name' => "Name #{u}",
+          'wca_id' => wca_id,
+          'delegate_status' => nil,
+          'gender' => 'm',
+          'country_iso2' => iso,
+          'url' => "https://#{EnvConfig.WCA_HOST}/persons/#{wca_id}",
+          'country' => {
+            'id' => 'Test Country',
+            'name' => 'Test Country',
+            'continentId' => '_Europe',
+            'iso2' => iso,
+          },
+          'class' => 'user',
+          'teams' => [],
+          'avatar' => {
+            'url' => '',
+            'pending_url' => '',
+            'thumb_url' => '',
+            'is_default' => false,
+          },
+        }
+      end,
+    }
+  end
+
   def self.permissions_mock(user_id)
     case user_id
     when '1' # Test Organizer

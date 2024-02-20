@@ -7,6 +7,8 @@ import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
+import { useUserData } from '../../../hooks/useUserData'
+import { addUserData } from '../../../lib/users'
 import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
@@ -131,9 +133,20 @@ export default function RegistrationAdministrationList() {
     },
   })
 
+  const { isLoading: infoLoading, data: userInfo } = useUserData(
+    (registrations ?? []).map((r) => r.user_id)
+  )
+
+  const registrationsWithUser = useMemo(() => {
+    if (registrations && userInfo) {
+      return addUserData(registrations, userInfo)
+    }
+    return []
+  }, [registrations, userInfo])
+
   const { waiting, accepted, cancelled, pending } = useMemo(
-    () => partitionRegistrations(registrations ?? []),
-    [registrations]
+    () => partitionRegistrations(registrationsWithUser ?? []),
+    [registrationsWithUser]
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])
@@ -167,15 +180,15 @@ export default function RegistrationAdministrationList() {
   const userEmailMap = useMemo(
     () =>
       Object.fromEntries(
-        (registrations ?? []).map((registration) => [
+        (registrationsWithUser ?? []).map((registration) => [
           registration.user.id,
           registration.email,
         ])
       ),
-    [registrations]
+    [registrationsWithUser]
   )
 
-  return isRegistrationsLoading ? (
+  return isRegistrationsLoading || infoLoading ? (
     <LoadingMessage />
   ) : (
     <>

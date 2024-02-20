@@ -49,6 +49,7 @@
     "semantic-ui-react": "2.1.5"
   },
   "devDependencies": {
+    "typescript": "5.3.3",
     "@tanstack/eslint-plugin-query": "5.18.1",
     "@types/luxon": "^3.3.7",
     "@types/node": "20.10.3",

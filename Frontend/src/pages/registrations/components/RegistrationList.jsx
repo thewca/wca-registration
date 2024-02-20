@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
+import { useUserData } from '../../../hooks/useUserData'
+import { addUserData } from '../../../lib/users'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
@@ -53,14 +55,26 @@ export default function RegistrationList() {
     },
   })
 
+  const { isLoading: infoLoading, data: userInfo } = useUserData(
+    (registrations ?? []).map((r) => r.user_id)
+  )
+
   const [state, dispatch] = useReducer(sortReducer, {
     sortColumn: '',
     sortDirection: undefined,
   })
   const { sortColumn, sortDirection } = state
+
+  const registrationsWithUser = useMemo(() => {
+    if (registrations && userInfo) {
+      return addUserData(registrations, userInfo)
+    }
+    return []
+  }, [registrations, userInfo])
+
   const data = useMemo(() => {
-    if (registrations) {
-      const sorted = registrations.sort((a, b) => {
+    if (registrationsWithUser) {
+      const sorted = registrationsWithUser.sort((a, b) => {
         if (sortColumn === 'name') {
           return a.user.name.localeCompare(b.user.name)
         }
@@ -78,7 +92,7 @@ export default function RegistrationList() {
       return sorted
     }
     return []
-  }, [registrations, sortColumn, sortDirection])
+  }, [registrationsWithUser, sortColumn, sortDirection])
   const { newcomers, totalEvents, countrySet, eventCounts } = useMemo(() => {
     if (!data) {
       return {
@@ -116,7 +130,7 @@ export default function RegistrationList() {
     )
   }, [competitionInfo.event_ids, data])
 
-  return isLoading ? (
+  return isLoading || infoLoading ? (
     <LoadingMessage />
   ) : (
     <div>

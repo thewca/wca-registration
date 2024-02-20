@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import React, { useContext } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Table, TableFooter } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getWaitingCompetitors } from '../../../api/registration/get/get_registrations'
+import { useUserData } from '../../../hooks/useUserData'
+import { addUserData } from '../../../lib/users'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
@@ -24,7 +26,19 @@ export default function WaitingList() {
       )
     },
   })
-  return isLoading ? (
+
+  const { isLoading: infoLoading, data: userInfo } = useUserData(
+    (waiting ?? []).map((r) => r.user_id)
+  )
+
+  const registrationsWithUser = useMemo(() => {
+    if (waiting && userInfo) {
+      return addUserData(waiting, userInfo)
+    }
+    return []
+  }, [waiting, userInfo])
+
+  return isLoading || infoLoading ? (
     <LoadingMessage />
   ) : (
     <Table>
@@ -35,8 +49,8 @@ export default function WaitingList() {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {waiting?.length ? (
-          waiting
+        {registrationsWithUser?.length ? (
+          registrationsWithUser
             .sort(
               (w1, w2) =>
                 w1.competing.waiting_list_position -
