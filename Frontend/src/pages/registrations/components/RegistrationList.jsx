@@ -49,7 +49,7 @@ export default function RegistrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { t } = useTranslation()
 
-  const { isLoading: isLoadingRegistrations, data: registrations } = useQuery({
+  const { isLoading: registrationsLoading, data: registrations } = useQuery({
     queryKey: ['registrations', competitionInfo.id],
     queryFn: () => getConfirmedRegistrations(competitionInfo.id),
     retry: false,
@@ -98,7 +98,9 @@ export default function RegistrationList() {
   }, [psychSheet])
 
   const { isLoading: userInfoLoading, data: dataWithUser } = useWithUserData(
-    (psychSheetEvent!== undefined ? psychSheet?.sorted_rankings : registrations) || []
+    (psychSheetEvent !== undefined
+      ? psychSheet?.sorted_rankings
+      : registrations) || [],
   )
 
   const data = useMemo(() => {
@@ -124,12 +126,7 @@ export default function RegistrationList() {
       return sorted
     }
     return []
-  }, [
-    dataWithUser,
-    sortColumn,
-    sortDirection,
-    psychSheetEvent,
-  ])
+  }, [dataWithUser, sortColumn, sortDirection, psychSheetEvent])
 
   const FooterContent = () => {
     if (!dataWithUser || !registrations) return null
@@ -182,7 +179,7 @@ export default function RegistrationList() {
     )
   }
 
-  return userInfoLoading ? (
+  return registrationsLoading || userInfoLoading ? (
     <LoadingMessage />
   ) : (
     <div>

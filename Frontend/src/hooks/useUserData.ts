@@ -3,7 +3,7 @@ import { getUsersInfo } from '../api/user/post/get_user_info'
 import { addUserData } from '../lib/users'
 
 export function useWithUserData<Type extends { user_id: number }>(
-  registrations: Type[]
+  registrations: Type[],
 ) {
   // requires a custom comparator because standard JS interprets everything as strings when sorting:
   // https://typescript-eslint.io/rules/require-array-sort-compare/
@@ -19,7 +19,7 @@ export function useWithUserData<Type extends { user_id: number }>(
     staleTime: Infinity,
     refetchOnMount: 'always',
     retry: false,
-    enabled: !!registrations, // dont' fire an unnecessary request for empty data
+    enabled: Boolean(registrations), // dont' fire an unnecessary request for empty data
     select: (data) => addUserData(registrations, data),
   })
 }

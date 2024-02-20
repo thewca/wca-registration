@@ -132,7 +132,8 @@ export default function RegistrationAdministrationList() {
     },
   })
 
-  const { isLoading: infoLoading, data: registrationsWithUser } = useWithUserData(registrations ?? [])
+  const { isLoading: infoLoading, data: registrationsWithUser } =
+    useWithUserData(registrations ?? [])
 
   const { waiting, accepted, cancelled, pending } = useMemo(
     () => partitionRegistrations(registrationsWithUser ?? []),

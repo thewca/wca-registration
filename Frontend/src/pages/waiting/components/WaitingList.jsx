@@ -26,7 +26,8 @@ export default function WaitingList() {
     },
   })
 
-  const { isLoading: infoLoading, data: registrationsWithUser } = useWithUserData(waiting ?? [])
+  const { isLoading: infoLoading, data: registrationsWithUser } =
+    useWithUserData(waiting ?? [])
 
   return waitingLoading || infoLoading ? (
     <LoadingMessage />
