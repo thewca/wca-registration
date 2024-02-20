@@ -35,7 +35,7 @@
     "dinero.js": "2.0.0-alpha.14",
     "events": "3.3.0",
     "fomantic-ui-css": "2.9.3",
-    "i18next": "23.7.13",
+    "i18next": "23.9.0",
     "luxon": "3.4.4",
     "marked": "11.2.0",
     "openapi-fetch": "0.8.2",
