@@ -31,7 +31,6 @@ export async function getPsychSheetForEvent(
   eventId: string,
   sortBy: string,
 ): Promise<components['schemas']['psychSheet']> {
-  //TODO: Because there is currently no bulk user fetch route we need to manually add user data here
   const { data, response } = await GET(
     '/api/v1/psych_sheet/{competition_id}/{event_id}',
     {
