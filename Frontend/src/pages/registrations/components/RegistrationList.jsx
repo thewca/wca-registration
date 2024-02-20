@@ -15,8 +15,7 @@ import {
   getConfirmedRegistrations,
   getPsychSheetForEvent,
 } from '../../../api/registration/get/get_registrations'
-import { useUserData } from '../../../hooks/useUserData'
-import { addUserData } from '../../../lib/users'
+import { useWithUserData } from '../../../hooks/useUserData'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
@@ -65,10 +64,6 @@ export default function RegistrationList() {
     },
   })
 
-  const { isLoading: infoLoading, data: userInfo } = useUserData(
-    (registrations ?? []).map((r) => r.user_id),
-  )
-
   const [state, dispatch] = useReducer(sortReducer, {
     sortColumn: '',
     sortDirection: undefined,
@@ -79,14 +74,7 @@ export default function RegistrationList() {
   const [psychSheetEvent, setPsychSheetEvent] = useState()
   const [psychSheetSortBy, setPsychSheetSortBy] = useState('single')
 
-  const registrationsWithUser = useMemo(() => {
-    if (registrations && userInfo) {
-      return addUserData(registrations, userInfo)
-    }
-    return []
-  }, [registrations, userInfo])
-
-  const { isLoading: isLoadingPsychSheet, data: psychSheetResults } = useQuery({
+  const { isLoading: isLoadingPsychSheet, data: psychSheet } = useQuery({
     queryKey: [
       'psychSheet',
       competitionInfo.id,
@@ -104,20 +92,21 @@ export default function RegistrationList() {
   })
 
   useEffect(() => {
-    if (psychSheetResults !== undefined) {
-      setPsychSheetSortBy(psychSheetResults.sort_by)
+    if (psychSheet !== undefined) {
+      setPsychSheetSortBy(psychSheet.sort_by)
     }
-  }, [psychSheetResults])
+  }, [psychSheet])
+
+  const { isLoading: userInfoLoading, data: dataWithUser } = useWithUserData(
+    (psychSheetEvent!== undefined ? psychSheet?.sorted_rankings : registrations) || []
+  )
 
   const data = useMemo(() => {
-    if (psychSheetEvent !== undefined) {
-      if (!psychSheetResults) {
-        return []
-      }
-      return psychSheetResults.sorted_rankings
-    }
-    if (registrationsWithUser) {
-      const sorted = registrationsWithUser.sort((a, b) => {
+    if (dataWithUser) {
+      const sorted = dataWithUser.sort((a, b) => {
+        if (psychSheetEvent !== undefined) {
+          return 0 // backend handles the sorting of psych sheets
+        }
         if (sortColumn === 'name') {
           return a.user.name.localeCompare(b.user.name)
         }
@@ -136,21 +125,21 @@ export default function RegistrationList() {
     }
     return []
   }, [
-    registrationsWithUser,
+    dataWithUser,
     sortColumn,
     sortDirection,
     psychSheetEvent,
-    psychSheetResults,
   ])
 
   const FooterContent = () => {
-    if (!registrations) return null
+    if (!dataWithUser || !registrations) return null
 
-    const newcomerCount = registrations.filter(
+    const newcomerCount = dataWithUser.filter(
       (reg) => reg.user.wca_id === undefined,
     ).length
+
     const countryCount = new Set(
-      registrations.map((reg) => reg.user.country.iso2),
+      dataWithUser.map((reg) => reg.user.country.iso2),
     ).size
 
     const eventCounts = Object.fromEntries(
@@ -158,6 +147,7 @@ export default function RegistrationList() {
         const competingCount = registrations.filter((reg) =>
           reg.competing.event_ids.includes(evt),
         ).length
+
         return [evt, competingCount]
       }),
     )
@@ -167,8 +157,8 @@ export default function RegistrationList() {
     return (
       <Table.Row>
         <Table.Cell>{`${newcomerCount} First-Timers + ${
-          registrations.length - newcomerCount
-        } Returners = ${registrations.length} People`}</Table.Cell>
+          dataWithUser.length - newcomerCount
+        } Returners = ${dataWithUser.length} People`}</Table.Cell>
         <Table.Cell>{`${countryCount}  Countries`}</Table.Cell>
         {psychSheetEvent === undefined ? (
           <>
@@ -192,7 +182,7 @@ export default function RegistrationList() {
     )
   }
 
-  return isLoadingRegistrations || infoLoading ? (
+  return userInfoLoading ? (
     <LoadingMessage />
   ) : (
     <div>
