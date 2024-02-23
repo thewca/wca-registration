@@ -13,7 +13,6 @@ import { getTextColor } from '../../lib/colors'
 // based on monolith code: https://github.com/thewca/worldcubeassociation.org/blob/0882a86cf5d83c3a0dbc667a59be05ce8845c3e4/WcaOnRails/app/webpacker/components/EditSchedule/EditActivities/index.js
 
 // TODO: add tooltip or popup on events for more details
-// TODO: set calendar's locale
 // TODO: table has 24h, calendar has 12h - make consistent (fixed by setting locale?)
 // TODO: indicate that event split across days are such?
 // TODO: add add-to-calendar functionality?
@@ -83,9 +82,7 @@ export default function CalendarView({
         slotMaxTime={calendarEnd}
         slotDuration="00:30:00"
         height="auto"
-        // localization settings
-        // TODO get locale
-        // locale={calendarLocale}
+        locale="local"
         timeZone={timeZone}
         events={fcActivities}
         eventClick={onEventClick}
