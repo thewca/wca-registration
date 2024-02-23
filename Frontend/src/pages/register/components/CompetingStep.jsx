@@ -20,7 +20,7 @@ import { RegistrationContext } from '../../../api/helper/context/registration_co
 import { UserContext } from '../../../api/helper/context/user_context'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
-import { getMediumDate } from '../../../lib/dates'
+import { getMediumDateString, hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import Processing from './Processing'
 
@@ -36,9 +36,7 @@ export default function CompetingStep({ nextStep }) {
 
   const [comment, setComment] = useState('')
   const [selectedEvents, setSelectedEvents] = useState(
-    preferredEvents.filter((event) =>
-      competitionInfo.event_ids.includes(event),
-    ),
+    preferredEvents.filter((event) => competitionInfo.event_ids.includes(event))
   )
   const [guests, setGuests] = useState(0)
 
@@ -62,14 +60,14 @@ export default function CompetingStep({ nextStep }) {
           errorCode
             ? t(`errors.${errorCode}`)
             : 'Registration update failed with error: ' + data.message,
-          'negative',
+          'negative'
         )
       },
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
           ['registration', competitionInfo.id, user.id],
-          data,
+          data
         )
       },
     })
@@ -83,7 +81,7 @@ export default function CompetingStep({ nextStep }) {
           errorCode
             ? t(`errors.${errorCode}`)
             : 'Registration failed with error: ' + data.message,
-          'negative',
+          'negative'
         )
       },
       onSuccess: (_) => {
@@ -94,10 +92,9 @@ export default function CompetingStep({ nextStep }) {
       },
     })
 
-  const hasRegistrationEditDeadlinePassed =
-    new Date(
-      competitionInfo.event_change_deadline_date ?? competitionInfo.start_date,
-    ) < Date.now()
+  const hasRegistrationEditDeadlinePassed = hasPassed(
+    competitionInfo.event_change_deadline_date ?? competitionInfo.start_date
+  )
   const canUpdateRegistration =
     competitionInfo.allow_registration_edits &&
     !hasRegistrationEditDeadlinePassed
@@ -130,13 +127,13 @@ export default function CompetingStep({ nextStep }) {
           maxEvents === Infinity
             ? 'You must select at least 1 event'
             : `You must select between 1 and ${maxEvents} events`,
-          'negative',
+          'negative'
         )
       } else {
         action()
       }
     },
-    [commentIsValid, eventsAreValid, hasChanges, maxEvents],
+    [commentIsValid, eventsAreValid, hasChanges, maxEvents]
   )
 
   const actionCreateRegistration = () => {
@@ -274,7 +271,7 @@ export default function CompetingStep({ nextStep }) {
               selection
               options={[
                 ...new Array(
-                  (competitionInfo.guests_per_registration_limit ?? 99) + 1, // Arrays start at 0
+                  (competitionInfo.guests_per_registration_limit ?? 99) + 1 // Arrays start at 0
                 ),
               ].map((_, index) => {
                 return {
@@ -297,9 +294,9 @@ export default function CompetingStep({ nextStep }) {
                 position="top center"
                 content={
                   canUpdateRegistration
-                    ? `You can update your registration until ${getMediumDate(
+                    ? `You can update your registration until ${getMediumDateString(
                         competitionInfo.event_change_deadline_date ??
-                          competitionInfo.start_date,
+                          competitionInfo.start_date
                       )}`
                     : 'You can no longer update your registration'
                 }
@@ -312,8 +309,8 @@ export default function CompetingStep({ nextStep }) {
                 {canUpdateRegistration
                   ? 'Update your registration below' // eslint-disable-next-line unicorn/no-nested-ternary
                   : hasRegistrationEditDeadlinePassed
-                    ? 'The deadline to edit your registration has passed'
-                    : 'Registration editing is disabled for this competition'}
+                  ? 'The deadline to edit your registration has passed'
+                  : 'Registration editing is disabled for this competition'}
               </Message.Content>
             </Message>
 

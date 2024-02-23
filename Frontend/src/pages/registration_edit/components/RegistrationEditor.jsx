@@ -18,6 +18,7 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { getUserInfo } from '../../../api/user/post/get_user_info'
+import { hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
@@ -63,14 +64,14 @@ export default function RegistrationEditor() {
           errorCode
             ? t(`errors.${errorCode}`)
             : 'Registration update failed with error: ' + data.message,
-          'negative',
+          'negative'
         )
       },
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
           ['registration', competitionInfo.id, user_id],
-          data,
+          data
         )
       },
     })
@@ -82,10 +83,10 @@ export default function RegistrationEditor() {
       setStatus(serverRegistration.registration.competing.registration_status)
       setSelectedEvents(serverRegistration.registration.competing.event_ids)
       setAdminComment(
-        serverRegistration.registration.competing.admin_comment ?? '',
+        serverRegistration.registration.competing.admin_comment ?? ''
       )
       setWaitingListPosition(
-        serverRegistration.registration.competing.waiting_list_position ?? 0,
+        serverRegistration.registration.competing.waiting_list_position ?? 0
       )
       setGuests(serverRegistration.registration.guests ?? 0)
     }
@@ -130,7 +131,7 @@ export default function RegistrationEditor() {
         maxEvents === Infinity
           ? 'You must select at least 1 event'
           : `You must select between 1 and ${maxEvents} events`,
-        'negative',
+        'negative'
       )
     } else {
       setMessage('Updating Registration', 'basic')
@@ -162,9 +163,8 @@ export default function RegistrationEditor() {
   ])
 
   const registrationEditDeadlinePassed =
-    DateTime.fromISO(
-      competitionInfo.event_change_deadline_date ?? new Date().toISOString(),
-    ) < DateTime.fromJSDate(new Date())
+    !!competitionInfo.event_change_deadline_date &&
+    hasPassed(competitionInfo.event_change_deadline_date)
 
   return (
     <Segment padded attached>

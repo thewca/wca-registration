@@ -1,14 +1,16 @@
 import { getFormatName } from '@wca/helpers'
+import { DateTime } from 'luxon'
 import React, { useContext, useState } from 'react'
 import { Checkbox, Header, Segment, Table, TableCell } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import {
+  activitiesOnDate,
   earliestWithLongestTieBreaker,
   getActivityEvent,
   getActivityRoundId,
   groupActivities,
 } from '../../lib/activities'
-import { activitiesByDate, getLongDate, getShortTime } from '../../lib/dates'
+import { getShortTimeString } from '../../lib/dates'
 import { toDegrees } from '../../lib/venues'
 import AddToCalendar from './AddToCalendar'
 
@@ -29,7 +31,7 @@ export default function TableView({
 
   const eventIds = activeEvents.map(({ id }) => id)
   const visibleActivities = sortedActivities.filter((activity) =>
-    ['other', ...eventIds].includes(getActivityEvent(activity)),
+    ['other', ...eventIds].includes(getActivityEvent(activity))
   )
 
   return (
@@ -43,16 +45,16 @@ export default function TableView({
       />
 
       {dates.map((date) => {
-        const activitiesForDay = activitiesByDate(
+        const activitiesForDay = activitiesOnDate(
           visibleActivities,
           date,
-          timeZone,
+          timeZone
         )
         const groupedActivitiesForDay = groupActivities(activitiesForDay)
 
         return (
           <SingleDayTable
-            key={date.getDate()}
+            key={date.toMillis()}
             date={date}
             timeZone={timeZone}
             groupedActivities={groupedActivitiesForDay}
@@ -78,7 +80,7 @@ function SingleDayTable({
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
 
-  const title = `Schedule for ${getLongDate(date, timeZone)}`
+  const title = `Schedule for ${date.toLocaleString(DateTime.DATE_HUGE)}`
 
   const hasActivities = groupedActivities.length > 0
   const startTime = hasActivities && groupedActivities[0][0].startTime
@@ -87,7 +89,7 @@ function SingleDayTable({
   const activeVenueAddress =
     activeVenueOrNull &&
     `${toDegrees(activeVenueOrNull.latitudeMicrodegrees)},${toDegrees(
-      activeVenueOrNull.longitudeMicrodegrees,
+      activeVenueOrNull.longitudeMicrodegrees
     )}`
 
   return (
@@ -114,7 +116,7 @@ function SingleDayTable({
           {hasActivities ? (
             groupedActivities.map((activityGroup) => {
               const activityRound = rounds.find(
-                (round) => round.id === getActivityRoundId(activityGroup[0]),
+                (round) => round.id === getActivityRoundId(activityGroup[0])
               )
 
               return (
@@ -166,7 +168,7 @@ function ActivityRow({ isExpanded, activityGroup, round, rooms, timeZone }) {
   // note: round may be undefined for custom activities like lunch
   const { format, timeLimit, cutoff, advancementCondition } = round || {}
   const roomsUsed = rooms.filter((room) =>
-    room.activities.some((activity) => activityIds.includes(activity.id)),
+    room.activities.some((activity) => activityIds.includes(activity.id))
   )
 
   // TODO: create name from activity code when possible (fallback to name property)
@@ -175,9 +177,9 @@ function ActivityRow({ isExpanded, activityGroup, round, rooms, timeZone }) {
 
   return (
     <Table.Row>
-      <Table.Cell>{getShortTime(startTime, timeZone)}</Table.Cell>
+      <Table.Cell>{getShortTimeString(startTime, timeZone)}</Table.Cell>
 
-      <Table.Cell>{getShortTime(endTime, timeZone)}</Table.Cell>
+      <Table.Cell>{getShortTimeString(endTime, timeZone)}</Table.Cell>
 
       <Table.Cell>{name}</Table.Cell>
 

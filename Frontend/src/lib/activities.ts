@@ -2,6 +2,7 @@ import { Activity } from '@wca/helpers'
 import { DateTime } from 'luxon'
 import {
   addEndBufferWithinDay,
+  areOnSameDate,
   doesRangeCrossMidnight,
   roundBackToHour,
   todayWithTime,
@@ -55,21 +56,31 @@ export const getActivityRoundId = (activity: Activity) => {
   return activity.activityCode.split('-').slice(0, 2).join('-')
 }
 
+export const activitiesOnDate = (
+  activities: Activity[],
+  date: DateTime,
+  timeZone: string
+) => {
+  return activities.filter((activity) =>
+    areOnSameDate(DateTime.fromISO(activity.startTime), date, timeZone)
+  )
+}
+
 export const earliestTimeOfDayWithBuffer = (
   activities: Activity[],
-  timeZone: string,
+  timeZone: string
 ) => {
   if (activities.length === 0) return undefined
 
   const doesAnyCrossMidnight = activities.some(({ startTime, endTime }) =>
-    doesRangeCrossMidnight(startTime, endTime, timeZone),
+    doesRangeCrossMidnight(startTime, endTime, timeZone)
   )
   if (doesAnyCrossMidnight) {
     return '00:00:00'
   }
 
   const startTimes = activities.map(({ startTime }) =>
-    todayWithTime(startTime, timeZone),
+    todayWithTime(startTime, timeZone)
   )
   return roundBackToHour(DateTime.min(...startTimes)).toISOTime({
     suppressMilliseconds: true,
@@ -79,19 +90,19 @@ export const earliestTimeOfDayWithBuffer = (
 
 export const latestTimeOfDayWithBuffer = (
   activities: Activity[],
-  timeZone: string,
+  timeZone: string
 ) => {
   if (activities.length === 0) return undefined
 
   const doesAnyCrossMidnight = activities.some(({ startTime, endTime }) =>
-    doesRangeCrossMidnight(startTime, endTime, timeZone),
+    doesRangeCrossMidnight(startTime, endTime, timeZone)
   )
   if (doesAnyCrossMidnight) {
     return '24:00:00'
   }
 
   const endTimes = activities.map(({ endTime }) =>
-    todayWithTime(endTime, timeZone),
+    todayWithTime(endTime, timeZone)
   )
   const result = addEndBufferWithinDay(DateTime.max(...endTimes)).toISOTime({
     suppressMilliseconds: true,
