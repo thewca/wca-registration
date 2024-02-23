@@ -10,7 +10,7 @@ import { DateTime } from 'luxon'
 export const areOnSameDate = (
   luxonDate1: DateTime,
   luxonDate2: DateTime,
-  timeZone: string
+  timeZone: string,
 ) => {
   return luxonDate1
     .setZone(timeZone)
@@ -42,17 +42,14 @@ export function hasNotPassed(dateTime: string): boolean {
 export const doesRangeCrossMidnight = (
   startDateTime: string,
   endDateTime: string,
-  timeZone: string
+  timeZone: string,
 ) => {
   const luxonStart = DateTime.fromISO(startDateTime)
   const luxonEnd = DateTime.fromISO(endDateTime)
   return !areOnSameDate(luxonStart, luxonEnd, timeZone)
 }
 
-export const getShortTimeString = (
-  dateTime: string,
-  timeZone: string = 'local'
-) => {
+export const getShortTimeString = (dateTime: string, timeZone = 'local') => {
   return DateTime.fromISO(dateTime)
     .setZone(timeZone)
     .toLocaleString(DateTime.TIME_SIMPLE)
@@ -60,28 +57,19 @@ export const getShortTimeString = (
 
 // note: some uses are passing dates with times or dates without times
 // ie: `event_change_deadline_date ?? competitionInfo.start_date`
-export const getMediumDateString = (
-  dateTime: string,
-  timeZone: string = 'local'
-) => {
+export const getMediumDateString = (dateTime: string, timeZone = 'local') => {
   return DateTime.fromISO(dateTime)
     .setZone(timeZone)
     .toLocaleString(DateTime.DATE_MED)
 }
 
-export const getLongDateString = (
-  dateTime: string,
-  timeZone: string = 'local'
-) => {
+export const getLongDateString = (dateTime: string, timeZone = 'local') => {
   return DateTime.fromISO(dateTime)
     .setZone(timeZone)
     .toLocaleString(DateTime.DATE_HUGE)
 }
 
-export const getFullDateTimeString = (
-  dateTime: string,
-  timeZone: string = 'local'
-) => {
+export const getFullDateTimeString = (dateTime: string, timeZone = 'local') => {
   return DateTime.fromISO(dateTime)
     .setZone(timeZone)
     .toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)
@@ -91,7 +79,7 @@ export const getFullDateTimeString = (
 export const getDatesBetweenInclusive = (
   startDateTime: string,
   endDateTime: string,
-  timeZone: string
+  timeZone: string,
 ) => {
   // avoid infinite loop on invalid params
   if (startDateTime > endDateTime) return []

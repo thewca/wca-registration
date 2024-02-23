@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import _ from 'lodash'
-import { DateTime } from 'luxon'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
@@ -64,14 +63,14 @@ export default function RegistrationEditor() {
           errorCode
             ? t(`errors.${errorCode}`)
             : 'Registration update failed with error: ' + data.message,
-          'negative'
+          'negative',
         )
       },
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
           ['registration', competitionInfo.id, user_id],
-          data
+          data,
         )
       },
     })
@@ -83,10 +82,10 @@ export default function RegistrationEditor() {
       setStatus(serverRegistration.registration.competing.registration_status)
       setSelectedEvents(serverRegistration.registration.competing.event_ids)
       setAdminComment(
-        serverRegistration.registration.competing.admin_comment ?? ''
+        serverRegistration.registration.competing.admin_comment ?? '',
       )
       setWaitingListPosition(
-        serverRegistration.registration.competing.waiting_list_position ?? 0
+        serverRegistration.registration.competing.waiting_list_position ?? 0,
       )
       setGuests(serverRegistration.registration.guests ?? 0)
     }
@@ -131,7 +130,7 @@ export default function RegistrationEditor() {
         maxEvents === Infinity
           ? 'You must select at least 1 event'
           : `You must select between 1 and ${maxEvents} events`,
-        'negative'
+        'negative',
       )
     } else {
       setMessage('Updating Registration', 'basic')
@@ -163,7 +162,7 @@ export default function RegistrationEditor() {
   ])
 
   const registrationEditDeadlinePassed =
-    !!competitionInfo.event_change_deadline_date &&
+    Boolean(competitionInfo.event_change_deadline_date) &&
     hasPassed(competitionInfo.event_change_deadline_date)
 
   return (

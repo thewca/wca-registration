@@ -65,7 +65,7 @@ const partitionRegistrations = (registrations) => {
       }
       return result
     },
-    { pending: [], waiting: [], accepted: [], cancelled: [] }
+    { pending: [], waiting: [], accepted: [], cancelled: [] },
   )
 }
 
@@ -108,7 +108,7 @@ export default function RegistrationAdministrationList() {
 
   const [expandedColumns, dispatchColumns] = useReducer(
     columnReducer,
-    initialExpandedColumns
+    initialExpandedColumns,
   )
 
   const {
@@ -129,13 +129,13 @@ export default function RegistrationAdministrationList() {
         errorCode
           ? t(`errors.${errorCode}`)
           : 'Fetching Registrations failed with error: ' + err.message,
-        'negative'
+        'negative',
       )
     },
   })
 
   const { isLoading: infoLoading, data: userInfo } = useUserData(
-    (registrations ?? []).map((r) => r.user_id)
+    (registrations ?? []).map((r) => r.user_id),
   )
 
   const registrationsWithUser = useMemo(() => {
@@ -147,26 +147,26 @@ export default function RegistrationAdministrationList() {
 
   const { waiting, accepted, cancelled, pending } = useMemo(
     () => partitionRegistrations(registrationsWithUser ?? []),
-    [registrationsWithUser]
+    [registrationsWithUser],
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])
   const partitionedSelected = useMemo(
     () => ({
       pending: selected.filter((id) =>
-        pending.some((reg) => id === reg.user.id)
+        pending.some((reg) => id === reg.user.id),
       ),
       waiting: selected.filter((id) =>
-        waiting.some((reg) => id === reg.user.id)
+        waiting.some((reg) => id === reg.user.id),
       ),
       accepted: selected.filter((id) =>
-        accepted.some((reg) => id === reg.user.id)
+        accepted.some((reg) => id === reg.user.id),
       ),
       cancelled: selected.filter((id) =>
-        cancelled.some((reg) => id === reg.user.id)
+        cancelled.some((reg) => id === reg.user.id),
       ),
     }),
-    [selected, pending, waiting, accepted, cancelled]
+    [selected, pending, waiting, accepted, cancelled],
   )
 
   const select = (attendees) => dispatch({ type: 'add', attendees })
@@ -184,9 +184,9 @@ export default function RegistrationAdministrationList() {
         (registrationsWithUser ?? []).map((registration) => [
           registration.user.id,
           registration.email,
-        ])
+        ]),
       ),
-    [registrationsWithUser]
+    [registrationsWithUser],
   )
 
   return isRegistrationsLoading || infoLoading ? (
