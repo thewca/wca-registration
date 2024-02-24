@@ -11,6 +11,7 @@ import {
 } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
+import { RegistrationContext } from '../../api/helper/context/registration_context'
 import { UserContext } from '../../api/helper/context/user_context'
 import {
   getLongDateString,
@@ -20,7 +21,6 @@ import {
 import { displayMoneyISO4217 } from '../../lib/money'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
-import { RegistrationContext } from "../../api/helper/context/registration_context";
 
 function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {
