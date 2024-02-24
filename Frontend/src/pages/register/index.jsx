@@ -20,6 +20,7 @@ import {
 import { displayMoneyISO4217 } from '../../lib/money'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
+import {RegistrationContext} from "../../api/helper/context/registration_context";
 
 function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {
@@ -34,8 +35,10 @@ export default function Register() {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAttendCompetition } = useContext(PermissionsContext)
+  const { isRegistered } = useContext(RegistrationContext)
 
-  const [showRegisterSteps, setShowRegisterSteps] = useState(false)
+  // Show Registration Panel instead of Info if already registered
+  const [showRegisterSteps, setShowRegisterSteps] = useState(isRegistered)
 
   const loggedIn = user !== null
 
