@@ -13,7 +13,7 @@ class RegistrationProcessor
       config.region = ENV.fetch('AWS_REGION', 'us-west-2')
       config.namespace = nil
       if EnvConfig.CODE_ENVIRONMENT == 'development'
-        config.endpoint = ENV.fetch('LOCALSTACK_ENDPOINT', nil)
+        config.endpoint = EnvConfig.LOCALSTACK_ENDPOINT
       else
         config.credentials = Aws::ECSCredentials.new(retries: 3)
       end
