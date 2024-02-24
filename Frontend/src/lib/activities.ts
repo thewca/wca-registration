@@ -2,6 +2,7 @@ import { Activity } from '@wca/helpers'
 import { DateTime } from 'luxon'
 import {
   addEndBufferWithinDay,
+  areOnSameDate,
   doesRangeCrossMidnight,
   roundBackToHour,
   todayWithTime,
@@ -53,6 +54,16 @@ export const getActivityEvent = (activity: Activity) => {
 
 export const getActivityRoundId = (activity: Activity) => {
   return activity.activityCode.split('-').slice(0, 2).join('-')
+}
+
+export const activitiesOnDate = (
+  activities: Activity[],
+  date: DateTime,
+  timeZone: string,
+) => {
+  return activities.filter((activity) =>
+    areOnSameDate(DateTime.fromISO(activity.startTime), date, timeZone),
+  )
 }
 
 export const earliestTimeOfDayWithBuffer = (

@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import _ from 'lodash'
-import { DateTime } from 'luxon'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
@@ -18,6 +17,7 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { getUserInfo } from '../../../api/user/post/get_user_info'
+import { hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
@@ -162,9 +162,8 @@ export default function RegistrationEditor() {
   ])
 
   const registrationEditDeadlinePassed =
-    DateTime.fromISO(
-      competitionInfo.event_change_deadline_date ?? new Date().toISOString(),
-    ) < DateTime.fromJSDate(new Date())
+    Boolean(competitionInfo.event_change_deadline_date) &&
+    hasPassed(competitionInfo.event_change_deadline_date)
 
   return (
     <Segment padded attached>
