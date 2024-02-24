@@ -155,7 +155,9 @@ class RegistrationController < ApplicationController
       Registration.increment_competitors_count(@competition_id)
     end
 
-    EmailApi.send_update_email(@competition_id, user_id, status)
+    if Rails.env.production?
+      EmailApi.send_update_email(@competition_id, user_id, status)
+    end
 
     {
       user_id: updated_registration['user_id'],
