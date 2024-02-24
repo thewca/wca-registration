@@ -10,7 +10,7 @@ require_relative 'env_config'
 class RegistrationProcessor
   def initialize
     Dynamoid.configure do |config|
-      config.region = ENV.fetch('AWS_REGION', 'us-west-2')
+      config.region = EnvConfig.AWS_REGION
       config.namespace = nil
       if EnvConfig.CODE_ENVIRONMENT == 'development'
         config.endpoint = EnvConfig.LOCALSTACK_ENDPOINT
