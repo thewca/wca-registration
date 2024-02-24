@@ -5,7 +5,7 @@ require 'dynamoid'
 require 'httparty'
 require '../helpers/wca_api'
 require_relative '../helpers/lane_factory'
-require_relative '../worker/env_config'
+require_relative 'env_config'
 
 class RegistrationProcessor
   def initialize
