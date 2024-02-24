@@ -10,7 +10,7 @@ import {
   getActivityRoundId,
   groupActivities,
 } from '../../lib/activities'
-import { getShortTimeString } from '../../lib/dates'
+import { getSimpleTimeString } from '../../lib/dates'
 import { toDegrees } from '../../lib/venues'
 import AddToCalendar from './AddToCalendar'
 
@@ -177,9 +177,9 @@ function ActivityRow({ isExpanded, activityGroup, round, rooms, timeZone }) {
 
   return (
     <Table.Row>
-      <Table.Cell>{getShortTimeString(startTime, timeZone)}</Table.Cell>
+      <Table.Cell>{getSimpleTimeString(startTime, timeZone)}</Table.Cell>
 
-      <Table.Cell>{getShortTimeString(endTime, timeZone)}</Table.Cell>
+      <Table.Cell>{getSimpleTimeString(endTime, timeZone)}</Table.Cell>
 
       <Table.Cell>{name}</Table.Cell>
 

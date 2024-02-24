@@ -49,10 +49,22 @@ export const doesRangeCrossMidnight = (
   return !areOnSameDate(luxonStart, luxonEnd, timeZone)
 }
 
-export const getShortTimeString = (dateTime: string, timeZone = 'local') => {
+export const getSimpleTimeString = (dateTime: string, timeZone = 'local') => {
   return DateTime.fromISO(dateTime)
     .setZone(timeZone)
     .toLocaleString(DateTime.TIME_SIMPLE)
+}
+
+export const getShortTimeString = (dateTime: string, timeZone = 'local') => {
+  return DateTime.fromISO(dateTime)
+    .setZone(timeZone)
+    .toLocaleString(DateTime.TIME_WITH_SHORT_OFFSET)
+}
+
+export const getShortDateString = (dateTime: string, timeZone = 'local') => {
+  return DateTime.fromISO(dateTime)
+    .setZone(timeZone)
+    .toLocaleString(DateTime.DATE_SHORT)
 }
 
 // note: some uses are passing dates with times or dates without times

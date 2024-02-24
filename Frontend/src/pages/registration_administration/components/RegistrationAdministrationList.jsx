@@ -8,7 +8,7 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import { useUserData } from '../../../hooks/useUserData'
-import { getFullDateTimeString } from '../../../lib/dates'
+import { getShortDateString, getShortTimeString } from '../../../lib/dates'
 import { addUserData } from '../../../lib/users'
 import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
@@ -450,8 +450,8 @@ function TableRow({
 
       <Table.Cell>
         <Popup
-          content={getFullDateTimeString(registered_on)}
-          trigger={<span>{getFullDateTimeString(registered_on)}</span>}
+          content={getShortTimeString(registered_on)}
+          trigger={<span>{getShortDateString(registered_on)}</span>}
         />
       </Table.Cell>
 
@@ -461,8 +461,8 @@ function TableRow({
           <Table.Cell>
             {updated_at && (
               <Popup
-                content={getFullDateTimeString(updated_at)}
-                trigger={<span>{getFullDateTimeString(updated_at)}</span>}
+                content={getShortTimeString(updated_at)}
+                trigger={<span>{getShortDateString(updated_at)}</span>}
               />
             )}
           </Table.Cell>
