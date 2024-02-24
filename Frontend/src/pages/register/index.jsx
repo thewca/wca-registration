@@ -20,7 +20,7 @@ import {
 import { displayMoneyISO4217 } from '../../lib/money'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
-import {RegistrationContext} from "../../api/helper/context/registration_context";
+import { RegistrationContext } from "../../api/helper/context/registration_context";
 
 function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {
