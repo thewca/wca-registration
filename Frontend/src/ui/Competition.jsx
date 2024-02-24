@@ -26,7 +26,7 @@ import {
 } from '../api/helper/routes'
 import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
 import i18n from '../i18n'
-import { getMediumDate } from '../lib/dates'
+import { getMediumDateString } from '../lib/dates'
 import AddToCalendar from '../pages/schedule/AddToCalendar'
 import logo from '../static/wca2020.svg'
 import { setMessage } from './events/messages'
@@ -111,10 +111,10 @@ export default function Competition({ children }) {
                   <List.Icon name="calendar alternate" />
                   <List.Content>
                     {competitionInfo.start_date === competitionInfo.end_date
-                      ? getMediumDate(competitionInfo.start_date)
-                      : `${getMediumDate(
+                      ? getMediumDateString(competitionInfo.start_date)
+                      : `${getMediumDateString(
                           competitionInfo.start_date,
-                        )} to ${getMediumDate(competitionInfo.end_date)}`}
+                        )} to ${getMediumDateString(competitionInfo.end_date)}`}
                   </List.Content>
                 </List.Item>
                 <List.Item>

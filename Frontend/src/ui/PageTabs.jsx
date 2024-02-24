@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Dropdown, Menu } from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
+import { hasPassed } from '../lib/dates'
 import { BASE_ROUTE } from '../routes'
 
 export default function PageTabs() {
@@ -23,7 +24,7 @@ export default function PageTabs() {
       optionalTabs.push(registrationsMenuConfig)
       optionalTabs.push(waitingMenuConfig)
     }
-    if (new Date(competitionInfo.registration_open) < Date.now()) {
+    if (hasPassed(competitionInfo.registration_open)) {
       optionalTabs.push(competitorsMenuConfig)
     }
 

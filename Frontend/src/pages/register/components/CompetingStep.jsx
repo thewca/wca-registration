@@ -20,7 +20,7 @@ import { RegistrationContext } from '../../../api/helper/context/registration_co
 import { UserContext } from '../../../api/helper/context/user_context'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
-import { getMediumDate } from '../../../lib/dates'
+import { getMediumDateString, hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import Processing from './Processing'
 
@@ -94,10 +94,9 @@ export default function CompetingStep({ nextStep }) {
       },
     })
 
-  const hasRegistrationEditDeadlinePassed =
-    new Date(
-      competitionInfo.event_change_deadline_date ?? competitionInfo.start_date,
-    ) < Date.now()
+  const hasRegistrationEditDeadlinePassed = hasPassed(
+    competitionInfo.event_change_deadline_date ?? competitionInfo.start_date,
+  )
   const canUpdateRegistration =
     competitionInfo.allow_registration_edits &&
     !hasRegistrationEditDeadlinePassed
@@ -297,7 +296,7 @@ export default function CompetingStep({ nextStep }) {
                 position="top center"
                 content={
                   canUpdateRegistration
-                    ? `You can update your registration until ${getMediumDate(
+                    ? `You can update your registration until ${getMediumDateString(
                         competitionInfo.event_change_deadline_date ??
                           competitionInfo.start_date,
                       )}`
