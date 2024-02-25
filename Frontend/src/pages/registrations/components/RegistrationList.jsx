@@ -41,6 +41,8 @@ export default function RegistrationList() {
     sortDirection: undefined,
   })
   const { sortColumn, sortDirection } = state
+  const changeSortColumn = (name) =>
+    dispatch({ type: 'CHANGE_SORT', sortColumn: name })
 
   const registrationsWithUser = useMemo(() => {
     if (registrations && userInfo) {
@@ -116,17 +118,13 @@ export default function RegistrationList() {
           <Table.Row>
             <Table.HeaderCell
               sorted={sortColumn === 'name' ? sortDirection : undefined}
-              onClick={() =>
-                dispatch({ type: 'CHANGE_SORT', sortColumn: 'name' })
-              }
+              onClick={() => changeSortColumn('name')}
             >
               Name
             </Table.HeaderCell>
             <Table.HeaderCell
               sorted={sortColumn === 'country' ? sortDirection : undefined}
-              onClick={() =>
-                dispatch({ type: 'CHANGE_SORT', sortColumn: 'country' })
-              }
+              onClick={() => changeSortColumn('country')}
             >
               Citizen Of
             </Table.HeaderCell>
@@ -137,9 +135,7 @@ export default function RegistrationList() {
             ))}
             <Table.HeaderCell
               sorted={sortColumn === 'total' ? sortDirection : undefined}
-              onClick={() =>
-                dispatch({ type: 'CHANGE_SORT', sortColumn: 'total' })
-              }
+              onClick={() => changeSortColumn('total')}
             >
               Total
             </Table.HeaderCell>

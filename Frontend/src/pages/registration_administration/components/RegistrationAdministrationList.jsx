@@ -15,6 +15,7 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
+import { createSortReducer } from '../../../reducers/sortReducer'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]
@@ -43,6 +44,16 @@ const selectedReducer = (state, action) => {
 
   return newState
 }
+
+const sortReducer = createSortReducer([
+  'name',
+  'wca_id',
+  'country',
+  'registered_on',
+  'events',
+  'guests',
+  'paid_on',
+])
 
 const partitionRegistrations = (registrations) => {
   return registrations.reduce(
@@ -111,6 +122,16 @@ export default function RegistrationAdministrationList() {
     initialExpandedColumns,
   )
 
+  const [state, dispatchSort] = useReducer(sortReducer, {
+    sortColumn: competitionInfo['using_stripe_payments?']
+      ? 'paid_on'
+      : 'registered_on',
+    sortDirection: undefined,
+  })
+  const { sortColumn, sortDirection } = state
+  const changeSortColumn = (name) =>
+    dispatchSort({ type: 'CHANGE_SORT', sortColumn: name })
+
   const {
     isLoading: isRegistrationsLoading,
     data: registrations,
@@ -145,9 +166,45 @@ export default function RegistrationAdministrationList() {
     return []
   }, [registrations, userInfo])
 
+  const sortedRegistrationWithUser = useMemo(() => {
+    if (registrationsWithUser) {
+      const sorted = registrationsWithUser.sort((a, b) => {
+        if (sortColumn === 'name') {
+          return a.user.name.localeCompare(b.user.name)
+        }
+        if (sortColumn === 'wca_id') {
+          return a.user.wca_id.localeCompare(b.user.wca_id)
+        }
+        if (sortColumn === 'country') {
+          return a.user.country.name.localeCompare(b.user.country.name)
+        }
+        if (sortColumn === 'events') {
+          return a.competing.event_ids.length - b.competing.event_ids.length
+        }
+        if (sortColumn === 'guests') {
+          return a.guests - b.guests
+        }
+        if (sortColumn === 'registered_on') {
+          return a.competing.registered_on.localeCompare(
+            b.competing.registered_on,
+          )
+        }
+        if (sortColumn === 'paid_on') {
+          return a.payment.updated_at.localeCompare(b.payment.updated_at)
+        }
+        return 0
+      })
+      if (sortDirection === 'descending') {
+        return sorted.reverse()
+      }
+      return sorted
+    }
+    return []
+  }, [registrationsWithUser, sortColumn, sortDirection])
+
   const { waiting, accepted, cancelled, pending } = useMemo(
-    () => partitionRegistrations(registrationsWithUser ?? []),
-    [registrationsWithUser],
+    () => partitionRegistrations(sortedRegistrationWithUser ?? []),
+    [sortedRegistrationWithUser],
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])
@@ -218,6 +275,9 @@ export default function RegistrationAdministrationList() {
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
+          changeSortColumn={changeSortColumn}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
         />
 
         <Header>
@@ -237,6 +297,9 @@ export default function RegistrationAdministrationList() {
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
+          changeSortColumn={changeSortColumn}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
         />
 
         <Header>
@@ -250,6 +313,9 @@ export default function RegistrationAdministrationList() {
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
+          changeSortColumn={changeSortColumn}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
         />
 
         <Header>Cancelled registrations ({cancelled.length})</Header>
@@ -260,6 +326,9 @@ export default function RegistrationAdministrationList() {
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
+          changeSortColumn={changeSortColumn}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
         />
       </div>
 
@@ -283,6 +352,9 @@ function RegistrationAdministrationTable({
   selected,
   select,
   unselect,
+  sortDirection,
+  sortColumn,
+  changeSortColumn,
 }) {
   const handleHeaderCheck = (_, data) => {
     if (data.checked) {
@@ -293,12 +365,15 @@ function RegistrationAdministrationTable({
   }
 
   return (
-    <Table striped textAlign="left">
+    <Table sortable striped textAlign="left">
       <TableHeader
         columnsExpanded={columnsExpanded}
         showCheckbox={registrations.length > 0}
         isChecked={registrations.length === selected.length}
         onCheckboxChanged={handleHeaderCheck}
+        sortDirection={sortDirection}
+        sortColumn={sortColumn}
+        changeSortColumn={changeSortColumn}
       />
 
       <Table.Body>
@@ -336,6 +411,9 @@ function TableHeader({
   showCheckbox,
   isChecked,
   onCheckboxChanged,
+  sortDirection,
+  sortColumn,
+  changeSortColumn,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
@@ -351,15 +429,40 @@ function TableHeader({
           )}
         </Table.HeaderCell>
         {isOrganizerOrDelegate && <Table.HeaderCell />}
-        <Table.HeaderCell>WCA ID</Table.HeaderCell>
-        <Table.HeaderCell>Name</Table.HeaderCell>
+        <Table.HeaderCell
+          sorted={sortColumn === 'wca_id' ? sortDirection : undefined}
+          onClick={() => changeSortColumn('wca_id')}
+        >
+          WCA ID
+        </Table.HeaderCell>
+        <Table.HeaderCell
+          sorted={sortColumn === 'name' ? sortDirection : undefined}
+          onClick={() => changeSortColumn('name')}
+        >
+          Name
+        </Table.HeaderCell>
         {dob && <Table.HeaderCell>DOB</Table.HeaderCell>}
-        <Table.HeaderCell>Region</Table.HeaderCell>
-        <Table.HeaderCell>Registered on</Table.HeaderCell>
+        <Table.HeaderCell
+          sorted={sortColumn === 'country' ? sortDirection : undefined}
+          onClick={() => changeSortColumn('country')}
+        >
+          Representing
+        </Table.HeaderCell>
+        <Table.HeaderCell
+          sorted={sortColumn === 'registered_on' ? sortDirection : undefined}
+          onClick={() => changeSortColumn('registered_on')}
+        >
+          Registered on
+        </Table.HeaderCell>
         {competitionInfo['using_stripe_payments?'] && (
           <>
             <Table.HeaderCell>Payment Status</Table.HeaderCell>
-            <Table.HeaderCell>Paid on</Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={sortColumn === 'paid_on' ? sortDirection : undefined}
+              onClick={() => changeSortColumn('paid_on')}
+            >
+              Paid on
+            </Table.HeaderCell>
           </>
         )}
         {events ? (
@@ -369,9 +472,19 @@ function TableHeader({
             </Table.HeaderCell>
           ))
         ) : (
-          <Table.HeaderCell>Events</Table.HeaderCell>
+          <Table.HeaderCell
+            sorted={sortColumn === 'events' ? sortDirection : undefined}
+            onClick={() => changeSortColumn('events')}
+          >
+            Events
+          </Table.HeaderCell>
         )}
-        <Table.HeaderCell>Guests</Table.HeaderCell>
+        <Table.HeaderCell
+          sorted={sortColumn === 'guests' ? sortDirection : undefined}
+          onClick={() => changeSortColumn('guests')}
+        >
+          Guests
+        </Table.HeaderCell>
         {comments && (
           <>
             <Table.HeaderCell>Comment</Table.HeaderCell>
