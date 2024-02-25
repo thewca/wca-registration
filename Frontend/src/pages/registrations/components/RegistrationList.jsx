@@ -7,34 +7,11 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
 import { useUserData } from '../../../hooks/useUserData'
 import { addUserData } from '../../../lib/users'
+import { createSortReducer } from '../../../reducers/sortReducer'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
-function sortReducer(state, action) {
-  if (action.type === 'CHANGE_SORT') {
-    if (state.sortColumn === action.sortColumn) {
-      return {
-        ...state,
-        sortDirection:
-          state.sortDirection === 'ascending' ? 'descending' : 'ascending',
-      }
-    }
-    switch (action.sortColumn) {
-      case 'name':
-      case 'country':
-      case 'total': {
-        return {
-          sortColumn: action.sortColumn,
-          sortDirection: 'ascending',
-        }
-      }
-      default: {
-        throw new Error('Unknown Column')
-      }
-    }
-  }
-  throw new Error('Unknown Action')
-}
+const sortReducer = createSortReducer(['name', 'country', 'total'])
 
 export default function RegistrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
