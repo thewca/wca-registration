@@ -11,6 +11,7 @@ import {
 } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
+import { RegistrationContext } from '../../api/helper/context/registration_context'
 import { UserContext } from '../../api/helper/context/user_context'
 import {
   getLongDateString,
@@ -34,8 +35,10 @@ export default function Register() {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAttendCompetition } = useContext(PermissionsContext)
+  const { isRegistered } = useContext(RegistrationContext)
 
-  const [showRegisterSteps, setShowRegisterSteps] = useState(false)
+  // Show Registration Panel instead of Info if already registered
+  const [showRegisterSteps, setShowRegisterSteps] = useState(isRegistered)
 
   const loggedIn = user !== null
 
