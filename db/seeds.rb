@@ -52,6 +52,15 @@ unless Rails.env.production?
                              provisioned_throughput: provisioned_throughput,
                              global_secondary_indexes: global_secondary_indexes,
                            })
+    # Add some registrations for each comp for testing
+    require_relative '../app/models/registration'
+    comps = %w[KoelnerKubing2023 LowLimit2023 FMCFrance2023 RheinNeckarAutumn2023 HessenOpen2023 ManchesterSpring2024 SeriesComp1 SeriesComp2 PickeringFavouritesAutumn2023 EventRegLimit]
+    comps.each_with_index do |id, i|
+      competition = Mocks.mock_competition(id)
+      (1..5).each do | user_id|
+        Registration.create(attendee_id: "#{id}-#{user_id}", competition_id: id, user_id: user_id, guests: rand(1..10), lanes: [LaneFactory.competing_lane(event_ids: competition['event_ids'].sample(rand(1..3)), comment: "Seed Registration #{user_id}")])
+      end
+    end
   rescue Aws::DynamoDB::Errors::ResourceInUseException
     puts 'Database Already exists'
   end

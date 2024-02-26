@@ -436,7 +436,14 @@ function TableHeader({
         >
           Name
         </Table.HeaderCell>
-        {dob && <Table.HeaderCell>DOB</Table.HeaderCell>}
+        {dob && (
+          <Table.HeaderCell
+            sorted={sortColumn === 'dob' ? sortDirection : undefined}
+            onClick={() => changeSortColumn('dob')}
+          >
+            DOB
+          </Table.HeaderCell>
+        )}
         <Table.HeaderCell
           sorted={sortColumn === 'country' ? sortDirection : undefined}
           onClick={() => changeSortColumn('country')}
@@ -482,7 +489,12 @@ function TableHeader({
         </Table.HeaderCell>
         {comments && (
           <>
-            <Table.HeaderCell>Comment</Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={sortColumn === 'comment' ? sortDirection : undefined}
+              onClick={() => changeSortColumn('comment')}
+            >
+              Comment
+            </Table.HeaderCell>
             <Table.HeaderCell>Admin Note</Table.HeaderCell>
           </>
         )}
