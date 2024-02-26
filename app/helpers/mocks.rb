@@ -13,9 +13,9 @@ module Mocks
   end
 
   def self.user_info_mock(user_ids)
-    iso = %w[AD AE AI AL BW BY BZ CA CC NU NZ OM PA PE PN PR PS PTF TG TH TJ WS ZW].sample
     {
       'users' => user_ids.map do |u|
+        iso = %w[AD AE AI AL BW BY BZ CA CC NU NZ OM PA PE PN PR PS PTF TG TH TJ WS ZW].sample
         wca_id = "2023TEST#{u % 99}"
         {
           'id' => u,

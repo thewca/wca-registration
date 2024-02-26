@@ -53,12 +53,16 @@ class Registration
   end
 
   def competing_lane
-    lanes.find { |x| x.lane_name == 'competing' }
+    lanes&.find { |x| x.lane_name == 'competing' }
+  end
+
+  def payment_lane
+    lanes&.find { |x| x.lane_name == 'payment' }
   end
 
   # Returns all event ids irrespective of registration status
   def event_ids
-    competing_lane.lane_details['event_details'].pluck('event_id')
+    competing_lane&.lane_details&.[]('event_details')&.pluck('event_id')
   end
 
   def attendee_id
@@ -77,35 +81,35 @@ class Registration
   end
 
   def event_details
-    competing_lane.lane_details['event_details']
+    competing_lane&.lane_details&.[]('event_details')
   end
 
   def competing_waiting_list_position
-    competing_lane.lane_details['waiting_list_position']
+    competing_lane&.lane_details&.[]('waiting_list_position')
   end
 
   def competing_comment
-    competing_lane.lane_details['comment']
+    competing_lane&.lane_details&.[]('comment')
   end
 
   def admin_comment
-    competing_lane.lane_details['admin_comment']
+    competing_lane&.lane_details&.[]('admin_comment')
   end
 
   def payment_ticket
-    competing_lane.lane_details['payment_id']
+    payment_lane&.lane_details&.[]('payment_id')
   end
 
   def payment_status
-    competing_lane.lane_state
+    payment_lane&.lane_state
   end
 
   def payment_date
-    competing_lane.lane_details['last_updated']
+    payment_lane&.lane_details&.[]('last_updated')
   end
 
   def payment_history
-    competing_lane.lane_details['payment_history']
+    payment_lane&.lane_details&.[]('payment_history')
   end
 
   def update_competing_waiting_list_position(new_position)
@@ -216,11 +220,11 @@ class Registration
   private
 
     def set_competing_status
-      self.competing_status = competing_lane.lane_state
+      self.competing_status = competing_lane&.lane_state
     end
 
     def competing_status_consistency
-      errors.add(:competing_status, '') unless competing_status == competing_lane.lane_state
+      errors.add(:competing_status, '') unless competing_status == competing_lane&.lane_state
     end
 
     def waiting_list_changed?(update_params)

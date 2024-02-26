@@ -16,34 +16,11 @@ import {
   getPsychSheetForEvent,
 } from '../../../api/registration/get/get_registrations'
 import { useWithUserData } from '../../../hooks/useUserData'
+import { createSortReducer } from '../../../reducers/sortReducer'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
-function sortReducer(state, action) {
-  if (action.type === 'CHANGE_SORT') {
-    if (state.sortColumn === action.sortColumn) {
-      return {
-        ...state,
-        sortDirection:
-          state.sortDirection === 'ascending' ? 'descending' : 'ascending',
-      }
-    }
-    switch (action.sortColumn) {
-      case 'name':
-      case 'country':
-      case 'total': {
-        return {
-          sortColumn: action.sortColumn,
-          sortDirection: 'ascending',
-        }
-      }
-      default: {
-        throw new Error('Unknown Column')
-      }
-    }
-  }
-  throw new Error('Unknown Action')
-}
+const sortReducer = createSortReducer(['name', 'country', 'total'])
 
 export default function RegistrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -70,6 +47,8 @@ export default function RegistrationList() {
   })
 
   const { sortColumn, sortDirection } = state
+  const changeSortColumn = (name) =>
+    dispatch({ type: 'CHANGE_SORT', sortColumn: name })
 
   const [psychSheetEvent, setPsychSheetEvent] = useState()
   const [psychSheetSortBy, setPsychSheetSortBy] = useState('single')
@@ -188,17 +167,13 @@ export default function RegistrationList() {
           <Table.Row>
             <Table.HeaderCell
               sorted={sortColumn === 'name' ? sortDirection : undefined}
-              onClick={() =>
-                dispatch({ type: 'CHANGE_SORT', sortColumn: 'name' })
-              }
+              onClick={() => changeSortColumn('name')}
             >
               Name
             </Table.HeaderCell>
             <Table.HeaderCell
               sorted={sortColumn === 'country' ? sortDirection : undefined}
-              onClick={() =>
-                dispatch({ type: 'CHANGE_SORT', sortColumn: 'country' })
-              }
+              onClick={() => changeSortColumn('country')}
             >
               Citizen Of
             </Table.HeaderCell>
@@ -214,9 +189,7 @@ export default function RegistrationList() {
                 ))}
                 <Table.HeaderCell
                   sorted={sortColumn === 'total' ? sortDirection : undefined}
-                  onClick={() =>
-                    dispatch({ type: 'CHANGE_SORT', sortColumn: 'total' })
-                  }
+                  onClick={() => changeSortColumn('total')}
                 >
                   Total
                 </Table.HeaderCell>
