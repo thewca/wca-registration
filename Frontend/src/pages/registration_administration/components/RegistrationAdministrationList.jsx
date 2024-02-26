@@ -7,9 +7,8 @@ import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
-import { useUserData } from '../../../hooks/useUserData'
+import { useWithUserData } from '../../../hooks/useUserData'
 import { getShortDateString, getShortTimeString } from '../../../lib/dates'
-import { addUserData } from '../../../lib/users'
 import { createSortReducer } from '../../../reducers/sortReducer'
 import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
@@ -157,16 +156,8 @@ export default function RegistrationAdministrationList() {
     },
   })
 
-  const { isLoading: infoLoading, data: userInfo } = useUserData(
-    (registrations ?? []).map((r) => r.user_id),
-  )
-
-  const registrationsWithUser = useMemo(() => {
-    if (registrations && userInfo) {
-      return addUserData(registrations, userInfo)
-    }
-    return []
-  }, [registrations, userInfo])
+  const { isLoading: infoLoading, data: registrationsWithUser } =
+    useWithUserData(registrations ?? [])
 
   const sortedRegistrationWithUser = useMemo(() => {
     if (registrationsWithUser) {

@@ -26,6 +26,26 @@ export async function getConfirmedRegistrations(
   return data!
 }
 
+export async function getPsychSheetForEvent(
+  competitionId: string,
+  eventId: string,
+  sortBy: string,
+): Promise<components['schemas']['psychSheet']> {
+  const { data, response } = await GET(
+    '/api/v1/psych_sheet/{competition_id}/{event_id}',
+    {
+      params: {
+        path: { competition_id: competitionId, event_id: eventId },
+        query: { sort_by: sortBy },
+      },
+    },
+  )
+  if (!response.ok) {
+    throw new BackendError(500, response.status)
+  }
+  return data!
+}
+
 export async function getAllRegistrations(
   competitionID: string,
 ): Promise<components['schemas']['registrationAdmin'][]> {
