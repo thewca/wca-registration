@@ -1,10 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
 import { getUsersInfo } from '../api/user/post/get_user_info'
+import { addUserData } from '../lib/users'
 
-export function useUserData(ids: number[]) {
+export function useWithUserData<Type extends { user_id: number }>(
+  registrations: Type[],
+) {
   // requires a custom comparator because standard JS interprets everything as strings when sorting:
   // https://typescript-eslint.io/rules/require-array-sort-compare/
-  const sortedIds = ids.toSorted((a, b) => a - b)
+  const sortedIds = registrations
+    .map((reg) => reg.user_id)
+    .toSorted((a, b) => a - b)
+
   return useQuery({
     queryFn: () => getUsersInfo(sortedIds),
     queryKey: ['user-info', ...sortedIds],
@@ -13,5 +19,7 @@ export function useUserData(ids: number[]) {
     staleTime: Infinity,
     refetchOnMount: 'always',
     retry: false,
+    enabled: Boolean(registrations), // dont' fire an unnecessary request for empty data
+    select: (data) => addUserData(registrations, data),
   })
 }

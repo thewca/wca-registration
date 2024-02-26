@@ -39,3 +39,5 @@ localstack
 yarn.lock
 
 */package-lock.json
+
+*.local

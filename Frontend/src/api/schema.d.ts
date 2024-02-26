@@ -43,6 +43,28 @@ export interface paths {
       };
     };
   };
+  "/api/v1/psych_sheet/{competition_id}/{event_id}": {
+    /** Private: Fetches the Psych Sheet for a given competition. The actual computation is handled by other Microservices */
+    get: {
+      parameters: {
+        query?: {
+          sort_by?: string;
+        };
+        path: {
+          competition_id: string;
+          event_id: EventId;
+        };
+      };
+      responses: {
+        /** @description Successfully passed down the Psych Sheet */
+        200: {
+          content: {
+            "application/json": components["schemas"]["psychSheet"];
+          };
+        };
+      };
+    };
+  };
   "/api/v1/registrations/{competition_id}/admin": {
     /** Public: list registrations for a given competition_id */
     get: {
@@ -187,6 +209,21 @@ export interface components {
       competing: {
         event_ids: EventId[];
       };
+    };
+    sortedRanking: {
+      user_id: string;
+      wca_id?: string;
+      single_rank: number;
+      single_best: number;
+      average_rank: number;
+      average_best: number;
+      pos: number;
+      tied_previous: boolean;
+    };
+    psychSheet: {
+      sort_by: string;
+      sort_by_secondary: string;
+      sorted_rankings: components["schemas"]["sortedRanking"][];
     };
     registrationAdmin: {
       user_id: number;
