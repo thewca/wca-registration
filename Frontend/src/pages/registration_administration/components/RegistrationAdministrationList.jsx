@@ -206,7 +206,9 @@ export default function RegistrationAdministrationList() {
 
   const { waiting, accepted, cancelled, pending } = useMemo(
     () => partitionRegistrations(sortedRegistrationWithUser ?? []),
-    [sortedRegistrationWithUser],
+    // this useMemo will not fire again if we only change the order of the array, which is why we need the sortColumn and sortDirection in the deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sortedRegistrationWithUser, sortColumn, sortDirection],
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])
