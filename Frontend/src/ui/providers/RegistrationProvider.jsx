@@ -12,7 +12,7 @@ export default function RegistrationProvider({ children }) {
   const loggedIn = user !== null
   const { competitionInfo } = useContext(CompetitionContext)
   const {
-    data: registrationRequest,
+    data: registration,
     isLoading,
     isError,
     refetch,
@@ -41,11 +41,10 @@ export default function RegistrationProvider({ children }) {
   ) : (
     <RegistrationContext.Provider
       value={{
-        registration: registrationRequest.registration,
+        registration: registration.registration,
         refetch,
         isRegistered:
-          registrationRequest.registration?.competing?.registration_status !==
-          undefined,
+          registration?.competing?.registration_status !== undefined,
       }}
     >
       {children}

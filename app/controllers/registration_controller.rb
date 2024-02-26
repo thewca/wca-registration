@@ -217,10 +217,7 @@ class RegistrationController < ApplicationController
     waiting = Registration.get_registrations_by_status(competition_id, 'waiting_list').map do |registration|
       {
         user_id: registration[:user_id],
-        competing: {
-          event_ids: registration.event_ids,
-          waiting_list_position: registration.competing_waiting_list_position || 0,
-        },
+        waiting_list_position: registration.competing_waiting_list_position || 0,
       }
     end
     render json: waiting

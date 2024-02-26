@@ -97,7 +97,7 @@ export interface paths {
         /** @description Lists */
         200: {
           content: {
-            "application/json": components["schemas"]["registration"][];
+            "application/json": components["schemas"]["waitingList"];
           };
         };
         /** @description Internal Server Error */
@@ -315,6 +315,11 @@ export interface components {
       };
       class: string;
     };
+    waitingListSpot: {
+      user_id?: number;
+      waiting_list_position?: number;
+    };
+    waitingList: components["schemas"]["waitingListSpot"][];
     registration: {
       user_id: number;
       competing: {

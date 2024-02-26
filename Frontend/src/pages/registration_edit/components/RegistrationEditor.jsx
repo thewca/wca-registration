@@ -77,34 +77,30 @@ export default function RegistrationEditor() {
 
   useEffect(() => {
     if (serverRegistration) {
-      setRegistration(serverRegistration.registration)
-      setComment(serverRegistration.registration.competing.comment ?? '')
-      setStatus(serverRegistration.registration.competing.registration_status)
-      setSelectedEvents(serverRegistration.registration.competing.event_ids)
-      setAdminComment(
-        serverRegistration.registration.competing.admin_comment ?? '',
-      )
+      setRegistration(serverRegistration)
+      setComment(serverRegistration.competing.comment ?? '')
+      setStatus(serverRegistration.competing.registration_status)
+      setSelectedEvents(serverRegistration.competing.event_ids)
+      setAdminComment(serverRegistration.competing.admin_comment ?? '')
       setWaitingListPosition(
-        serverRegistration.registration.competing.waiting_list_position ?? 0,
+        serverRegistration.competing.waiting_list_position ?? 0,
       )
-      setGuests(serverRegistration.registration.guests ?? 0)
+      setGuests(serverRegistration.guests ?? 0)
     }
   }, [serverRegistration])
 
   const hasEventsChanged =
     serverRegistration &&
-    _.xor(serverRegistration.registration.competing.event_ids, selectedEvents)
-      .length > 0
+    _.xor(serverRegistration.competing.event_ids, selectedEvents).length > 0
   const hasCommentChanged =
     serverRegistration &&
-    comment !== (serverRegistration.registration.competing.comment ?? '')
+    comment !== (serverRegistration.competing.comment ?? '')
   const hasAdminCommentChanged =
     serverRegistration &&
-    adminComment !==
-      (serverRegistration.registration.competing.admin_comment ?? '')
+    adminComment !== (serverRegistration.competing.admin_comment ?? '')
   const hasStatusChanged =
     serverRegistration &&
-    status !== serverRegistration.registration.competing.registration_status
+    status !== serverRegistration.competing.registration_status
   const hasGuestsChanged = false
 
   const hasChanges =

@@ -72,6 +72,17 @@ components:
           required: [id, name, continentId, iso2]
         class:
           type: string
+    waitingListSpot:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        waiting_list_position:
+          type: integer
+    waitingList:
+      type: array
+      items:
+        "$ref": "#/components/schemas/waitingListSpot"
     registration:
       type: object
       properties:
@@ -309,9 +320,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  "$ref": "#/components/schemas/registration"
+                "$ref": "#/components/schemas/waitingList"
         '500':
           description: 'Internal Server Error'
           content:

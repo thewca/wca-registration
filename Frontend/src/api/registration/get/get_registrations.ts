@@ -7,9 +7,15 @@ const { GET } = createClient<paths>({
   baseUrl: process.env.API_URL,
 })
 
+type RegistrationPublic = components['schemas']['registration']
+type RegistrationAdmin = components['schemas']['registrationAdmin']
+type CompetitorList = RegistrationPublic[]
+type CompetitorAdministrationList = RegistrationAdmin[]
+type WaitingList = components['schemas']['waitingList']
+
 export async function getConfirmedRegistrations(
   competitionID: string,
-): Promise<components['schemas']['registration'][]> {
+): Promise<CompetitorList> {
   const { data, response } = await GET(
     '/api/v1/registrations/{competition_id}',
     {
@@ -22,11 +28,13 @@ export async function getConfirmedRegistrations(
   return data!
 }
 
+type PsychSheet = components['schemas']['psychSheet']
+
 export async function getPsychSheetForEvent(
   competitionId: string,
   eventId: string,
   sortBy: string,
-): Promise<components['schemas']['psychSheet']> {
+): Promise<PsychSheet> {
   const { data, response } = await GET(
     '/api/v1/psych_sheet/{competition_id}/{event_id}',
     {
@@ -44,7 +52,7 @@ export async function getPsychSheetForEvent(
 
 export async function getAllRegistrations(
   competitionID: string,
-): Promise<components['schemas']['registrationAdmin'][]> {
+): Promise<CompetitorAdministrationList> {
   const { data, error, response } = await GET(
     '/api/v1/registrations/{competition_id}/admin',
     {
@@ -66,7 +74,7 @@ export async function getAllRegistrations(
 export async function getSingleRegistration(
   userId: number,
   competitionId: string,
-): Promise<{ registration: components['schemas']['registrationAdmin'] }> {
+): Promise<RegistrationAdmin> {
   const { data, error, response } = await GET('/api/v1/register', {
     params: { query: { competition_id: competitionId, user_id: userId } },
     headers: { Authorization: await getJWT() },
@@ -84,7 +92,7 @@ export async function getSingleRegistration(
 
 export async function getWaitingCompetitors(
   competitionId: string,
-): Promise<components['schemas']['registrationAdmin'][]> {
+): Promise<WaitingList> {
   const { data, error, response } = await GET(
     '/api/v1/registrations/{competition_id}/waiting',
     {
