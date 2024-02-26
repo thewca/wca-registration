@@ -1,5 +1,5 @@
 import createClient from 'openapi-fetch'
-import { BackendError } from '../../helper/backend_fetch'
+import { BackendError } from '../../helper/error_codes'
 import { components, paths } from '../../schema'
 
 const { POST } = createClient<paths>({
@@ -22,7 +22,7 @@ export async function getUsersInfo(
     body: { ids: userIds },
   })
   if (!data) {
-    throw new BackendError(error, response.status)
+    throw new BackendError(error.error, response.status)
   }
   return data
 }

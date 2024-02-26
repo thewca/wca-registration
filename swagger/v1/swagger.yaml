@@ -34,7 +34,7 @@ components:
         $ref: "#/components/schemas/userId"
     userId:
       type: number
-    paymentId:
+    paymentInfo:
       type: object
       required: [id, string]
       properties:
@@ -235,6 +235,12 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/userInfo"
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
   "/api/v1/{competition_id}/payment":
     get:
       summary: 'Public: Gets the Payment Id for the current User and Competition'
@@ -251,6 +257,18 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/paymentInfo"
+        '401':
+          description: "Missing Authentication"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
 
   "/api/v1/registrations/{competition_id}":
     get:
@@ -270,6 +288,12 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/registration"
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
   "/api/v1/registrations/{competition_id}/waiting":
     get:
       summary: 'Public: Gets the waiting list'
@@ -288,6 +312,12 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/registration"
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
   "/api/v1/psych_sheet/{competition_id}/{event_id}":
     get:
       summary: 'Private: Fetches the Psych Sheet for a given competition. The actual computation is handled by other Microservices'
@@ -351,9 +381,13 @@ paths:
         - name: user_id
           in: query
           required: true
+          schema:
+            type: integer
         - name: competition_id
           in: query
           required: true
+          schema:
+            type: string
       responses:
         '200':
           description: 'Returns the Registration'
@@ -361,6 +395,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/registrationAdmin"
+        '401':
+          description: "Missing Authentication"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
         '403':
           description: 'Access Denied'
           content:
@@ -453,6 +493,12 @@ paths:
                 "$ref": "#/components/schemas/error_response"
         '403':
           description: User changes events / other stuff past deadline
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+        '500':
+          description: 'Internal Server Error'
           content:
             application/json:
               schema:

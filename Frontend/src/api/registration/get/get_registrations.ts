@@ -1,14 +1,10 @@
 import createClient from 'openapi-fetch'
 import { getJWT } from '../../auth/get_jwt'
-import backendFetch, { BackendError } from '../../helper/backend_fetch'
-import { EXPIRED_TOKEN } from '../../helper/error_codes'
+import { BackendError, EXPIRED_TOKEN } from '../../helper/error_codes'
 import { components, paths } from '../../schema'
 
 const { GET } = createClient<paths>({
-  // TODO: Change this once we are fully migrated from backend fetch
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  baseUrl: process.env.API_URL.slice(0, -7),
+  baseUrl: process.env.API_URL,
 })
 
 export async function getConfirmedRegistrations(
@@ -71,17 +67,38 @@ export async function getSingleRegistration(
   userId: number,
   competitionId: string,
 ): Promise<{ registration: components['schemas']['registrationAdmin'] }> {
-  return (await backendFetch(
-    `/register?user_id=${userId}&competition_id=${competitionId}`,
-    'GET',
-    { needsAuthentication: true },
-  )) as { registration: components['schemas']['registrationAdmin'] }
+  const { data, error, response } = await GET('/api/v1/register', {
+    params: { query: { competition_id: competitionId, user_id: userId } },
+    headers: { Authorization: await getJWT() },
+  })
+  if (error) {
+    if (error.error === EXPIRED_TOKEN) {
+      await getJWT(true)
+      return getSingleRegistration(userId, competitionId)
+    }
+    throw new BackendError(error.error, response.status)
+  }
+
+  return data!
 }
 
 export async function getWaitingCompetitors(
   competitionId: string,
 ): Promise<components['schemas']['registrationAdmin'][]> {
-  return (await backendFetch(`/registrations/${competitionId}/waiting`, 'GET', {
-    needsAuthentication: false,
-  })) as components['schemas']['registrationAdmin'][]
+  const { data, error, response } = await GET(
+    '/api/v1/registrations/{competition_id}/waiting',
+    {
+      params: { path: { competition_id: competitionId } },
+      headers: { Authorization: await getJWT() },
+    },
+  )
+  if (error) {
+    if (error.error === EXPIRED_TOKEN) {
+      await getJWT(true)
+      return getWaitingCompetitors(competitionId)
+    }
+    throw new BackendError(error.error, response.status)
+  }
+
+  return data!
 }
