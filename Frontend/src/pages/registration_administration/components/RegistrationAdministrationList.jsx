@@ -10,12 +10,12 @@ import { getAllRegistrations } from '../../../api/registration/get/get_registrat
 import { useUserData } from '../../../hooks/useUserData'
 import { getShortDateString, getShortTimeString } from '../../../lib/dates'
 import { addUserData } from '../../../lib/users'
+import { createSortReducer } from '../../../reducers/sortReducer'
 import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
-import { createSortReducer } from '../../../reducers/sortReducer'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]
@@ -53,6 +53,8 @@ const sortReducer = createSortReducer([
   'events',
   'guests',
   'paid_on',
+  'comment',
+  'dob',
 ])
 
 const partitionRegistrations = (registrations) => {
@@ -169,30 +171,30 @@ export default function RegistrationAdministrationList() {
   const sortedRegistrationWithUser = useMemo(() => {
     if (registrationsWithUser) {
       const sorted = registrationsWithUser.sort((a, b) => {
-        if (sortColumn === 'name') {
-          return a.user.name.localeCompare(b.user.name)
+        switch (sortColumn) {
+          case 'name':
+            return a.user.name.localeCompare(b.user.name)
+          case 'wca_id':
+            return a.user.wca_id.localeCompare(b.user.wca_id)
+          case 'country':
+            return a.user.country.name.localeCompare(b.user.country.name)
+          case 'events':
+            return a.competing.event_ids.length - b.competing.event_ids.length
+          case 'guests':
+            return a.guests - b.guests
+          case 'dob':
+            return a.user.dob - b.user.dob
+          case 'comment':
+            return a.competing.comment.localeCompare(b.competing.comment)
+          case 'registered_on':
+            return a.competing.registered_on.localeCompare(
+              b.competing.registered_on,
+            )
+          case 'paid_on':
+            return a.payment.updated_at.localeCompare(b.payment.updated_at)
+          default:
+            return 0
         }
-        if (sortColumn === 'wca_id') {
-          return a.user.wca_id.localeCompare(b.user.wca_id)
-        }
-        if (sortColumn === 'country') {
-          return a.user.country.name.localeCompare(b.user.country.name)
-        }
-        if (sortColumn === 'events') {
-          return a.competing.event_ids.length - b.competing.event_ids.length
-        }
-        if (sortColumn === 'guests') {
-          return a.guests - b.guests
-        }
-        if (sortColumn === 'registered_on') {
-          return a.competing.registered_on.localeCompare(
-            b.competing.registered_on,
-          )
-        }
-        if (sortColumn === 'paid_on') {
-          return a.payment.updated_at.localeCompare(b.payment.updated_at)
-        }
-        return 0
       })
       if (sortDirection === 'descending') {
         return sorted.reverse()
