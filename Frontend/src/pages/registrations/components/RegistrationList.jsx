@@ -11,13 +11,12 @@ import React, {
 import { useTranslation } from 'react-i18next'
 import { Icon, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
-import { getConfirmedRegistrations } from '../../../api/registration/get/get_registrations'
-import { createSortReducer } from '../../../reducers/sortReducer'
 import {
   getConfirmedRegistrations,
   getPsychSheetForEvent,
 } from '../../../api/registration/get/get_registrations'
 import { useWithUserData } from '../../../hooks/useUserData'
+import { createSortReducer } from '../../../reducers/sortReducer'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
