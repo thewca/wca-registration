@@ -62,7 +62,7 @@ class Registration
 
   # Returns all event ids irrespective of registration status
   def event_ids
-    competing_lane&.lane_details['event_details'].pluck('event_id')
+    competing_lane&.lane_details&.[]('event_details')&.pluck('event_id')
   end
 
   def attendee_id
@@ -81,23 +81,23 @@ class Registration
   end
 
   def event_details
-    competing_lane&.lane_details['event_details']
+    competing_lane&.lane_details&.[]('event_details')
   end
 
   def competing_waiting_list_position
-    competing_lane&.lane_details['waiting_list_position']
+    competing_lane&.lane_details&.[]('waiting_list_position')
   end
 
   def competing_comment
-    competing_lane&.lane_details['comment']
+    competing_lane&.lane_details&.[]('comment')
   end
 
   def admin_comment
-    competing_lane&.lane_details['admin_comment']
+    competing_lane&.lane_details&.[]('admin_comment')
   end
 
   def payment_ticket
-    payment_lane&.lane_details&['payment_id']
+    payment_lane&.lane_details&.[]('payment_id')
   end
 
   def payment_status
@@ -105,11 +105,11 @@ class Registration
   end
 
   def payment_date
-    payment_lane&.lane_details&['last_updated']
+    payment_lane&.lane_details&.[]('last_updated')
   end
 
   def payment_history
-    payment_lane&.lane_details&['payment_history']
+    payment_lane&.lane_details&.[]('payment_history')
   end
 
   def update_competing_waiting_list_position(new_position)
