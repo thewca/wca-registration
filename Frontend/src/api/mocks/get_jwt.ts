@@ -1,4 +1,4 @@
-import { USER_KEY } from '../../ui/providers/UserProvider'
+export const USER_KEY = 'user'
 
 export default async function getJWTMock(): Promise<string> {
   const user = localStorage.getItem(USER_KEY)

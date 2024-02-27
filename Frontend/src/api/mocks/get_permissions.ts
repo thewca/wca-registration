@@ -1,5 +1,5 @@
-import { USER_KEY } from '../../ui/providers/UserProvider'
 import { Permissions } from '../auth/get_permissions'
+import { USER_KEY } from './get_jwt'
 
 export default function getPermissionsMock(): Permissions {
   const userId = localStorage.getItem(USER_KEY)
