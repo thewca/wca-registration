@@ -1,12 +1,9 @@
 import createClient from 'openapi-fetch'
-import { BackendError } from '../../helper/backend_fetch'
+import { BackendError } from '../../helper/error_codes'
 import { components, paths } from '../../schema'
 
 const { POST } = createClient<paths>({
-  // TODO: Change this once we are fully migrated from backend fetch
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  baseUrl: process.env.API_URL.slice(0, -7),
+  baseUrl: process.env.API_URL,
 })
 
 export async function getUserInfo(
@@ -22,7 +19,7 @@ export async function getUsersInfo(
     body: { ids: userIds },
   })
   if (!data) {
-    throw new BackendError(error, response.status)
+    throw new BackendError(error.error, response.status)
   }
   return data
 }

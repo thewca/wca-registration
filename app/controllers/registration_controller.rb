@@ -105,9 +105,9 @@ class RegistrationController < ApplicationController
 
   def show
     registration = get_single_registration(@user_id, @competition_id)
-    render json: { registration: registration, status: 'ok' }
+    render json: registration
   rescue Dynamoid::Errors::RecordNotFound
-    render json: { registration: {}, status: 'ok' }
+    render json: {}, status: :not_found
   end
 
   # You can either view your own registration or one for a competition you administer
@@ -202,7 +202,7 @@ class RegistrationController < ApplicationController
 
   def mine
     my_registrations = Registration.where(user_id: @current_user).map { |x| { competition_id: x.competition_id, status: x.competing_status } }
-    render json: { registrations: my_registrations }
+    render json: my_registrations
   rescue Dynamoid::Errors::Error => e
     # Render an error response
     puts e
@@ -217,10 +217,7 @@ class RegistrationController < ApplicationController
     waiting = Registration.get_registrations_by_status(competition_id, 'waiting_list').map do |registration|
       {
         user_id: registration[:user_id],
-        competing: {
-          event_ids: registration.event_ids,
-          waiting_list_position: registration.competing_waiting_list_position || 0,
-        },
+        waiting_list_position: registration.competing_waiting_list_position || 0,
       }
     end
     render json: waiting

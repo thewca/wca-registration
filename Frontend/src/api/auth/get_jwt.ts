@@ -1,5 +1,5 @@
 import { JWT_KEY } from '../../ui/providers/UserProvider'
-import { BackendError } from '../helper/backend_fetch'
+import { BackendError } from '../helper/error_codes'
 import { tokenRoute } from '../helper/routes'
 import getJWTMock from '../mocks/get_jwt'
 

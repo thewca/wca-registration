@@ -1,14 +1,10 @@
 import createClient from 'openapi-fetch'
 import { getJWT } from '../../auth/get_jwt'
-import { BackendError } from '../../helper/backend_fetch'
-import { EXPIRED_TOKEN } from '../../helper/error_codes'
+import { BackendError, EXPIRED_TOKEN } from '../../helper/error_codes'
 import { components, paths } from '../../schema'
 
 const { POST } = createClient<paths>({
-  // TODO: Change this once we are fully migrated from backend fetch
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  baseUrl: process.env.API_URL.slice(0, -7),
+  baseUrl: process.env.API_URL,
 })
 export default async function submitEventRegistration(
   body: components['schemas']['submitRegistrationBody'],

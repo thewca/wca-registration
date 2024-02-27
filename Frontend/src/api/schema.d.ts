@@ -22,6 +22,42 @@ export interface paths {
             "application/json": components["schemas"]["userInfo"][];
           };
         };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+      };
+    };
+  };
+  "/api/v1/{competition_id}/payment": {
+    /** Public: Gets the Payment Id for the current User and Competition */
+    get: {
+      parameters: {
+        path: {
+          competition_id: string;
+        };
+      };
+      responses: {
+        /** @description Returns the payment info */
+        200: {
+          content: {
+            "application/json": components["schemas"]["paymentInfo"];
+          };
+        };
+        /** @description Missing Authentication */
+        401: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
       };
     };
   };
@@ -34,10 +70,40 @@ export interface paths {
         };
       };
       responses: {
-        /** @description  -> PASSING comp service down but registrations exist */
+        /** @description Lists accepted registrations */
         200: {
           content: {
             "application/json": components["schemas"]["registration"][];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+      };
+    };
+  };
+  "/api/v1/registrations/{competition_id}/waiting": {
+    /** Public: Gets the waiting list */
+    get: {
+      parameters: {
+        path: {
+          competition_id: string;
+        };
+      };
+      responses: {
+        /** @description Lists */
+        200: {
+          content: {
+            "application/json": components["schemas"]["waitingList"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
           };
         };
       };
@@ -74,13 +140,13 @@ export interface paths {
         };
       };
       responses: {
-        /** @description  -> PASSING organizer has access to comp 2 */
+        /** @description Organizer has access to comp */
         200: {
           content: {
             "application/json": components["schemas"]["registrationAdmin"][];
           };
         };
-        /** @description  -> PASSING organizer cannot access registrations for comps they arent organizing - multi comp auth */
+        /** @description Organizer cannot access registrations for comps they arent organizing - multi comp auth */
         401: {
           content: {
             "application/json": components["schemas"]["error_response"];
@@ -90,6 +156,41 @@ export interface paths {
     };
   };
   "/api/v1/register": {
+    /** Gets a single registrations */
+    get: {
+      parameters: {
+        query: {
+          user_id: number;
+          competition_id: string;
+        };
+      };
+      responses: {
+        /** @description Returns the Registration */
+        200: {
+          content: {
+            "application/json": components["schemas"]["registrationAdmin"];
+          };
+        };
+        /** @description Missing Authentication */
+        401: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+        /** @description Access Denied */
+        403: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+      };
+    };
     /** Add an attendee registration */
     post: {
       requestBody: {
@@ -98,37 +199,37 @@ export interface paths {
         };
       };
       responses: {
-        /** @description -> PASSING competitor submits basic registration */
+        /** @description Competitor submits basic registration */
         202: {
           content: {
             "application/json": components["schemas"]["success_response"];
           };
         };
-        /** @description  -> PASSING empty payload provided */
+        /** @description Empty payload provided */
         400: {
           content: {
             "application/json": components["schemas"]["error_response"];
           };
         };
-        /** @description  -> PASSING user impersonation (no admin permission, JWT token user_id does not match registration user_id) */
+        /** @description User impersonation (no admin permission, JWT token user_id does not match registration user_id) */
         401: {
           content: {
             "application/json": components["schemas"]["error_response"];
           };
         };
-        /** @description  -> PASSING user cant register while registration is closed */
+        /** @description User cant register while registration is closed */
         403: {
           content: {
             "application/json": components["schemas"]["error_response"];
           };
         };
-        /** @description  -> PASSING competition does not exist */
+        /** @description Competition does not exist */
         404: {
           content: {
             "application/json": components["schemas"]["error_response"];
           };
         };
-        /** @description PASSING user registration exceeds guest limit */
+        /** @description User registration exceeds guest limit */
         422: {
           content: {
             "application/json": components["schemas"]["error_response"];
@@ -144,7 +245,7 @@ export interface paths {
         };
       };
       responses: {
-        /** @description PASSING user changes comment */
+        /** @description User changes comment */
         200: {
           content: {
             "application/json": {
@@ -153,20 +254,26 @@ export interface paths {
             };
           };
         };
-        /** @description PASSING user requests invalid status change to their own reg */
+        /** @description User requests invalid status change to their own registration */
         401: {
           content: {
             "application/json": components["schemas"]["error_response"];
           };
         };
-        /** @description PASSING user changes events / other stuff past deadline */
+        /** @description User changes events / other stuff past deadline */
         403: {
           content: {
             "application/json": components["schemas"]["error_response"];
           };
         };
-        /** @description PASSING user does not include required comment */
+        /** @description User does not include required comment */
         422: {
+          content: {
+            "application/json": components["schemas"]["error_response"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
           content: {
             "application/json": components["schemas"]["error_response"];
           };
@@ -189,6 +296,10 @@ export interface components {
     };
     userIds: components["schemas"]["userId"][];
     userId: number;
+    paymentInfo: {
+      id: number;
+      status?: string;
+    };
     userInfo: {
       id: number;
       name: string;
@@ -204,6 +315,11 @@ export interface components {
       };
       class: string;
     };
+    waitingListSpot: {
+      user_id?: number;
+      waiting_list_position?: number;
+    };
+    waitingList: components["schemas"]["waitingListSpot"][];
     registration: {
       user_id: number;
       competing: {

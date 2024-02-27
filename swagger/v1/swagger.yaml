@@ -34,6 +34,14 @@ components:
         $ref: "#/components/schemas/userId"
     userId:
       type: number
+    paymentInfo:
+      type: object
+      required: [id, string]
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
     userInfo:
       type: object
       required: [id, name, wca_id, gender, country, country_iso2, url, class]
@@ -64,6 +72,17 @@ components:
           required: [id, name, continentId, iso2]
         class:
           type: string
+    waitingListSpot:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        waiting_list_position:
+          type: integer
+    waitingList:
+      type: array
+      items:
+        "$ref": "#/components/schemas/waitingListSpot"
     registration:
       type: object
       properties:
@@ -227,6 +246,41 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/userInfo"
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+  "/api/v1/{competition_id}/payment":
+    get:
+      summary: 'Public: Gets the Payment Id for the current User and Competition'
+      parameters:
+        - name: competition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Returns the payment info"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/paymentInfo"
+        '401':
+          description: "Missing Authentication"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+
   "/api/v1/registrations/{competition_id}":
     get:
       summary: 'Public: list registrations for a given competition_id'
@@ -238,13 +292,41 @@ paths:
           type: string
       responses:
         '200':
-          description: " -> PASSING comp service down but registrations exist"
+          description: "Lists accepted registrations"
           content:
             application/json:
               schema:
                 type: array
                 items:
                   "$ref": "#/components/schemas/registration"
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+  "/api/v1/registrations/{competition_id}/waiting":
+    get:
+      summary: 'Public: Gets the waiting list'
+      parameters:
+        - name: competition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Lists"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/waitingList"
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
   "/api/v1/psych_sheet/{competition_id}/{event_id}":
     get:
       summary: 'Private: Fetches the Psych Sheet for a given competition. The actual computation is handled by other Microservices'
@@ -285,7 +367,7 @@ paths:
           type: string
       responses:
         '200':
-          description: " -> PASSING organizer has access to comp 2"
+          description: "Organizer has access to comp"
           content:
             application/json:
               schema:
@@ -293,13 +375,53 @@ paths:
                 items:
                   "$ref": "#/components/schemas/registrationAdmin"
         '401':
-          description: " -> PASSING organizer cannot access registrations for comps
+          description: "Organizer cannot access registrations for comps
             they arent organizing - multi comp auth"
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
   "/api/v1/register":
+    get:
+      summary: Gets a single registrations
+      security:
+        - Bearer: {}
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: competition_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Returns the Registration'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/registrationAdmin"
+        '401':
+          description: "Missing Authentication"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+        '403':
+          description: 'Access Denied'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
     post:
       summary: Add an attendee registration
       security:
@@ -307,38 +429,38 @@ paths:
       parameters: []
       responses:
         '202':
-          description: "-> PASSING competitor submits basic registration"
+          description: "Competitor submits basic registration"
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/success_response"
         '401':
-          description: " -> PASSING user impersonation (no admin permission, JWT token
+          description: "User impersonation (no admin permission, JWT token
             user_id does not match registration user_id)"
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
         '422':
-          description: PASSING user registration exceeds guest limit
+          description: User registration exceeds guest limit
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
         '403':
-          description: " -> PASSING user cant register while registration is closed"
+          description: "User cant register while registration is closed"
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
         '400':
-          description: " -> PASSING empty payload provided"
+          description: "Empty payload provided"
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
         '404':
-          description: " -> PASSING competition does not exist"
+          description: "Competition does not exist"
           content:
             application/json:
               schema:
@@ -356,7 +478,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: PASSING user changes comment
+          description: User changes comment
           content:
             application/json:
               schema:
@@ -367,19 +489,25 @@ paths:
                   registration:
                     "$ref": "#/components/schemas/registrationAdmin"
         '422':
-          description: PASSING user does not include required comment
+          description: User does not include required comment
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
         '401':
-          description: PASSING user requests invalid status change to their own reg
+          description: User requests invalid status change to their own registration
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
         '403':
-          description: PASSING user changes events / other stuff past deadline
+          description: User changes events / other stuff past deadline
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
+        '500':
+          description: 'Internal Server Error'
           content:
             application/json:
               schema:
