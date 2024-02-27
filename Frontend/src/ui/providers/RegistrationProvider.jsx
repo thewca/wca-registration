@@ -41,7 +41,7 @@ export default function RegistrationProvider({ children }) {
   ) : (
     <RegistrationContext.Provider
       value={{
-        registration: registration.registration,
+        registration,
         refetch,
         isRegistered:
           registration?.competing?.registration_status !== undefined,
