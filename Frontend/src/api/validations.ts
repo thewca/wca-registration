@@ -58,7 +58,7 @@ export namespace components.schemas {
   });
   export const psychSheet = z.object({
     sort_by: z.string(),
-    sort_by_secondary: z.string(),
+    sort_by_second: z.string().optional(),
     sorted_rankings: z.array(components["schemas"]["sortedRanking"]),
   });
   export const registrationAdmin = z.object({

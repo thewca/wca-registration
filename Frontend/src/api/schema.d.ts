@@ -338,7 +338,7 @@ export interface components {
     };
     psychSheet: {
       sort_by: string;
-      sort_by_secondary: string;
+      sort_by_second?: string;
       sorted_rankings: components["schemas"]["sortedRanking"][];
     };
     registrationAdmin: {

@@ -133,7 +133,7 @@ components:
       properties:
         sort_by:
           type: string
-        sort_by_secondary:
+        sort_by_second:
           type: string
         sorted_rankings:
           type: array
