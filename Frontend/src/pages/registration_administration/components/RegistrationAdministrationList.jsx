@@ -159,7 +159,7 @@ export default function RegistrationAdministrationList() {
   const { isLoading: infoLoading, data: registrationsWithUser } =
     useWithUserData(registrations ?? [])
 
-  const sortedRegistrationWithUser = useMemo(() => {
+  const sortedRegistrationsWithUser = useMemo(() => {
     if (registrationsWithUser) {
       const sorted = registrationsWithUser.toSorted((a, b) => {
         switch (sortColumn) {
@@ -196,8 +196,8 @@ export default function RegistrationAdministrationList() {
   }, [registrationsWithUser, sortColumn, sortDirection])
 
   const { waiting, accepted, cancelled, pending } = useMemo(
-    () => partitionRegistrations(sortedRegistrationWithUser ?? []),
-    [sortedRegistrationWithUser],
+    () => partitionRegistrations(sortedRegistrationsWithUser ?? []),
+    [sortedRegistrationsWithUser],
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])
