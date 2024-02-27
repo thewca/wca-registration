@@ -6,7 +6,7 @@ import { getJWT } from '../src/api/auth/get_jwt'
 import { USER_KEY } from '../src/api/mocks/get_jwt'
 
 const { POST, GET } = createClient<API>({
-  baseUrl: 'http://localhost:3001',
+  baseUrl: process.env.API_URL ?? 'http://localhost:3001',
 })
 
 describe('/api/v1/users', () => {
@@ -75,9 +75,7 @@ describe('/api/v1/psych_sheet/{competition_id}/{event_id}', () => {
         paths['/api/v1/psych_sheet/{competition_id}/{event_id}'].get.responses[
           '200'
         ].content['application/json'].safeParse(data)
-      // currently failing, TODO consult Gregor
-      //  {"success":false,"error":{"issues":[{"code":"invalid_type","expected":"string","received":"undefined","path":["sort_by_secondary"],"message":"Required"}],"name":"ZodError"}}
-      expect(validation.success).toBe(false)
+      expect(validation.success).toBe(true)
     })
   })
 })

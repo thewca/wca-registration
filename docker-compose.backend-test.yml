@@ -27,6 +27,9 @@ services:
       - wca_registration_worker
     healthcheck:
       test: curl --fail http://localhost:3000/healthcheck || exit 1
+    dns:
+      # Set the DNS server to be the LocalStack container
+      - 10.0.2.20
 
 
   prometheus_exporter:
@@ -66,6 +69,9 @@ services:
       - wca-registration
     healthcheck:
       test: pgrep ruby || exit 1
+    dns:
+      # Set the DNS server to be the LocalStack container
+      - 10.0.2.20
 
   # Frontend
   frontend:
@@ -83,10 +89,8 @@ services:
     healthcheck:
       test: curl --fail http://localhost:3000 || exit 1
     depends_on:
-      wca_registration_handler:
-        condition: service_healthy
-      wca_registration_worker:
-        condition: service_healthy
+      - wca_registration_handler
+      - wca_registration_worker
 
   nginx:
     container_name: nginx
@@ -116,7 +120,8 @@ services:
       - "./localstack/volume:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
-      - wca-registration
+      wca-registration:
+        ipv4_address: 10.0.2.20
 
   # Use redis for tests that enable redis
   redis:
@@ -144,3 +149,7 @@ volumes:
 networks:
   wca-registration:
     name: wca-registration
+    ipam:
+      config:
+        # Specify the subnet range for IP address allocation
+        - subnet: 10.0.2.0/24
