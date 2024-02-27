@@ -4,10 +4,7 @@ import { BackendError, EXPIRED_TOKEN } from '../../helper/error_codes'
 import { components, paths } from '../../schema'
 
 const { PATCH } = createClient<paths>({
-  // TODO: Change this once we are fully migrated from backend fetch
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  baseUrl: process.env.API_URL.slice(0, -7),
+  baseUrl: process.env.API_URL,
 })
 
 export async function updateRegistration(
