@@ -116,7 +116,7 @@ class RegistrationController < ApplicationController
   def validate_show_registration
     @user_id, @competition_id = show_params
     raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
-      @current_user.to_s == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
+      @current_user == @user_id || UserApi.can_administer?(@current_user, @competition_id)
   end
 
   def bulk_update
@@ -234,7 +234,6 @@ class RegistrationController < ApplicationController
   # To list Registrations in the admin view you need to be able to administer the competition
   def validate_list_admin
     @competition_id = list_params
-
     unless UserApi.can_administer?(@current_user, @competition_id)
       render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
     end

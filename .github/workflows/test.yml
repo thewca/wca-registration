@@ -24,5 +24,14 @@ jobs:
           cd ./Frontend
           npm install
           npm run lint
+      - name: pre-build images for caching
+        uses: docker/bake-action@v2
+        with:
+          load: true
+          set: |
+            *.cache-to=type=gha,mode=max                                                                                
+            *.cache-from=type=gha
       - name: Backend Tests
-        run: docker compose -f "docker-compose.backend-test.yml" up wca_registration_handler --abort-on-container-exit
+        run: docker compose -f "docker-compose.backend-test.yml" run wca_registration_handler bash -c 'bundle install && yarn install && bin/rake db:seed && RAILS_ENV=test bundle exec rspec --exclude-pattern spec/cache'
+      - name: Contract Test
+        run: docker compose -f "docker-compose.backend-test.yml" run frontend bash -c 'npm run test:contract'
