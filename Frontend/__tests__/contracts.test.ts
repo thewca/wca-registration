@@ -57,21 +57,6 @@ describe('/api/v1/registrations/{competition_id}/waiting', () => {
         ].content['application/json'].safeParse(data)
       expect(validation.success).toBe(true)
     })
-
-    // test('Correct Error Response without Authorization', async () => {
-    //   const { data } = await GET(
-    //     '/api/v1/registrations/{competition_id}/waiting',
-    //     {
-    //       params: { path: { competition_id: 'KoelnerKubing2023' } },
-    //     },
-    //   )
-    //   const validation =
-    //     paths['/api/v1/registrations/{competition_id}/waiting'].get.responses[
-    //       '401'
-    //     ].content['application/json'].safeParse(data)
-    //   console.log(data)
-    //   expect(validation.success).toBe(true)
-    // })
   })
 })
 
@@ -127,6 +112,72 @@ describe('/api/v1/registrations/{competition_id}/admin', () => {
         paths['/api/v1/registrations/{competition_id}/admin'].get.responses[
           '401'
         ].content['application/json'].safeParse(error)
+      expect(validation.success).toBe(true)
+    })
+
+    test('Correct Error Response for Unauthorized User', async () => {
+      // "Log In" by setting localstorage
+      localStorage.setItem(USER_KEY, '1')
+      const { error } = await GET(
+        '/api/v1/registrations/{competition_id}/admin',
+        {
+          params: { path: { competition_id: 'KoelnerKubing2023' } },
+          headers: { Authorization: await getJWT() },
+        },
+      )
+      const validation =
+        paths['/api/v1/registrations/{competition_id}/admin'].get.responses[
+          '401'
+        ].content['application/json'].safeParse(error)
+      expect(validation.success).toBe(true)
+    })
+  })
+})
+
+describe('/api/v1/register', () => {
+  describe('GET', () => {
+    test('Correct Success Response', async () => {
+      // "Log In" by setting localstorage
+      localStorage.setItem(USER_KEY, '9001')
+      const { data } = await GET('/api/v1/register', {
+        params: {
+          query: { competition_id: 'KoelnerKubing2023', user_id: 9001 },
+        },
+        headers: { Authorization: await getJWT() },
+      })
+      const validation =
+        paths['/api/v1/register'].get.responses['200'].content[
+          'application/json'
+        ].safeParse(data)
+      expect(validation.success).toBe(true)
+    })
+
+    test('Correct Error Response without Authorization', async () => {
+      const { error } = await GET('/api/v1/register', {
+        params: {
+          query: { competition_id: 'KoelnerKubing2023', user_id: 9001 },
+        },
+      })
+      const validation =
+        paths['/api/v1/register'].get.responses['401'].content[
+          'application/json'
+        ].safeParse(error)
+      expect(validation.success).toBe(true)
+    })
+
+    test('Correct Error Response for Unauthorized User', async () => {
+      // "Log In" by setting localstorage
+      localStorage.setItem(USER_KEY, '1')
+      const { error } = await GET('/api/v1/register', {
+        params: {
+          query: { competition_id: 'KoelnerKubing2023', user_id: 9001 },
+        },
+        headers: { Authorization: await getJWT() },
+      })
+      const validation =
+        paths['/api/v1/register'].get.responses['403'].content[
+          'application/json'
+        ].safeParse(error)
       expect(validation.success).toBe(true)
     })
   })

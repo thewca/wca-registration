@@ -108,6 +108,8 @@ class RegistrationController < ApplicationController
     render json: registration
   rescue Dynamoid::Errors::RecordNotFound
     render json: {}, status: :not_found
+  rescue RegistrationError => e
+    render_error(e.http_status, e.error)
   end
 
   # You can either view your own registration or one for a competition you administer
