@@ -27,7 +27,7 @@ export default function TableView({
 
   const sortedActivities = activeRooms
     .flatMap((room) => room.activities)
-    .sort(earliestWithLongestTieBreaker)
+    .toSorted(earliestWithLongestTieBreaker)
 
   const eventIds = activeEvents.map(({ id }) => id)
   const visibleActivities = sortedActivities.filter((activity) =>

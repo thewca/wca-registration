@@ -42,7 +42,7 @@ export default function WaitingList() {
       <Table.Body>
         {registrationsWithUser?.length ? (
           registrationsWithUser
-            .sort(
+            .toSorted(
               (w1, w2) => w1.waiting_list_position - w2.waiting_list_position,
             ) // Once a waiting list is established, we just care about the order of the waitlisted competitors
             .map((w, i) => (
