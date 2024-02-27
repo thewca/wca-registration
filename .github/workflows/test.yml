@@ -28,6 +28,8 @@ jobs:
         uses: docker/bake-action@v2
         with:
           load: true
+          files: |
+            docker-compose.backend-test.yml
           set: |
             *.cache-to=type=gha,mode=max                                                                                
             *.cache-from=type=gha
