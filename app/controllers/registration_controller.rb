@@ -294,7 +294,7 @@ class RegistrationController < ApplicationController
       end
 
       registrations.map do |r|
-        user = pii.find { |u| u['id'].to_s == r[:user_id] }
+        user = pii.find { |u| u['id'] == r[:user_id] }
         r.merge(email: user['email'], dob: user['dob'])
       end
     end

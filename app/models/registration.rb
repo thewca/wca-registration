@@ -207,7 +207,7 @@ class Registration
   end
 
   # Fields
-  field :user_id, :string
+  field :user_id, :integer
   field :guests, :integer
   field :competition_id, :string
   field :competing_status, :string
