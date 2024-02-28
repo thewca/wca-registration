@@ -5,8 +5,12 @@ import createClient from 'openapi-fetch'
 import { getJWT } from '../src/api/auth/get_jwt'
 import { USER_KEY } from '../src/api/mocks/get_jwt'
 
+// If environment variables aren't set, revert to testing values
+process.env.API_URL = process.env.API_URL ?? 'http://10.0.2.10:3000'
+process.env.AUTH_URL = process.env.AUTH_URL ?? 'http://10.0.2.10:3000/test/jwt'
+
 const { POST, GET } = createClient<API>({
-  baseUrl: process.env.API_URL ?? 'http://localhost:3001',
+  baseUrl: process.env.API_URL,
 })
 
 describe('/api/v1/users', () => {

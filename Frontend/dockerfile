@@ -9,7 +9,6 @@ COPY package*.json ./
 COPY index.html ./
 
 # So we can run tests
-COPY __tests__ ./__tests__
 COPY jest.config.js ./
 
 # Install dependencies using npm
