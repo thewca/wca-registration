@@ -141,7 +141,7 @@ describe('/api/v1/register', () => {
     test('Correct Success Response', async () => {
       // "Log In" by setting localstorage
       localStorage.setItem(USER_KEY, '9001')
-      const { data } = await GET('/api/v1/register', {
+      const { data, error } = await GET('/api/v1/register', {
         params: {
           query: { competition_id: 'KoelnerKubing2023', user_id: 9001 },
         },
@@ -151,6 +151,7 @@ describe('/api/v1/register', () => {
         paths['/api/v1/register'].get.responses['200'].content[
           'application/json'
         ].safeParse(data)
+      console.log(error)
       expect(validation.success).toBe(true)
     })
 
