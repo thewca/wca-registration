@@ -156,7 +156,7 @@ class RegistrationController < ApplicationController
     end
 
     if Rails.env.production?
-      EmailApi.send_update_email(@competition_id, user_id, status)
+      EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
     {
