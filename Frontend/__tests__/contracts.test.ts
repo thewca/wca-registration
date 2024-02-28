@@ -9,12 +9,12 @@ import { USER_KEY } from '../src/api/mocks/get_jwt'
 process.env.API_URL = process.env.API_URL ?? 'http://10.0.2.10:3000'
 process.env.AUTH_URL = process.env.AUTH_URL ?? 'http://10.0.2.10:3000/test/jwt'
 
-const { POST, GET } = createClient<API>({
+const { POST, GET, PATCH } = createClient<API>({
   baseUrl: process.env.API_URL,
 })
 
 describe('/api/v1/users', () => {
-  describe('GET', () => {
+  describe('POST', () => {
     test('Correct Success Response', async () => {
       const { data } = await POST('/api/v1/users', {
         body: { ids: [1] },
@@ -141,7 +141,7 @@ describe('/api/v1/register', () => {
     test('Correct Success Response', async () => {
       // "Log In" by setting localstorage
       localStorage.setItem(USER_KEY, '9001')
-      const { data, error } = await GET('/api/v1/register', {
+      const { data } = await GET('/api/v1/register', {
         params: {
           query: { competition_id: 'KoelnerKubing2023', user_id: 9001 },
         },
@@ -151,7 +151,6 @@ describe('/api/v1/register', () => {
         paths['/api/v1/register'].get.responses['200'].content[
           'application/json'
         ].safeParse(data)
-      console.log(error)
       expect(validation.success).toBe(true)
     })
 
@@ -179,6 +178,161 @@ describe('/api/v1/register', () => {
       })
       const validation =
         paths['/api/v1/register'].get.responses['403'].content[
+          'application/json'
+        ].safeParse(error)
+      expect(validation.success).toBe(true)
+    })
+  })
+  describe('POST', () => {
+    test('Correct Success Response', async () => {
+      // "Log In" by setting localstorage
+      localStorage.setItem(USER_KEY, '1')
+      const { data } = await POST('/api/v1/register', {
+        body: {
+          user_id: 1,
+          competition_id: 'KoelnerKubing2023',
+          competing: { event_ids: ['333'] },
+        },
+        headers: { Authorization: await getJWT() },
+      })
+      const validation =
+        paths['/api/v1/register'].post.responses['202'].content[
+          'application/json'
+        ].safeParse(data)
+      expect(validation.success).toBe(true)
+    })
+
+    test('Correct Error Response without Authorization', async () => {
+      const { error } = await POST('/api/v1/register', {
+        body: {
+          user_id: 1,
+          competition_id: 'KoelnerKubing2023',
+          competing: { event_ids: ['333'] },
+        },
+      })
+      const validation =
+        paths['/api/v1/register'].post.responses['401'].content[
+          'application/json'
+        ].safeParse(error)
+      expect(validation.success).toBe(true)
+    })
+
+    test('Correct Error Response for Unauthorized User', async () => {
+      // "Log In" by setting localstorage
+      localStorage.setItem(USER_KEY, '9001')
+      const { error } = await POST('/api/v1/register', {
+        body: {
+          user_id: 1,
+          competition_id: 'KoelnerKubing2023',
+          competing: { event_ids: ['333'] },
+        },
+      })
+      const validation =
+        paths['/api/v1/register'].post.responses['403'].content[
+          'application/json'
+        ].safeParse(error)
+      expect(validation.success).toBe(true)
+    })
+
+    test('Correct Error Response for bad payload', async () => {
+      // "Log In" by setting localstorage
+      localStorage.setItem(USER_KEY, '9001')
+      const { error } = await POST('/api/v1/register', {
+        body: {
+          user_id: 1,
+          competition_id: 'KoelnerKubing2023',
+          competing: { event_ids: ['888'] },
+        },
+      })
+      const validation =
+        paths['/api/v1/register'].post.responses['400'].content[
+          'application/json'
+        ].safeParse(error)
+      expect(validation.success).toBe(true)
+    })
+
+    test('Correct Error Response for non existent Competition', async () => {
+      // "Log In" by setting localstorage
+      localStorage.setItem(USER_KEY, '9001')
+      const { error } = await POST('/api/v1/register', {
+        body: {
+          user_id: 1,
+          competition_id: 'KoelnerKubing2099',
+          competing: { event_ids: ['333'] },
+        },
+      })
+      const validation =
+        paths['/api/v1/register'].post.responses['404'].content[
+          'application/json'
+        ].safeParse(error)
+      expect(validation.success).toBe(true)
+    })
+  })
+  describe('PATCH', () => {
+    test('Correct Success Response', async () => {
+      // "Log In" by setting localstorage
+      localStorage.setItem(USER_KEY, '9001')
+      const { data } = await PATCH('/api/v1/register', {
+        body: {
+          user_id: 9001,
+          competition_id: 'KoelnerKubing2023',
+          competing: { event_ids: ['333'] },
+        },
+        headers: { Authorization: await getJWT() },
+      })
+      const validation =
+        paths['/api/v1/register'].patch.responses['200'].content[
+          'application/json'
+        ].safeParse(data)
+      expect(validation.success).toBe(true)
+    })
+
+    test('Correct Error Response without Authorization', async () => {
+      const { error } = await PATCH('/api/v1/register', {
+        body: {
+          user_id: 9001,
+          competition_id: 'KoelnerKubing2023',
+          competing: { event_ids: ['333'] },
+        },
+      })
+      const validation =
+        paths['/api/v1/register'].patch.responses['401'].content[
+          'application/json'
+        ].safeParse(error)
+      expect(validation.success).toBe(true)
+    })
+
+    test('Correct Error Response for Unauthorized User', async () => {
+      // "Log In" by setting localstorage
+      localStorage.setItem(USER_KEY, '9001')
+      const { error } = await PATCH('/api/v1/register', {
+        body: {
+          user_id: 9002,
+          competition_id: 'KoelnerKubing2023',
+          competing: { event_ids: ['333'] },
+        },
+        headers: { Authorization: await getJWT() },
+      })
+      const validation =
+        paths['/api/v1/register'].patch.responses['401'].content[
+          'application/json'
+        ].safeParse(error)
+      expect(validation.success).toBe(true)
+    })
+
+    test('Correct Error Response for Bad Request', async () => {
+      // "Log In" by setting localstorage
+      localStorage.setItem(USER_KEY, '9001')
+      const { error } = await PATCH('/api/v1/register', {
+        body: {
+          user_id: 9002,
+          competition_id: 'KoelnerKubing2023',
+          competing: { event_ids: ['888'] },
+        },
+        headers: { Authorization: await getJWT() },
+      })
+      const validation =
+        paths['/api/v1/register'].patch.responses['422'].content[
           'application/json'
         ].safeParse(error)
       expect(validation.success).toBe(true)

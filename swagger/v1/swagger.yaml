@@ -179,7 +179,7 @@ components:
     submitRegistrationBody:
       properties:
         user_id:
-          type: string
+          type: integer
         competition_id:
           type: string
         competing:
@@ -201,7 +201,7 @@ components:
     updateRegistrationBody:
       properties:
         user_id:
-          type: string
+          type: integer
         competition_id:
           type: string
         competing:

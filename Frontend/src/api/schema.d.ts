@@ -353,7 +353,7 @@ export interface components {
       guests?: number | null;
     };
     submitRegistrationBody: {
-      user_id: string;
+      user_id: number;
       competition_id: string;
       competing: {
         event_ids?: EventId[];
@@ -362,7 +362,7 @@ export interface components {
       };
     };
     updateRegistrationBody: {
-      user_id: string;
+      user_id: number;
       competition_id: string;
       competing?: {
         event_ids?: EventId[];

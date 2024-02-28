@@ -73,7 +73,7 @@ export namespace components.schemas {
     guests: z.number().nullable().optional(),
   });
   export const submitRegistrationBody = z.object({
-    user_id: z.string(),
+    user_id: z.number().int(),
     competition_id: z.string(),
     competing: z.object({
       event_ids: z.array(z.string()).optional(),
@@ -82,7 +82,7 @@ export namespace components.schemas {
     }),
   });
   export const updateRegistrationBody = z.object({
-    user_id: z.string(),
+    user_id: z.number().int(),
     competition_id: z.string(),
     competing: z.object({
       event_ids: z.array(z.string()).optional(),
