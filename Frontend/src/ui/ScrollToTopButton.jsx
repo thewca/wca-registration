@@ -1,21 +1,36 @@
 import React, { useEffect, useState } from 'react'
-import { Icon } from 'semantic-ui-react'
+import { Button } from 'semantic-ui-react'
 
 const scrollYBreakpoint = 300
 
 export default function ScrollToTopButton() {
-  const [isShowing, setIsShowing] = useState(false)
-
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+  const [isBeyondBreakpoint, setIsBeyondBreakpoint] = useState(false)
 
   useEffect(() => {
-    const updateShowing = () => setIsShowing(window.scrollY > scrollYBreakpoint)
+    const updateShowing = () =>
+      setIsBeyondBreakpoint(window.scrollY > scrollYBreakpoint)
 
     window.addEventListener('scroll', updateShowing)
 
     return () => window.removeEventListener('scroll', updateShowing)
   }, [])
 
-  // TODO: absolute positioning
-  return isShowing && <Icon link onClick={scrollToTop} name="arrow up" />
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+
+  return (
+    isBeyondBreakpoint && (
+      <Button
+        icon="up arrow"
+        floated="right"
+        color="purple"
+        style={{
+          zIndex: 5000,
+          position: 'fixed',
+          bottom: '55px',
+          right: '10px',
+        }}
+        onClick={scrollToTop}
+      />
+    )
+  )
 }
