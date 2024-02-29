@@ -28,11 +28,11 @@ export default function PermissionsProvider({ children }) {
         canAdminCompetition:
           permissions?.can_administer_competitions.scope === '*' ||
           permissions?.can_administer_competitions.scope.includes(
-            competitionInfo.id
+            competitionInfo.id,
           ),
         isOrganizerOrDelegate: competitionInfo.organizers
           .concat(competitionInfo.delegates)
-          .some((organizer) => organizer.id === user.id),
+          .some((organizer) => organizer.id === user?.id),
       }}
     >
       {children}

@@ -8,7 +8,8 @@ import Register from './pages/register'
 import RegistrationAdministration from './pages/registration_administration'
 import RegistrationEdit from './pages/registration_edit'
 import Registrations from './pages/registrations'
-import Schedule from './pages/schedule'
+import ScheduleTab from './pages/schedule'
+import Waiting from './pages/waiting'
 import App from './ui/App'
 import Competition from './ui/Competition'
 import CustomTab from './ui/CustomTab'
@@ -59,7 +60,7 @@ const routes = [
           },
           {
             path: 'schedule',
-            element: <Schedule />,
+            element: <ScheduleTab />,
           },
           {
             path: 'import',
@@ -72,6 +73,10 @@ const routes = [
           {
             path: 'tabs/:tab_id',
             element: <CustomTab />,
+          },
+          {
+            path: `waiting`,
+            element: <Waiting />,
           },
           {
             path: 'registrations',

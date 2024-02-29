@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import _ from 'lodash'
-import moment from 'moment/moment'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import {
   Button,
   Checkbox,
   Header,
+  Input,
   Message,
   Segment,
   TextArea,
@@ -15,7 +16,8 @@ import {
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
-import { getCompetitorInfo } from '../../../api/user/get/get_user_info'
+import { getUserInfo } from '../../../api/user/post/get_user_info'
+import { hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
@@ -24,15 +26,19 @@ import Refunds from './Refunds'
 export default function RegistrationEditor() {
   const { user_id } = useParams()
   const { competitionInfo } = useContext(CompetitionContext)
+  const { t } = useTranslation()
 
   const [comment, setComment] = useState('')
   const [adminComment, setAdminComment] = useState('')
   const [status, setStatus] = useState('')
+  const [waitingListPosition, setWaitingListPosition] = useState(0)
+  const [guests, setGuests] = useState(0)
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
   const [isCheckingRefunds, setIsCheckingRefunds] = useState(false)
 
   const queryClient = useQueryClient()
+
   const { data: serverRegistration } = useQuery({
     queryKey: ['registration', competitionInfo.id, user_id],
     queryFn: () =>
@@ -42,54 +48,59 @@ export default function RegistrationEditor() {
     staleTime: Infinity,
     refetchOnMount: 'always',
   })
+
   const { isLoading, data: competitorInfo } = useQuery({
     queryKey: ['info', user_id],
-    queryFn: () => getCompetitorInfo(user_id),
+    queryFn: () => getUserInfo(user_id),
   })
+
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
     useMutation({
       mutationFn: updateRegistration,
       onError: (data) => {
+        const { errorCode } = data
         setMessage(
-          'Registration update failed with error: ' + data.errorCode,
-          'negative'
+          errorCode
+            ? t(`errors.${errorCode}`)
+            : 'Registration update failed with error: ' + data.message,
+          'negative',
         )
       },
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
           ['registration', competitionInfo.id, user_id],
-          data
+          data,
         )
       },
     })
 
   useEffect(() => {
     if (serverRegistration) {
-      setRegistration(serverRegistration.registration)
-      setComment(serverRegistration.registration.competing.comment ?? '')
-      setStatus(serverRegistration.registration.competing.registration_status)
-      setSelectedEvents(serverRegistration.registration.competing.event_ids)
-      setAdminComment(
-        serverRegistration.registration.competing.admin_comment ?? ''
+      setRegistration(serverRegistration)
+      setComment(serverRegistration.competing.comment ?? '')
+      setStatus(serverRegistration.competing.registration_status)
+      setSelectedEvents(serverRegistration.competing.event_ids)
+      setAdminComment(serverRegistration.competing.admin_comment ?? '')
+      setWaitingListPosition(
+        serverRegistration.competing.waiting_list_position ?? 0,
       )
+      setGuests(serverRegistration.guests ?? 0)
     }
   }, [serverRegistration])
 
   const hasEventsChanged =
     serverRegistration &&
-    _.xor(serverRegistration.registration.competing.event_ids, selectedEvents)
-      .length > 0
+    _.xor(serverRegistration.competing.event_ids, selectedEvents).length > 0
   const hasCommentChanged =
     serverRegistration &&
-    comment !== (serverRegistration.registration.competing.comment ?? '')
+    comment !== (serverRegistration.competing.comment ?? '')
   const hasAdminCommentChanged =
     serverRegistration &&
-    adminComment !==
-      (serverRegistration.registration.competing.admin_comment ?? '')
+    adminComment !== (serverRegistration.competing.admin_comment ?? '')
   const hasStatusChanged =
     serverRegistration &&
-    status !== serverRegistration.registration.competing.registration_status
+    status !== serverRegistration.competing.registration_status
   const hasGuestsChanged = false
 
   const hasChanges =
@@ -101,15 +112,22 @@ export default function RegistrationEditor() {
 
   const commentIsValid =
     comment || !competitionInfo.force_comment_in_registration
-  const eventsAreValid = selectedEvents.length > 0
+  const maxEvents = competitionInfo.events_per_registration_limit ?? Infinity
+  const eventsAreValid =
+    selectedEvents.length > 0 && selectedEvents.length <= maxEvents
 
   const handleRegisterClick = useCallback(() => {
     if (!hasChanges) {
       setMessage('There are no changes', 'basic')
     } else if (!commentIsValid) {
-      setMessage('You must include a comment', 'basic')
+      setMessage('You must include a comment', 'negative')
     } else if (!eventsAreValid) {
-      setMessage('You must select at least 1 event', 'basic')
+      setMessage(
+        maxEvents === Infinity
+          ? 'You must select at least 1 event'
+          : `You must select between 1 and ${maxEvents} events`,
+        'negative',
+      )
     } else {
       setMessage('Updating Registration', 'basic')
       updateRegistrationMutation({
@@ -119,27 +137,29 @@ export default function RegistrationEditor() {
           event_ids: selectedEvents,
           comment,
           admin_comment: adminComment,
+          waiting_list_position: waitingListPosition,
         },
         competition_id: competitionInfo.id,
       })
     }
   }, [
-    adminComment,
-    comment,
-    commentIsValid,
-    competitionInfo.id,
-    eventsAreValid,
     hasChanges,
-    selectedEvents,
-    status,
+    commentIsValid,
+    eventsAreValid,
+    maxEvents,
     updateRegistrationMutation,
     user_id,
+    status,
+    selectedEvents,
+    comment,
+    adminComment,
+    waitingListPosition,
+    competitionInfo.id,
   ])
 
-  const registrationEditDeadlinePassed = moment(
-    // If no deadline is set default to always be in the future
-    competitionInfo.event_change_deadline_date ?? Date.now() + 1
-  ).isBefore()
+  const registrationEditDeadlinePassed =
+    Boolean(competitionInfo.event_change_deadline_date) &&
+    hasPassed(competitionInfo.event_change_deadline_date)
 
   return (
     <Segment padded attached>
@@ -218,6 +238,16 @@ export default function RegistrationEditor() {
               disabled={registrationEditDeadlinePassed}
               checked={status === 'cancelled'}
               onChange={(_, data) => setStatus(data.value)}
+            />
+            <br />
+            <Header>Guests</Header>
+            <Input
+              disabled={registrationEditDeadlinePassed}
+              type="number"
+              min={0}
+              max={99}
+              value={guests}
+              onChange={(_, data) => setGuests(data.value)}
             />
           </div>
 

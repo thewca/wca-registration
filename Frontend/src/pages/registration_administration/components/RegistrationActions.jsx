@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { UiIcon } from '@thewca/wca-components'
 import React, { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
@@ -29,15 +30,18 @@ function csvExport(selected, registrations) {
 
 export default function RegistrationActions({
   partitionedSelected,
+  userEmailMap,
   refresh,
   registrations,
+  spotsRemaining,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
+  const { t } = useTranslation()
 
   const selectedCount = Object.values(partitionedSelected).reduce(
     (sum, part) => sum + part.length,
-    0
+    0,
   )
   const anySelected = selectedCount > 0
 
@@ -47,19 +51,40 @@ export default function RegistrationActions({
   const anyCancellable = cancelled.length < selectedCount
   const anyWaitlistable = waiting.length < selectedCount
 
+  const selectedEmails = [...pending, ...accepted, ...cancelled, ...waiting]
+    .map((userId) => userEmailMap[userId])
+    .join(',')
+
   const { mutate: updateRegistrationMutation } = useMutation({
     mutationFn: updateRegistration,
     onError: (data) => {
+      const { errorCode } = data
       setMessage(
-        'Registration update failed with error: ' + data.message,
-        'negative'
+        errorCode
+          ? t(`errors.${errorCode}`)
+          : 'Registration update failed with error: ' + data.message,
+        'negative',
       )
     },
   })
 
-  const changeStatus = async (attendees, status) => {
-    attendees.forEach((attendee) => {
-      updateRegistrationMutation(
+  const attemptToApprove = () => {
+    const idsToAccept = [...pending, ...cancelled, ...waiting]
+    if (idsToAccept.length > spotsRemaining) {
+      setMessage(
+        `Accepting all these registrations would go over the competitor limit by ${
+          idsToAccept.length - spotsRemaining
+        }`,
+        'negative',
+      )
+    } else {
+      changeStatus(idsToAccept, 'accepted')
+    }
+  }
+
+  const changeStatus = (attendees, status) => {
+    attendees.forEach(async (attendee) => {
+      await updateRegistrationMutation(
         {
           user_id: attendee,
           competing: {
@@ -72,9 +97,14 @@ export default function RegistrationActions({
             setMessage('Successfully saved registration changes', 'positive')
             refresh()
           },
-        }
+        },
       )
     })
+  }
+
+  const copyEmails = (emails) => {
+    navigator.clipboard.writeText(emails)
+    setMessage('Copied to clipboard. Remember to use bcc!', 'positive')
   }
 
   return (
@@ -84,7 +114,7 @@ export default function RegistrationActions({
           onClick={() => {
             csvExport(
               [...pending, ...accepted, ...cancelled, ...waiting],
-              registrations
+              registrations,
             )
           }}
         >
@@ -93,34 +123,23 @@ export default function RegistrationActions({
 
         <Button>
           <a
-            href={`mailto:?bcc=${[
-              ...pending,
-              ...accepted,
-              ...cancelled,
-              ...waiting,
-            ]
-              .map((user) => user + '@worldcubeassociation.org')
-              .join(',')}`}
+            href={`mailto:?bcc=${selectedEmails}`}
             id="email-selected"
             target="_blank"
             className="btn btn-info selected-registrations-actions"
           >
-            <UiIcon name="envelope" /> Email
+            <UiIcon name="envelope" /> Send Email
           </a>
+        </Button>
+
+        <Button onClick={() => copyEmails(selectedEmails)}>
+          <UiIcon name="copy" /> Copy Emails
         </Button>
 
         {isOrganizerOrDelegate && (
           <>
             {anyApprovable && (
-              <Button
-                positive
-                onClick={() =>
-                  changeStatus(
-                    [...pending, ...cancelled, ...waiting],
-                    'accepted'
-                  )
-                }
-              >
+              <Button positive onClick={attemptToApprove}>
                 <UiIcon name="check" /> Approve
               </Button>
             )}
@@ -130,7 +149,7 @@ export default function RegistrationActions({
                 onClick={() =>
                   changeStatus(
                     [...accepted, ...cancelled, ...waiting],
-                    'pending'
+                    'pending',
                   )
                 }
               >
@@ -144,7 +163,7 @@ export default function RegistrationActions({
                 onClick={() =>
                   changeStatus(
                     [...pending, ...cancelled, ...accepted],
-                    'waiting_list'
+                    'waiting_list',
                   )
                 }
               >
@@ -158,7 +177,7 @@ export default function RegistrationActions({
                 onClick={() =>
                   changeStatus(
                     [...pending, ...accepted, ...waiting],
-                    'cancelled'
+                    'cancelled',
                   )
                 }
               >

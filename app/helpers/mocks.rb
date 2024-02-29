@@ -8,6 +8,44 @@ module Mocks
     Date.today.prev_month(months).next_day(days).to_s
   end
 
+  def self.pii_mock(user_ids)
+    user_ids.map { |u| { 'id' => u, 'dob' => '1993-01-01', 'email' => "#{u}@worldcubeassociation.org" } }
+  end
+
+  def self.user_info_mock(user_ids)
+    {
+      'users' => user_ids.map do |u|
+        iso = %w[AD AE AI AL BW BY BZ CA CC NU NZ OM PA PE PN PR PS PTF TG TH TJ WS ZW].sample
+        wca_id = "2023TEST#{u % 99}"
+        {
+          'id' => u,
+          'created_at' => Time.now.to_s,
+          'updated_at' => Time.now.to_s,
+          'name' => "Name #{u}",
+          'wca_id' => wca_id,
+          'delegate_status' => nil,
+          'gender' => 'm',
+          'country_iso2' => iso,
+          'url' => "https://#{EnvConfig.WCA_HOST}/persons/#{wca_id}",
+          'country' => {
+            'id' => 'Test Country',
+            'name' => 'Test Country',
+            'continentId' => '_Europe',
+            'iso2' => iso,
+          },
+          'class' => 'user',
+          'teams' => [],
+          'avatar' => {
+            'url' => '',
+            'pending_url' => '',
+            'thumb_url' => '',
+            'is_default' => false,
+          },
+        }
+      end,
+    }
+  end
+
   def self.permissions_mock(user_id)
     case user_id
     when '1' # Test Organizer
@@ -16,10 +54,10 @@ module Mocks
           'scope' => '*',
         },
         'can_organize_competitions' => {
-          'scope' => %w[CubingZANationalChampionship2023],
+          'scope' => %w[CubingZANationalChampionship2023 LowLimit2023],
         },
         'can_administer_competitions' => {
-          'scope' => %w[CubingZANationalChampionship2023],
+          'scope' => %w[CubingZANationalChampionship2023 LowLimit2023],
         },
       }
     when '2' # Test Multi-Comp Organizer
@@ -28,10 +66,10 @@ module Mocks
           'scope' => '*',
         },
         'can_organize_competitions' => {
-          'scope' => %w[LazarilloOpen2023 CubingZANationalChampionship2023 KoelnerKubing2023],
+          'scope' => %w[LazarilloOpen2023 CubingZANationalChampionship2023 KoelnerKubing2023 LowLimit2023],
         },
         'can_administer_competitions' => {
-          'scope' => %w[LazarilloOpen2023 CubingZANationalChampionship2023 KoelnerKubing2023],
+          'scope' => %w[LazarilloOpen2023 CubingZANationalChampionship2023 KoelnerKubing2023 LowLimit2023],
         },
       }
     when '15073', '15074' # Test Admin
@@ -74,7 +112,6 @@ module Mocks
   end
 
   def self.mock_competition(competition_id)
-    puts competition_id
     case competition_id
     when 'KoelnerKubing2023'
       {
@@ -94,6 +131,76 @@ module Mocks
         'end_date' => self.date_from_now(2, 1),
         'enable_donations' => true,
         'competitor_limit' => 100,
+        'extra_registration_requirements' => '',
+        'on_the_spot_registration' => false,
+        'on_the_spot_entry_fee_lowest_denomination' => nil,
+        'refund_policy_percent' => 100,
+        'refund_policy_limit_date' => self.date_from_now(2),
+        'guests_entry_fee_lowest_denomination' => 300,
+        'qualification_results' => false,
+        'external_registration_page' => '',
+        'event_restrictions' => false,
+        'cancelled_at' => nil,
+        'waiting_list_deadline_date' => self.date_from_now(2, 1),
+        'event_change_deadline_date' => self.date_from_now(2, 1),
+        'guest_entry_status' => 'free',
+        'allow_registration_edits' => true,
+        'allow_registration_self_delete_after_acceptance' => false,
+        'allow_registration_without_qualification' => false,
+        'guests_per_registration_limit' => nil,
+        'force_comment_in_registration' => false,
+        'url' => 'https://www.worldcubeassociation.org/competitions/KoelnerKubing2023',
+        'website' =>
+          'https://www.worldcubeassociation.org/competitions/KoelnerKubing2023',
+        'short_name' => 'Kölner Kubing 2023',
+        'city' => 'Köln',
+        'venue_address' => 'Pfarrer-Moll-Str. 54, 51105 Cologne, Germany',
+        'venue_details' => 'Obergeschoss // upstairs',
+        'latitude_degrees' => 50.929833,
+        'longitude_degrees' => 6.995431,
+        'country_iso2' => 'DE',
+        'event_ids' => %w[333 222 444 555 666 777 333fm 333oh clock pyram skewb],
+        'registration_opened?' => true,
+        'main_event_id' => '333',
+        'number_of_bookmarks' => 66,
+        'using_stripe_payments?' => nil,
+        'uses_qualification?' => false,
+        'uses_cutoff?' => true,
+        'delegates' => [
+          {
+            'id' => 2,
+          },
+        ],
+        'organizers' => [
+          {
+            'id' => 80_119,
+          },
+        ],
+        'tabs' => [
+          {
+            'id' => 31_963,
+          },
+        ],
+        'class' => 'competition',
+      }
+    when 'LowLimit2023'
+      {
+        'id' => 'LowLimit2023',
+        'name' => 'Low Limit 2023',
+        'information' => '',
+        'venue' => 'Pfarrheim St. Engelbert',
+        'contact' =>
+          '[Kölner Kubing 2023 Orgateam](mailto:koelnerkubing@googlegroups.com)',
+        'registration_open' => self.date_from_now(-1, 1),
+        'registration_close' => self.date_from_now(2),
+        'use_wca_registration' => true,
+        'announced_at' => '2023-08-22T17:10:32.000Z',
+        'base_entry_fee_lowest_denomination' => 1600,
+        'currency_code' => 'EUR',
+        'start_date' => self.date_from_now(2),
+        'end_date' => self.date_from_now(2, 1),
+        'enable_donations' => true,
+        'competitor_limit' => 3,
         'extra_registration_requirements' => '',
         'on_the_spot_registration' => false,
         'on_the_spot_entry_fee_lowest_denomination' => nil,
@@ -423,6 +530,148 @@ module Mocks
         ],
         'class' => 'competition',
       }
+    when 'SeriesComp1'
+      {
+        'id' => 'SeriesComp1',
+        'name' => 'Series Comp 2 2023',
+        'information' => '',
+        'venue' => 'Pfarrheim St. Engelbert',
+        'contact' =>
+          '[Kölner Kubing 2023 Orgateam](mailto:koelnerkubing@googlegroups.com)',
+        'registration_open' => self.date_from_now(-1, 1),
+        'registration_close' => self.date_from_now(2),
+        'use_wca_registration' => true,
+        'announced_at' => '2023-08-22T17:10:32.000Z',
+        'base_entry_fee_lowest_denomination' => 1600,
+        'currency_code' => 'EUR',
+        'start_date' => self.date_from_now(2),
+        'end_date' => self.date_from_now(2, 1),
+        'enable_donations' => true,
+        'competition_series_ids' => ['SeriesComp1', 'SeriesComp2'],
+        'competitor_limit' => 100,
+        'extra_registration_requirements' => '',
+        'on_the_spot_registration' => false,
+        'on_the_spot_entry_fee_lowest_denomination' => nil,
+        'refund_policy_percent' => 100,
+        'refund_policy_limit_date' => self.date_from_now(2),
+        'guests_entry_fee_lowest_denomination' => 300,
+        'qualification_results' => false,
+        'external_registration_page' => '',
+        'event_restrictions' => false,
+        'cancelled_at' => nil,
+        'waiting_list_deadline_date' => self.date_from_now(2, 1),
+        'event_change_deadline_date' => self.date_from_now(2, 1),
+        'guest_entry_status' => 'free',
+        'allow_registration_edits' => true,
+        'allow_registration_self_delete_after_acceptance' => false,
+        'allow_registration_without_qualification' => false,
+        'guests_per_registration_limit' => nil,
+        'force_comment_in_registration' => false,
+        'url' => 'https://www.worldcubeassociation.org/competitions/KoelnerKubing2023',
+        'website' =>
+          'https://www.worldcubeassociation.org/competitions/KoelnerKubing2023',
+        'short_name' => 'Kölner Kubing 2023',
+        'city' => 'Köln',
+        'venue_address' => 'Pfarrer-Moll-Str. 54, 51105 Cologne, Germany',
+        'venue_details' => 'Obergeschoss // upstairs',
+        'latitude_degrees' => 50.929833,
+        'longitude_degrees' => 6.995431,
+        'country_iso2' => 'DE',
+        'event_ids' => %w[333 222 444 555 666 777 333fm 333oh clock pyram skewb],
+        'registration_opened?' => true,
+        'main_event_id' => '333',
+        'number_of_bookmarks' => 66,
+        'using_stripe_payments?' => nil,
+        'uses_qualification?' => false,
+        'uses_cutoff?' => true,
+        'delegates' => [
+          {
+            'id' => 2,
+          },
+        ],
+        'organizers' => [
+          {
+            'id' => 80_119,
+          },
+        ],
+        'tabs' => [
+          {
+            'id' => 31_963,
+          },
+        ],
+        'class' => 'competition',
+      }
+    when 'SeriesComp2'
+      {
+        'id' => 'SeriesComp2',
+        'name' => 'Series Comp 2 2023',
+        'information' => '',
+        'venue' => 'Pfarrheim St. Engelbert',
+        'contact' =>
+          '[Kölner Kubing 2023 Orgateam](mailto:koelnerkubing@googlegroups.com)',
+        'registration_open' => self.date_from_now(-1, 1),
+        'registration_close' => self.date_from_now(2),
+        'use_wca_registration' => true,
+        'announced_at' => '2023-08-22T17:10:32.000Z',
+        'base_entry_fee_lowest_denomination' => 1600,
+        'currency_code' => 'EUR',
+        'start_date' => self.date_from_now(2),
+        'competition_series_ids' => ['SeriesComp1', 'SeriesComp2'],
+        'end_date' => self.date_from_now(2, 1),
+        'enable_donations' => true,
+        'competitor_limit' => 100,
+        'extra_registration_requirements' => '',
+        'on_the_spot_registration' => false,
+        'on_the_spot_entry_fee_lowest_denomination' => nil,
+        'refund_policy_percent' => 100,
+        'refund_policy_limit_date' => self.date_from_now(2),
+        'guests_entry_fee_lowest_denomination' => 300,
+        'qualification_results' => false,
+        'external_registration_page' => '',
+        'event_restrictions' => false,
+        'cancelled_at' => nil,
+        'waiting_list_deadline_date' => self.date_from_now(2, 1),
+        'event_change_deadline_date' => self.date_from_now(2, 1),
+        'guest_entry_status' => 'free',
+        'allow_registration_edits' => true,
+        'allow_registration_self_delete_after_acceptance' => false,
+        'allow_registration_without_qualification' => false,
+        'guests_per_registration_limit' => nil,
+        'force_comment_in_registration' => false,
+        'url' => 'https://www.worldcubeassociation.org/competitions/KoelnerKubing2023',
+        'website' =>
+          'https://www.worldcubeassociation.org/competitions/KoelnerKubing2023',
+        'short_name' => 'Kölner Kubing 2023',
+        'city' => 'Köln',
+        'venue_address' => 'Pfarrer-Moll-Str. 54, 51105 Cologne, Germany',
+        'venue_details' => 'Obergeschoss // upstairs',
+        'latitude_degrees' => 50.929833,
+        'longitude_degrees' => 6.995431,
+        'country_iso2' => 'DE',
+        'event_ids' => %w[333 222 444 555 666 777 333fm 333oh clock pyram skewb],
+        'registration_opened?' => true,
+        'main_event_id' => '333',
+        'number_of_bookmarks' => 66,
+        'using_stripe_payments?' => nil,
+        'uses_qualification?' => false,
+        'uses_cutoff?' => true,
+        'delegates' => [
+          {
+            'id' => 2,
+          },
+        ],
+        'organizers' => [
+          {
+            'id' => 80_119,
+          },
+        ],
+        'tabs' => [
+          {
+            'id' => 31_963,
+          },
+        ],
+        'class' => 'competition',
+      }
     when 'PickeringFavouritesAutumn2023'
       {
         'id' => 'PickeringFavouritesAutumn2023',
@@ -494,7 +743,79 @@ module Mocks
         ],
         'class' => 'competition',
       }
+    when 'EventRegLimit'
+      {
+        'id' => 'EventRegLimit',
+        'name' => 'Event Reg Limit 2023',
+        'information' => '',
+        'venue' => 'Pfarrheim St. Engelbert',
+        'contact' =>
+          '[Kölner Kubing 2023 Orgateam](mailto:koelnerkubing@googlegroups.com)',
+        'registration_open' => self.date_from_now(-1, 1),
+        'registration_close' => self.date_from_now(2),
+        'use_wca_registration' => true,
+        'announced_at' => '2023-08-22T17:10:32.000Z',
+        'base_entry_fee_lowest_denomination' => 1600,
+        'currency_code' => 'EUR',
+        'start_date' => self.date_from_now(2),
+        'end_date' => self.date_from_now(2, 1),
+        'enable_donations' => true,
+        'competitor_limit' => 100,
+        'extra_registration_requirements' => '',
+        'on_the_spot_registration' => false,
+        'on_the_spot_entry_fee_lowest_denomination' => nil,
+        'refund_policy_percent' => 100,
+        'refund_policy_limit_date' => self.date_from_now(2),
+        'guests_entry_fee_lowest_denomination' => 300,
+        'qualification_results' => false,
+        'external_registration_page' => '',
+        'event_restrictions' => false,
+        'cancelled_at' => nil,
+        'waiting_list_deadline_date' => self.date_from_now(2, 1),
+        'event_change_deadline_date' => self.date_from_now(2, 1),
+        'guest_entry_status' => 'free',
+        'allow_registration_edits' => true,
+        'events_per_registration_limit' => 5,
+        'allow_registration_self_delete_after_acceptance' => false,
+        'allow_registration_without_qualification' => false,
+        'guests_per_registration_limit' => nil,
+        'force_comment_in_registration' => false,
+        'url' => 'https://www.worldcubeassociation.org/competitions/KoelnerKubing2023',
+        'website' =>
+          'https://www.worldcubeassociation.org/competitions/KoelnerKubing2023',
+        'short_name' => 'Kölner Kubing 2023',
+        'city' => 'Köln',
+        'venue_address' => 'Pfarrer-Moll-Str. 54, 51105 Cologne, Germany',
+        'venue_details' => 'Obergeschoss // upstairs',
+        'latitude_degrees' => 50.929833,
+        'longitude_degrees' => 6.995431,
+        'country_iso2' => 'DE',
+        'event_ids' => %w[333 222 444 555 666 777 333fm 333oh clock pyram skewb],
+        'registration_opened?' => true,
+        'main_event_id' => '333',
+        'number_of_bookmarks' => 66,
+        'using_stripe_payments?' => nil,
+        'uses_qualification?' => false,
+        'uses_cutoff?' => true,
+        'delegates' => [
+          {
+            'id' => 2,
+          },
+        ],
+        'organizers' => [
+          {
+            'id' => 80_119,
+          },
+        ],
+        'tabs' => [
+          {
+            'id' => 31_963,
+          },
+        ],
+        'class' => 'competition',
+      }
     else
+
       CompetitionApi.find!(competition_id)
     end
   end

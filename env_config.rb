@@ -12,6 +12,7 @@ EnvConfig = SuperConfig.new do
     mandatory :WCA_HOST, :string
     mandatory :REDIS_URL, :string
     mandatory :VAULT_APPLICATION, :string
+    mandatory :BUILD_TAG, :string
   else
     mandatory :LOCALSTACK_ENDPOINT, :string
     # Have to be the same as in localstack to simulate authentication
@@ -19,6 +20,7 @@ EnvConfig = SuperConfig.new do
     mandatory :AWS_SECRET_ACCESS_KEY, :string
     optional :WCA_HOST, :string, ''
     optional :REDIS_URL, :string, ''
+    optional :BUILD_TAG, :string, 'local'
   end
   # We even need the AWS_REGION in dev because we fake authenticate with localstack
   mandatory :AWS_REGION, :string

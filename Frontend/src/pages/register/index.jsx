@@ -1,4 +1,4 @@
-import moment from 'moment'
+import { DateTime } from 'luxon'
 import React, { useContext, useState } from 'react'
 import {
   Button,
@@ -11,7 +11,13 @@ import {
 } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
+import { RegistrationContext } from '../../api/helper/context/registration_context'
 import { UserContext } from '../../api/helper/context/user_context'
+import {
+  getLongDateString,
+  getMediumDateString,
+  hasPassed,
+} from '../../lib/dates'
 import { displayMoneyISO4217 } from '../../lib/money'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
@@ -20,17 +26,19 @@ function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {
     return 'OPEN'
   }
-  return moment(competitionInfo.registration_open).isAfter()
-    ? 'NOT YET OPEN'
-    : 'CLOSED'
+  return hasPassed(competitionInfo.registration_open)
+    ? 'CLOSED'
+    : 'NOT YET OPEN'
 }
 
 export default function Register() {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAttendCompetition } = useContext(PermissionsContext)
+  const { isRegistered } = useContext(RegistrationContext)
 
-  const [showRegisterSteps, setShowRegisterSteps] = useState(false)
+  // Show Registration Panel instead of Info if already registered
+  const [showRegisterSteps, setShowRegisterSteps] = useState(isRegistered)
 
   const loggedIn = user !== null
 
@@ -43,23 +51,6 @@ export default function Register() {
         <div>
           {canAttendCompetition ? (
             <>
-              <Transition
-                visible={showRegisterSteps}
-                duration={500}
-                animation="scale"
-              >
-                <Segment padded basic>
-                  <Button
-                    floated="right"
-                    icon
-                    basic
-                    onClick={() => setShowRegisterSteps(false)}
-                  >
-                    <Icon name="close" />
-                  </Button>
-                  <StepPanel />
-                </Segment>
-              </Transition>
               <Segment padded attached raised>
                 <Message warning>
                   *Insert Potential organizer announcement or memo for users to
@@ -83,7 +74,7 @@ export default function Register() {
                         {competitionInfo.base_entry_fee_lowest_denomination
                           ? displayMoneyISO4217(
                               competitionInfo.base_entry_fee_lowest_denomination,
-                              competitionInfo.currency_code
+                              competitionInfo.currency_code,
                             )
                           : 'No Entry Fee'}
                       </List.Header>
@@ -96,7 +87,7 @@ export default function Register() {
                               {competitionInfo.guests_entry_fee_lowest_denomination
                                 ? displayMoneyISO4217(
                                     competitionInfo.guests_entry_fee_lowest_denomination,
-                                    competitionInfo.currency_code
+                                    competitionInfo.currency_code,
                                   )
                                 : 'Guests attend for free'}
                             </List.Header>
@@ -122,9 +113,11 @@ export default function Register() {
                     <List.Icon name="pencil" />
                     <List.Content>
                       <List.Header>
-                        {moment(competitionInfo.registration_open).calendar()}
+                        {getMediumDateString(competitionInfo.registration_open)}
                         {' until '}
-                        {moment(competitionInfo.registration_close).calendar()}
+                        {getMediumDateString(
+                          competitionInfo.registration_close,
+                        )}
                       </List.Header>
                       <List.Description>Registration Period</List.Description>
                       <List.List>
@@ -134,10 +127,10 @@ export default function Register() {
                             <List.Header>
                               {competitionInfo.refund_policy_percent}
                               {'% before '}
-                              {moment(
+                              {getMediumDateString(
                                 competitionInfo.refund_policy_limit_date ??
-                                  competitionInfo.start_date
-                              ).calendar()}
+                                  competitionInfo.start_date,
+                              )}
                             </List.Header>
                             <List.Description>Refund policy</List.Description>
                           </List.Content>
@@ -146,10 +139,10 @@ export default function Register() {
                           <List.Icon name="save" />
                           <List.Content>
                             <List.Header>
-                              {moment(
+                              {getMediumDateString(
                                 competitionInfo.event_change_deadline_date ??
-                                  competitionInfo.end_date
-                              ).calendar()}
+                                  competitionInfo.end_date,
+                              )}
                             </List.Header>
                             <List.Description>
                               Edit registration deadline
@@ -160,10 +153,10 @@ export default function Register() {
                           <List.Icon name="hourglass half" />
                           <List.Content>
                             <List.Header>
-                              {moment(
+                              {getMediumDateString(
                                 competitionInfo.waiting_list_deadline_date ??
-                                  competitionInfo.start_date
-                              ).calendar()}
+                                  competitionInfo.start_date,
+                              )}
                             </List.Header>
                             <List.Description>
                               Waiting list acceptance date
@@ -206,6 +199,24 @@ export default function Register() {
                   </Button>
                 </Transition>
               </Segment>
+
+              <Transition
+                visible={showRegisterSteps}
+                duration={500}
+                animation="scale"
+              >
+                <Segment padded basic>
+                  <Button
+                    floated="right"
+                    icon
+                    basic
+                    onClick={() => setShowRegisterSteps(false)}
+                  >
+                    <Icon name="close" />
+                  </Button>
+                  <StepPanel />
+                </Segment>
+              </Transition>
             </>
           ) : (
             <PermissionMessage>
@@ -217,15 +228,15 @@ export default function Register() {
         </div>
       ) : (
         <Message warning>
-          {moment(competitionInfo.registration_open).diff(moment.now()) < 0
-            ? `Competition Registration closed on ${moment(
-                competitionInfo.registration_close
-              ).format('ll')}`
-            : `Competition Registration will open in ${moment(
-                competitionInfo.registration_open
-              ).fromNow()} on ${moment(
-                competitionInfo.registration_open
-              ).format('lll')}, ${
+          {hasPassed(competitionInfo.registration_close)
+            ? `Competition Registration closed on ${getMediumDateString(
+                competitionInfo.registration_close,
+              )}`
+            : `Competition Registration will open ${DateTime.fromISO(
+                competitionInfo.registration_open,
+              ).toRelativeCalendar()} on ${getLongDateString(
+                competitionInfo.registration_open,
+              )}, ${
                 !loggedIn ? 'you will need a WCA Account to register' : ''
               }`}
         </Message>

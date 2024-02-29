@@ -1,12 +1,14 @@
 FROM ruby:3.2.2
 EXPOSE 3000
+ARG BUILD_TAG=local
+ENV DEBIAN_FRONTEND noninteractive \
+    BUILD_TAG=$BUILD_TAG
 
-ENV DEBIAN_FRONTEND noninteractive
 WORKDIR /app
 
 # Add PPA needed to install nodejs.
 # From: https://github.com/nodesource/distributions
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 
 # Add PPA needed to install yarn.
 # From: https://yarnpkg.com/en/docs/install#debian-stable

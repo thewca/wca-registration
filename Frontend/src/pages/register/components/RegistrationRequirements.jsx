@@ -78,7 +78,7 @@ export default function RegistrationRequirements({ nextStep }) {
                   <p
                     dangerouslySetInnerHTML={{
                       __html: marked(
-                        competitionInfo.extra_registration_requirements
+                        competitionInfo.extra_registration_requirements,
                       ),
                     }}
                   />

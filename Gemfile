@@ -7,7 +7,7 @@ ruby '3.2.2'
 
 # Gems that are only needed by the handler not the worker
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '~> 7.1.2'
+gem 'rails', '~> 7.1.3'
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.4'
@@ -32,7 +32,7 @@ gem 'bootsnap', require: false
 
 # Use Redis adapter to run Action Cable in production
 gem 'hiredis'
-gem 'redis', '~> 5.0'
+gem 'redis', '~> 5.1'
 # So Redis can share connections
 gem 'connection_pool'
 

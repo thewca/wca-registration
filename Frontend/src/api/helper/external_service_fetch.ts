@@ -1,9 +1,9 @@
-import { BackendError } from './backend_fetch'
+import { BackendError } from './error_codes'
 
 export default async function externalServiceFetch(
   route: string,
   options = {},
-  needsResponse = true
+  needsResponse = true,
 ) {
   const response = await fetch(route, options)
   if (needsResponse) {

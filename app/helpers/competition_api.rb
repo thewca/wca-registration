@@ -13,10 +13,10 @@ end
 
 class CompetitionApi < WcaApi
   def self.find(competition_id)
-    competition_json = if Rails.env.production?
-                         fetch_competition(competition_id)
-                       else
+    competition_json = if Rails.env.development?
                          Mocks.mock_competition(competition_id)
+                       else
+                         fetch_competition(competition_id)
                        end
     CompetitionInfo.new(competition_json)
   rescue RegistrationError
@@ -24,10 +24,10 @@ class CompetitionApi < WcaApi
   end
 
   def self.find!(competition_id)
-    competition_json = if Rails.env.production?
-                         fetch_competition(competition_id)
-                       else
+    competition_json = if Rails.env.development?
                          Mocks.mock_competition(competition_id)
+                       else
+                         fetch_competition(competition_id)
                        end
     CompetitionInfo.new(competition_json)
   end
@@ -74,6 +74,14 @@ class CompetitionInfo
     @competition_json['guest_entry_status'] == 'restricted' && @competition_json['guests_per_registration_limit'] < guest_count
   end
 
+  def event_limit
+    if @competition_json['events_per_registration_limit'].is_a? Integer
+      @competition_json['events_per_registration_limit']
+    else
+      nil
+    end
+  end
+
   def guest_limit
     @competition_json['guests_per_registration_limit']
   end
@@ -112,5 +120,9 @@ class CompetitionInfo
 
   def user_can_cancel?
     @competition_json['allow_registration_self_delete_after_acceptance']
+  end
+
+  def other_series_ids
+    @competition_json['competition_series_ids']&.reject { |id| id == competition_id }
   end
 end

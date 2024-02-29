@@ -3,7 +3,7 @@ import { availableRefundsRoute } from '../../helper/routes'
 
 export default async function getAvailableRefunds(
   competitionId: string,
-  userId: string
+  userId: string,
 ): Promise<{
   charges: { payment_id: string; amount: number }[]
 }> {

@@ -10,7 +10,7 @@ import {
 } from '../../mocks/bookmarked_mock'
 
 export async function bookmarkCompetition(
-  competitionId: string
+  competitionId: string,
 ): Promise<boolean> {
   if (process.env.NODE_ENV === 'production') {
     return externalServiceFetch(
@@ -23,14 +23,14 @@ export async function bookmarkCompetition(
           'Content-Type': 'application/json',
         },
       },
-      false
+      false,
     )
   }
   return addBookmarkedMock(competitionId)
 }
 
 export async function unbookmarkCompetition(
-  competitionId: string
+  competitionId: string,
 ): Promise<boolean> {
   if (process.env.NODE_ENV === 'production') {
     return externalServiceFetch(
@@ -43,7 +43,7 @@ export async function unbookmarkCompetition(
           'Content-Type': 'application/json',
         },
       },
-      false
+      false,
     )
   }
   return removeBookmarkedMock(competitionId)

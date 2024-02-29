@@ -1,3 +1,4 @@
+import { EventId } from '@wca/helpers'
 import { createContext } from 'react'
 
 export interface UserFull {
@@ -28,8 +29,10 @@ export interface UserFull {
 }
 interface UserContext {
   user: UserFull | null
+  preferredEvents: EventId[] | null
 }
 
 export const UserContext = createContext<UserContext>({
   user: null,
+  preferredEvents: null,
 })

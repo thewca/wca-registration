@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
-import moment from 'moment'
-import React, { useContext, useMemo } from 'react'
+import React, { Fragment, useContext, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import {
   Container,
@@ -25,6 +25,9 @@ import {
   userProfileRoute,
 } from '../api/helper/routes'
 import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
+import i18n from '../i18n'
+import { getMediumDateString } from '../lib/dates'
+import AddToCalendar from '../pages/schedule/AddToCalendar'
 import logo from '../static/wca2020.svg'
 import { setMessage } from './events/messages'
 import LoadingMessage from './messages/loadingMessage'
@@ -33,6 +36,8 @@ export default function Competition({ children }) {
   const { competition_id } = useParams()
 
   const { user } = useContext(UserContext)
+
+  const { t, ready } = useTranslation('translation', { i18n })
 
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
@@ -44,12 +49,13 @@ export default function Competition({ children }) {
     isFetching: bookmarkLoading,
     refetch,
   } = useQuery({
-    queryKey: [user.id, 'bookmarks'],
+    queryKey: [user?.id, 'bookmarks'],
     queryFn: () => getBookmarkedCompetitions(),
+    enabled: user !== null,
   })
 
   const competitionIsBookmarked = (bookmarkedCompetitions ?? []).includes(
-    competitionInfo?.id
+    competitionInfo?.id,
   )
 
   // Hack before we have an image Icon field in the DB
@@ -66,7 +72,7 @@ export default function Competition({ children }) {
     <CompetitionContext.Provider
       value={{ competitionInfo: competitionInfo ?? {} }}
     >
-      {isLoading ? (
+      {isLoading || !ready ? (
         <LoadingMessage />
       ) : (
         <>
@@ -94,26 +100,21 @@ export default function Competition({ children }) {
               <List divided relaxed size="huge">
                 <List.Item>
                   <List.Content floated="right">
-                    <a
-                      href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${
-                        competitionInfo.id
-                      }&dates=${moment(competitionInfo.start_date).format(
-                        'YYYYMMDD'
-                      )}/${moment(competitionInfo.end_date).format(
-                        'YYYYMMDD'
-                      )}&location=${competitionInfo.venue_address}`}
-                      target="_blank"
-                    >
-                      <UiIcon name="calendar plus" />
-                    </a>
+                    <AddToCalendar
+                      startDate={competitionInfo.start_date}
+                      endDate={competitionInfo.end_date}
+                      name={competitionInfo.name}
+                      address={competitionInfo.venue_address}
+                      allDay
+                    />
                   </List.Content>
                   <List.Icon name="calendar alternate" />
                   <List.Content>
                     {competitionInfo.start_date === competitionInfo.end_date
-                      ? `${moment(competitionInfo.start_date).format('ll')}`
-                      : `${moment(competitionInfo.start_date).format(
-                          'll'
-                        )} to ${moment(competitionInfo.end_date).format('ll')}`}
+                      ? getMediumDateString(competitionInfo.start_date)
+                      : `${getMediumDateString(
+                          competitionInfo.start_date,
+                        )} to ${getMediumDateString(competitionInfo.end_date)}`}
                   </List.Content>
                 </List.Item>
                 <List.Item>
@@ -183,20 +184,7 @@ export default function Competition({ children }) {
                         <List.Content>
                           <List.Header>Organizers</List.Header>
                           <List.Description>
-                            {competitionInfo.organizers.map(
-                              (organizer, index) => (
-                                <a
-                                  key={`competition-organizer-${organizer.id}`}
-                                  href={userProfileRoute(organizer.wca_id)}
-                                >
-                                  {organizer.name}
-                                  {index !==
-                                  competitionInfo.organizers.length - 1
-                                    ? ', '
-                                    : ''}
-                                </a>
-                              )
-                            )}
+                            <PersonList people={competitionInfo.organizers} />
                           </List.Description>
                         </List.Content>
                       </List.Item>
@@ -205,20 +193,7 @@ export default function Competition({ children }) {
                         <List.Content>
                           <List.Header>Delegates</List.Header>
                           <List.Description>
-                            {competitionInfo.delegates.map(
-                              (delegate, index) => (
-                                <a
-                                  key={`competition-organizer-${delegate.id}`}
-                                  href={userProfileRoute(delegate.wca_id)}
-                                >
-                                  {delegate.name}
-                                  {index !==
-                                  competitionInfo.delegates.length - 1
-                                    ? ', '
-                                    : ''}
-                                </a>
-                              )
-                            )}
+                            <PersonList people={competitionInfo.delegates} />
                           </List.Description>
                         </List.Content>
                       </List.Item>
@@ -234,9 +209,7 @@ export default function Competition({ children }) {
               <List.Item>
                 <List.Icon name="print" />
                 <List.Content>
-                  <List.Header>
-                    Download all of the competitions details
-                  </List.Header>
+                  <List.Header>{t('test.test')}</List.Header>
                   <List.List>
                     <List.Item>
                       <List.Icon name="file pdf" />
@@ -257,14 +230,11 @@ export default function Competition({ children }) {
                     if (competitionIsBookmarked) {
                       await unbookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage('Unbookmarked this competition.', 'basic')
+                      setMessage(t('bookmarks.unbookmark'), 'basic')
                     } else {
                       await bookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage(
-                        'You bookmarked this competition. You will get an email 24h before Registration Opens.',
-                        'positive'
-                      )
+                      setMessage(t('bookmarks.bookmark'), 'positive')
                     }
                   }}
                   name={bookmarkLoading ? 'spinner' : 'bookmark'}
@@ -284,4 +254,17 @@ export default function Competition({ children }) {
       )}
     </CompetitionContext.Provider>
   )
+}
+
+function PersonList({ people }) {
+  return people.map((person, index) => (
+    <Fragment key={person.id}>
+      {index > 0 && ', '}
+      {person.wca_id ? (
+        <a href={userProfileRoute(person.wca_id)}>{person.name}</a>
+      ) : (
+        <>{person.name}</>
+      )}
+    </Fragment>
+  ))
 }

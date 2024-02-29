@@ -15,7 +15,7 @@ export const removeBookmarkedMock = (competitionId: string) => {
   const bookmarks = getBookmarkedMock()
   localStorage.setItem(
     BOOKMARK_KEY,
-    JSON.stringify(bookmarks.filter((c: string) => competitionId !== c))
+    JSON.stringify(bookmarks.filter((c: string) => competitionId !== c)),
   )
   return true
 }

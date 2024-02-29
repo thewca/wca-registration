@@ -10,6 +10,6 @@ export default async function refundPayment(body: {
   status: string
 }> {
   return externalServiceFetch(
-    refundRoute(body.competitionId, body.userId, body.paymentId, body.amount)
+    refundRoute(body.competitionId, body.userId, body.paymentId, body.amount),
   )
 }
