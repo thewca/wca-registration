@@ -155,7 +155,7 @@ GEM
     json (2.7.1)
     json-schema (4.1.1)
       addressable (>= 2.8)
-    jwt (2.8.0)
+    jwt (2.8.1)
       base64
     kredis (1.7.0)
       activemodel (>= 6.0.0)
