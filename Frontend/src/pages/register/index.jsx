@@ -21,6 +21,8 @@ import {
 import { displayMoneyISO4217 } from '../../lib/money'
 import PermissionMessage from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
+import { useTranslation } from 'react-i18next'
+import i18n from '../../i18n'
 
 function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {
@@ -39,6 +41,8 @@ export default function Register() {
 
   // Show Registration Panel instead of Info if already registered
   const [showRegisterSteps, setShowRegisterSteps] = useState(isRegistered)
+
+  const { t } = useTranslation('translation', { i18n })
 
   const loggedIn = user !== null
 
@@ -64,7 +68,9 @@ export default function Register() {
                       <List.Header>
                         {competitionInfo.competitor_limit}
                       </List.Header>
-                      <List.Description>Competitor Limit</List.Description>
+                      <List.Description>
+                        {t('competitions.competition_info.competitor_limit')}
+                      </List.Description>
                     </List.Content>
                   </List.Item>
                   <List.Item>
@@ -76,9 +82,13 @@ export default function Register() {
                               competitionInfo.base_entry_fee_lowest_denomination,
                               competitionInfo.currency_code,
                             )
-                          : 'No Entry Fee'}
+                          : t('competitions.registration_v2.fees.none')}
                       </List.Header>
-                      <List.Description>Base Registration Fee</List.Description>
+                      <List.Description>
+                        {t(
+                          'competitions.competition_form.labels.entry_fees.base_entry_fee',
+                        )}
+                      </List.Description>
                       <List.List>
                         <List.Item>
                           <List.Icon name="user plus" />
@@ -89,9 +99,15 @@ export default function Register() {
                                     competitionInfo.guests_entry_fee_lowest_denomination,
                                     competitionInfo.currency_code,
                                   )
-                                : 'Guests attend for free'}
+                                : t(
+                                    'competitions.registration_v2.fees.guestNone',
+                                  )}
                             </List.Header>
-                            <List.Description>Guest Entry Fee</List.Description>
+                            <List.Description>
+                              {t(
+                                'competitions.competition_form.labels.entry_fees.guest_entry_fee',
+                              )}
+                            </List.Description>
                           </List.Content>
                         </List.Item>
                       </List.List>
@@ -119,7 +135,11 @@ export default function Register() {
                           competitionInfo.registration_close,
                         )}
                       </List.Header>
-                      <List.Description>Registration Period</List.Description>
+                      <List.Description>
+                        {t(
+                          'competitions.competition_info.registration_period.label',
+                        )}
+                      </List.Description>
                       <List.List>
                         <List.Item>
                           <List.Icon name="sync" />
@@ -132,7 +152,19 @@ export default function Register() {
                                   competitionInfo.start_date,
                               )}
                             </List.Header>
-                            <List.Description>Refund policy</List.Description>
+                            <List.Description>
+                              {t(
+                                'competitions.competition_info.refund_policy_html',
+                                {
+                                  limit_date_and_time: getMediumDateString(
+                                    competitionInfo.refund_policy_limit_date ??
+                                      competitionInfo.start_date,
+                                  ),
+                                  refund_policy_percent:
+                                    competitionInfo.refund_policy_percent + '%',
+                                },
+                              )}
+                            </List.Description>
                           </List.Content>
                         </List.Item>
                         <List.Item>
@@ -145,7 +177,9 @@ export default function Register() {
                               )}
                             </List.Header>
                             <List.Description>
-                              Edit registration deadline
+                              {t(
+                                'competitions.competition_form.labels.registration.event_change_deadline_date',
+                              )}
                             </List.Description>
                           </List.Content>
                         </List.Item>
@@ -159,7 +193,9 @@ export default function Register() {
                               )}
                             </List.Header>
                             <List.Description>
-                              Waiting list acceptance date
+                              {t(
+                                'competitions.competition_form.labels.registration.waiting_list_deadline_date',
+                              )}
                             </List.Description>
                           </List.Content>
                         </List.Item>
