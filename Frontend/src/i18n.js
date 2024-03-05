@@ -7,7 +7,10 @@ i18n.use(initReactI18next).init({
   lng: 'en',
   interpolation: {
     escapeValue: false, // react already safes from xss
+    prefix: '%{',
+    suffix: '}',
   },
+  compatibilityJSON: 'v4',
   useSuspense: false,
 })
 
