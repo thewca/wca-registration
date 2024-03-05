@@ -6,6 +6,8 @@ import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
 import { hasPassed } from '../lib/dates'
 import { BASE_ROUTE } from '../routes'
+import { useTranslation } from 'react-i18next'
+import i18n from '../i18n'
 
 export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -13,6 +15,8 @@ export default function PageTabs() {
 
   const navigate = useNavigate()
   const location = useLocation()
+
+  const { t } = useTranslation('translation', { i18n })
 
   const menuItems = useMemo(() => {
     const optionalTabs = []
@@ -78,12 +82,16 @@ export default function PageTabs() {
           {menuConfig.icon && !menuConfig.cubing && (
             <UiIcon name={menuConfig.icon} />
           )}
-          {menuConfig.label}
+          {t(menuConfig.i18nKey)}
         </Menu.Item>
       ))}
 
       {hasCustomTabs && (
-        <Dropdown item text="More" className={customTabActive ? 'active' : ''}>
+        <Dropdown
+          item
+          text={t('competitions.registration_v2.tabs.more')}
+          className={customTabActive ? 'active' : ''}
+        >
           <Dropdown.Menu>
             {competitionInfo.tabs.map((competitionTab) => (
               <Dropdown.Item
@@ -137,40 +145,40 @@ function pathMatch(name, pathname) {
 const registerMenuConfig = {
   key: 'register',
   icon: 'sign in alt',
-  label: 'Register',
+  i18nKey: 'competitions.nav.menu.register',
 }
 const registrationsMenuConfig = {
   key: 'registrations',
   route: 'registrations/edit',
   icon: 'list ul',
-  label: 'Registrations',
+  i18nKey: 'competitions.nav.menu.registration',
 }
 const waitingMenuConfig = {
   key: 'waiting',
   route: 'waiting',
   icon: 'clock',
-  label: 'Waiting list',
+  i18nKey: 'competitions.registration_v2.tabs.waitlist',
 }
 const competitorsMenuConfig = {
   key: 'competitors',
   route: 'registrations',
   icon: 'users',
-  label: 'Competitors',
+  i18nKey: 'competitions.nav.menu.competitors',
 }
 const generalInfoMenuConfig = {
   key: 'info',
   route: '',
   icon: 'info',
-  label: 'General Info',
+  i18nKey: 'competitions.show.general_info',
 }
 const eventsMenuConfig = (icon) => ({
   key: 'events',
   icon,
-  label: 'Events',
+  i18nKey: 'competitions.show.events',
   cubing: true,
 })
 const scheduleMenuConfig = {
   key: 'schedule',
   icon: 'calendar',
-  label: 'Schedule',
+  i18nKey: 'competitions.show.schedule',
 }
