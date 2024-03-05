@@ -10,7 +10,6 @@ i18n.use(initReactI18next).init({
     prefix: '%{',
     suffix: '}',
   },
-  compatibilityJSON: 'v4',
   useSuspense: false,
 })
 
