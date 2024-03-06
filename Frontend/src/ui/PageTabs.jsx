@@ -1,13 +1,13 @@
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Dropdown, Menu } from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
+import i18n from '../i18n'
 import { hasPassed } from '../lib/dates'
 import { BASE_ROUTE } from '../routes'
-import { useTranslation } from 'react-i18next'
-import i18n from '../i18n'
 
 export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)

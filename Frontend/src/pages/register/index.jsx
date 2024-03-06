@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Button,
   Icon,
@@ -12,13 +13,12 @@ import { CompetitionContext } from '../../api/helper/context/competition_context
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { RegistrationContext } from '../../api/helper/context/registration_context'
 import { UserContext } from '../../api/helper/context/user_context'
+import i18n from '../../i18n'
 import { getMediumDateString, hasPassed } from '../../lib/dates'
 import { displayMoneyISO4217 } from '../../lib/money'
 import { RegistrationPermissionMessage } from '../../ui/messages/permissionMessage'
-import StepPanel from './components/StepPanel'
-import { useTranslation } from 'react-i18next'
-import i18n from '../../i18n'
 import { ClosedCompetitionMessage } from '../../ui/messages/registrationMessage'
+import StepPanel from './components/StepPanel'
 
 function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {

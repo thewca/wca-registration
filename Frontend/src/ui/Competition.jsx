@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import React, { Fragment, useContext, useMemo } from 'react'
-import { Trans, Translation, useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import {
   Container,
