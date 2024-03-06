@@ -573,7 +573,20 @@
           "back": "Go back"
         },
         "register": {
-          "error": "Registration failed with error %{error}"
+          "error": "Registration failed with error %{error}",
+          "earlyRegistration": "Registration is not open yet, but you can still register as a competition organizer or delegate.",
+          "comment": "Additional comments to the organizers",
+          "until": "You can update your registration until %{date}",
+          "passed": "You can no longer update your registration",
+          "editingDisabled": "Registration editing is disabled for this competition",
+          "registrationStatus": {
+            "header": "Your Registration Status:",
+            "accepted": "accepted",
+            "pending": "pending",
+            "waiting": "Waiting List",
+            "cancelled": "cancelled"
+          },
+          "disclaimer": "Submission of Registration does not mean approval to compete"
         }
       },
       "competition_info": {

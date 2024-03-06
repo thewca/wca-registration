@@ -23,7 +23,7 @@ export function ClosedCompetitionMessage({
   if (hasPassed(competitionRegistrationEnd)) {
     key = 'competitions.competition_info.registration_period.range_past_html'
   } else {
-    key = `competitions.competition_info.registration_period.range_past_html`
+    key = `competitions.competition_info.registration_period.range_future_html`
   }
 
   return (
