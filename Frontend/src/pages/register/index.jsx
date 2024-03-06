@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon'
 import React, { useContext, useState } from 'react'
 import {
   Button,
@@ -13,17 +12,13 @@ import { CompetitionContext } from '../../api/helper/context/competition_context
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { RegistrationContext } from '../../api/helper/context/registration_context'
 import { UserContext } from '../../api/helper/context/user_context'
-import {
-  getLongDateString,
-  getMediumDateString,
-  hasPassed,
-} from '../../lib/dates'
+import { getMediumDateString, hasPassed } from '../../lib/dates'
 import { displayMoneyISO4217 } from '../../lib/money'
-import PermissionMessage from '../../ui/messages/permissionMessage'
+import { RegistrationPermissionMessage } from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
 import { useTranslation } from 'react-i18next'
 import i18n from '../../i18n'
-import { registrationPermissionMessage } from '../../lib/messages'
+import { ClosedCompetitionMessage } from '../../ui/messages/registrationMessage'
 
 function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {
@@ -256,28 +251,18 @@ export default function Register() {
               </Transition>
             </>
           ) : (
-            <PermissionMessage
-              i18nKey={registrationPermissionMessage({
-                loggedIn,
-                userInfo: user,
-              })}
+            <RegistrationPermissionMessage
+              loggedIn={loggedIn}
+              userInfo={user}
             />
           )}
         </div>
       ) : (
-        <Message warning>
-          {hasPassed(competitionInfo.registration_close)
-            ? `Competition Registration closed on ${getMediumDateString(
-                competitionInfo.registration_close,
-              )}`
-            : `Competition Registration will open ${DateTime.fromISO(
-                competitionInfo.registration_open,
-              ).toRelativeCalendar()} on ${getLongDateString(
-                competitionInfo.registration_open,
-              )}, ${
-                !loggedIn ? 'you will need a WCA Account to register' : ''
-              }`}
-        </Message>
+        <ClosedCompetitionMessage
+          loggedIn={loggedIn}
+          competitionRegistrationEnd={competitionInfo.registration_open}
+          competitionRegistrationStart={competitionInfo.registration_close}
+        />
       )}
     </div>
   )

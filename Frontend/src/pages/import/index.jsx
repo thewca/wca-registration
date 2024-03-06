@@ -6,7 +6,7 @@ import { CompetitionContext } from '../../api/helper/context/competition_context
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import importRegistration from '../../api/registration/post/import_registration'
 import { BASE_ROUTE } from '../../routes'
-import PermissionMessage from '../../ui/messages/permissionMessage'
+import { NotAuthorizedPermissionMessage } from '../../ui/messages/permissionMessage'
 
 export default function Import() {
   const [file, setFile] = useState()
@@ -23,9 +23,7 @@ export default function Import() {
   })
 
   return !canAdminCompetition ? (
-    <PermissionMessage>
-      You are not allowed to import registrations.
-    </PermissionMessage>
+    <NotAuthorizedPermissionMessage />
   ) : (
     <Segment attached padded>
       <Input
