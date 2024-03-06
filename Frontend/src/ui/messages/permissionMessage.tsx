@@ -39,7 +39,7 @@ export function RegistrationPermissionMessage({
 }: RegistrationPermissionMessageParams) {
   let key = ''
   if (!loggedIn) {
-    key = 'api.login_message'
+    key = 'registrations.please_sign_in_html'
   }
   if (!userInfo.name) {
     key = 'registrations.errors.need_name'

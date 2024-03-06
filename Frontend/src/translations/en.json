@@ -569,6 +569,9 @@
         "update": {
           "noChanges": "There are no changes"
         },
+        "refunds": {
+          "back": "Go back"
+        },
         "register": {
           "error": "Registration failed with error %{error}"
         }

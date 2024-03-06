@@ -1,12 +1,12 @@
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { Message } from 'semantic-ui-react'
+import i18n from '../../i18n'
 import {
   getLongDateString,
   getMediumDateString,
   hasPassed,
 } from '../../lib/dates'
-import { Message } from 'semantic-ui-react'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import i18n from '../../i18n'
 
 interface ClosedCompetitionMessageProps {
   loggedIn: boolean
@@ -22,8 +22,9 @@ export function ClosedCompetitionMessage({
   let key = ''
   if (hasPassed(competitionRegistrationEnd)) {
     key = 'competitions.competition_info.registration_period.range_past_html'
+  } else {
+    key = `competitions.competition_info.registration_period.range_past_html`
   }
-  key = `competitions.competition_info.registration_period.range_past_html`
 
   return (
     <Message warning>
@@ -31,7 +32,7 @@ export function ClosedCompetitionMessage({
         start_date_and_time: getMediumDateString(competitionRegistrationEnd),
         end_date_and_time: getLongDateString(competitionRegistrationStart),
       })}
-      {loggedIn && t('api.login_message')}
+      {loggedIn && t('registrations.please_sign_in_html')}
     </Message>
   )
 }
