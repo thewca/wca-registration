@@ -227,7 +227,9 @@ export default function Register() {
                       }
                     }}
                   >
-                    Sounds awesome, count me in!
+                    {t('registrations.new_registration.title', {
+                      comp: competitionInfo.name,
+                    })}
                   </Button>
                 </Transition>
               </Segment>

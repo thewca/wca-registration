@@ -559,6 +559,17 @@
         "fees": {
           "none": "No Entry Fee",
           "guestNone": "Guests attend for free"
+        },
+        "requirements": {
+          "acknowledgement": "I have read and acknowledged all information under the 'Register' tab, including entry fees and refund policies",
+          "acknowledgment_extra": "I have read and understood all information listed above",
+          "next_step": "Continue to next Step"
+        },
+        "update": {
+          "noChanges": "There are no changes"
+        },
+        "register": {
+          "error": "Registration failed with error %{error}"
         }
       },
       "competition_info": {

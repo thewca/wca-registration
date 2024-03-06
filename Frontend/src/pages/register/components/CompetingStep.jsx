@@ -89,7 +89,7 @@ export default function CompetingStep({ nextStep }) {
       onSuccess: (_) => {
         // We can't update the registration yet, because there might be more steps needed
         // And the Registration might still be processing
-        setMessage('Registration submitted successfully', 'positive')
+        setMessage(t('registrations.flash.registered'), 'positive')
         setProcessing(true)
       },
     })
@@ -121,14 +121,17 @@ export default function CompetingStep({ nextStep }) {
   const attemptAction = useCallback(
     (action, options = {}) => {
       if (options.checkForChanges && !hasChanges) {
-        setMessage('There are no changes', 'basic')
+        setMessage(t('competitions.registration_v2.update.noChanges'), 'basic')
       } else if (!commentIsValid) {
-        setMessage('You must include a comment', 'negative')
+        setMessage(
+          t('registrations.errors.cannot_register_without_comment'),
+          'negative',
+        )
       } else if (!eventsAreValid) {
         setMessage(
           maxEvents === Infinity
-            ? 'You must select at least 1 event'
-            : `You must select between 1 and ${maxEvents} events`,
+            ? t('registrations.errors.must_register')
+            : t('registrations.errors.exceeds_event_limit.other'),
           'negative',
         )
       } else {
