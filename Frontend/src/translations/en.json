@@ -569,7 +569,13 @@
           "next_step": "Continue to next Step"
         },
         "update": {
-          "noChanges": "There are no changes"
+          "noChanges": "There are no changes",
+          "emailSend": "Send Email",
+          "emailCopy": "Copy Email",
+          "movePending": "Move to Pending",
+          "moveWaiting": "Move to Waiting List",
+          "cancel": "Cancel Registration",
+          "tooMany": "Accepting all these registrations would go over the competitor limit by %{count}"
         },
         "refunds": {
           "back": "Go back"

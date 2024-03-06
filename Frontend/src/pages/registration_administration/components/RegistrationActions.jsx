@@ -62,7 +62,7 @@ export default function RegistrationActions({
       setMessage(
         errorCode
           ? t(`errors.${errorCode}`)
-          : 'Registration update failed with error: ' + data.message,
+          : t('registrations.flash.failed') + data.message,
         'negative',
       )
     },
@@ -72,9 +72,9 @@ export default function RegistrationActions({
     const idsToAccept = [...pending, ...cancelled, ...waiting]
     if (idsToAccept.length > spotsRemaining) {
       setMessage(
-        `Accepting all these registrations would go over the competitor limit by ${
-          idsToAccept.length - spotsRemaining
-        }`,
+        t('competitions.registration_v2.update.tooMany', {
+          count: idsToAccept.length - spotsRemaining,
+        }),
         'negative',
       )
     } else {
@@ -94,7 +94,7 @@ export default function RegistrationActions({
         },
         {
           onSuccess: () => {
-            setMessage('Successfully saved registration changes', 'positive')
+            setMessage(t('registrations.flash.updated'), 'positive')
             refresh()
           },
         },
@@ -118,7 +118,7 @@ export default function RegistrationActions({
             )
           }}
         >
-          <UiIcon name="download" /> Export to CSV
+          <UiIcon name="download" /> {t('registrations.list.export_csv')}
         </Button>
 
         <Button>
@@ -128,19 +128,22 @@ export default function RegistrationActions({
             target="_blank"
             className="btn btn-info selected-registrations-actions"
           >
-            <UiIcon name="envelope" /> Send Email
+            <UiIcon name="envelope" />
+            {t('competitions.registration_v2.update.emailSend')}
           </a>
         </Button>
 
         <Button onClick={() => copyEmails(selectedEmails)}>
-          <UiIcon name="copy" /> Copy Emails
+          <UiIcon name="copy" />
+          {t('competitions.registration_v2.update.emailCopy')}
         </Button>
 
         {isOrganizerOrDelegate && (
           <>
             {anyApprovable && (
               <Button positive onClick={attemptToApprove}>
-                <UiIcon name="check" /> Approve
+                <UiIcon name="check" />
+                {t('registrations.list.approve')}
               </Button>
             )}
 
@@ -153,7 +156,8 @@ export default function RegistrationActions({
                   )
                 }
               >
-                <UiIcon name="times" /> Move to Pending
+                <UiIcon name="times" />
+                {t('competitions.registration_v2.update.movePending')}
               </Button>
             )}
 
@@ -167,7 +171,8 @@ export default function RegistrationActions({
                   )
                 }
               >
-                <UiIcon name="hourglass" /> Move to Waiting List
+                <UiIcon name="hourglass" />
+                {t('competitions.registration_v2.update.moveWaiting')}
               </Button>
             )}
 
@@ -181,7 +186,8 @@ export default function RegistrationActions({
                   )
                 }
               >
-                <UiIcon name="trash" /> Cancel Registration
+                <UiIcon name="trash" />
+                {t('competitions.registration_v2.update.cancel')}
               </Button>
             )}
           </>
