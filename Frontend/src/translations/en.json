@@ -525,6 +525,7 @@
       },
       "registration_v2": {
         "errors": {
+          "events": "Loading Events failed, please try again",
           "-1": "You have sent an invalid token, please refresh the page. If this issue persists contact WST",
           "-2": "Authentication Expired, please refresh the page",
           "-3": "Missing Authentication, please log in",

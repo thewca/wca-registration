@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { getEventName, getFormatName } from '@wca/helpers'
 import React, { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Message,
   Segment,
@@ -13,12 +14,13 @@ import {
 } from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
+import i18n from '../../i18n'
 import { setMessage } from '../../ui/events/messages'
 import LoadingMessage from '../../ui/messages/loadingMessage'
 
 export default function Events() {
   const { competitionInfo } = useContext(CompetitionContext)
-
+  const { t } = useTranslation('translation', { i18n })
   const {
     isLoading,
     isError,
@@ -33,7 +35,7 @@ export default function Events() {
   })
 
   if (isError) {
-    return <Message>Loading Events failed, please try again</Message>
+    return <Message>{t('competitions.registration_v2.errors.events')}</Message>
   }
 
   return isLoading ? (
@@ -43,16 +45,28 @@ export default function Events() {
       <Table striped>
         <TableHeader>
           <TableRow>
-            <TableHeaderCell>Event</TableHeaderCell>
-            <TableHeaderCell>Round</TableHeaderCell>
-            <TableHeaderCell>Format</TableHeaderCell>
-            <TableHeaderCell>Time Limit</TableHeaderCell>
+            <TableHeaderCell>
+              {t('competitions.results_table.event')}
+            </TableHeaderCell>
+            <TableHeaderCell>
+              {t('competitions.results_table.round')}
+            </TableHeaderCell>
+            <TableHeaderCell>{t('competitions.events.format')}</TableHeaderCell>
+            <TableHeaderCell>
+              {t('competitions.events.time_limit')}
+            </TableHeaderCell>
             {competitionInfo['uses_cutoff?'] && (
-              <TableHeaderCell>Cutoff</TableHeaderCell>
+              <TableHeaderCell>
+                {t('competitions.events.cutoff')}
+              </TableHeaderCell>
             )}
-            <TableHeaderCell>Proceed</TableHeaderCell>
+            <TableHeaderCell>
+              {t('competitions.events.proceed')}
+            </TableHeaderCell>
             {competitionInfo['uses_qualification?'] && (
-              <TableHeaderCell>Qualification</TableHeaderCell>
+              <TableHeaderCell>
+                {t('competitions.events.qualification')}
+              </TableHeaderCell>
             )}
           </TableRow>
         </TableHeader>
