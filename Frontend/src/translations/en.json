@@ -184,6 +184,15 @@
         }
       }
     },
+    "api": {
+      "legal_tnoodle_api_header": "Legal TNoodle version",
+      "login_message": "Please log in",
+      "manage_oauth_html": "Go to %{oauth_link} to manage your OAuth applications.",
+      "token_request_intro": "Here is an example, using curl, of obtaining an access token using an Application ID, Client Secret, your WCA email, and your password:",
+      "user_email_placeholder": "YOUR_EMAIL",
+      "user_info_request_intro": "An OAuth access token can be used, until it expires, to make authorized API requests. For example, to access information about your account:",
+      "user_password_placeholder": "YOUR_PASSWORD"
+    },
     "common": {
       "all_regions": "All regions",
       "average": "Average",
@@ -545,7 +554,6 @@
           "unbookmark": "You have removed your bookmark"
         },
         "tabs": {
-          "waitlist": "Waiting List",
           "more": "More"
         },
         "fees": {
@@ -1513,6 +1521,234 @@
         "title": "Requirements for WCA Regional Organizations"
       },
       "title": "Regional Organizations"
+    },
+    "registrations": {
+      "accepted": "Your registration has been accepted!",
+      "add": {
+        "add": "Add registration",
+        "errors": {
+          "already_registered": "This person already has a registration."
+        },
+        "info": "This will create an approved registration. Use this form to add walk-ins during the competition.",
+        "title": "Add registration for %{comp}"
+      },
+      "can_register": "You can register for %{comp} below.",
+      "check_registration_information": "Please check the information about registration to find out if you need to do something else, like paying a registration fee.",
+      "closed_html": "Registration closed <strong>%{days}</strong> ago on %{time}.",
+      "contact_organizer": "Contact the organizer if you wish to make a change.",
+      "delete": "Delete",
+      "delete_confirm": "Are you sure you want to delete your registration?",
+      "delete_registration": "Delete registration.",
+      "edit_registration": {
+        "title": "%{person} for %{comp}"
+      },
+      "entry_fees_fully_paid": "You have paid %{paid}, which fully covers the registration fees.",
+      "errors": {
+        "banned_html": "You are banned. If you believe this is an error, please contact the <a href='mailto:disciplinary@worldcubeassociation.org' target='_blank'>WDC</a>.",
+        "can_only_register_for_qualified_events": "You cannot register for events you are not qualified for.",
+        "cannot_be_deleted_and_accepted": "A registration cannot be deleted and accepted at the same time.",
+        "cannot_register_without_comment": "You must make a comment. Make sure to read the registration requirements what has to be included (e.g. in a FM simultaneous competition, which location you will compete at).",
+        "exceeds_event_limit": {
+          "one": "you must register in exactly 1 event",
+          "other": "you must register in less than or equal to %{count} events"
+        },
+        "must_register": "must register for at least one event",
+        "need_country": "Need a region",
+        "need_dob": "Need a birthdate",
+        "need_gender": "Need a gender",
+        "need_name": "Need a name",
+        "series_more_than_one_accepted": "You can only be accepted for one Series competition at a time.",
+        "undelete_banned": "is a banned competitor and cannot be undeleted"
+      },
+      "flash": {
+        "accepted_and_mailed": {
+          "one": "Registration accepted! Email notification sent.",
+          "other": "Registrations accepted! Email notifications sent."
+        },
+        "added": "Successfully added registration!",
+        "cannot_delete": "You cannot delete your registration.",
+        "deleted": "Successfully deleted your registration for %{comp}",
+        "deleted_and_mailed": {
+          "one": "Registration deleted",
+          "other": "Registrations deleted"
+        },
+        "failed": "Could not update registration",
+        "imported": "Successfully imported registrations!",
+        "not_using_wca": "This competition is not using WCA registration",
+        "registered": "Registration form submitted - make sure to follow all instructions from the Registration Requirements below to ensure your registration is complete.",
+        "rejected_and_mailed": {
+          "one": "Registration moved to waiting list",
+          "other": "Registrations moved to waiting list"
+        },
+        "single_deletion_and_mail": "Deleted registration and emailed %{mail}",
+        "updated": "Updated registration"
+      },
+      "greeting": "Hi, %{name}!",
+      "have_registered": "You have submitted your registration for %{comp}. You can see your registration details below.",
+      "import": {
+        "errors": {
+          "email_duplicates": "Email must be unique, found the following duplicates: %{emails}.",
+          "email_user_with_different_unconfirmed_wca_id": "There is already a user with email %{email}, but it has unconfirmed WCA ID of %{unconfirmed_wca_id} instead of %{registration_wca_id}.",
+          "email_user_with_different_wca_id": "There is already a user with email %{email}, but it has WCA ID of %{user_wca_id} instead of %{registration_wca_id}.",
+          "error": "Error importing %{registration}: %{error}.",
+          "invalid_event_column": "Event columns should include either 0 or 1, found %{value} in column %{column}.",
+          "missing_columns": "Missing columns: %{columns}.",
+          "non_existent_wca_id": "The WCA ID %{wca_id} doesn't exist.",
+          "over_competitor_limit": "The given file includes %{accepted_count} accepted registrations, which is more than the competitor limit of %{limit}.",
+          "wca_id_duplicates": "WCA ID must be unique, found the following duplicates: %{wca_ids}."
+        },
+        "import": "Import",
+        "info": "You can import registrations multiple times, changes will be determined and the database will be updated accordingly.",
+        "registrations_file_hint": "CSV file with columns: Status, Name, Region, WCA ID, Birth Date, Gender, Email, and one column for each event.",
+        "registrations_file_label": "Registrations file",
+        "title": "Import registrations for %{comp}"
+      },
+      "list": {
+        "approve": "Approve",
+        "approved_registrations": "Approved registrations",
+        "country_plural": {
+          "one": "1 region",
+          "other": "%{count} regions"
+        },
+        "delete": "Delete",
+        "deleted_registrations": "Deleted registrations",
+        "edit": "Edit",
+        "email": "Email",
+        "export_csv": "Export to CSV",
+        "n_events": "Number of events",
+        "non_competing": "Non-competing registrations",
+        "not_paid": "Not paid",
+        "payment_completed_on": "Payment completed on: %{date}",
+        "payment_requested_on": "Payment requested on: %{date}",
+        "registered": {
+          "with_stripe": "Paid on",
+          "without_stripe": "Registered on"
+        },
+        "reject": "Reject",
+        "series_registrations": "Series registrations",
+        "series_registrations_hint_html": "Hint: Series registrations are being displayed as <i>%{description}</i>",
+        "title": "Registrations for %{comp}",
+        "total": "Total",
+        "waiting_list": "Waiting List"
+      },
+      "mailer": {
+        "accepted": {
+          "mail_subject": "Registration Accepted: %{comp_name}",
+          "message_html": "Your registration for %{comp_name} has been accepted. As always, you can check the status of your registration %{here}.",
+          "see_you_soon": "We look forward to seeing you at %{comp_name}!"
+        },
+        "deleted": {
+          "causes": {
+            "competition_canceled": "The competition has been canceled",
+            "incomplete": "You didn't meet the registration criteria (for example, paying the registration fee in advance or meeting the qualifying times for events)",
+            "missing_info": "You did not submit all the required details",
+            "multiple_registrations": "You registered twice or more times",
+            "registrations_full": "The competitor limit has been reached and there are no more spots available"
+          },
+          "mail_subject": "Registration Deleted: %{comp_name}",
+          "message_html": "Your registration for %{comp_name} has been deleted. Possible causes are:"
+        },
+        "new": {
+          "approval_info_html": "You will be emailed when your registration is approved. Please note that registrations are not automatically approved, so be patient if you have not been accepted straight away. There may be more registration steps to follow before your registration will be approved. To see the approval criteria visit the competition website or contact the organizers. You can also check the status of your registration %{here}.",
+          "awaits_approval": "Please ensure that you have followed the competition's registration requirements. For example, a registration fee may need to be paid before the registration is complete.",
+          "mail_subject": "Registration Pending: %{comp_name}",
+          "registered_html": "Your registration for %{comp_name} is now pending, and awaiting approval from the organization team."
+        },
+        "pending": {
+          "causes": {
+            "accepted": "Your registration was accidentally accepted",
+            "withdrawal": "You asked for withdrawal"
+          },
+          "email_if_error": "If you think this is an error, please reply to this email.",
+          "mail_subject": "Registration Moved to Waitlist: %{comp_name}",
+          "moved_html": "Your registration for %{comp_name} has been moved to the waiting list. Possible causes are:"
+        },
+        "regards_html": "Regards, %{people}."
+      },
+      "new_registration": {
+        "title": "Register for %{comp}"
+      },
+      "not_qualified": "Not qualified",
+      "panel_title": "Registration details",
+      "payment_form": {
+        "alerts": {
+          "amount_rather_high": "You are about to pay at least double the required amount for your registration to proceed. Please confirm the payment by pressing OK.",
+          "amount_too_low": "The total amount must be at least the registration fees to be paid.",
+          "not_a_number": "Please enter a valid amount."
+        },
+        "button_text": "Pay now!",
+        "errors": {
+          "already_paid": "The charge was not placed because the registration fees are already paid.",
+          "not_allowed": "You can't pay for that registration.",
+          "payment_pending": "The payment has not been completed yet.",
+          "payment_reset": "The payment was rejected by Stripe.",
+          "stripe_failed": "Please check the Stripe transaction.",
+          "stripe_not_found": "Stripe reported back a transaction ID that couldn't be found.",
+          "stripe_secret_invalid": "Stripe reported back a transaction secret that doesn't match our records."
+        },
+        "hints": {
+          "donation": "Optional donation that will go only to the organization team",
+          "payment_button": "Your payment information never reaches the WCA website. It is securely sent to Stripe which handles the payment process and gets back to us."
+        },
+        "labels": {
+          "ajax_error": "WCA server error",
+          "donation": "Donation",
+          "entry_fees": "Registration fees",
+          "fees_paid": "Paid",
+          "fees_remaining": "Remaining",
+          "payment_button": "Pay your fees with Stripe",
+          "payment_information": "Payment information",
+          "show_donation": "I would like to make an additional optional donation that will go only to the organization team",
+          "stripe_error": "Stripe error",
+          "subtotal": "Subtotal"
+        },
+        "payment_processing": "Your payment has been confirmed, but the transaction is still pending.",
+        "payment_successful": "Your payment was successful, and your registration should show up paid below.",
+        "title": "Registration fees"
+      },
+      "please_fix_profile_html": "In order to register for %{comp}, you must fix the following problems with your %{profile}:",
+      "please_sign_in_html": "%{sign_in} to register for %{comp}. If you do not yet have a WCA account, you can create one %{here}.",
+      "please_sign_in_not_yet_open_html": "%{sign_in} to check the status of your registration. If you do not yet have a WCA account, you can create one %{here}, but its registration is not yet open.",
+      "please_sign_in_past_html": "%{sign_in} to check the status of your registration. If you do not yet have a WCA account, you can create one %{here}, but it is too late to register for this competition.",
+      "preferred_events_populated_html": "We autopopulated this with your preferred events, which you can edit %{link}.",
+      "preferred_events_prompt_html": "To speed up registration in the future, you can set your preferred events %{link}.",
+      "profile": "profile",
+      "refund": "Refund Payment",
+      "refund_confirmation": "Are you sure you want to refund this payment?",
+      "refund_form": {
+        "hints": {
+          "refund_amount": "The amount to refund to the competitor, can be any value up to the amount already paid."
+        },
+        "labels": {
+          "refund_amount": "Refund Amount"
+        }
+      },
+      "register": "Register!",
+      "registered_with_account_html": "This person registered with an account. You can edit their personal information %{here}.",
+      "registration_full": "The competitor limit for this competition is %{competitor_limit} and it has already been reached. If you register, your registration will be placed on a waiting list. It may not be approved unless a spot frees up.",
+      "registration_full_include_waiting_list": "The competitor limit for this competition is %{competitor_limit} and it may be filled. If you register, your registration will be placed on a waiting list. It may not be approved unless a spot frees up.",
+      "registration_info_people": {
+        "newcomer": {
+          "one": "first-timer",
+          "other": "first-timers"
+        },
+        "person": {
+          "one": "person",
+          "other": "people"
+        },
+        "returner": {
+          "one": "returner",
+          "other": "returners"
+        }
+      },
+      "registration_requirements": "Registration requirements for the competition:",
+      "sign_in": "Sign in",
+      "update": "Update Registration",
+      "waiting_list": "Your registration is pending. For approval, you may need to pay a registration fee. Check the competition website for details.",
+      "will_close_html": "Registration closes in <strong>%{days}</strong> on %{time}.",
+      "will_open_html": "Registration will open in <strong>%{days}</strong> on %{time}.",
+      "will_pay_here": "You will pay them here after submitting your registration",
+      "wont_pay_here": "Please check competition's information for instruction about how to pay"
     },
     "round": {
       "name": "%{event_name} %{round_name}"

@@ -157,7 +157,7 @@ const waitingMenuConfig = {
   key: 'waiting',
   route: 'waiting',
   icon: 'clock',
-  i18nKey: 'competitions.registration_v2.tabs.waitlist',
+  i18nKey: 'registrations.list.waiting_list',
 }
 const competitorsMenuConfig = {
   key: 'competitors',

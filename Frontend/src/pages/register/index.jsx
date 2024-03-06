@@ -23,6 +23,7 @@ import PermissionMessage from '../../ui/messages/permissionMessage'
 import StepPanel from './components/StepPanel'
 import { useTranslation } from 'react-i18next'
 import i18n from '../../i18n'
+import { registrationPermissionMessage } from '../../lib/messages'
 
 function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {
@@ -255,11 +256,12 @@ export default function Register() {
               </Transition>
             </>
           ) : (
-            <PermissionMessage>
-              {loggedIn
-                ? 'You are not allowed to Register for a competition, make sure your profile is complete and you are not banned.'
-                : 'You need to log in to Register for a competition.'}
-            </PermissionMessage>
+            <PermissionMessage
+              i18nKey={registrationPermissionMessage({
+                loggedIn,
+                userInfo: user,
+              })}
+            />
           )}
         </div>
       ) : (
