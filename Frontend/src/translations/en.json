@@ -586,7 +586,10 @@
             "waiting": "Waiting List",
             "cancelled": "cancelled"
           },
-          "disclaimer": "Submission of Registration does not mean approval to compete"
+          "disclaimer": "Submission of Registration does not mean approval to compete",
+          "processing": "Your registration is processing...",
+          "processingLonger": "Processing is taking longer than usual, don't go away!",
+          "processingQueue": "Lots of Registrations being processed, %{queueCount} in the queue."
         }
       },
       "competition_info": {
