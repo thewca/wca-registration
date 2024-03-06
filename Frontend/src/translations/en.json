@@ -555,6 +555,7 @@
           "unbookmark": "You have removed your bookmark"
         },
         "tabs": {
+          "payment": "Payment",
           "more": "More"
         },
         "fees": {
@@ -562,6 +563,7 @@
           "guestNone": "Guests attend for free"
         },
         "requirements": {
+          "title": "Requirements",
           "acknowledgement": "I have read and acknowledged all information under the 'Register' tab, including entry fees and refund policies",
           "acknowledgment_extra": "I have read and understood all information listed above",
           "next_step": "Continue to next Step"
