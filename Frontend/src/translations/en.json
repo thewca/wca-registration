@@ -551,6 +551,14 @@
           "link": "As a <0>%{pdfLink}</0>",
           "download": "Download all of the competitions details."
         },
+        "list": {
+          "empty": "No matching Records found",
+          "spotsRemaining": "; %{spots} spot(s) remaining",
+          "waitlisted": "Waitlisted registrations",
+          "comment": "Comment",
+          "adminNote": "Admin Note"
+
+        },
         "bookmark": {
           "unbookmark": "You have removed your bookmark"
         },

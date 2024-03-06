@@ -37,6 +37,7 @@ export default function RegistrationActions({
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
+
   const { t } = useTranslation()
 
   const selectedCount = Object.values(partitionedSelected).reduce(
