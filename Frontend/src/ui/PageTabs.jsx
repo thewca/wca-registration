@@ -58,7 +58,7 @@ export default function PageTabs() {
       attached
       fluid
       widths={menuItems.length + (hasCustomTabs ? 1 : 0)}
-      size="huge"
+      size="small"
       stackable
     >
       {menuItems.map((menuConfig) => (
@@ -76,7 +76,7 @@ export default function PageTabs() {
         >
           {menuConfig.cubing && <CubingIcon event={menuConfig.icon} selected />}
           {menuConfig.icon && !menuConfig.cubing && (
-            <UiIcon name={menuConfig.icon} />
+            <UiIcon size="1x" name={menuConfig.icon} />
           )}
           {menuConfig.label}
         </Menu.Item>
