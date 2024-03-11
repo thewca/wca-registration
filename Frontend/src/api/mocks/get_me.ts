@@ -1,5 +1,5 @@
-import { USER_KEY } from '../../ui/providers/UserProvider'
 import { UserFull } from '../helper/context/user_context'
+import { USER_KEY } from './get_jwt'
 
 export default function getMeMock(): UserFull | null {
   const userId = localStorage.getItem(USER_KEY)
