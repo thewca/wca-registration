@@ -1,17 +1,30 @@
-import backendFetch from '../../helper/backend_fetch'
+import createClient from 'openapi-fetch'
+import { getJWT } from '../../auth/get_jwt'
+import { BackendError, EXPIRED_TOKEN } from '../../helper/error_codes'
+import { components, paths } from '../../schema'
 
-export interface PaymentInfo {
-  // This is the MySQL payment id that can be give to the payment service
-  // to get the relevant data, not the Stripe ID!
-  id: string
-  status: string
-}
-// We get the user_id out of the JWT key, which is why we only send the
-// competition_id
+const { GET } = createClient<paths>({
+  baseUrl: process.env.API_URL,
+})
+
+type PaymentInfo = components['schemas']['paymentInfo']
 export default async function getPaymentId(
-  competitionId: string
+  competitionId: string,
 ): Promise<PaymentInfo> {
-  return backendFetch(`/${competitionId}/payment`, 'GET', {
-    needsAuthentication: true,
-  }) as Promise<PaymentInfo>
+  const { data, error, response } = await GET(
+    '/api/v1/{competition_id}/payment',
+    {
+      params: { path: { competition_id: competitionId } },
+      headers: { Authorization: await getJWT() },
+    },
+  )
+  if (error) {
+    if (error.error === EXPIRED_TOKEN) {
+      await getJWT(true)
+      return getPaymentId(competitionId)
+    }
+    throw new BackendError(error.error, response.status)
+  }
+
+  return data!
 }

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Dropdown, Menu } from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
+import { hasPassed } from '../lib/dates'
 import { BASE_ROUTE } from '../routes'
 
 export default function PageTabs() {
@@ -23,7 +24,7 @@ export default function PageTabs() {
       optionalTabs.push(registrationsMenuConfig)
       optionalTabs.push(waitingMenuConfig)
     }
-    if (new Date(competitionInfo.registration_open) < Date.now()) {
+    if (hasPassed(competitionInfo.registration_open)) {
       optionalTabs.push(competitorsMenuConfig)
     }
 
@@ -46,7 +47,7 @@ export default function PageTabs() {
 
   const customTabActive = useMemo(() => {
     return competitionInfo.tabs.some((competitionTab) =>
-      pathMatch(competitionTab.id, location.pathname)
+      pathMatch(competitionTab.id, location.pathname),
     )
   }, [competitionInfo.tabs, location])
 
@@ -68,7 +69,7 @@ export default function PageTabs() {
             navigate(
               `${BASE_ROUTE}/${competitionInfo.id}/${
                 menuConfig.route ?? menuConfig.key
-              }`
+              }`,
             )
           }
           active={pathMatch(menuConfig.key, location.pathname)}
@@ -89,7 +90,7 @@ export default function PageTabs() {
                 key={competitionTab.id}
                 onClick={() =>
                   navigate(
-                    `${BASE_ROUTE}/${competitionInfo.id}/tabs/${competitionTab.id}`
+                    `${BASE_ROUTE}/${competitionInfo.id}/tabs/${competitionTab.id}`,
                   )
                 }
                 active={pathMatch(competitionTab.id, location.pathname)}

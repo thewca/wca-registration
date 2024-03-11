@@ -23,8 +23,8 @@ export default function StepPanel() {
   const [activeIndex, setActiveIndex] = useState(() =>
     steps.findIndex(
       (step) =>
-        step === (isRegistered ? competingStepConfig : requirementsStepConfig)
-    )
+        step === (isRegistered ? competingStepConfig : requirementsStepConfig),
+    ),
   )
 
   const CurrentStepPanel = steps[activeIndex].component

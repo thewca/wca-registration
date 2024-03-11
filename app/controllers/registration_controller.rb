@@ -53,7 +53,7 @@ class RegistrationController < ApplicationController
   def validate_create_request
     @competition_id = registration_params[:competition_id]
     @user_id = registration_params[:user_id]
-    RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find!(@competition_id), @current_user)
+    RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find(@competition_id), @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
   end
@@ -105,16 +105,17 @@ class RegistrationController < ApplicationController
 
   def show
     registration = get_single_registration(@user_id, @competition_id)
-    render json: { registration: registration, status: 'ok' }
+    render json: registration
   rescue Dynamoid::Errors::RecordNotFound
-    render json: { registration: {}, status: 'ok' }
+    render json: {}, status: :not_found
+  rescue RegistrationError => e
+    render_error(e.http_status, e.error)
   end
 
   # You can either view your own registration or one for a competition you administer
   def validate_show_registration
     @user_id, @competition_id = show_params
-    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
-      @current_user.to_s == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
+    render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless @current_user == @user_id.to_i || UserApi.can_administer?(@current_user, @competition_id)
   end
 
   def bulk_update
@@ -207,7 +208,7 @@ class RegistrationController < ApplicationController
 
   def mine
     my_registrations = Registration.where(user_id: @current_user).map { |x| { competition_id: x.competition_id, status: x.competing_status } }
-    render json: { registrations: my_registrations }
+    render json: my_registrations
   rescue Dynamoid::Errors::Error => e
     # Render an error response
     puts e
@@ -222,10 +223,7 @@ class RegistrationController < ApplicationController
     waiting = Registration.get_registrations_by_status(competition_id, 'waiting_list').map do |registration|
       {
         user_id: registration[:user_id],
-        competing: {
-          event_ids: registration.event_ids,
-          waiting_list_position: registration.competing_waiting_list_position || 0,
-        },
+        waiting_list_position: registration.competing_waiting_list_position || 0,
       }
     end
     render json: waiting
@@ -240,7 +238,6 @@ class RegistrationController < ApplicationController
   # To list Registrations in the admin view you need to be able to administer the competition
   def validate_list_admin
     @competition_id = list_params
-
     unless UserApi.can_administer?(@current_user, @competition_id)
       render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
     end
@@ -298,11 +295,11 @@ class RegistrationController < ApplicationController
 
     def add_pii(registrations)
       pii = RedisHelper.cache_info_by_ids('pii', registrations.pluck(:user_id)) do |ids|
-        UserApi.get_competitor_info(ids)
+        UserApi.get_user_info_pii(ids)
       end
 
       registrations.map do |r|
-        user = pii.find { |u| u['id'].to_s == r[:user_id] }
+        user = pii.find { |u| u['id'] == r[:user_id] }
         r.merge(email: user['email'], dob: user['dob'])
       end
     end

@@ -31,7 +31,7 @@ export default function StripeWrapper() {
         errorCode
           ? t(`errors.${errorCode}`)
           : 'Fetching Payment Information failed with error: ' + err.message,
-        'negative'
+        'negative',
       )
     },
   })
@@ -53,7 +53,7 @@ export default function StripeWrapper() {
       setStripePromise(
         loadStripe(config.stripe_publishable_key, {
           stripeAccount: config.connected_account_id,
-        })
+        }),
       )
     }
   }, [

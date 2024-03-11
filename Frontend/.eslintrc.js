@@ -18,5 +18,11 @@ module.exports = configure({
       'react/jsx-uses-react': 'error',
     },
     extends: ['plugin:@tanstack/eslint-plugin-query/recommended'],
+    overrides: [
+      {
+        extends: ['plugin:@typescript-eslint/disable-type-checked'],
+        files: ['./**/*.js', './**/*.jsx'],
+      },
+    ],
   },
 })

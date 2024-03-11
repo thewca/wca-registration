@@ -52,23 +52,25 @@ class Registration
     end
   end
 
+  def competing_lane
+    lanes&.find { |x| x.lane_name == 'competing' }
+  end
+
+  def payment_lane
+    lanes&.find { |x| x.lane_name == 'payment' }
+  end
+
   # Returns all event ids irrespective of registration status
   def event_ids
-    lanes.filter_map { |x| x.lane_details['event_details'].pluck('event_id') if x.lane_name == 'competing' }[0]
+    competing_lane&.lane_details&.[]('event_details')&.pluck('event_id')
   end
 
   def attendee_id
     "#{competition_id}-#{user_id}"
   end
 
-  def competing_lane
-    lanes.find { |x| x.lane_name == 'competing' }
-  end
-
   def registered_event_ids
     event_ids = []
-
-    competing_lane = lanes.find { |x| x.lane_name == 'competing' }
 
     competing_lane.lane_details['event_details'].each do |event|
       if event['event_registration_state'] != 'cancelled'
@@ -79,36 +81,35 @@ class Registration
   end
 
   def event_details
-    competing_lane = lanes.find { |x| x.lane_name == 'competing' }
-    competing_lane.lane_details['event_details']
+    competing_lane&.lane_details&.[]('event_details')
   end
 
   def competing_waiting_list_position
-    competing_lane.lane_details['waiting_list_position']
+    competing_lane&.lane_details&.[]('waiting_list_position')
   end
 
   def competing_comment
-    lanes.filter_map { |x| x.lane_details['comment'] if x.lane_name == 'competing' }[0]
+    competing_lane&.lane_details&.[]('comment')
   end
 
   def admin_comment
-    lanes.filter_map { |x| x.lane_details['admin_comment'] if x.lane_name == 'competing' }[0]
+    competing_lane&.lane_details&.[]('admin_comment')
   end
 
   def payment_ticket
-    lanes.filter_map { |x| x.lane_details['payment_id'] if x.lane_name == 'payment' }[0]
+    payment_lane&.lane_details&.[]('payment_id')
   end
 
   def payment_status
-    lanes.filter_map { |x| x.lane_state if x.lane_name == 'payment' }[0]
+    payment_lane&.lane_state
   end
 
   def payment_date
-    lanes.filter_map { |x| x.lane_details['last_updated'] if x.lane_name == 'payment' }[0]
+    payment_lane&.lane_details&.[]('last_updated')
   end
 
   def payment_history
-    lanes.filter_map { |x| x.lane_details['payment_history'] if x.lane_name == 'payment' }[0]
+    payment_lane&.lane_details&.[]('payment_history')
   end
 
   def update_competing_waiting_list_position(new_position)
@@ -206,7 +207,7 @@ class Registration
   end
 
   # Fields
-  field :user_id, :string
+  field :user_id, :integer
   field :guests, :integer
   field :competition_id, :string
   field :competing_status, :string
@@ -219,11 +220,11 @@ class Registration
   private
 
     def set_competing_status
-      self.competing_status = lanes&.filter_map { |x| x.lane_state if x.lane_name == 'competing' }&.first
+      self.competing_status = competing_lane&.lane_state
     end
 
     def competing_status_consistency
-      errors.add(:competing_status, '') unless competing_status == lanes&.filter_map { |x| x.lane_state if x.lane_name == 'competing' }&.first
+      errors.add(:competing_status, '') unless competing_status == competing_lane&.lane_state
     end
 
     def waiting_list_changed?(update_params)

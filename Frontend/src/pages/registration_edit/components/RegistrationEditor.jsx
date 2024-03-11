@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import _ from 'lodash'
-import { DateTime } from 'luxon'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
@@ -17,7 +16,8 @@ import {
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
-import { getCompetitorInfo } from '../../../api/user/get/get_user_info'
+import { getUserInfo } from '../../../api/user/post/get_user_info'
+import { hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
@@ -51,7 +51,7 @@ export default function RegistrationEditor() {
 
   const { isLoading, data: competitorInfo } = useQuery({
     queryKey: ['info', user_id],
-    queryFn: () => getCompetitorInfo(user_id),
+    queryFn: () => getUserInfo(user_id),
   })
 
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
@@ -63,48 +63,44 @@ export default function RegistrationEditor() {
           errorCode
             ? t(`errors.${errorCode}`)
             : 'Registration update failed with error: ' + data.message,
-          'negative'
+          'negative',
         )
       },
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
           ['registration', competitionInfo.id, user_id],
-          data
+          data,
         )
       },
     })
 
   useEffect(() => {
     if (serverRegistration) {
-      setRegistration(serverRegistration.registration)
-      setComment(serverRegistration.registration.competing.comment ?? '')
-      setStatus(serverRegistration.registration.competing.registration_status)
-      setSelectedEvents(serverRegistration.registration.competing.event_ids)
-      setAdminComment(
-        serverRegistration.registration.competing.admin_comment ?? ''
-      )
+      setRegistration(serverRegistration)
+      setComment(serverRegistration.competing.comment ?? '')
+      setStatus(serverRegistration.competing.registration_status)
+      setSelectedEvents(serverRegistration.competing.event_ids)
+      setAdminComment(serverRegistration.competing.admin_comment ?? '')
       setWaitingListPosition(
-        serverRegistration.registration.competing.waiting_list_position ?? 0
+        serverRegistration.competing.waiting_list_position ?? 0,
       )
-      setGuests(serverRegistration.registration.guests ?? 0)
+      setGuests(serverRegistration.guests ?? 0)
     }
   }, [serverRegistration])
 
   const hasEventsChanged =
     serverRegistration &&
-    _.xor(serverRegistration.registration.competing.event_ids, selectedEvents)
-      .length > 0
+    _.xor(serverRegistration.competing.event_ids, selectedEvents).length > 0
   const hasCommentChanged =
     serverRegistration &&
-    comment !== (serverRegistration.registration.competing.comment ?? '')
+    comment !== (serverRegistration.competing.comment ?? '')
   const hasAdminCommentChanged =
     serverRegistration &&
-    adminComment !==
-      (serverRegistration.registration.competing.admin_comment ?? '')
+    adminComment !== (serverRegistration.competing.admin_comment ?? '')
   const hasStatusChanged =
     serverRegistration &&
-    status !== serverRegistration.registration.competing.registration_status
+    status !== serverRegistration.competing.registration_status
   const hasGuestsChanged = false
 
   const hasChanges =
@@ -130,7 +126,7 @@ export default function RegistrationEditor() {
         maxEvents === Infinity
           ? 'You must select at least 1 event'
           : `You must select between 1 and ${maxEvents} events`,
-        'negative'
+        'negative',
       )
     } else {
       setMessage('Updating Registration', 'basic')
@@ -162,9 +158,8 @@ export default function RegistrationEditor() {
   ])
 
   const registrationEditDeadlinePassed =
-    DateTime.fromISO(
-      competitionInfo.event_change_deadline_date ?? new Date().toISOString()
-    ) < DateTime.fromJSDate(new Date())
+    Boolean(competitionInfo.event_change_deadline_date) &&
+    hasPassed(competitionInfo.event_change_deadline_date)
 
   return (
     <Segment padded attached>

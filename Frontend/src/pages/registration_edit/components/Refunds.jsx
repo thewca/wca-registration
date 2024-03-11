@@ -25,7 +25,7 @@ export default function Refunds({ open, onExit, userId, competitionId }) {
     onError: (data) => {
       setMessage(
         'Refund payment failed with error: ' + data.errorCode,
-        'negative'
+        'negative',
       )
     },
     onSuccess: () => {

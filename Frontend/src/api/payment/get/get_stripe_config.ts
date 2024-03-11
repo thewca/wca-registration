@@ -9,7 +9,7 @@ export interface StripeConfig {
 
 export default async function getStripeConfig(
   competitionId: string,
-  paymentId: string
+  paymentId: string,
 ): Promise<StripeConfig> {
   return externalServiceFetch(paymentConfigRoute(competitionId, paymentId))
 }

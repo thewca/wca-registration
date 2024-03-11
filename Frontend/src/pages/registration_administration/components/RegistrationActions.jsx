@@ -41,7 +41,7 @@ export default function RegistrationActions({
 
   const selectedCount = Object.values(partitionedSelected).reduce(
     (sum, part) => sum + part.length,
-    0
+    0,
   )
   const anySelected = selectedCount > 0
 
@@ -63,7 +63,7 @@ export default function RegistrationActions({
         errorCode
           ? t(`errors.${errorCode}`)
           : 'Registration update failed with error: ' + data.message,
-        'negative'
+        'negative',
       )
     },
   })
@@ -75,7 +75,7 @@ export default function RegistrationActions({
         `Accepting all these registrations would go over the competitor limit by ${
           idsToAccept.length - spotsRemaining
         }`,
-        'negative'
+        'negative',
       )
     } else {
       changeStatus(idsToAccept, 'accepted')
@@ -97,7 +97,7 @@ export default function RegistrationActions({
             setMessage('Successfully saved registration changes', 'positive')
             refresh()
           },
-        }
+        },
       )
     })
   }
@@ -114,7 +114,7 @@ export default function RegistrationActions({
           onClick={() => {
             csvExport(
               [...pending, ...accepted, ...cancelled, ...waiting],
-              registrations
+              registrations,
             )
           }}
         >
@@ -149,7 +149,7 @@ export default function RegistrationActions({
                 onClick={() =>
                   changeStatus(
                     [...accepted, ...cancelled, ...waiting],
-                    'pending'
+                    'pending',
                   )
                 }
               >
@@ -163,7 +163,7 @@ export default function RegistrationActions({
                 onClick={() =>
                   changeStatus(
                     [...pending, ...cancelled, ...accepted],
-                    'waiting_list'
+                    'waiting_list',
                   )
                 }
               >
@@ -177,7 +177,7 @@ export default function RegistrationActions({
                 onClick={() =>
                   changeStatus(
                     [...pending, ...accepted, ...waiting],
-                    'cancelled'
+                    'cancelled',
                   )
                 }
               >

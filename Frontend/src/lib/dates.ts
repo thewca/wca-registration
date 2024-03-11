@@ -1,95 +1,121 @@
-import { Activity } from '@wca/helpers'
 import { DateTime } from 'luxon'
 
-// start/end dates may have different time-of-days
-export const getDatesBetweenInclusive = (
-  startDate: string,
-  endDate: string,
-  timeZone: string
+// parameter name conventions:
+// - `luxonDate` for luxon DateTime objects
+// - `date` for date-only ISO strings (no time)
+// - `dateTime` for date-and-time ISO strings
+
+//// luxon parameters
+
+export const areOnSameDate = (
+  luxonDate1: DateTime,
+  luxonDate2: DateTime,
+  timeZone: string,
 ) => {
-  // avoid infinite loop on invalid params
-  if (startDate > endDate) return []
-
-  const dates: Date[] = []
-  let nextDate = new Date(startDate)
-  while (!areOnSameDate(nextDate, new Date(endDate), timeZone)) {
-    dates.push(nextDate)
-    nextDate = new Date(nextDate)
-    nextDate.setDate(nextDate.getDate() + 1)
-  }
-  dates.push(nextDate)
-  return dates
-}
-
-export const areOnSameDate = (date1: Date, date2: Date, timeZone: string) => {
-  return DateTime.fromJSDate(date1)
+  return luxonDate1
     .setZone(timeZone)
-    .hasSame(DateTime.fromJSDate(date2).setZone(timeZone), 'day')
+    .hasSame(luxonDate2.setZone(timeZone), 'day')
 }
 
-export function isAfterNow(date: string): boolean {
-  return DateTime.fromISO(date) > DateTime.now()
+export const roundBackToHour = (luxonDate: DateTime) => {
+  return luxonDate.set({ minute: 0, second: 0, millisecond: 0 })
 }
 
-export const activitiesByDate = (
-  activities: Activity[],
-  date: Date,
-  timeZone: string
-) => {
-  return activities.filter((activity) =>
-    areOnSameDate(new Date(activity.startTime), date, timeZone)
-  )
+export const addEndBufferWithinDay = (luxonDate: DateTime) => {
+  const buffered = luxonDate.plus({ minutes: 10 })
+  if (buffered.day !== luxonDate.day) {
+    return luxonDate
+  }
+  return buffered
 }
 
-export const getShortTime = (date: string, timeZone: string) => {
-  return new Date(date).toLocaleTimeString([], {
-    timeStyle: 'short',
-    timeZone,
-  })
+//// string parameters
+
+export function hasPassed(dateTime: string): boolean {
+  return DateTime.fromISO(dateTime) < DateTime.now()
 }
 
-export const getMediumDate = (date: string) => {
-  return DateTime.fromISO(date).toLocaleString(DateTime.DATE_MED)
-}
-
-export const getLongDate = (date: string, timeZone: string) => {
-  return new Date(date).toLocaleDateString([], {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone,
-  })
+export function hasNotPassed(dateTime: string): boolean {
+  return DateTime.now() < DateTime.fromISO(dateTime)
 }
 
 export const doesRangeCrossMidnight = (
-  start: string,
-  end: string,
-  timeZone: string
+  startDateTime: string,
+  endDateTime: string,
+  timeZone: string,
 ) => {
-  const luxonStart = DateTime.fromISO(start).setZone(timeZone)
-  const luxonEnd = DateTime.fromISO(end).setZone(timeZone)
-  return luxonStart.day !== luxonEnd.day
+  const luxonStart = DateTime.fromISO(startDateTime)
+  const luxonEnd = DateTime.fromISO(endDateTime)
+  return !areOnSameDate(luxonStart, luxonEnd, timeZone)
 }
 
-export const todayWithTime = (date: string, timeZone: string) => {
-  const luxonDate = DateTime.fromISO(date).setZone(timeZone)
+export const getSimpleTimeString = (dateTime: string, timeZone = 'local') => {
+  return DateTime.fromISO(dateTime)
+    .setZone(timeZone)
+    .toLocaleString(DateTime.TIME_SIMPLE)
+}
+
+export const getShortTimeString = (dateTime: string, timeZone = 'local') => {
+  return DateTime.fromISO(dateTime)
+    .setZone(timeZone)
+    .toLocaleString(DateTime.TIME_WITH_SHORT_OFFSET)
+}
+
+export const getShortDateString = (dateTime: string, timeZone = 'local') => {
+  return DateTime.fromISO(dateTime)
+    .setZone(timeZone)
+    .toLocaleString(DateTime.DATE_SHORT)
+}
+
+// note: some uses are passing dates with times or dates without times
+// ie: `event_change_deadline_date ?? competitionInfo.start_date`
+export const getMediumDateString = (dateTime: string, timeZone = 'local') => {
+  return DateTime.fromISO(dateTime)
+    .setZone(timeZone)
+    .toLocaleString(DateTime.DATE_MED)
+}
+
+export const getLongDateString = (dateTime: string, timeZone = 'local') => {
+  return DateTime.fromISO(dateTime)
+    .setZone(timeZone)
+    .toLocaleString(DateTime.DATE_HUGE)
+}
+
+export const getFullDateTimeString = (dateTime: string, timeZone = 'local') => {
+  return DateTime.fromISO(dateTime)
+    .setZone(timeZone)
+    .toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)
+}
+
+// start/end dates may have different time-of-days
+export const getDatesBetweenInclusive = (
+  startDateTime: string,
+  endDateTime: string,
+  timeZone: string,
+) => {
+  // avoid infinite loop on invalid params
+  if (startDateTime > endDateTime) return []
+
+  const luxonStart = DateTime.fromISO(startDateTime).setZone(timeZone)
+  const luxonEnd = DateTime.fromISO(endDateTime).setZone(timeZone)
+
+  const datesBetween: DateTime[] = []
+  let nextDate = luxonStart
+  while (!areOnSameDate(nextDate, luxonEnd, timeZone)) {
+    datesBetween.push(nextDate)
+    nextDate = nextDate.plus({ days: 1 })
+  }
+  datesBetween.push(nextDate)
+  return datesBetween
+}
+
+// luxon does not support time-only object, so use today's date in utc
+export const todayWithTime = (dateTime: string, timeZone: string) => {
+  const luxonDate = DateTime.fromISO(dateTime).setZone(timeZone)
   return DateTime.utc().set({
     hour: luxonDate.hour,
     minute: luxonDate.minute,
     second: luxonDate.second,
     millisecond: luxonDate.millisecond,
   })
-}
-
-export const roundBackToHour = (date: DateTime) => {
-  return date.set({ minute: 0, second: 0, millisecond: 0 })
-}
-
-export const addEndBufferWithinDay = (date: DateTime) => {
-  const buffered = date.plus({ minutes: 10 })
-  if (buffered.day !== date.day) {
-    return date
-  }
-  return buffered
 }
