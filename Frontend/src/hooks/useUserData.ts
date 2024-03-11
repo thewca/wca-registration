@@ -19,7 +19,7 @@ export function useWithUserData<Type extends { user_id: number }>(
     staleTime: Infinity,
     refetchOnMount: 'always',
     retry: false,
-    enabled: Boolean(registrations), // dont' fire an unnecessary request for empty data
+    enabled: sortedIds.length > 0, // don't fire an unnecessary request for empty data
     select: (data) => addUserData(registrations, data),
   })
 }

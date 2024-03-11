@@ -9,7 +9,7 @@ unless Rails.env.production?
   ]
   attribute_definitions = [
     { attribute_name: 'attendee_id', attribute_type: 'S' },
-    { attribute_name: 'user_id', attribute_type: 'S' },
+    { attribute_name: 'user_id', attribute_type: 'N' },
     { attribute_name: 'competition_id', attribute_type: 'S' },
   ]
   provisioned_throughput = {

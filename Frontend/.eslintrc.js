@@ -21,7 +21,7 @@ module.exports = configure({
     overrides: [
       {
         extends: ['plugin:@typescript-eslint/disable-type-checked'],
-        files: ['./**/*.js','./**/*.jsx'],
+        files: ['./**/*.js', './**/*.jsx'],
       },
     ],
   },

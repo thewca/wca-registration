@@ -108,13 +108,14 @@ class RegistrationController < ApplicationController
     render json: registration
   rescue Dynamoid::Errors::RecordNotFound
     render json: {}, status: :not_found
+  rescue RegistrationError => e
+    render_error(e.http_status, e.error)
   end
 
   # You can either view your own registration or one for a competition you administer
   def validate_show_registration
     @user_id, @competition_id = show_params
-    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
-      @current_user.to_s == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
+    render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless @current_user == @user_id.to_i || UserApi.can_administer?(@current_user, @competition_id)
   end
 
   def bulk_update
@@ -232,7 +233,6 @@ class RegistrationController < ApplicationController
   # To list Registrations in the admin view you need to be able to administer the competition
   def validate_list_admin
     @competition_id = list_params
-
     unless UserApi.can_administer?(@current_user, @competition_id)
       render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
     end
@@ -294,7 +294,7 @@ class RegistrationController < ApplicationController
       end
 
       registrations.map do |r|
-        user = pii.find { |u| u['id'].to_s == r[:user_id] }
+        user = pii.find { |u| u['id'] == r[:user_id] }
         r.merge(email: user['email'], dob: user['dob'])
       end
     end
