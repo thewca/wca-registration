@@ -15,10 +15,10 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2'
+          bundler-cache: true
       - name: Lint with Rubocop
         run: |
-          gem install rubocop
-          rubocop
+          bundle exec rubocop
       - name: Lint with Eslint
         run: |
           cd ./Frontend
