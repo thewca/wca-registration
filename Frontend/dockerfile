@@ -8,5 +8,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY index.html ./
 
+# So we can run tests
+COPY jest.config.js ./
+
 # Install dependencies using npm
 RUN npm install

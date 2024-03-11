@@ -42,6 +42,7 @@ const context = await esbuild.context({
     // 'process.env.WCA_URL': `"http://localhost:3000"`,
     'process.env.WCA_URL': `"https://staging.worldcubeassociation.org"`,
     'process.env.API_URL': '"http://localhost:3001"',
+    'process.env.AUTH_URL': '"http://localhost:3001/test/jwt"',
     'process.env.NODE_ENV': '"development"',
   },
 })
