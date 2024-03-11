@@ -3,7 +3,7 @@
 require 'aws-sdk-dynamodb'
 require 'dynamoid'
 require 'httparty'
-require '../helpers/wca_api'
+require_relative '../helpers/wca_api'
 require_relative '../helpers/lane_factory'
 require_relative 'env_config'
 
