@@ -17,7 +17,7 @@ resource "aws_dynamodb_table" "registrations" {
 
   attribute {
     name = "user_id"
-    type = "S"
+    type = "N"
   }
   ttl {
     attribute_name = "TimeToExist"
