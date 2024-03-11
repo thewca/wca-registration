@@ -84,7 +84,7 @@ export default function RegistrationList() {
 
   const data = useMemo(() => {
     if (dataWithUser) {
-      const sorted = dataWithUser.sort((a, b) => {
+      const sorted = dataWithUser.toSorted((a, b) => {
         if (psychSheetEvent !== undefined) {
           return 0 // backend handles the sorting of psych sheets
         }

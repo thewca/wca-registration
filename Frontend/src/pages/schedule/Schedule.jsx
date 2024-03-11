@@ -152,7 +152,7 @@ export default function Schedule({ wcif }) {
   const allActivitiesSorted = venues
     .flatMap((venue) => venue.rooms)
     .flatMap((room) => room.activities)
-    .sort(earliestWithLongestTieBreaker)
+    .toSorted(earliestWithLongestTieBreaker)
   // use this, rather than wcif's startDate, in-case viewing in different time zone
   const firstStartTime = allActivitiesSorted[0].startTime
   const lastStartTime =

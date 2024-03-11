@@ -159,9 +159,9 @@ export default function RegistrationAdministrationList() {
   const { isLoading: infoLoading, data: registrationsWithUser } =
     useWithUserData(registrations ?? [])
 
-  const sortedRegistrationWithUser = useMemo(() => {
+  const sortedRegistrationsWithUser = useMemo(() => {
     if (registrationsWithUser) {
-      const sorted = registrationsWithUser.sort((a, b) => {
+      const sorted = registrationsWithUser.toSorted((a, b) => {
         switch (sortColumn) {
           case 'name':
             return a.user.name.localeCompare(b.user.name)
@@ -188,7 +188,7 @@ export default function RegistrationAdministrationList() {
         }
       })
       if (sortDirection === 'descending') {
-        return sorted.reverse()
+        return sorted.toReversed()
       }
       return sorted
     }
@@ -196,10 +196,8 @@ export default function RegistrationAdministrationList() {
   }, [registrationsWithUser, sortColumn, sortDirection])
 
   const { waiting, accepted, cancelled, pending } = useMemo(
-    () => partitionRegistrations(sortedRegistrationWithUser ?? []),
-    // this useMemo will not fire again if we only change the order of the array, which is why we need the sortColumn and sortDirection in the deps
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sortedRegistrationWithUser, sortColumn, sortDirection],
+    () => partitionRegistrations(sortedRegistrationsWithUser ?? []),
+    [sortedRegistrationsWithUser],
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])

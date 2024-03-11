@@ -33,6 +33,7 @@ import PageTabs from './ui/PageTabs'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import RegistrationProvider from './ui/providers/RegistrationProvider'
 import UserProvider from './ui/providers/UserProvider'
+import ScrollToTopButton from './ui/ScrollToTopButton'
 
 const router = createBrowserRouter([
   {
@@ -77,7 +78,7 @@ const router = createBrowserRouter([
                 <RegistrationProvider>
                   <PageTabs />
                   <Outlet />
-                  <PageTabs />
+                  <ScrollToTopButton />
                 </RegistrationProvider>
               </PermissionsProvider>
             </Competition>
