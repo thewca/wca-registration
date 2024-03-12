@@ -6,168 +6,45 @@ namespace :import do
   include CsvImport
   desc 'Import registrations from CSV for specified competition_ids'
   task registrations: :environment do
-    # Step 1: Generate a list of competition_ids by running the following command in phpmyadmin
-    # SELECT `id` FROM `Competitions` WHERE `start_date` > "2023-11-22";
-    # Replace "2023-11-22" with the current date, export as CSV, and then you have the competition ids. Vim magic for hash formatting.
-    competition_import_files = {
-      MedanSpeedcubingShowdown2023: 'basic_registrations_import.csv',
-      GlendaleHeightsFMCWinter2023: 'basic_registrations_import.csv',
-      DublinOhioCubingWinter2023: 'basic_registrations_import.csv',
-      CaloocanYearEndBlast2023: 'basic_registrations_import.csv',
-      SaideiraBrasilia2023: 'basic_registrations_import.csv',
-      BrizZonSylwesterOpen2023: 'basic_registrations_import.csv',
-      HappyHolidaysColorado2023: 'basic_registrations_import.csv',
-      RacetheClockMinnesota2023: 'basic_registrations_import.csv',
-      SpokaneWinter2023: 'basic_registrations_import.csv',
-      WinchesterWindDown2023: 'basic_registrations_import.csv',
-      BlackUnicornBudapest2023: 'basic_registrations_import.csv',
-      KrungthepFarewell2023: 'basic_registrations_import.csv',
-      MinnesotaMeetupIIITuesday2024: 'basic_registrations_import.csv',
-      AComp2020: 'basic_registrations_import.csv',
-      MinnesotaMeetupIIIWednesday2024: 'basic_registrations_import.csv',
-      MinnesotaMeetupIIIThursday2024: 'basic_registrations_import.csv',
-      BatonRougeWinter2024: 'basic_registrations_import.csv',
-      CanadasBestintheWest2024: 'basic_registrations_import.csv',
-      GemCityAirplaneModeV2024: 'basic_registrations_import.csv',
-      LeersumAlgs2024: 'basic_registrations_import.csv',
-      ConnecticutWinter2024: 'basic_registrations_import.csv',
-      CubingatTheCube2024: 'basic_registrations_import.csv',
-      CurtanCubingContest2024: 'basic_registrations_import.csv',
-      DiadeReyesChiriqui2024: 'basic_registrations_import.csv',
-      DontDNFDublin2024: 'basic_registrations_import.csv',
-      FSUbers502024: 'basic_registrations_import.csv',
-      MilwaukeeCubingMania2024: 'basic_registrations_import.csv',
-      RedWolfCubingArkansas2024: 'basic_registrations_import.csv',
-      RenoWinter2024: 'basic_registrations_import.csv',
-      SpaceCityWinter2024: 'basic_registrations_import.csv',
-      UtahIceCubing2024: 'basic_registrations_import.csv',
-      ManilaSidesStandoff2024: 'basic_registrations_import.csv',
-      Solve4JusticeSouthfield2024: 'basic_registrations_import.csv',
-      UCSDWinter2024: 'basic_registrations_import.csv',
-      AdelaideSummer2024: 'basic_registrations_import.csv',
-      ChooChooCubingA2024: 'basic_registrations_import.csv',
-      GCUWinter2024: 'basic_registrations_import.csv',
-      KCKC4BigandAwkward2024: 'basic_registrations_import.csv',
-      PBQPickeringWinter2024: 'basic_registrations_import.csv',
-      PerthPuzzleParty2024: 'basic_registrations_import.csv',
-      PourGesteJaiGateau2024: 'basic_registrations_import.csv',
-      RebelCountyCubing2024: 'basic_registrations_import.csv',
-      SiouxFallsWinter2024: 'basic_registrations_import.csv',
-      StevenageJanuary2024: 'basic_registrations_import.csv',
-      TassieSummer2024: 'basic_registrations_import.csv',
-      WashtenawWinter2024: 'basic_registrations_import.csv',
-      BayAreaSpeedcubin55SanRamon2024: 'basic_registrations_import.csv',
-      ChooChooCubingB2024: 'basic_registrations_import.csv',
-      ChosicasBigShow2024: 'basic_registrations_import.csv',
-      MelbourneSummer2024: 'basic_registrations_import.csv',
-      BackToTriCities2024: 'basic_registrations_import.csv',
-      HayangeOpen2024: 'basic_registrations_import.csv',
-      ManchesterWinter2024: 'basic_registrations_import.csv',
-      MegamaniainLouisville2024: 'basic_registrations_import.csv',
-      MoCoCubingWinter2024: 'basic_registrations_import.csv',
-      NorthStarCubingChallenge2024: 'basic_registrations_import.csv',
-      PowayCubingWinter2024: 'basic_registrations_import.csv',
-      SacCubingXVI2024: 'basic_registrations_import.csv',
-      TacomaWinterTwisters2024: 'basic_registrations_import.csv',
-      UCOCubingWinter2024: 'basic_registrations_import.csv',
-      ZoryOpen2024: 'basic_registrations_import.csv',
-      FewBetterMeanItDiliman2024: 'basic_registrations_import.csv',
-      TroyStory2024: 'basic_registrations_import.csv',
-      AlbanySummerSolving2024: 'basic_registrations_import.csv',
-      BigCubeBattleofWaterloo2024: 'basic_registrations_import.csv',
-      CubingAbovetheDinosaurs2024: 'basic_registrations_import.csv',
-      EcijaOpen2024: 'basic_registrations_import.csv',
-      EdinburghWinter2024: 'basic_registrations_import.csv',
-      GortaGoFast2024: 'basic_registrations_import.csv',
-      HonoluluLiiliiaIkeMaka2024: 'basic_registrations_import.csv',
-      LongjumOpen2024: 'basic_registrations_import.csv',
-      ParsippanyMiniAM2024: 'basic_registrations_import.csv',
-      ParsippanyMiniPM2024: 'basic_registrations_import.csv',
-      SouthernSolvesInvercargill2024: 'basic_registrations_import.csv',
-      TheBattleofLexington2024: 'basic_registrations_import.csv',
-      HonoluluNuiaMakapo2024: 'basic_registrations_import.csv',
-      BrisbaneSummer2024: 'basic_registrations_import.csv',
-      BurnabyBasics2024: 'basic_registrations_import.csv',
-      CobbCubesandClocks2024: 'basic_registrations_import.csv',
-      EgyptWinter2024: 'basic_registrations_import.csv',
-      GdayMaitland2024: 'basic_registrations_import.csv',
-      MurdochUniversityOpen2024: 'basic_registrations_import.csv',
-      NoVaCubeWinter2024: 'basic_registrations_import.csv',
-      RheinNeckarPhysicalBreakdown2024: 'basic_registrations_import.csv',
-      WiltshireFebruary2024: 'basic_registrations_import.csv',
-      FallRiverCubikon2024: 'basic_registrations_import.csv',
-      BattleofAlberta2024: 'basic_registrations_import.csv',
-      DSFGeneralforsamlingen2024: 'basic_registrations_import.csv',
-      HawaiiBigIslandWinter2024: 'basic_registrations_import.csv',
-      HiroshimaWinter2024: 'basic_registrations_import.csv',
-      HurlubiksCubeMouscron2024: 'basic_registrations_import.csv',
-      StevenageFebruary2024: 'basic_registrations_import.csv',
-      TNSpeedsolvingWinter2024: 'basic_registrations_import.csv',
-      EliteinEagan2024: 'basic_registrations_import.csv',
-      ParadiseParkNxNxN2024: 'basic_registrations_import.csv',
-      AmoreOpen2024: 'basic_registrations_import.csv',
-      CatalinaCubeMixer2024: 'basic_registrations_import.csv',
-      ChellesOpen2024: 'basic_registrations_import.csv',
-      CorduffCubingSaturday2024: 'basic_registrations_import.csv',
-      HampshireWinter2024: 'basic_registrations_import.csv',
-      Naticube2024: 'basic_registrations_import.csv',
-      Winterpeg2024: 'basic_registrations_import.csv',
-      CorduffCubingSunday2024: 'basic_registrations_import.csv',
-      BASC56BASED2024: 'basic_registrations_import.csv',
-      CardinalCubeDay2024: 'basic_registrations_import.csv',
-      CorkSpring2024: 'basic_registrations_import.csv',
-      GetAnotherSuccessinSuccess2024: 'basic_registrations_import.csv',
-      SeomaraCubeFest2024: 'basic_registrations_import.csv',
-      VolunteerStateCubing2024: 'basic_registrations_import.csv',
-      BASC57BigandBlind2024: 'basic_registrations_import.csv',
-      VelillaOpen2024: 'basic_registrations_import.csv',
-      AlgsinAnkeny2024: 'basic_registrations_import.csv',
-      StevenageNewcomersSat2024: 'basic_registrations_import.csv',
-      StevenageNewcomersSunday2024: 'basic_registrations_import.csv',
-      CharenteOpen2024: 'basic_registrations_import.csv',
-      DFWMegacomp2024: 'basic_registrations_import.csv',
-      ManchesterSpring2024: 'basic_registrations_import.csv',
-      BoltonSpring2024: 'basic_registrations_import.csv',
-      WideBayCubing2024: 'basic_registrations_import.csv',
-      NittedalMentalBreakdown2024: 'basic_registrations_import.csv',
-      NZSouthIslandChampionship2024: 'basic_registrations_import.csv',
-      ItsAboutTimeBloomsburg2024: 'basic_registrations_import.csv',
-      PleaseBeQuietBrisbane2024: 'basic_registrations_import.csv',
-      RiverHawkCubikon2024: 'basic_registrations_import.csv',
-      DFWCubingSpring2024: 'basic_registrations_import.csv',
-      PuzzlesinPottsville2024: 'basic_registrations_import.csv',
-      BoltonSummer2024: 'basic_registrations_import.csv',
-      BetaComp1: 'basic_registrations_import.csv',
-      BetaComp2: 'basic_registrations_import.csv',
-      BetaComp3: 'basic_registrations_import.csv',
-      BetaComp4: 'basic_registrations_import.csv',
-      BetaComp5: 'basic_registrations_import.csv',
-      BetaComp6: 'basic_registrations_import.csv',
-      BetaComp7: 'basic_registrations_import.csv',
-      BetaComp8: 'basic_registrations_import.csv',
-      BetaComp9: 'basic_registrations_import.csv',
-      # BetaComp10: '50_registrations_import.csv',
-      # BetaComp11: '100_registrations_import.csv',
-      # BetaComp12: '500_registrations_import.csv',
-      # BetaComp13: '1000_registrations_import.csv',
-      # BetaComp14: '3000_registrations_import.csv',
-    }
+    competitions_with_events_path = './lib/tasks/competitions_and_events.csv'
+    registrations_csv_path = './lib/tasks/registrations_import.csv'
+
+    # Step 1: Generate a list of competitions and their event_ids
+    competitions_with_events = get_competitions_with_events(competitions_with_events_path)
+    puts competitions_with_events
 
     # Step 2: Import records for each competition_id
-    competition_import_files.each do |competition_id, csv_file_path|
-      registrations = build_import_hash(csv_file_path, competition_id)
-      puts competition_id
-      Registration.create(registrations)
+    competitions_with_events.each do |competition_id, events|
+      registrations = build_import_hash(registrations_csv_path, competition_id, events)
+      puts "***REGISTRATIONS TO CREATE:\n\n #{registrations}"
+
+      registrations.each do |reg|
+        puts reg
+        puts reg[:user_id].class
+        Registration.create(reg)
+      end
+      # Registration.create(registrations)
     end
   end
 
-  def fetch_competition_ids_from_api
-    # TODO
+  def get_competitions_with_events(path)
+    return_hash = {}
+
+    CSV.foreach(path) do |row|
+      return_hash[row[0]] = row[1].split(',')
+    end
+
+    return_hash
   end
 
-  def build_import_hash(csv_file_path, competition_id)
+  def build_import_hash(csv_file_path, competition_id, event_ids)
     CSV.parse(File.read(csv_file_path), headers: true).map do |row|
-      CsvImport.parse_row_to_registration(row.to_h, competition_id)
+      registration_data = row.to_h
+      registration_data['competing.event_ids'] = event_ids
+
+      registration = CsvImport.parse_row_to_registration(registration_data, competition_id)
+      puts "\nBuild registration import hash: #{registration}"
+      registration
     end
   end
 end

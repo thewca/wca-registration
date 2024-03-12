@@ -50,3 +50,18 @@ Tests are grouped by "context" into success/fail groups. Add the `-e` flag to ru
 ### Resources for Generating Hashes with FactoryBot
 
 https://medium.com/@josisusan/factorygirl-as-json-response-a70f4a4e92a0
+
+## Populating Registrations on Staging
+
+1. Generate a list of competitions_ids and their events by running the following script in the staging database: 
+    ```sql
+    SELECT ce.*
+    FROM (
+        SELECT competition_id, GROUP_CONCAT(event_id) as events
+        FROM competition_events
+        GROUP BY competition_id
+    ) AS ce
+    JOIN Competitions on ce.competition_id = Competitions.id
+    WHERE Competitions.start_date > "2024-03-11"
+    ```
+2. 
