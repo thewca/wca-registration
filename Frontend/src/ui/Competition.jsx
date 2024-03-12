@@ -4,14 +4,7 @@ import { marked } from 'marked'
 import React, { Fragment, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import {
-  Container,
-  Flag,
-  Header,
-  Image,
-  List,
-  Segment,
-} from 'semantic-ui-react'
+import { Flag, Header, Image, List, Segment } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import {
   bookmarkCompetition,
