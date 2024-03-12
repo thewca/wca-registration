@@ -58,7 +58,7 @@ export default function PageTabs() {
       attached
       fluid
       widths={menuItems.length + (hasCustomTabs ? 1 : 0)}
-      size="massive"
+      size="huge"
       stackable
     >
       {menuItems.map((menuConfig) => (
