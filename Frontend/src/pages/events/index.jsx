@@ -20,7 +20,7 @@ import LoadingMessage from '../../ui/messages/loadingMessage'
 
 export default function Events() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { t } = useTranslation('translation', { i18n })
+  const { t } = useTranslation(undefined, { i18n })
   const {
     isLoading,
     isError,

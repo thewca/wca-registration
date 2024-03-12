@@ -12,7 +12,7 @@ export default function StepPanel() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { isRegistered } = useContext(RegistrationContext)
 
-  const { t } = useTranslation('translation', { i18n })
+  const { t } = useTranslation(undefined, { i18n })
 
   const steps = useMemo(() => {
     const steps = [requirementsStepConfig, competingStepConfig]

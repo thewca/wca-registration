@@ -23,6 +23,7 @@ import submitEventRegistration from '../../../api/registration/post/submit_regis
 import { getMediumDateString, hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import Processing from './Processing'
+import i18n from '../../../i18n'
 
 const maxCommentLength = 240
 
@@ -32,7 +33,7 @@ export default function CompetingStep({ nextStep }) {
   const { registration, isRegistered, refetch } =
     useContext(RegistrationContext)
 
-  const { t } = useTranslation()
+  const { t } = useTranslation(undefined, { i18n })
 
   const [comment, setComment] = useState('')
   const [selectedEvents, setSelectedEvents] = useState(

@@ -19,12 +19,13 @@ import { useWithUserData } from '../../../hooks/useUserData'
 import { createSortReducer } from '../../../reducers/sortReducer'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
+import i18n from '../../../i18n'
 
 const sortReducer = createSortReducer(['name', 'country', 'total'])
 
 export default function RegistrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { t } = useTranslation()
+  const { t } = useTranslation(undefined, { i18n })
 
   const { isLoading: registrationsLoading, data: registrations } = useQuery({
     queryKey: ['registrations', competitionInfo.id],

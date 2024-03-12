@@ -7,10 +7,11 @@ import { getWaitingCompetitors } from '../../../api/registration/get/get_registr
 import { useWithUserData } from '../../../hooks/useUserData'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
+import i18n from '../../../i18n'
 
 export default function WaitingList() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { t } = useTranslation()
+  const { t } = useTranslation(undefined, { i18n })
   const { isLoading: waitingLoading, data: waiting } = useQuery({
     queryKey: ['waiting', competitionInfo.id],
     queryFn: () => getWaitingCompetitors(competitionInfo.id),

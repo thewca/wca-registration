@@ -5,6 +5,7 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { UserContext } from '../../../api/helper/context/user_context'
 import { paymentFinishRoute } from '../../../api/helper/routes'
 import { setMessage } from '../../../ui/events/messages'
+import i18n from '../../../i18n'
 
 export default function PaymentStep() {
   const stripe = useStripe()
@@ -13,7 +14,7 @@ export default function PaymentStep() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { user } = useContext(UserContext)
 
-  const { t } = useTranslation()
+  const { t } = useTranslation(undefined, { i18n })
 
   const handleSubmit = async (e) => {
     e.preventDefault()

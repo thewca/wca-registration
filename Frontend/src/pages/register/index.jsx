@@ -38,7 +38,7 @@ export default function Register() {
   // Show Registration Panel instead of Info if already registered
   const [showRegisterSteps, setShowRegisterSteps] = useState(isRegistered)
 
-  const { t } = useTranslation('translation', { i18n })
+  const { t } = useTranslation(undefined, { i18n })
 
   const loggedIn = user !== null
 

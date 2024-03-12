@@ -10,7 +10,7 @@ interface PermissionMessageProps {
 }
 
 export function PermissionMessage({ i18nKey }: PermissionMessageProps) {
-  const { t } = useTranslation('translation', { i18n })
+  const { t } = useTranslation(undefined, { i18n })
 
   return (
     <Message icon negative>

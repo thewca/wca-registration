@@ -18,7 +18,7 @@ export function ClosedCompetitionMessage({
   competitionRegistrationStart,
   competitionRegistrationEnd,
 }: ClosedCompetitionMessageProps) {
-  const { t } = useTranslation('translation', { i18n })
+  const { t } = useTranslation(undefined, { i18n })
   let key = ''
   if (hasPassed(competitionRegistrationEnd)) {
     key = 'competitions.competition_info.registration_period.range_past_html'

@@ -8,6 +8,7 @@ import { PermissionsContext } from '../../../api/helper/context/permission_conte
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { setMessage } from '../../../ui/events/messages'
 import styles from './actions.module.scss'
+import i18n from '../../../i18n'
 
 function csvExport(selected, registrations) {
   let csvContent = 'data:text/csv;charset=utf-8,'
@@ -38,7 +39,7 @@ export default function RegistrationActions({
   const { competitionInfo } = useContext(CompetitionContext)
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
 
-  const { t } = useTranslation()
+  const { t } = useTranslation(undefined, { i18n })
 
   const selectedCount = Object.values(partitionedSelected).reduce(
     (sum, part) => sum + part.length,

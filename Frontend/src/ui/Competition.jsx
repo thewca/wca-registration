@@ -37,7 +37,7 @@ export default function Competition({ children }) {
 
   const { user } = useContext(UserContext)
 
-  const { t, ready } = useTranslation('translation', { i18n })
+  const { t, ready } = useTranslation(undefined, { i18n })
 
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],

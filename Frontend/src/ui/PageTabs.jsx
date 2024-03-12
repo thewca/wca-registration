@@ -16,7 +16,7 @@ export default function PageTabs() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const { t } = useTranslation('translation', { i18n })
+  const { t } = useTranslation(undefined, { i18n })
 
   const menuItems = useMemo(() => {
     const optionalTabs = []

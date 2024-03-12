@@ -11,7 +11,7 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 export default function Refunds({ open, onExit, userId, competitionId }) {
   const [refundAmount, setRefundAmount] = useState(0)
 
-  const { t } = useTranslation('translation', { i18n })
+  const { t } = useTranslation(undefined, { i18n })
 
   const {
     data: refunds,

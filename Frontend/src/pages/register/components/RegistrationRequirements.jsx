@@ -22,7 +22,7 @@ export default function RegistrationRequirements({ nextStep }) {
 
   const [showRegRequirements, setShowRegRequirements] = useState(false)
 
-  const { t } = useTranslation('translation', { i18n })
+  const { t } = useTranslation(undefined, { i18n })
 
   const setFromCheckbox = (data, setState) => {
     const { checked } = data

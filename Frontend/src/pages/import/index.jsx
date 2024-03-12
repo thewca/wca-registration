@@ -18,7 +18,7 @@ export default function Import() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAdminCompetition } = useContext(PermissionsContext)
 
-  const { t } = useTranslation('translation', { i18n })
+  const { t } = useTranslation(undefined, { i18n })
 
   const { mutate: importMutation, isLoading: isMutating } = useMutation({
     mutationFn: importRegistration,

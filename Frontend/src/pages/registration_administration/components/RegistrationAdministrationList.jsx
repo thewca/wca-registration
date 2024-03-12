@@ -15,6 +15,7 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
+import i18n from '../../../i18n'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]
@@ -116,7 +117,7 @@ const truncateComment = (comment) =>
 export default function RegistrationAdministrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
 
-  const { t } = useTranslation()
+  const { t } = useTranslation(undefined, { i18n })
 
   const [expandedColumns, dispatchColumns] = useReducer(
     columnReducer,
@@ -355,7 +356,7 @@ function RegistrationAdministrationTable({
   sortColumn,
   changeSortColumn,
 }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation(undefined, { i18n })
 
   const handleHeaderCheck = (_, data) => {
     if (data.checked) {
@@ -421,7 +422,7 @@ function TableHeader({
   const { competitionInfo } = useContext(CompetitionContext)
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
 
-  const { t } = useTranslation()
+  const { t } = useTranslation(undefined, { i18n })
 
   const { dob, events, comments } = columnsExpanded
 
