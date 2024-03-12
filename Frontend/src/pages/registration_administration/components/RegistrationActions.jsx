@@ -6,9 +6,9 @@ import { Button } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import { setMessage } from '../../../ui/events/messages'
 import styles from './actions.module.scss'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 
 function csvExport(selected, registrations) {
   let csvContent = 'data:text/csv;charset=utf-8,'

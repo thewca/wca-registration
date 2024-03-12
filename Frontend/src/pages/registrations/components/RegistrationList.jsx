@@ -16,10 +16,10 @@ import {
   getPsychSheetForEvent,
 } from '../../../api/registration/get/get_registrations'
 import { useWithUserData } from '../../../hooks/useUserData'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import { createSortReducer } from '../../../reducers/sortReducer'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 
 const sortReducer = createSortReducer(['name', 'country', 'total'])
 

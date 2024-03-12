@@ -17,12 +17,12 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { getUserInfo } from '../../../api/user/post/get_user_info'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import { hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
 import Refunds from './Refunds'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 
 export default function RegistrationEditor() {
   const { user_id } = useParams()

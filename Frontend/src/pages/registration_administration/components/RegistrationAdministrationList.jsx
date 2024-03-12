@@ -8,6 +8,7 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import { useWithUserData } from '../../../hooks/useUserData'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import { getShortDateString, getShortTimeString } from '../../../lib/dates'
 import { createSortReducer } from '../../../reducers/sortReducer'
 import { BASE_ROUTE } from '../../../routes'
@@ -15,7 +16,6 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './list.module.scss'
 import RegistrationActions from './RegistrationActions'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 
 const selectedReducer = (state, action) => {
   let newState = [...state]

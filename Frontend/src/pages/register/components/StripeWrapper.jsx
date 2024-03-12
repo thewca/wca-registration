@@ -7,9 +7,9 @@ import { useTranslation } from 'react-i18next'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import getStripeConfig from '../../../api/payment/get/get_stripe_config'
 import getPaymentId from '../../../api/registration/get/get_payment_intent'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import { setMessage } from '../../../ui/events/messages'
 import PaymentStep from './PaymentStep'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 
 export default function StripeWrapper() {
   const [stripePromise, setStripePromise] = useState(null)
