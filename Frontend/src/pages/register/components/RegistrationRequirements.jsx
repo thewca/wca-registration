@@ -11,7 +11,7 @@ import {
   Transition,
 } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
-import i18n from '../../../i18n'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 
 export default function RegistrationRequirements({ nextStep }) {
   const { competitionInfo } = useContext(CompetitionContext)
@@ -22,7 +22,7 @@ export default function RegistrationRequirements({ nextStep }) {
 
   const [showRegRequirements, setShowRegRequirements] = useState(false)
 
-  const { t } = useTranslation(undefined, { i18n })
+  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
 
   const setFromCheckbox = (data, setState) => {
     const { checked } = data

@@ -2,10 +2,12 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import resources from './translations/resources'
 
+export const TRANSLATIONS_NAMESPACE = 'translations'
+
 if (process.env.NODE_ENV === 'production') {
   i18n.use(initReactI18next).init({
     // Use the monoliths translations object
-    resources: window.I18n.translations,
+    resources: window.I18n,
     lng: window.I18n.locale,
     interpolation: {
       escapeValue: false, // react already safes from xss

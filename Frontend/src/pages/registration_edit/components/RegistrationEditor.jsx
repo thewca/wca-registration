@@ -22,12 +22,12 @@ import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
 import Refunds from './Refunds'
-import i18n from '../../../i18n'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 
 export default function RegistrationEditor() {
   const { user_id } = useParams()
   const { competitionInfo } = useContext(CompetitionContext)
-  const { t } = useTranslation(undefined, { i18n })
+  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
 
   const [comment, setComment] = useState('')
   const [adminComment, setAdminComment] = useState('')

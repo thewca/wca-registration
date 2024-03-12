@@ -14,13 +14,13 @@ import {
 } from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
-import i18n from '../../i18n'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../../i18n'
 import { setMessage } from '../../ui/events/messages'
 import LoadingMessage from '../../ui/messages/loadingMessage'
 
 export default function Events() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { t } = useTranslation(undefined, { i18n })
+  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
   const {
     isLoading,
     isError,

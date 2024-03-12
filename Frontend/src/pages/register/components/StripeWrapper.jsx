@@ -9,12 +9,12 @@ import getStripeConfig from '../../../api/payment/get/get_stripe_config'
 import getPaymentId from '../../../api/registration/get/get_payment_intent'
 import { setMessage } from '../../../ui/events/messages'
 import PaymentStep from './PaymentStep'
-import i18n from '../../../i18n'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 
 export default function StripeWrapper() {
   const [stripePromise, setStripePromise] = useState(null)
   const { competitionInfo } = useContext(CompetitionContext)
-  const { t } = useTranslation(undefined, { i18n })
+  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
   const {
     data: paymentInfo,
     isLoading: isPaymentIdLoading,

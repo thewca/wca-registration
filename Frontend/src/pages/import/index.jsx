@@ -6,7 +6,7 @@ import { Button, Input, Segment } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import importRegistration from '../../api/registration/post/import_registration'
-import i18n from '../../i18n'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../../i18n'
 import { BASE_ROUTE } from '../../routes'
 import { NotAuthorizedPermissionMessage } from '../../ui/messages/permissionMessage'
 
@@ -18,7 +18,7 @@ export default function Import() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAdminCompetition } = useContext(PermissionsContext)
 
-  const { t } = useTranslation(undefined, { i18n })
+  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
 
   const { mutate: importMutation, isLoading: isMutating } = useMutation({
     mutationFn: importRegistration,

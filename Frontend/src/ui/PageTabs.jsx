@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Dropdown, Menu } from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
 import { PermissionsContext } from '../api/helper/context/permission_context'
-import i18n from '../i18n'
+import i18n, { TRANSLATIONS_NAMESPACE } from '../i18n'
 import { hasPassed } from '../lib/dates'
 import { BASE_ROUTE } from '../routes'
 
@@ -16,7 +16,7 @@ export default function PageTabs() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const { t } = useTranslation(undefined, { i18n })
+  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
 
   const menuItems = useMemo(() => {
     const optionalTabs = []
