@@ -18,7 +18,7 @@ export async function getUsersInfo(
   // safeguard for when there is nothing to query.
   // Rails blows up with an empty param array so we cannot do this check in the backend.
   if (userIds.length === 0) {
-    return [];
+    return []
   }
 
   const { data, error, response } = await POST('/api/v1/users', {
