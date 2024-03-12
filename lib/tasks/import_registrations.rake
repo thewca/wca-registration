@@ -20,10 +20,8 @@ namespace :import do
 
       registrations.each do |reg|
         puts reg
-        puts reg[:user_id].class
         Registration.create(reg)
       end
-      # Registration.create(registrations)
     end
   end
 
@@ -31,7 +29,7 @@ namespace :import do
     return_hash = {}
 
     CSV.foreach(path) do |row|
-      return_hash[row[0]] = row[1].split(',')
+      return_hash[row[0]] = row[1].gsub(',', ';')
     end
 
     return_hash
