@@ -48,7 +48,7 @@ module Mocks
 
   def self.permissions_mock(user_id)
     case user_id
-    when '1' # Test Organizer
+    when 1 # Test Organizer
       {
         'can_attend_competitions' => {
           'scope' => '*',
@@ -60,7 +60,7 @@ module Mocks
           'scope' => %w[CubingZANationalChampionship2023 LowLimit2023],
         },
       }
-    when '2' # Test Multi-Comp Organizer
+    when 2 # Test Multi-Comp Organizer
       {
         'can_attend_competitions' => {
           'scope' => '*',
@@ -72,7 +72,7 @@ module Mocks
           'scope' => %w[LazarilloOpen2023 CubingZANationalChampionship2023 KoelnerKubing2023 LowLimit2023],
         },
       }
-    when '15073', '15074' # Test Admin
+    when 15073, 15074 # Test Admin
       {
         'can_attend_competitions' => {
           'scope' => '*',
@@ -84,7 +84,7 @@ module Mocks
           'scope' => '*',
         },
       }
-    when '209943', '999999' # Test banned/incomplete profile User
+    when 209943, 999999 # Test banned/incomplete profile User
       {
         'can_attend_competitions' => {
           'scope' => [],
