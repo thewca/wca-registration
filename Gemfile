@@ -56,7 +56,7 @@ gem 'prometheus_exporter'
 gem 'vault'
 
 # for environment variable management
-gem 'dotenv-rails', require: 'dotenv/rails-now'
+gem 'dotenv-rails', require: 'dotenv/load'
 gem 'superconfig'
 
 group :development, :test do
