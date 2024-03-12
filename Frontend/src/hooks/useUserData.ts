@@ -5,6 +5,10 @@ import { addUserData } from '../lib/users'
 export function useWithUserData<Type extends { user_id: number }>(
   registrations: Type[],
 ) {
+  if (registrations.length === 0) {
+    return { isLoading: false, data: [] }
+  }
+
   // requires a custom comparator because standard JS interprets everything as strings when sorting:
   // https://typescript-eslint.io/rules/require-array-sort-compare/
   const sortedIds = registrations
