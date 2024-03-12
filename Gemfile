@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |_repo| 'https://github.com/thewca/wca-registration.git' }
 
-ruby '3.2.2'
+ruby '3.3.0'
 
 # Gems that are only needed by the handler not the worker
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
