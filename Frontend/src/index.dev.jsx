@@ -34,6 +34,7 @@ import PermissionsProvider from './ui/providers/PermissionsProvider'
 import RegistrationProvider from './ui/providers/RegistrationProvider'
 import UserProvider from './ui/providers/UserProvider'
 import ScrollToTopButton from './ui/ScrollToTopButton'
+import './i18n'
 
 const router = createBrowserRouter([
   {
