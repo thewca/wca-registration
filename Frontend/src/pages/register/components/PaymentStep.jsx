@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { UserContext } from '../../../api/helper/context/user_context'
 import { paymentFinishRoute } from '../../../api/helper/routes'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import { setMessage } from '../../../ui/events/messages'
 
 export default function PaymentStep() {
@@ -14,7 +13,7 @@ export default function PaymentStep() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { user } = useContext(UserContext)
 
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   const handleSubmit = async (e) => {
     e.preventDefault()

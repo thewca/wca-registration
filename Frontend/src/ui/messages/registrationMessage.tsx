@@ -1,7 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Message } from 'semantic-ui-react'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../i18n'
 import {
   getLongDateString,
   getMediumDateString,
@@ -18,7 +17,7 @@ export function ClosedCompetitionMessage({
   competitionRegistrationStart,
   competitionRegistrationEnd,
 }: ClosedCompetitionMessageProps) {
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
   let key = ''
   if (hasPassed(competitionRegistrationEnd)) {
     key = 'competitions.competition_info.registration_period.range_past_html'

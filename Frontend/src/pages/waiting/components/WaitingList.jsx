@@ -5,13 +5,12 @@ import { Table, TableFooter } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getWaitingCompetitors } from '../../../api/registration/get/get_registrations'
 import { useWithUserData } from '../../../hooks/useUserData'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
 export default function WaitingList() {
   const { competitionInfo } = useContext(CompetitionContext)
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
   const { isLoading: waitingLoading, data: waiting } = useQuery({
     queryKey: ['waiting', competitionInfo.id],
     queryFn: () => getWaitingCompetitors(competitionInfo.id),

@@ -1,189 +1,5 @@
 {
   "en": {
-    "about": {
-      "contributing_content_html": "You can donate by credit card using Guidestar %{here_credit}, or by Paypal %{here_paypal}. If you prefer to write a check, you can write to:",
-      "contributing_title": "Making a contribution",
-      "donation_banner": {
-        "content": "The World Cube Association is a 501(c)(3) tax-exempt organization. As a 100% volunteer-led nonprofit, we welcome your donations to help us further our vision of having more enjoyable competitions all over the world.",
-        "donate_credit": "Donate via credit card",
-        "donate_other": "Other ways to donate",
-        "donate_paypal": "Donate via Paypal"
-      },
-      "mission_footer": "WCA Mission Statement",
-      "mission_statement": "Our mission is to have more competitions in more countries with more people and more fun, under fair and equal conditions.",
-      "other_help_content_html": "<p>If you believe you would be able to contribute to the World Cube Association in a non-financial way, we would love to hear from you! Please get in touch with us at <a href=\"mailto:communication@worldcubeassociation.org\">communication@worldcubeassociation.org</a>.</p>",
-      "other_help_title": "Other ways to help",
-      "our_goals_content_html": "<p>The World Cube Association wants to bring opportunities for community membership and leadership to young people around the world through increasing the accessibility of our 'twisty puzzle' competitions. We believe that experiences at competitions and within our community create growth opportunities for the young people involved and that introducing puzzle events to new groups of people allows for our overall community to strengthen. A document containing the Board's Vision and Strategy for the WCA can be found <a href=\"https://documents.worldcubeassociation.org/documents/WCA_Vision_and_Strategy.pdf\">here</a>.</p>",
-      "our_goals_title": "Our goals",
-      "spirit": "Our spirit is that people from all over the world have fun together in a friendly atmosphere, help each other and behave sportsmanlike.",
-      "spirit_footer": "WCA Spirit",
-      "structure": {
-        "banned": {
-          "name": "Banned Competitors"
-        },
-        "board": {
-          "description": "The WCA Board is responsible for leading the organization as a whole, and fulfilling any duties not fulfilled by other Teams,  Committees, and Councils",
-          "name": "WCA Board of Directors"
-        },
-        "chair": {
-          "name": "WCA Chair"
-        },
-        "committees": "The WCA's teams and committees are an integral part of the organization and perform the day-to-day tasks that are required to keep it functioning. These committees are made up of WCA community members, including WCA Delegates and competitors. Each team has a leader, whose role is to ensure the proper functioning of the team and guide other team members. Councils are a special type of team that serve an advisory role to the WCA Board and are made up of community members, not WCA Staff members. When there are committee, team, or council openings, information about how to apply is posted on the front page.",
-        "delegates_html": "<p><strong>WCA Delegate</strong> is a role defined in the WCA Motions and depicted in the WCA Regulations. The primary duty of a Delegate is to oversee competitions on behalf of the WCA. A WCA Delegate is responsible for making sure that all WCA Competitions are run according to the Mission, Spirit, and Regulations of the WCA. The WCA distinguishes between <strong>Senior Delegates</strong>, <strong>Regional Delegates</strong>, <strong>Full Delegates</strong>, <strong>Junior Delegates</strong>, and <strong>Trainee Delegates</strong>%{see_link}.</p> <p>In addition to the duties of a WCA Delegate, a Senior Delegate or Regional Delegate is responsible for managing the WCA Delegates in their area and can also be contacted by the community for regional matters.</p> <p>New Delegates are listed as Junior Delegates at first; afterwards they are requested to show proficiency managing WCA Competitions before being promoted to WCA Delegates.</p> <p>Trainee Delegates are being trained for the position of WCA Delegate and can only oversee competitions in which a WCA Delegate is present.</p>",
-        "executive_director": {
-          "name": "WCA Executive Director"
-        },
-        "leader": "Leader",
-        "members_html": "All competitors automatically become <strong>members</strong> of the WCA in their first WCA competition.",
-        "officers": {
-          "description": "The officers of the WCA handle tasks relating to the non-profit status of the WCA. These officers are elected by the WCA Board. The Executive Director is the Chief Executive Officer of the WCA, the Chair presides over all Board meetings, the Secretary maintains the organization's documents, and the Treasurer manages financial matters of the WCA.",
-          "name": "WCA Officers"
-        },
-        "operations_html": "The day to day operations are run by the WCA's %{committees_and_teams}.",
-        "probation": {
-          "name": "Delegates on Probation"
-        },
-        "secretary": {
-          "name": "WCA Secretary"
-        },
-        "see_link_html": " (see %{link})",
-        "senior_member": "Senior Member",
-        "teams_committees": "Teams and Committees",
-        "teams_committees_councils": "WCA Teams, Committees, and Councils",
-        "title": "Structure",
-        "treasurer": {
-          "name": "WCA Treasurer"
-        },
-        "users": {
-          "profile": "%{user_name}'s profile"
-        },
-        "vice_chair": {
-          "name": "WCA Vice-Chair"
-        },
-        "wac": {
-          "description": "This council is responsible for building and maintaining bilateral communication between the WCA Community and the WCA Staff.",
-          "name": "WCA Advisory Council"
-        },
-        "wat": {
-          "description": "The WCA Archive Team is an Advisory Committee of the WCA. This team has the role to oversee and support the development of an archive of the organization.",
-          "name": "WCA Archive Team"
-        },
-        "wcat": {
-          "description": "This team has the role to approve and announce WCA Competitions and ensure such announcements adhere to WCA quality standards.",
-          "name": "WCA Competition Announcement Team"
-        },
-        "wct": {
-          "description": "The WCA Communication Team (WCT) has the role to oversee and support communications of the WCA with the Community and the general public. The communication of the WCA should contribute to the Objectives of the WCA and support a general positive culture of friendliness, transparency, inclusiveness, openness, and responsiveness.",
-          "name": "WCA Communication Team"
-        },
-        "wct_china": {
-          "name": "WCT China"
-        },
-        "wdc": {
-          "description": "This committee advises the WCA Board in special cases, like alleged violations of WCA Regulations, and may be contacted by WCA members in case of important personal matters regarding WCA competitions.",
-          "name": "WCA Disciplinary Committee"
-        },
-        "wdpc": {
-          "description": "This committee is responsible for all matters relating to Data Protection.",
-          "name": "WCA Data Protection Committee"
-        },
-        "weat": {
-          "description": "This team is responsible for carrying out the administrative tasks of the WCA Board of Directors.",
-          "name": "WCA Executive Assistants Team"
-        },
-        "wec": {
-          "description": "This committee's role is to ensure that all the procedures followed by the WCA Staff and External Staff abide by its Code of Ethics, and to perform independent investigations if the conduct of any of these members is not compliant with said Code of Ethics. Such investigations can be requested by any Registered Speedcubers, for whom the WEC is a confidant. This committee also functions as the board of appeal if anyone involved disagrees with a decision made by the WCA Disciplinary Committee.",
-          "name": "WCA Ethics Committee"
-        },
-        "wfc": {
-          "description": "This team is responsible for managing the finances of the WCA.",
-          "name": "WCA Financial Committee"
-        },
-        "wmt": {
-          "description": "This team is responsible for developing and managing the WCA Brand, seeking sponsorships, supporting the distribution of WCA Competition Gear, and marketing WCA Merchandise.",
-          "name": "WCA Marketing Team"
-        },
-        "wqac": {
-          "description": "This committee has the role to support and promote continuous quality improvement within the WCA, as well as worldwide application of quality standards to ensure consistent high quality of processes, WCA Staff, Regional Organizations, Competition Organizers, and Competition Staff.",
-          "name": "WCA Quality Assurance Committee"
-        },
-        "wrc": {
-          "description": "This committee is responsible for managing the WCA Regulations.",
-          "name": "WCA Regulations Committee"
-        },
-        "wrt": {
-          "description": "This team is responsible for managing all competition results.",
-          "name": "WCA Results Team"
-        },
-        "wsot": {
-          "description": "This team has the role to oversee and support the recognition of the WCA as an international sports organization.",
-          "name": "WCA Sports Organization Team"
-        },
-        "wst": {
-          "description": "This team is responsible for managing the WCA's software (website, scramblers, workbooks, admin tools).",
-          "name": "WCA Software Team"
-        },
-        "wst_admin": {
-          "name": "Software admins"
-        }
-      },
-      "tax_deductible_note": "Donations are tax-deductible in the United States.",
-      "title": "About the WCA",
-      "whats_next_content_html": "<p>The World Cube Association has had over 200,000 unique competitors across 158 different regions and we are not planning on slowing down anytime soon! The cubing community has been growing steadily since our founding in 2004 and we want to encourage this to continue into the future by increasing the accessibility of competitions to new areas. In the future, we hope to support our community even more through collaborations and outreach to those who care about puzzles.</p>",
-      "whats_next_title": "What's next for the WCA?",
-      "who_we_are_content_html": "<p>The World Cube Association governs competitions for mechanical puzzles that are operated by twisting groups of pieces, commonly known as 'twisty puzzles'. The most famous of these puzzles is the Rubik's Cube, invented by professor Rubik from Hungary. A selection of these puzzles are chosen as official events of the WCA.</p> <p>As the WCA has evolved over the past decade, over 200,000 people have competed in our competitions. Despite this growth, we remain an organization that is almost entirely run by volunteers, from local organizers to WCA Delegates to even the WCA Board. We are very grateful to everyone who takes time out of their lives to allow the WCA to function. With more financial support, we hope to bring an even greater level of professionalism to our competitions as we continue to sanction more events across the globe.</p>",
-      "who_we_are_title": "Who we are",
-      "world_championship_content_html": "<p>Every two years, we sanction the competition that ultimately determines the world champion. These events require extremely careful planning by a number of volunteers, as well as a large financial commitment to reserve the venue and make necessary preparations.</p>",
-      "world_championship_title": "World Championship"
-    },
-    "activerecord": {
-      "attributes": {
-        "user": {
-          "confirmation_sent_at": "Confirmation sent at",
-          "confirmation_token": "Confirmation token",
-          "confirmed_at": "Confirmed at",
-          "country_iso2": "Representing",
-          "created_at": "Created at",
-          "current_password": "Current password",
-          "current_sign_in_at": "Current sign in at",
-          "current_sign_in_ip": "Current sign in IP",
-          "delegate_status": "Delegate status",
-          "dob": "Birthdate",
-          "dob_verification": "Your Birthdate",
-          "email": "Email",
-          "encrypted_password": "Encrypted password",
-          "failed_attempts": "Failed attempts",
-          "gender": "Gender",
-          "last_sign_in_at": "Last sign in at",
-          "last_sign_in_ip": "Last sign in IP",
-          "location": "Location",
-          "locked_at": "Locked at",
-          "login": "Email or WCA ID",
-          "name": "Full name",
-          "otp_attempt": "Enter your two-factor authentication code:",
-          "password": "Password",
-          "password_confirmation": "Re-enter password",
-          "pending_avatar": "Upload new avatar",
-          "receive_delegate_reports": "I would like to receive Delegate Reports of WCA Competitions by email",
-          "region": "Region",
-          "registration_notifications_enabled": "When I organize or delegate a competition, email me when new registrations are submitted.",
-          "remember_created_at": "Remember created at",
-          "remember_me": "Remember me",
-          "remove_avatar": "Remove avatar",
-          "reset_password_sent_at": "Reset password sent at",
-          "reset_password_token": "Reset password token",
-          "results_notifications_enabled": "Email me when my results are posted.",
-          "sign_in_count": "Sign in count",
-          "subRegion": "Subregion",
-          "unconfirmed_email": "Unconfirmed email",
-          "unconfirmed_wca_id": "Unconfirmed WCA ID",
-          "unlock_token": "Unlock token",
-          "updated_at": "Updated at",
-          "user_preferred_events": "Preferred events",
-          "wca_id": "WCA ID"
-        }
-      }
-    },
     "api": {
       "legal_tnoodle_api_header": "Legal TNoodle version",
       "login_message": "Please log in",
@@ -553,10 +369,10 @@
         },
         "list": {
           "empty": "No matching Records found",
-          "spotsRemaining": "; %{spots} spot(s) remaining",
+          "spots_remaining": "; %{spots} spot(s) remaining",
           "waitlisted": "Waitlisted registrations",
           "comment": "Comment",
-          "adminNote": "Admin Note"
+          "admin_note": "Admin Note"
         },
         "bookmark": {
           "unbookmark": "You have removed your bookmark"
@@ -567,7 +383,7 @@
         },
         "fees": {
           "none": "No Entry Fee",
-          "guestNone": "Guests attend for free"
+          "guest_none": "Guests attend for free"
         },
         "requirements": {
           "title": "Requirements",
@@ -576,25 +392,25 @@
           "next_step": "Continue to next Step"
         },
         "update": {
-          "noChanges": "There are no changes",
-          "emailSend": "Send Email",
-          "emailCopy": "Copy Email",
-          "movePending": "Move to Pending",
-          "moveWaiting": "Move to Waiting List",
+          "no_changes": "There are no changes",
+          "email_send": "Send Email",
+          "email_copy": "Copy Email",
+          "move_pending": "Move to Pending",
+          "move_waiting": "Move to Waiting List",
           "cancel": "Cancel Registration",
-          "tooMany": "Accepting all these registrations would go over the competitor limit by %{count}"
+          "too_many": "Accepting all these registrations would go over the competitor limit by %{count}"
         },
         "refunds": {
           "back": "Go back"
         },
         "register": {
           "error": "Registration failed with error %{error}",
-          "earlyRegistration": "Registration is not open yet, but you can still register as a competition organizer or delegate.",
+          "early_registration": "Registration is not open yet, but you can still register as a competition organizer or delegate.",
           "comment": "Additional comments to the organizers",
           "until": "You can update your registration until %{date}",
           "passed": "You can no longer update your registration",
-          "editingDisabled": "Registration editing is disabled for this competition",
-          "registrationStatus": {
+          "editing_disabled": "Registration editing is disabled for this competition",
+          "registration_status": {
             "header": "Your Registration Status:",
             "accepted": "accepted",
             "pending": "pending",
@@ -603,8 +419,8 @@
           },
           "disclaimer": "Submission of Registration does not mean approval to compete",
           "processing": "Your registration is processing...",
-          "processingLonger": "Processing is taking longer than usual, don't go away!",
-          "processingQueue": "Lots of Registrations being processed, %{queueCount} in the queue."
+          "processing_longer": "Processing is taking longer than usual, don't go away!",
+          "processing_queue": "Lots of Registrations being processed, %{queueCount} in the queue."
         }
       },
       "competition_info": {

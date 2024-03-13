@@ -4,14 +4,13 @@ import { useTranslation } from 'react-i18next'
 import { Button, Input, Label, Modal, Table } from 'semantic-ui-react'
 import getAvailableRefunds from '../../../api/payment/get/get_available_refunds'
 import refundPayment from '../../../api/payment/get/refund_payment'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
 export default function Refunds({ open, onExit, userId, competitionId }) {
   const [refundAmount, setRefundAmount] = useState(0)
 
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   const {
     data: refunds,

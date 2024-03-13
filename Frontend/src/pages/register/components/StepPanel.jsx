@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Step } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { RegistrationContext } from '../../../api/helper/context/registration_context'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import CompetingStep from './CompetingStep'
 import RegistrationRequirements from './RegistrationRequirements'
 import StripeWrapper from './StripeWrapper'
@@ -12,7 +11,7 @@ export default function StepPanel() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { isRegistered } = useContext(RegistrationContext)
 
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   const steps = useMemo(() => {
     const steps = [requirementsStepConfig, competingStepConfig]

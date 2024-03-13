@@ -25,7 +25,6 @@ import {
   userProfileRoute,
 } from '../api/helper/routes'
 import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../i18n'
 import { getMediumDateString } from '../lib/dates'
 import AddToCalendar from '../pages/schedule/AddToCalendar'
 import logo from '../static/wca2020.svg'
@@ -37,7 +36,7 @@ export default function Competition({ children }) {
 
   const { user } = useContext(UserContext)
 
-  const { t, ready } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
@@ -72,7 +71,7 @@ export default function Competition({ children }) {
     <CompetitionContext.Provider
       value={{ competitionInfo: competitionInfo ?? {} }}
     >
-      {isLoading || !ready ? (
+      {isLoading ? (
         <LoadingMessage />
       ) : (
         <>

@@ -13,7 +13,6 @@ import { CompetitionContext } from '../../api/helper/context/competition_context
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { RegistrationContext } from '../../api/helper/context/registration_context'
 import { UserContext } from '../../api/helper/context/user_context'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../i18n'
 import { getMediumDateString, hasPassed } from '../../lib/dates'
 import { displayMoneyISO4217 } from '../../lib/money'
 import { RegistrationPermissionMessage } from '../../ui/messages/permissionMessage'
@@ -38,7 +37,7 @@ export default function Register() {
   // Show Registration Panel instead of Info if already registered
   const [showRegisterSteps, setShowRegisterSteps] = useState(isRegistered)
 
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   const loggedIn = user !== null
 

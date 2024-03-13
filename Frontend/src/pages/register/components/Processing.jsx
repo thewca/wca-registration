@@ -5,7 +5,6 @@ import { Message, Modal } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { UserContext } from '../../../api/helper/context/user_context'
 import { pollRegistrations } from '../../../api/registration/get/poll_registrations'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 
 const REFETCH_INTERVAL = 3000
 
@@ -14,7 +13,7 @@ export default function Processing({ onProcessingComplete }) {
   const { competitionInfo } = useContext(CompetitionContext)
   const { user } = useContext(UserContext)
 
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   const { data } = useQuery({
     queryKey: ['registration-status-polling', user.id, competitionInfo.id],

@@ -3,14 +3,13 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Message } from 'semantic-ui-react'
 import { UserFull } from '../../api/helper/context/user_context'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../i18n'
 
 interface PermissionMessageProps {
   i18nKey: string
 }
 
 export function PermissionMessage({ i18nKey }: PermissionMessageProps) {
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   return (
     <Message icon negative>

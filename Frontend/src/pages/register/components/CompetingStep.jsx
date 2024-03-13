@@ -20,7 +20,6 @@ import { RegistrationContext } from '../../../api/helper/context/registration_co
 import { UserContext } from '../../../api/helper/context/user_context'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import { getMediumDateString, hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import Processing from './Processing'
@@ -33,7 +32,7 @@ export default function CompetingStep({ nextStep }) {
   const { registration, isRegistered, refetch } =
     useContext(RegistrationContext)
 
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   const [comment, setComment] = useState('')
   const [selectedEvents, setSelectedEvents] = useState(

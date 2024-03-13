@@ -8,7 +8,6 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
 import { useWithUserData } from '../../../hooks/useUserData'
-import i18n, { TRANSLATIONS_NAMESPACE } from '../../../i18n'
 import { getShortDateString, getShortTimeString } from '../../../lib/dates'
 import { createSortReducer } from '../../../reducers/sortReducer'
 import { BASE_ROUTE } from '../../../routes'
@@ -117,7 +116,7 @@ const truncateComment = (comment) =>
 export default function RegistrationAdministrationList() {
   const { competitionInfo } = useContext(CompetitionContext)
 
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   const [expandedColumns, dispatchColumns] = useReducer(
     columnReducer,
@@ -356,7 +355,7 @@ function RegistrationAdministrationTable({
   sortColumn,
   changeSortColumn,
 }) {
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   const handleHeaderCheck = (_, data) => {
     if (data.checked) {
@@ -422,7 +421,7 @@ function TableHeader({
   const { competitionInfo } = useContext(CompetitionContext)
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
 
-  const { t } = useTranslation(TRANSLATIONS_NAMESPACE, { i18n })
+  const { t } = useTranslation()
 
   const { dob, events, comments } = columnsExpanded
 
