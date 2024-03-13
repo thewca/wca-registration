@@ -496,7 +496,9 @@ function TableHeader({
           sorted={sortColumn === 'guests' ? sortDirection : undefined}
           onClick={() => changeSortColumn('guests')}
         >
-          Guests
+          {t(
+            'competitions.competition_form.labels.registration.guests_enabled',
+          )}
         </Table.HeaderCell>
         {comments && (
           <>
