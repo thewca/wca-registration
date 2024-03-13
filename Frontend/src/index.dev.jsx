@@ -2,6 +2,7 @@
 import 'fomantic-ui-css/semantic.css'
 import './global.scss'
 import '@thewca/wca-components/dist/index.esm.css'
+import './i18n'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import {
@@ -34,7 +35,6 @@ import PermissionsProvider from './ui/providers/PermissionsProvider'
 import RegistrationProvider from './ui/providers/RegistrationProvider'
 import UserProvider from './ui/providers/UserProvider'
 import ScrollToTopButton from './ui/ScrollToTopButton'
-import './i18n'
 
 const router = createBrowserRouter([
   {
