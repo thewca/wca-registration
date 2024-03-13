@@ -32,7 +32,7 @@ export default function RegistrationProvider({ children }) {
   return loggedIn && isLoading ? (
     <LoadingMessage />
   ) : // eslint-disable-next-line unicorn/no-nested-ternary
-  isError || !loggedIn ? (
+  isError || !loggedIn || !registration ? (
     <RegistrationContext.Provider
       value={{ registration: null, refetch: () => {}, isRegistered: false }}
     >
