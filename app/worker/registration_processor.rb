@@ -3,15 +3,17 @@
 require 'aws-sdk-dynamodb'
 require 'dynamoid'
 require 'httparty'
+require_relative '../helpers/wca_api'
 require_relative '../helpers/lane_factory'
+require_relative 'env_config'
 
 class RegistrationProcessor
   def initialize
     Dynamoid.configure do |config|
-      config.region = ENV.fetch('AWS_REGION', 'us-west-2')
+      config.region = EnvConfig.AWS_REGION
       config.namespace = nil
-      if ENV.fetch('CODE_ENVIRONMENT', 'development') == 'development'
-        config.endpoint = ENV.fetch('LOCALSTACK_ENDPOINT', nil)
+      if EnvConfig.CODE_ENVIRONMENT == 'development'
+        config.endpoint = EnvConfig.LOCALSTACK_ENDPOINT
       else
         config.credentials = Aws::ECSCredentials.new(retries: 3)
       end
@@ -49,6 +51,9 @@ class RegistrationProcessor
         registration.update_attributes(lanes: [competing_lane], guests: guests)
       else
         registration.update_attributes(lanes: registration.lanes.append(competing_lane), guests: guests)
+      end
+      if EnvConfig.CODE_ENVIRONMENT == 'production'
+        EmailApi.send_creation_email(competition_id, user_id)
       end
     end
 end
