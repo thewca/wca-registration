@@ -107,7 +107,7 @@ class RegistrationController < ApplicationController
     registration = get_single_registration(@user_id, @competition_id)
     render json: registration
   rescue Dynamoid::Errors::RecordNotFound
-    render json: {}
+    render json: {}, status: :not_found
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
   end
