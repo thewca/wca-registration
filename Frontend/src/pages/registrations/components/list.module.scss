@@ -1,0 +1,10 @@
+@import '../../../style/font-sizes';
+@import '../../../style/margins';
+@import '../../../style/colors';
+
+.list-container{
+  margin-top: $double-margin;
+}
+.table-container{
+  overflow-x: scroll;
+}

@@ -19,6 +19,7 @@ import { useWithUserData } from '../../../hooks/useUserData'
 import { createSortReducer } from '../../../reducers/sortReducer'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
+import styles from './list.module.scss'
 
 const sortReducer = createSortReducer(['name', 'country', 'total'])
 
@@ -161,7 +162,7 @@ export default function RegistrationList() {
   return registrationsLoading || userInfoLoading ? (
     <LoadingMessage />
   ) : (
-    <div>
+    <div className={styles.tableContainer}>
       <Table sortable textAlign="left">
         <Table.Header>
           <Table.Row>
