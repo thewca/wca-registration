@@ -1,5 +1,7 @@
+import './overrides.css'
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
+import { Container } from 'semantic-ui-react'
 import Events from './pages/events'
 import HomePage from './pages/home'
 import Import from './pages/import'
@@ -36,15 +38,17 @@ const routes = [
       {
         path: ':competition_id',
         element: (
-          <Competition>
-            <PermissionsProvider>
-              <RegistrationProvider>
-                <PageTabs />
-                <Outlet />
-                <ScrollToTopButton />
-              </RegistrationProvider>
-            </PermissionsProvider>
-          </Competition>
+          <Container fluid={true} className="registration-container">
+            <Competition>
+              <PermissionsProvider>
+                <RegistrationProvider>
+                  <PageTabs />
+                  <Outlet />
+                  <ScrollToTopButton />
+                </RegistrationProvider>
+              </PermissionsProvider>
+            </Competition>
+          </Container>
         ),
         children: [
           {
