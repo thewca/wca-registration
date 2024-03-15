@@ -74,7 +74,7 @@ export async function getAllRegistrations(
 export async function getSingleRegistration(
   userId: number,
   competitionId: string,
-): Promise<RegistrationAdmin> {
+): Promise<RegistrationAdmin | null> {
   const { data, error, response } = await GET('/api/v1/register', {
     params: { query: { competition_id: competitionId, user_id: userId } },
     headers: { Authorization: await getJWT() },
@@ -83,6 +83,10 @@ export async function getSingleRegistration(
     if (error.error === EXPIRED_TOKEN) {
       await getJWT(true)
       return getSingleRegistration(userId, competitionId)
+    }
+    // 404 means that the registration doesn't exist
+    if (response.status === 404) {
+      return null
     }
     throw new BackendError(error.error, response.status)
   }

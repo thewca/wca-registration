@@ -89,7 +89,6 @@ export default function CompetingStep({ nextStep }) {
       onSuccess: (_) => {
         // We can't update the registration yet, because there might be more steps needed
         // And the Registration might still be processing
-        setMessage('Registration submitted successfully', 'positive')
         setProcessing(true)
       },
     })
