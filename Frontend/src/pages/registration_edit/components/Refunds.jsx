@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Button, Input, Label, Modal, Table } from 'semantic-ui-react'
 import getAvailableRefunds from '../../../api/payment/get/get_available_refunds'
 import refundPayment from '../../../api/payment/get/refund_payment'
@@ -9,8 +8,6 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 
 export default function Refunds({ open, onExit, userId, competitionId }) {
   const [refundAmount, setRefundAmount] = useState(0)
-
-  const { t } = useTranslation()
 
   const {
     data: refunds,
@@ -46,7 +43,7 @@ export default function Refunds({ open, onExit, userId, competitionId }) {
         <Modal.Content>
           <Table>
             <Table.Header>
-              <Table.Header>{t('')}</Table.Header>
+              <Table.Header>Amount</Table.Header>
               <Table.Header> </Table.Header>
             </Table.Header>
             <Table.Body>
@@ -79,7 +76,7 @@ export default function Refunds({ open, onExit, userId, competitionId }) {
                         })
                       }
                     >
-                      {t('registrations.refund_form.labels.refund_amount')}
+                      Refund Amount
                     </Button>
                   </Table.Cell>
                 </Table.Row>
@@ -89,7 +86,7 @@ export default function Refunds({ open, onExit, userId, competitionId }) {
         </Modal.Content>
         <Modal.Actions>
           <Button disabled={isMutating} onClick={onExit}>
-            {t('en.competitions.registration_v2.refunds.back')}
+            Go Back
           </Button>
         </Modal.Actions>
       </Modal>
