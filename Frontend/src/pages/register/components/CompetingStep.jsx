@@ -311,7 +311,7 @@ export default function CompetingStep({ nextStep }) {
                     'competitions.registration_v2.register.registrationStatus.header',
                   )}
                   {t(
-                    `en.competitions.registration_v2.register.registrationStatus.${registration.competing.registration_status}`,
+                    `competitions.registration_v2.register.registrationStatus.${registration.competing.registration_status}`,
                   )}
                 </Message.Header>
                 {canUpdateRegistration
