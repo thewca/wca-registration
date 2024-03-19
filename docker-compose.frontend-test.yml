@@ -8,17 +8,17 @@ services:
     environment:
       CYPRESS_BASE_URL: http://nginx
     depends_on:
-      wca_registration_handler:
+      wca_registration_handler_e2e:
         condition: service_healthy
-      wca_registration_worker:
+      wca_registration_worker_e2e:
         condition: service_healthy
       nginx:
         condition: service_healthy
     networks:
       - wca-registration
 
-  wca_registration_handler:
-    container_name: wca_registration_handler
+  wca_registration_handler_e2e:
+    container_name: wca_registration_handler_e2e
     build:
       context: .
       dockerfile: dockerfile.dev
@@ -33,19 +33,21 @@ services:
       - .:/app
       - gems_volume_handler:/usr/local/bundle
     tty: true
-    # First, install Ruby and Node dependencies
-    # Start the server and bind to 0.0.0.0 (vs 127.0.0.1) so Docker's port mappings work correctly
     command: >
       bash -c 'bundle install && yarn install && bin/rake db:seed &&
       bin/rails server -b 0.0.0.0'
     networks:
-      - wca-registration
+      wca-registration:
+        ipv4_address: 10.0.2.10
     depends_on:
       - localstack
       - prometheus_exporter
       - redis
     healthcheck:
       test: curl --fail http://localhost:3000/healthcheck || exit 1
+    dns:
+      # Set the DNS server to be the LocalStack container
+      - 10.0.2.20
 
   prometheus_exporter:
     container_name: prometheus_exporter
@@ -59,8 +61,8 @@ services:
       - wca-registration
 
 
-  wca_registration_worker:
-    container_name: wca_registration_worker
+  wca_registration_worker_e2e:
+    container_name: wca_registration_worker_e2e
     build:
       context: .
       dockerfile: dockerfile.dev
@@ -84,10 +86,11 @@ services:
             done && ruby -r "/app/app/worker/queue_poller.rb" -e "QueuePoller.perform"'
     networks:
       - wca-registration
-    depends_on:
-      - wca_registration_handler
     healthcheck:
       test: pgrep ruby || exit 1
+    dns:
+      # Set the DNS server to be the LocalStack container
+      - 10.0.2.20
 
   # Emulate AWS Services Locally
   localstack:
