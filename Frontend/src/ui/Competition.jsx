@@ -221,7 +221,7 @@ export default function Competition({ children }) {
                 <List.Icon name="print" />
                 <List.Content>
                   <List.Header>
-                    {t('competitions.registration_v2.pdf.download')}
+                    {t('competitions.registration_v2.info.download')}
                   </List.Header>
                   <List.List>
                     <List.Item>

@@ -99,6 +99,17 @@
     },
     "activerecord": {
       "attributes": {
+        "registration": {
+          "administrative_notes": "Administrative notes",
+          "birthday": "Birthday",
+          "comments": "Comments",
+          "email": "Email",
+          "guests": "Guests",
+          "name": "Name",
+          "paid_entry_fees": "Paid",
+          "registration_competition_events": "Events",
+          "status": "Status"
+        },
         "user": {
           "confirmation_sent_at": "Confirmation sent at",
           "confirmation_token": "Confirmation token",

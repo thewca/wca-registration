@@ -122,7 +122,7 @@ export default function CompetingStep({ nextStep }) {
   const attemptAction = useCallback(
     (action, options = {}) => {
       if (options.checkForChanges && !hasChanges) {
-        setMessage(t('competitions.registration_v2.update.noChanges'), 'basic')
+        setMessage(t('competitions.registration_v2.update.no_changes'), 'basic')
       } else if (!commentIsValid) {
         setMessage(
           t('registrations.errors.cannot_register_without_comment'),
@@ -229,7 +229,7 @@ export default function CompetingStep({ nextStep }) {
         )}
         {!competitionInfo['registration_opened?'] && (
           <Message warning>
-            {t('competitions.registration_v2.register.earlyRegistration')}
+            {t('competitions.registration_v2.register.early_registration')}
           </Message>
         )}
 
@@ -308,10 +308,10 @@ export default function CompetingStep({ nextStep }) {
               <Message.Content>
                 <Message.Header>
                   {t(
-                    'competitions.registration_v2.register.registrationStatus.header',
+                    'competitions.registration_v2.register.registration_status.header',
                   )}
                   {t(
-                    `competitions.registration_v2.register.registrationStatus.${registration.competing.registration_status}`,
+                    `enums.competition_medium.status.${registration.competing.registration_status}`,
                   )}
                 </Message.Header>
                 {canUpdateRegistration
@@ -319,7 +319,7 @@ export default function CompetingStep({ nextStep }) {
                   : hasRegistrationEditDeadlinePassed
                     ? t('competitions.registration_v2.errors.-4001')
                     : t(
-                        'competitions.registration_v2.register.editingDisabled',
+                        'competitions.registration_v2.register.editing_disabled',
                       )}
               </Message.Content>
             </Message>

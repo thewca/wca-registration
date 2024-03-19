@@ -130,13 +130,13 @@ export default function RegistrationActions({
             className="btn btn-info selected-registrations-actions"
           >
             <UiIcon name="envelope" />
-            {t('competitions.registration_v2.update.emailSend')}
+            {t('competitions.registration_v2.update.email_send')}
           </a>
         </Button>
 
         <Button onClick={() => copyEmails(selectedEmails)}>
           <UiIcon name="copy" />
-          {t('competitions.registration_v2.update.emailCopy')}
+          {t('competitions.registration_v2.update.email_copy')}
         </Button>
 
         {isOrganizerOrDelegate && (
@@ -158,7 +158,7 @@ export default function RegistrationActions({
                 }
               >
                 <UiIcon name="times" />
-                {t('competitions.registration_v2.update.movePending')}
+                {t('competitions.registration_v2.update.move_pending')}
               </Button>
             )}
 
@@ -173,7 +173,7 @@ export default function RegistrationActions({
                 }
               >
                 <UiIcon name="hourglass" />
-                {t('competitions.registration_v2.update.moveWaiting')}
+                {t('competitions.registration_v2.update.move_waiting')}
               </Button>
             )}
 

@@ -227,8 +227,9 @@ export default function RegistrationAdministrationList() {
   const spotsRemaining =
     (competitionInfo.competitor_limit ?? Infinity) - accepted.length
   const spotsRemainingText = t(
-    'competitions.registration_v2.list.spotsRemaining',
-    { count: spotsRemaining },
+    'competitions.registration_v2.list.spots_remaining',
+    'competitions.registration_v2.list.spots_remaining',
+    { spots: spotsRemaining },
   )
 
   const userEmailMap = useMemo(
@@ -299,7 +300,7 @@ export default function RegistrationAdministrationList() {
         />
 
         <Header>
-          {t('competitions.registration_v2.list.waitlisted')} ({waiting.length}
+          {t('enums.competition_medium.status.waiting_list')} ({waiting.length}
           {competitionInfo.competitor_limit && spotsRemainingText})
         </Header>
         <RegistrationAdministrationTable
@@ -315,8 +316,7 @@ export default function RegistrationAdministrationList() {
         />
 
         <Header>
-          {t('competitions.registration_v2.list.cancelled')} ({cancelled.length}
-          )
+          {t('enums.competition_medium.status.cancelled')} ({cancelled.length})
         </Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
@@ -505,10 +505,10 @@ function TableHeader({
               sorted={sortColumn === 'comment' ? sortDirection : undefined}
               onClick={() => changeSortColumn('comment')}
             >
-              {t('competitions.registration_v2.list.comment')}
+              {t('activerecord.attributes.registration.comments')}
             </Table.HeaderCell>
             <Table.HeaderCell>
-              {t('competitions.registration_v2.list.adminNote')}
+              {t('activerecord.attributes.registration.administrative_notes')}
             </Table.HeaderCell>
           </>
         )}
