@@ -12,10 +12,19 @@ import { getTextColor } from '../../lib/colors'
 
 // based on monolith code: https://github.com/thewca/worldcubeassociation.org/blob/0882a86cf5d83c3a0dbc667a59be05ce8845c3e4/WcaOnRails/app/webpacker/components/EditSchedule/EditActivities/index.js
 
-// TODO: add tooltip or popup on events for more details
-// TODO: table has 24h, calendar has 12h - make consistent (fixed by setting locale?)
-// TODO: indicate that event split across days are such?
-// TODO: add add-to-calendar functionality?
+// We can render custom content for the individual fullcalendar events, by
+// passing in a render function as the `eventContent` param to the `FullCalendar`
+// component.
+// This can be used to add a tooltip (to display round information, as the old
+// calendar used to do), better indicate that an event continues after midnight,
+// etc.
+// However, then we have to recreate the default line-break and sizing logic of
+// the name/time ourselves, which is annoying...
+// Once https://github.com/fullcalendar/fullcalendar/issues/5927 is available,
+// we can take the default content and just wrap a tooltip around it, which is
+// exactly what we want.
+// (Alternatively, implement the `eventClick` param to `FullCalendar` and have it
+// open a modal. But that's a bit clunky so we're not doing it, for now at least.)
 
 export default function CalendarView({
   dates,
@@ -49,10 +58,6 @@ export default function CalendarView({
   const calendarEnd =
     latestTimeOfDayWithBuffer(activeVenuesActivities, timeZone) ?? '00:00:00'
 
-  const onEventClick = () => {
-    /* TODO */
-  }
-
   return (
     <>
       <FullCalendar
@@ -85,7 +90,6 @@ export default function CalendarView({
         locale="local"
         timeZone={timeZone}
         events={fcActivities}
-        eventClick={onEventClick}
       />
       {fcActivities.length === 0 && (
         <em>No activities for the selected rooms/events.</em>
