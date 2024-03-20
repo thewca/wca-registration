@@ -145,7 +145,7 @@ export default function CompetingStep({ nextStep }) {
   const actionCreateRegistration = () => {
     setMessage('Registration is being processed', 'basic')
     createRegistrationMutation({
-      user_id: user.id.toString(),
+      user_id: user.id,
       competition_id: competitionInfo.id,
       competing: {
         event_ids: selectedEvents,

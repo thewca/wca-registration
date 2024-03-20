@@ -1,3 +1,4 @@
+import './overrides.css'
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 import { Container } from 'semantic-ui-react'
@@ -37,7 +38,7 @@ const routes = [
       {
         path: ':competition_id',
         element: (
-          <Container>
+          <Container fluid={true} className="registration-container">
             <Competition>
               <PermissionsProvider>
                 <RegistrationProvider>

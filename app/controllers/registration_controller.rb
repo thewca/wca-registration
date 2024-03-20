@@ -144,8 +144,9 @@ class RegistrationController < ApplicationController
     comment = update_request.dig('competing', 'comment')
     event_ids = update_request.dig('competing', 'event_ids')
     admin_comment = update_request.dig('competing', 'admin_comment')
+    user_id = update_request[:user_id]
 
-    registration = Registration.find("#{@competition_id}-#{update_request[:user_id]}")
+    registration = Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
     updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
 
@@ -153,6 +154,10 @@ class RegistrationController < ApplicationController
       Registration.decrement_competitors_count(@competition_id)
     elsif old_status != 'accepted' && status == 'accepted'
       Registration.increment_competitors_count(@competition_id)
+    end
+
+    if Rails.env.production?
+      EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
     {

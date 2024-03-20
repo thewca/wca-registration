@@ -1,6 +1,7 @@
 // External Styles (this is probably not the best way to load this?)
 import 'fomantic-ui-css/semantic.css'
 import './global.scss'
+import './overrides.css'
 import '@thewca/wca-components/dist/index.esm.css'
 import './i18n'
 import React from 'react'
