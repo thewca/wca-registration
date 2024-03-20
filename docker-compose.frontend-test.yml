@@ -40,7 +40,7 @@ services:
       wca-registration:
         ipv4_address: 10.0.2.10
     depends_on:
-      - localstack
+      - localstack_e2e
       - prometheus_exporter
       - redis
     healthcheck:
@@ -87,7 +87,7 @@ services:
     networks:
       - wca-registration
     depends_on:
-      - localstack
+      - localstack_e2e
     healthcheck:
       test: pgrep ruby || exit 1
     dns:
@@ -95,7 +95,7 @@ services:
       - 10.0.2.20
 
   # Emulate AWS Services Locally
-  localstack:
+  localstack_e2e:
     container_name: "localstack_e2e"
     image: localstack/localstack
     ports:
