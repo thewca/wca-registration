@@ -159,3 +159,7 @@ volumes:
 networks:
   wca-registration:
     name: wca-registration
+    ipam:
+      config:
+        # Specify the subnet range for IP address allocation
+        - subnet: 10.0.2.0/24
