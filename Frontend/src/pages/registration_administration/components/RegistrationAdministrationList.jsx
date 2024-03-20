@@ -358,44 +358,46 @@ function RegistrationAdministrationTable({
   }
 
   return (
-    <Table sortable striped textAlign="left">
-      <TableHeader
-        columnsExpanded={columnsExpanded}
-        showCheckbox={registrations.length > 0}
-        isChecked={registrations.length === selected.length}
-        onCheckboxChanged={handleHeaderCheck}
-        sortDirection={sortDirection}
-        sortColumn={sortColumn}
-        changeSortColumn={changeSortColumn}
-      />
+    <div className={styles.tableContainer}>
+      <Table sortable structured striped textAlign="left">
+        <TableHeader
+          columnsExpanded={columnsExpanded}
+          showCheckbox={registrations.length > 0}
+          isChecked={registrations.length === selected.length}
+          onCheckboxChanged={handleHeaderCheck}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
+          changeSortColumn={changeSortColumn}
+        />
 
-      <Table.Body>
-        {registrations.length > 0 ? (
-          registrations.map((registration) => {
-            const id = registration.user.id
-            return (
-              <TableRow
-                key={id}
-                columnsExpanded={columnsExpanded}
-                registration={registration}
-                isSelected={selected.includes(id)}
-                onCheckboxChange={(_, data) => {
-                  if (data.checked) {
-                    select([id])
-                  } else {
-                    unselect([id])
-                  }
-                }}
-              />
-            )
-          })
-        ) : (
-          <Table.Row>
-            <Table.Cell colSpan={6}>No matching records found</Table.Cell>
-          </Table.Row>
-        )}
-      </Table.Body>
-    </Table>
+        <Table.Body>
+          {registrations.length > 0 ? (
+            registrations.map((registration) => {
+              const id = registration.user.id
+              return (
+                <TableRow
+                  key={id}
+                  columnsExpanded={columnsExpanded}
+                  registration={registration}
+                  isSelected={selected.includes(id)}
+                  onCheckboxChange={(_, data) => {
+                    if (data.checked) {
+                      select([id])
+                    } else {
+                      unselect([id])
+                    }
+                  }}
+                />
+              )
+            })
+          ) : (
+            <Table.Row>
+              <Table.Cell colSpan={6}>No matching records found</Table.Cell>
+            </Table.Row>
+          )}
+        </Table.Body>
+      </Table>
+    </div>
   )
 }
 
