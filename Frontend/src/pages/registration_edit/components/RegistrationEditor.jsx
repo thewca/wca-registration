@@ -51,7 +51,7 @@ export default function RegistrationEditor() {
 
   const { isLoading, data: competitorInfo } = useQuery({
     queryKey: ['info', user_id],
-    queryFn: () => getUserInfo(user_id),
+    queryFn: () => getUserInfo(Number.parseInt(user_id, 10)),
   })
 
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
@@ -167,7 +167,7 @@ export default function RegistrationEditor() {
         <LoadingMessage />
       ) : (
         <div>
-          <Header>{competitorInfo.user.name}</Header>
+          <Header>{competitorInfo.name}</Header>
           <EventSelector
             handleEventSelection={setSelectedEvents}
             selected={selectedEvents}

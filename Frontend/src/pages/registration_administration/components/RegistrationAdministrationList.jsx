@@ -226,7 +226,11 @@ export default function RegistrationAdministrationList() {
   // than putting this in the table headers which scroll out of sight
   const spotsRemaining =
     (competitionInfo.competitor_limit ?? Infinity) - accepted.length
-  const spotsRemainingText = `; ${spotsRemaining} spot(s) remaining`
+  const spotsRemainingText = t(
+    'competitions.registration_v2.list.spots_remaining',
+    'competitions.registration_v2.list.spots_remaining',
+    { spots: spotsRemaining },
+  )
 
   const userEmailMap = useMemo(
     () =>
@@ -274,7 +278,7 @@ export default function RegistrationAdministrationList() {
         />
 
         <Header>
-          Approved registrations ({accepted.length}
+          {t('registrations.list.approved_registrations')} ({accepted.length}
           {competitionInfo.competitor_limit && (
             <>
               {`/${competitionInfo.competitor_limit}`}
@@ -296,7 +300,7 @@ export default function RegistrationAdministrationList() {
         />
 
         <Header>
-          Waitlisted registrations ({waiting.length}
+          {t('enums.competition_medium.status.waiting_list')} ({waiting.length}
           {competitionInfo.competitor_limit && spotsRemainingText})
         </Header>
         <RegistrationAdministrationTable
@@ -311,7 +315,9 @@ export default function RegistrationAdministrationList() {
           sortColumn={sortColumn}
         />
 
-        <Header>Cancelled registrations ({cancelled.length})</Header>
+        <Header>
+          {t('enums.competition_medium.status.cancelled')} ({cancelled.length})
+        </Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={cancelled}
@@ -349,6 +355,8 @@ function RegistrationAdministrationTable({
   sortColumn,
   changeSortColumn,
 }) {
+  const { t } = useTranslation()
+
   const handleHeaderCheck = (_, data) => {
     if (data.checked) {
       select(registrations.map(({ user }) => user.id))
@@ -359,7 +367,7 @@ function RegistrationAdministrationTable({
 
   return (
     <div className={styles.tableContainer}>
-      <Table sortable structured striped textAlign="left">
+      <Table sortable striped textAlign="left">
         <TableHeader
           columnsExpanded={columnsExpanded}
           showCheckbox={registrations.length > 0}
@@ -392,7 +400,9 @@ function RegistrationAdministrationTable({
             })
           ) : (
             <Table.Row>
-              <Table.Cell colSpan={6}>No matching records found</Table.Cell>
+              <Table.Cell colSpan={6}>
+                {t('competitions.registration_v2.list.empty')}
+              </Table.Cell>
             </Table.Row>
           )}
         </Table.Body>
@@ -413,6 +423,8 @@ function TableHeader({
   const { competitionInfo } = useContext(CompetitionContext)
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
 
+  const { t } = useTranslation()
+
   const { dob, events, comments } = columnsExpanded
 
   return (
@@ -428,33 +440,33 @@ function TableHeader({
           sorted={sortColumn === 'wca_id' ? sortDirection : undefined}
           onClick={() => changeSortColumn('wca_id')}
         >
-          WCA ID
+          {t('common.user.wca_id')}
         </Table.HeaderCell>
         <Table.HeaderCell
           sorted={sortColumn === 'name' ? sortDirection : undefined}
           onClick={() => changeSortColumn('name')}
         >
-          Name
+          {t('delegates_page.table.name')}
         </Table.HeaderCell>
         {dob && (
           <Table.HeaderCell
             sorted={sortColumn === 'dob' ? sortDirection : undefined}
             onClick={() => changeSortColumn('dob')}
           >
-            DOB
+            {t('activerecord.attributes.user.dob')}
           </Table.HeaderCell>
         )}
         <Table.HeaderCell
           sorted={sortColumn === 'country' ? sortDirection : undefined}
           onClick={() => changeSortColumn('country')}
         >
-          Representing
+          {t('common.user.representing')}
         </Table.HeaderCell>
         <Table.HeaderCell
           sorted={sortColumn === 'registered_on' ? sortDirection : undefined}
           onClick={() => changeSortColumn('registered_on')}
         >
-          Registered on
+          {t('registrations.list.registered.without_stripe')}
         </Table.HeaderCell>
         {competitionInfo['using_stripe_payments?'] && (
           <>
@@ -463,7 +475,7 @@ function TableHeader({
               sorted={sortColumn === 'paid_on' ? sortDirection : undefined}
               onClick={() => changeSortColumn('paid_on')}
             >
-              Paid on
+              {t('registrations.list.registered.with_stripe')}
             </Table.HeaderCell>
           </>
         )}
@@ -478,14 +490,16 @@ function TableHeader({
             sorted={sortColumn === 'events' ? sortDirection : undefined}
             onClick={() => changeSortColumn('events')}
           >
-            Events
+            {t('competitions.competition_info.events')}
           </Table.HeaderCell>
         )}
         <Table.HeaderCell
           sorted={sortColumn === 'guests' ? sortDirection : undefined}
           onClick={() => changeSortColumn('guests')}
         >
-          Guests
+          {t(
+            'competitions.competition_form.labels.registration.guests_enabled',
+          )}
         </Table.HeaderCell>
         {comments && (
           <>
@@ -493,12 +507,14 @@ function TableHeader({
               sorted={sortColumn === 'comment' ? sortDirection : undefined}
               onClick={() => changeSortColumn('comment')}
             >
-              Comment
+              {t('activerecord.attributes.registration.comments')}
             </Table.HeaderCell>
-            <Table.HeaderCell>Admin Note</Table.HeaderCell>
+            <Table.HeaderCell>
+              {t('activerecord.attributes.registration.administrative_notes')}
+            </Table.HeaderCell>
           </>
         )}
-        <Table.HeaderCell>Email</Table.HeaderCell>
+        <Table.HeaderCell>{t('registrations.list.email')}</Table.HeaderCell>
       </Table.Row>
     </Table.Header>
   )

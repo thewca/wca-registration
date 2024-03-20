@@ -8,6 +8,7 @@ import LoadingMessage from '../../../ui/messages/loadingMessage'
 
 export default function Refunds({ open, onExit, userId, competitionId }) {
   const [refundAmount, setRefundAmount] = useState(0)
+
   const {
     data: refunds,
     isLoading: refundsLoading,
@@ -42,7 +43,7 @@ export default function Refunds({ open, onExit, userId, competitionId }) {
         <Modal.Content>
           <Table>
             <Table.Header>
-              <Table.Header> Amount </Table.Header>
+              <Table.Header>Amount</Table.Header>
               <Table.Header> </Table.Header>
             </Table.Header>
             <Table.Body>
@@ -75,7 +76,7 @@ export default function Refunds({ open, onExit, userId, competitionId }) {
                         })
                       }
                     >
-                      Refund amount
+                      Refund Amount
                     </Button>
                   </Table.Cell>
                 </Table.Row>

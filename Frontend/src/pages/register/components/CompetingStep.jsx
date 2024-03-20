@@ -60,13 +60,13 @@ export default function CompetingStep({ nextStep }) {
         const { errorCode } = data
         setMessage(
           errorCode
-            ? t(`errors.${errorCode}`)
-            : 'Registration update failed with error: ' + data.message,
+            ? t(`competitions.registration_v2.errors.${errorCode}`)
+            : t('registrations.flash.failed') + data.message,
           'negative',
         )
       },
       onSuccess: (data) => {
-        setMessage('Registration update succeeded', 'positive')
+        setMessage(t('registrations.flash.updated'), 'positive')
         queryClient.setQueryData(
           ['registration', competitionInfo.id, user.id],
           data,
@@ -81,14 +81,17 @@ export default function CompetingStep({ nextStep }) {
         const { errorCode } = data
         setMessage(
           errorCode
-            ? t(`errors.${errorCode}`)
-            : 'Registration failed with error: ' + data.message,
+            ? t(`competitions.registration_v2.errors.${errorCode}`)
+            : t('competitions.registration_v2.register.error', {
+                error: data.message,
+              }),
           'negative',
         )
       },
       onSuccess: (_) => {
         // We can't update the registration yet, because there might be more steps needed
         // And the Registration might still be processing
+        setMessage(t('registrations.flash.registered'), 'positive')
         setProcessing(true)
       },
     })
@@ -106,8 +109,7 @@ export default function CompetingStep({ nextStep }) {
   const hasCommentChanged =
     registration?.competing &&
     comment !== (registration.competing.comment ?? '')
-  const hasGuestsChanged =
-    registration && guests !== Number.parseInt(registration.guests, 10)
+  const hasGuestsChanged = registration && guests !== registration.guests
 
   const hasChanges = hasEventsChanged || hasCommentChanged || hasGuestsChanged
 
@@ -120,21 +122,24 @@ export default function CompetingStep({ nextStep }) {
   const attemptAction = useCallback(
     (action, options = {}) => {
       if (options.checkForChanges && !hasChanges) {
-        setMessage('There are no changes', 'basic')
+        setMessage(t('competitions.registration_v2.update.no_changes'), 'basic')
       } else if (!commentIsValid) {
-        setMessage('You must include a comment', 'negative')
+        setMessage(
+          t('registrations.errors.cannot_register_without_comment'),
+          'negative',
+        )
       } else if (!eventsAreValid) {
         setMessage(
           maxEvents === Infinity
-            ? 'You must select at least 1 event'
-            : `You must select between 1 and ${maxEvents} events`,
+            ? t('registrations.errors.must_register')
+            : t('registrations.errors.exceeds_event_limit.other'),
           'negative',
         )
       } else {
         action()
       }
     },
-    [commentIsValid, eventsAreValid, hasChanges, maxEvents],
+    [commentIsValid, eventsAreValid, hasChanges, maxEvents, t],
   )
 
   const actionCreateRegistration = () => {
@@ -224,8 +229,7 @@ export default function CompetingStep({ nextStep }) {
         )}
         {!competitionInfo['registration_opened?'] && (
           <Message warning>
-            Registration is not open yet, but you can still register as a
-            competition organizer or delegate.
+            {t('competitions.registration_v2.register.early_registration')}
           </Message>
         )}
 
@@ -239,14 +243,11 @@ export default function CompetingStep({ nextStep }) {
               size="2x"
               id="event-selection"
             />
-            <p>
-              You can set your preferred events to prefill future competitions
-              in your profile
-            </p>
+            <p>{t('registrations.preferred_events_prompt_html')}</p>
           </Form.Field>
           <Form.Field required={competitionInfo.force_comment_in_registration}>
             <label htmlFor="comment">
-              Additional comments to the organizers
+              {t('competitions.registration_v2.register.comment')}
             </label>
             <TextArea
               maxLength={maxCommentLength}
@@ -254,7 +255,7 @@ export default function CompetingStep({ nextStep }) {
               value={comment}
               placeholder={
                 competitionInfo.force_comment_in_registration
-                  ? 'A comment is required. Read the Registration Requirements to find out why.'
+                  ? t('registrations.errors.cannot_register_without_comment')
                   : ''
               }
               id="comment"
@@ -287,7 +288,7 @@ export default function CompetingStep({ nextStep }) {
 
         <Divider />
 
-        {registration?.competing?.registration_status ? (
+        {isRegistered ? (
           <>
             <Message warning icon>
               <Popup
@@ -295,23 +296,31 @@ export default function CompetingStep({ nextStep }) {
                 position="top center"
                 content={
                   canUpdateRegistration
-                    ? `You can update your registration until ${getMediumDateString(
-                        competitionInfo.event_change_deadline_date ??
-                          competitionInfo.start_date,
-                      )}`
-                    : 'You can no longer update your registration'
+                    ? t('competitions.registration_v2.register.until', {
+                        date: getMediumDateString(
+                          competitionInfo.event_change_deadline_date ??
+                            competitionInfo.start_date,
+                        ),
+                      })
+                    : t('competitions.registration_v2.register.passed')
                 }
               />
               <Message.Content>
                 <Message.Header>
-                  Your Registration Status:{' '}
-                  {registration.competing.registration_status}
+                  {t(
+                    'competitions.registration_v2.register.registration_status.header',
+                  )}
+                  {t(
+                    `enums.competition_medium.status.${registration.competing.registration_status}`,
+                  )}
                 </Message.Header>
                 {canUpdateRegistration
-                  ? 'Update your registration below' // eslint-disable-next-line unicorn/no-nested-ternary
+                  ? t('registrations.update') // eslint-disable-next-line unicorn/no-nested-ternary
                   : hasRegistrationEditDeadlinePassed
-                    ? 'The deadline to edit your registration has passed'
-                    : 'Registration editing is disabled for this competition'}
+                    ? t('competitions.registration_v2.errors.-4001')
+                    : t(
+                        'competitions.registration_v2.register.editing_disabled',
+                      )}
               </Message.Content>
             </Message>
 
@@ -326,7 +335,7 @@ export default function CompetingStep({ nextStep }) {
                     })
                   }
                 >
-                  Update Registration
+                  {t('registrations.update')}
                 </Button>
               )}
 
@@ -346,7 +355,7 @@ export default function CompetingStep({ nextStep }) {
                   negative
                   onClick={actionDeleteRegistration}
                 >
-                  Delete Registration
+                  {t('registrations.delete_registration')}
                 </Button>
               )}
             </ButtonGroup>
@@ -355,12 +364,12 @@ export default function CompetingStep({ nextStep }) {
           <>
             <Message info icon floating>
               <Popup
-                content="You will only be accepted if you have met all registration requirements"
+                content={t('registrations.mailer.new.awaits_approval')}
                 position="top left"
                 trigger={<Icon name="circle info" />}
               />
               <Message.Content>
-                Submission of Registration does not mean approval to compete
+                {t('competitions.registration_v2.register.disclaimer')}
               </Message.Content>
             </Message>
 
@@ -373,7 +382,7 @@ export default function CompetingStep({ nextStep }) {
               onClick={() => attemptAction(actionCreateRegistration)}
             >
               <Icon name="paper plane" />
-              Send Registration
+              {t('registrations.register')}
             </Button>
           </>
         )}

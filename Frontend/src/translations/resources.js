@@ -1,7 +1,6 @@
 import en from './en.json'
 
-const resources = {
-  en: { translation: en },
-}
+// For development we only support english
+const resources = { en: { translations: en.en } }
 
 export default resources
