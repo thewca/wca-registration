@@ -31,7 +31,7 @@ services:
       RAILS_ENV: development
     volumes:
       - .:/app
-      - gems_volume_handler:/usr/local/bundle
+      - gems_volume_handler_e2e:/usr/local/bundle
     tty: true
     command: >
       bash -c 'bundle install && yarn install && bin/rake db:seed &&
@@ -75,7 +75,7 @@ services:
       DYNAMO_REGISTRATIONS_TABLE: "registrations-development"
     volumes:
       - .:/app
-      - gems_volume_worker:/usr/local/bundle
+      - gems_volume_worker_e2e:/usr/local/bundle
     tty: true
     # First, install Ruby and Node dependencies
     # Start the server and bind to 0.0.0.0 (vs 127.0.0.1) so Docker's port mappings work correctly
@@ -86,6 +86,8 @@ services:
             done && ruby -r "/app/app/worker/queue_poller.rb" -e "QueuePoller.perform"'
     networks:
       - wca-registration
+    depends_on:
+      - localstack
     healthcheck:
       test: pgrep ruby || exit 1
     dns:
@@ -94,7 +96,7 @@ services:
 
   # Emulate AWS Services Locally
   localstack:
-    container_name: "localstack"
+    container_name: "localstack_e2e"
     image: localstack/localstack
     ports:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway
@@ -106,7 +108,8 @@ services:
       - "./localstack/volume:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
-      - wca-registration
+      wca-registration:
+        ipv4_address: 10.0.2.20
 
   # Frontend
   frontend:
@@ -149,9 +152,9 @@ services:
       - wca-registration
 
 volumes:
-  gems_volume_handler:
+  gems_volume_handler_e2e:
     driver: local
-  gems_volume_worker:
+  gems_volume_worker_e2e:
     driver: local
   cache:
     driver: local
