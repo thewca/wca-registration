@@ -7,6 +7,8 @@ import { PermissionsContext } from '../api/helper/context/permission_context'
 import { hasPassed } from '../lib/dates'
 import { BASE_ROUTE } from '../routes'
 
+const adminMenu = [registrationsMenuConfig, waitingMenuConfig]
+
 export default function PageTabs() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAdminCompetition } = useContext(PermissionsContext)
@@ -14,16 +16,11 @@ export default function PageTabs() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const [competitorMenu, adminMenu] = useMemo(() => {
+  const competitorMenu = useMemo(() => {
     const optionalTabs = []
-    const adminMenu = []
 
     if (competitionInfo.use_wca_registration) {
       optionalTabs.push(registerMenuConfig)
-    }
-    if (canAdminCompetition) {
-      adminMenu.push(registrationsMenuConfig)
-      adminMenu.push(waitingMenuConfig)
     }
     if (hasPassed(competitionInfo.registration_open)) {
       optionalTabs.push(competitorsMenuConfig)
@@ -33,20 +30,16 @@ export default function PageTabs() {
       competitionInfo.main_event_id ?? competitionInfo.event_ids[0]
 
     return [
-      [
-        generalInfoMenuConfig,
-        ...optionalTabs,
-        eventsMenuConfig(eventTabIcon),
-        scheduleMenuConfig,
-      ],
-      adminMenu,
+      generalInfoMenuConfig,
+      ...optionalTabs,
+      eventsMenuConfig(eventTabIcon),
+      scheduleMenuConfig,
     ]
   }, [
     competitionInfo.use_wca_registration,
     competitionInfo.registration_open,
     competitionInfo.main_event_id,
     competitionInfo.event_ids,
-    canAdminCompetition,
   ])
 
   const hasCustomTabs = competitionInfo.tabs.length > 0
