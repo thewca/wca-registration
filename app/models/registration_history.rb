@@ -12,7 +12,7 @@ class RegistrationHistory
   belongs_to :registration, class: Registration
 
   def add_entry(changed_attributes, actor_user_id)
-    entry = History.new({"changed_attributes": changed_attributes, "actor_user_id": actor_user_id })
+    entry = History.new({ changed_attributes: changed_attributes, actor_user_id: actor_user_id })
     if history.empty?
       update_attributes(history: [entry])
     else
