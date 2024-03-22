@@ -302,13 +302,13 @@ export default function RegistrationEditor() {
                 <Table.Row key={entry.timestamp}>
                   <Table.Cell>{getShortDateString(entry.timestamp)}</Table.Cell>
                   <Table.Cell>
-                    {entry.attribute_changes.values().map((k, v) => (
+                    {entry.changed_attributes.values().map((k, v) => (
                       <span key={k}>
                         Changed {k} to {v}
                       </span>
                     ))}
                   </Table.Cell>
-                  <Table.Cell>{entry.acting_user_id}</Table.Cell>
+                  <Table.Cell>{entry.actor_user_id}</Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>
