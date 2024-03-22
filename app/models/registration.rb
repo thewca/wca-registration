@@ -213,7 +213,7 @@ class Registration
   field :competing_status, :string
   field :hide_name_publicly, :boolean
   field :lanes, :array, of: Lane
-  has_one :history, class: History
+  has_one :history, class: RegistrationHistory
 
   global_secondary_index hash_key: :user_id, projected_attributes: :all
   global_secondary_index hash_key: :competition_id, projected_attributes: :all

@@ -6,7 +6,7 @@ class RegistrationHistory
   include Dynamoid::Document
 
   # We autoscale dynamodb
-  table name: EnvConfig.DYNAMO_REGISTRATION_HISTORY_TABLE, capacity_mode: nil, key: :attendee_id
+  table name: EnvConfig.REGISTRATION_HISTORY_DYNAMO_TABLE, capacity_mode: nil, key: :attendee_id
 
   field :history, :array, of: History
   belongs_to :registration, class: Registration

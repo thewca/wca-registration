@@ -149,7 +149,7 @@ class RegistrationController < ApplicationController
     registration = Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
     updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
-
+    registration.history.add_entry(update_request, @current_user)
     if old_status == 'accepted' && status != 'accepted'
       Registration.decrement_competitors_count(@competition_id)
     elsif old_status != 'accepted' && status == 'accepted'
@@ -349,6 +349,7 @@ class RegistrationController < ApplicationController
           payment_status: registration.payment_status,
           updated_at: registration.payment_date,
         },
+        history: registration.history,
       }
     end
 end
