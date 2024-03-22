@@ -7,6 +7,47 @@ import { PermissionsContext } from '../api/helper/context/permission_context'
 import { hasPassed } from '../lib/dates'
 import { BASE_ROUTE } from '../routes'
 
+const registerMenuConfig = {
+  key: 'register',
+  icon: 'sign in alt',
+  label: 'Register',
+}
+const registrationsMenuConfig = {
+  key: 'registrations',
+  route: 'registrations/edit',
+  icon: 'list ul',
+  label: 'Registrations',
+}
+const waitingMenuConfig = {
+  key: 'waiting',
+  route: 'waiting',
+  icon: 'clock',
+  label: 'Waiting list',
+}
+const competitorsMenuConfig = {
+  key: 'competitors',
+  route: 'registrations',
+  icon: 'users',
+  label: 'Competitors',
+}
+const generalInfoMenuConfig = {
+  key: 'info',
+  route: '',
+  icon: 'info',
+  label: 'General Info',
+}
+const eventsMenuConfig = (icon) => ({
+  key: 'events',
+  icon,
+  label: 'Events',
+  cubing: true,
+})
+const scheduleMenuConfig = {
+  key: 'schedule',
+  icon: 'calendar',
+  label: 'Schedule',
+}
+
 const adminMenu = [registrationsMenuConfig, waitingMenuConfig]
 
 export default function PageTabs() {
@@ -150,45 +191,4 @@ function pathMatch(name, pathname) {
       return name === Number.parseInt(pathname.split('/tabs/')[1], 10)
     }
   }
-}
-
-const registerMenuConfig = {
-  key: 'register',
-  icon: 'sign in alt',
-  label: 'Register',
-}
-const registrationsMenuConfig = {
-  key: 'registrations',
-  route: 'registrations/edit',
-  icon: 'list ul',
-  label: 'Registrations',
-}
-const waitingMenuConfig = {
-  key: 'waiting',
-  route: 'waiting',
-  icon: 'clock',
-  label: 'Waiting list',
-}
-const competitorsMenuConfig = {
-  key: 'competitors',
-  route: 'registrations',
-  icon: 'users',
-  label: 'Competitors',
-}
-const generalInfoMenuConfig = {
-  key: 'info',
-  route: '',
-  icon: 'info',
-  label: 'General Info',
-}
-const eventsMenuConfig = (icon) => ({
-  key: 'events',
-  icon,
-  label: 'Events',
-  cubing: true,
-})
-const scheduleMenuConfig = {
-  key: 'schedule',
-  icon: 'calendar',
-  label: 'Schedule',
 }
