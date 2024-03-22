@@ -540,9 +540,12 @@ function TableRow({
       )}
 
       <Table.Cell>
-        {wca_id && (
-          <a href={`https://www.worldcubeassociation.org/persons/${wca_id}`}>
-            {wca_id}
+        {wca_id ? (
+          <a href={`${process.env.WCA_URL}/persons/${wca_id}`}>{wca_id}</a>
+        ) : (
+          <a href={`${process.env.WCA_URL}/users/${id}/edit`}>
+            <Icon name="edit" />
+            Profile
           </a>
         )}
       </Table.Cell>
