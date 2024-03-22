@@ -169,7 +169,7 @@ export default function RegistrationEditor() {
           {competitorInfo.wca_id && (
             <Message>
               This person registered with an account. You can edit their
-              personal information
+              personal information{' '}
               <a href={`${process.env.WCA_URL}/users/${userId}/edit`}>here.</a>
             </Message>
           )}
