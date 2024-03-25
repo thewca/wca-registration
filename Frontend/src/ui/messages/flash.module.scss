@@ -1,5 +1,12 @@
 @import '../../style/font-sizes';
 
+@media screen and (max-width: 400px) {
+  .message{
+    font-size: $text-size !important;
+    width: 50vw;
+  }
+}
+
 .message{
   position: fixed !important;
   font-size: $sub-header-size !important;
