@@ -1,5 +1,5 @@
 /* We don't want to have the padding that is caused by having two containers in admin mode */
-.container-fluid > #registration-app > .registration-container {
+.container-fluid .registration-container {
     padding-left: 0 !important;
     padding-right: 0 !important;
 }
