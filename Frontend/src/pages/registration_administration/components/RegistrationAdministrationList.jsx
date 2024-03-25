@@ -359,7 +359,7 @@ function RegistrationAdministrationTable({
 
   return (
     <div className={styles.tableContainer}>
-      <Table sortable structured striped textAlign="left">
+      <Table sortable striped textAlign="left">
         <TableHeader
           columnsExpanded={columnsExpanded}
           showCheckbox={registrations.length > 0}
