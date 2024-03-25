@@ -2,6 +2,8 @@
 
 require 'time'
 
+require_relative './registration'
+
 class RegistrationHistory
   include Dynamoid::Document
 

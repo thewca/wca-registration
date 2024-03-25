@@ -4,6 +4,7 @@ require_relative '../lib/redis_helper'
 require 'time'
 # Requiring even though it's in lib because the worker needs to find it too
 require_relative '../../lib/lane'
+require_relative './registration_history'
 
 class Registration
   include Dynamoid::Document
