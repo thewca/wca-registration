@@ -1,6 +1,8 @@
 @import '../../style/font-sizes';
 
-@media screen and (max-width: 400px) {
+$semanticMobileBreakpoint: 768px;
+
+@media screen and (max-width: $semanticMobileBreakpoint) {
   .message{
     font-size: $text-size !important;
     width: 50vw;
