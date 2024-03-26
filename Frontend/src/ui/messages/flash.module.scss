@@ -6,21 +6,29 @@ $semanticMobileBreakpoint: 768px;
   .message{
     font-size: $text-size !important;
     width: 50vw;
+    left: 25vw;
+  }
+}
+
+@media screen and (min-width: $semanticMobileBreakpoint) {
+  .message{
+    font-size: $sub-header-size !important;
+    width: 20vw;
+    left: 40vw;
   }
 }
 
 .message{
   position: fixed !important;
-  font-size: $sub-header-size !important;
   z-index: 100000;
-  width: 20vw;
   top: 10vh;
-  left: 40vw;
   text-align: center;
 }
+
 .visible{
   display: block;
 }
+
 .invisible{
   display: none;
 }
