@@ -1,5 +1,17 @@
-/* We don't want to have the padding that is caused by having two containers */
-.registration-container {
+/* We don't want to have the padding that is caused by having two containers in admin mode */
+.container-fluid .registration-container {
     padding-left: 0 !important;
     padding-right: 0 !important;
+}
+
+/* From application.css */
+.container.fluid {
+  padding-right:15px;
+  padding-left:15px;
+  margin-right:auto;
+  margin-left:auto
+}
+
+.competition-info-logo {
+    margin-bottom: 0 !important;
 }

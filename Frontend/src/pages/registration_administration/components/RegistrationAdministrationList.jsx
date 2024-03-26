@@ -359,7 +359,7 @@ function RegistrationAdministrationTable({
 
   return (
     <div className={styles.tableContainer}>
-      <Table sortable structured striped textAlign="left">
+      <Table sortable striped textAlign="left">
         <TableHeader
           columnsExpanded={columnsExpanded}
           showCheckbox={registrations.length > 0}
@@ -557,14 +557,15 @@ function TableRow({
       <Table.Cell>
         {region ? (
           <>
-            <FlagIcon iso2={country.iso2} /> {region && country.name}
+            <FlagIcon iso2={country.iso2.toLowerCase()} />
+            {region && country.name}
           </>
         ) : (
           <Popup
             content={country.name}
             trigger={
               <span>
-                <FlagIcon iso2={country.iso2} />
+                <FlagIcon iso2={country.iso2.toLowerCase()} />
               </span>
             }
           />
