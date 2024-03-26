@@ -13,6 +13,10 @@ import {
 } from 'semantic-ui-react'
 import getCompetitionWcif from '../../api/competition/get/get_competition_wcif'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
+import {
+  attemptResultToString,
+  centiSecondsToHumanReadable,
+} from '../../lib/solveTime'
 import { setMessage } from '../../ui/events/messages'
 import LoadingMessage from '../../ui/messages/loadingMessage'
 
@@ -73,12 +77,17 @@ export default function Events() {
                   <TableCell>{getFormatName(round.format)}</TableCell>
                   <TableCell>
                     {round.timeLimit &&
-                      `${round.timeLimit.centiseconds / 100} seconds`}
+                      centiSecondsToHumanReadable({
+                        c: round.timeLimit.centiseconds,
+                      })}
                   </TableCell>
                   {competitionInfo['uses_cutoff?'] && (
                     <TableCell>
                       {round.cutoff &&
-                        `${round.cutoff?.attemptResult / 100} seconds`}
+                        attemptResultToString({
+                          attemptResult: round.cutoff.attemptResult,
+                          eventId: event.id,
+                        })}
                     </TableCell>
                   )}
                   <TableCell>
