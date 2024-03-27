@@ -69,7 +69,7 @@ export default function CompetingStep({ nextStep }) {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
           ['registration', competitionInfo.id, user.id],
-          data,
+          data.registration,
         )
       },
     })
@@ -315,7 +315,7 @@ export default function CompetingStep({ nextStep }) {
               </Message.Content>
             </Message>
 
-            <ButtonGroup>
+            <ButtonGroup className="stackable">
               {shouldShowUpdateButton && (
                 <Button
                   primary
