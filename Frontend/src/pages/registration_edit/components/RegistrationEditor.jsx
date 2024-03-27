@@ -10,6 +10,7 @@ import {
   Header,
   Input,
   Message,
+  Popup,
   Segment,
   Table,
   TextArea,
@@ -18,7 +19,11 @@ import { CompetitionContext } from '../../../api/helper/context/competition_cont
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { getUserInfo } from '../../../api/user/post/get_user_info'
-import { getShortDateString, hasPassed } from '../../../lib/dates'
+import {
+  getShortDateString,
+  getShortTimeString,
+  hasPassed,
+} from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
@@ -300,7 +305,14 @@ export default function RegistrationEditor() {
             <Table.Body>
               {registration.history.map((entry) => (
                 <Table.Row key={entry.timestamp}>
-                  <Table.Cell>{getShortDateString(entry.timestamp)}</Table.Cell>
+                  <Table.Cell>
+                    <Popup
+                      content={getShortTimeString(entry.timestamp)}
+                      trigger={
+                        <span>{getShortDateString(entry.timestamp)}</span>
+                      }
+                    />
+                  </Table.Cell>
                   <Table.Cell>
                     {entry.changed_attributes.values().map((k, v) => (
                       <span key={k}>
