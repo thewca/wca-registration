@@ -26,4 +26,5 @@ EnvConfig = SuperConfig.new do
   mandatory :AWS_REGION, :string
   mandatory :PROMETHEUS_EXPORTER, :string
   mandatory :DYNAMO_REGISTRATIONS_TABLE, :string
+  mandatory :REGISTRATION_HISTORY_DYNAMO_TABLE, :string
 end

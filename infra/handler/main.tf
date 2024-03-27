@@ -37,6 +37,10 @@ locals {
       value = var.shared_resources.dynamo_registration_table.name
     },
     {
+      name = "REGISTRATION_HISTORY_DYNAMO_TABLE",
+      value = var.shared_resources.dynamo_registration_history_table.name
+    },
+    {
       name = "QUEUE_URL",
       value = var.shared_resources.queue.url
     },

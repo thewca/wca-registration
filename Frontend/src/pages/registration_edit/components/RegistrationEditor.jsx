@@ -10,14 +10,20 @@ import {
   Header,
   Input,
   Message,
+  Popup,
   Segment,
+  Table,
   TextArea,
 } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import { getUserInfo } from '../../../api/user/post/get_user_info'
-import { hasPassed } from '../../../lib/dates'
+import {
+  getShortDateString,
+  getShortTimeString,
+  hasPassed,
+} from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
@@ -287,6 +293,38 @@ export default function RegistrationEditor() {
               />
             </>
           )}
+          <Header>Registration History</Header>
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Timestamp</Table.HeaderCell>
+                <Table.HeaderCell>Changes</Table.HeaderCell>
+                <Table.HeaderCell>Acting User</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {registration.history.map((entry) => (
+                <Table.Row key={entry.timestamp}>
+                  <Table.Cell>
+                    <Popup
+                      content={getShortTimeString(entry.timestamp)}
+                      trigger={
+                        <span>{getShortDateString(entry.timestamp)}</span>
+                      }
+                    />
+                  </Table.Cell>
+                  <Table.Cell>
+                    {entry.changed_attributes.values().map((k, v) => (
+                      <span key={k}>
+                        Changed {k} to {v}
+                      </span>
+                    ))}
+                  </Table.Cell>
+                  <Table.Cell>{entry.actor_user_id}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
         </div>
       )}
     </Segment>

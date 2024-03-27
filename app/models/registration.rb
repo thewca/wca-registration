@@ -2,8 +2,9 @@
 
 require_relative '../lib/redis_helper'
 require 'time'
-# Requiring even though it's in lib because the work needs to find it too
+# Requiring even though it's in lib because the worker needs to find it too
 require_relative '../../lib/lane'
+require_relative './registration_history'
 
 class Registration
   include Dynamoid::Document
@@ -213,6 +214,7 @@ class Registration
   field :competing_status, :string
   field :hide_name_publicly, :boolean
   field :lanes, :array, of: Lane
+  has_one :history, class: RegistrationHistory
 
   global_secondary_index hash_key: :user_id, projected_attributes: :all
   global_secondary_index hash_key: :competition_id, projected_attributes: :all

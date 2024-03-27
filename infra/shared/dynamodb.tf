@@ -44,9 +44,35 @@ resource "aws_dynamodb_table" "registrations" {
   }
 }
 
+resource "aws_dynamodb_table" "registration_history" {
+  name           = "registrations_history"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 5
+  write_capacity = 5
+  hash_key = "attendee_id"
+
+  attribute {
+    name = "attendee_id"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "TimeToExist"
+    enabled        = false
+  }
+
+  lifecycle {
+    ignore_changes = [ttl]
+  }
+}
+
 output "dynamo_registration_table" {
   value = aws_dynamodb_table.registrations
 }
+output "dynamo_registration_history_table" {
+  value = aws_dynamodb_table.registration_history
+}
+
 
 # Add autoscaling
 module "table_autoscaling" {
