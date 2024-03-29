@@ -18,7 +18,10 @@ class RegistrationProcessor
         config.credentials = Aws::ECSCredentials.new(retries: 3)
       end
     end
-    # We have to require the model after we initialized dynamoid
+    # We have to require the models after we initialized dynamoid
+    require_relative '../../lib/lane'
+    require_relative '../../lib/history'
+    require_relative '../models/registration_history'
     require_relative '../models/registration'
   end
 
@@ -41,7 +44,7 @@ class RegistrationProcessor
       empty_registration = Registration.new(attendee_id: "#{competition_id}-#{user_id}",
                                             competition_id: competition_id,
                                             user_id: user_id)
-      RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}")
+      RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}", entries: [History.new({ 'changed_attributes' => {}, 'actor_user_id' => user_id })])
       empty_registration.save!
     end
 
@@ -53,6 +56,7 @@ class RegistrationProcessor
       else
         registration.update_attributes(lanes: registration.lanes.append(competing_lane), guests: guests)
       end
+      registration.history.add_entry({ event_ids: event_ids, comment: comment, guests: guests, competing_status: registration.competing_status}, user_id)
       if EnvConfig.CODE_ENVIRONMENT == 'production'
         EmailApi.send_creation_email(competition_id, user_id)
       end

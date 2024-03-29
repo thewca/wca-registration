@@ -6,7 +6,7 @@ class History
   def initialize(args)
     @changed_attributes = args['changed_attributes'] || {}
     @actor_user_id = args['actor_user_id'] || ''
-    @time_stamp = args['timestamp'] || Time.now
+    @timestamp = args['timestamp'] || Time.now
   end
 
   def dynamoid_dump

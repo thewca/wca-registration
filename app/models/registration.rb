@@ -2,8 +2,6 @@
 
 require_relative '../lib/redis_helper'
 require 'time'
-# Requiring even though it's in lib because the worker needs to find it too
-require_relative '../../lib/lane'
 
 class Registration
   include Dynamoid::Document
@@ -63,10 +61,6 @@ class Registration
   # Returns all event ids irrespective of registration status
   def event_ids
     competing_lane&.lane_details&.[]('event_details')&.pluck('event_id')
-  end
-
-  def history
-    RegistrationHistory.find_by_id(attendee_id)
   end
 
   def registered_event_ids
@@ -213,6 +207,8 @@ class Registration
   field :competing_status, :string
   field :hide_name_publicly, :boolean
   field :lanes, :array, of: Lane
+  # We only do this one way because Dynamoid doesn't allow us to overwrite the foreign_key for has_one
+  belongs_to :history, class: RegistrationHistory, foreign_key: :attendee_id
 
   global_secondary_index hash_key: :user_id, projected_attributes: :all
   global_secondary_index hash_key: :competition_id, projected_attributes: :all

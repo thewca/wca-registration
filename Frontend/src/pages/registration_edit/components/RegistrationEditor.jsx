@@ -46,7 +46,7 @@ export default function RegistrationEditor() {
   const queryClient = useQueryClient()
 
   const { data: serverRegistration } = useQuery({
-    queryKey: ['registration', competitionInfo.id, userId],
+    queryKey: ['registration-admin', competitionInfo.id, userId],
     queryFn: () => getSingleRegistration(userId, competitionInfo.id),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -314,11 +314,15 @@ export default function RegistrationEditor() {
                     />
                   </Table.Cell>
                   <Table.Cell>
-                    {entry.changed_attributes.values().map((k, v) => (
-                      <span key={k}>
-                        Changed {k} to {v}
-                      </span>
-                    ))}
+                    {!_.isEmpty(entry.changed_attributes) ? (
+                      Object.entries(entry.changed_attributes).map(([k, v]) => (
+                        <span key={k}>
+                          Changed {k} to {JSON.stringify(v)} <br />
+                        </span>
+                      ))
+                    ) : (
+                      <span>Registration Created</span>
+                    )}
                   </Table.Cell>
                   <Table.Cell>{entry.actor_user_id}</Table.Cell>
                 </Table.Row>
