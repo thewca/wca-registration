@@ -29,7 +29,7 @@ export const competitionsPDFRoute = (compId: string) =>
 export const competitionContactFormRoute = (compId: string) =>
   `${process.env.WCA_URL}/contact/website?competitionId=${compId}`
 
-export const pollingRoute = (userId: string, competitionId: string) =>
+export const pollingRoute = (userId: number, competitionId: string) =>
   `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`
 export const meRoute = `${process.env.WCA_URL}/api/v0/users/me`
 
