@@ -44,7 +44,7 @@ class RegistrationProcessor
       empty_registration = Registration.new(attendee_id: "#{competition_id}-#{user_id}",
                                             competition_id: competition_id,
                                             user_id: user_id)
-      RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}", entries: [History.new({ 'changed_attributes' => {}, 'actor_user_id' => user_id })])
+      RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}", entries: [History.new({ 'changed_attributes' => {}, 'actor_user_id' => user_id, 'action' => 'Worker create' })])
       empty_registration.save!
     end
 
@@ -56,7 +56,7 @@ class RegistrationProcessor
       else
         registration.update_attributes(lanes: registration.lanes.append(competing_lane), guests: guests)
       end
-      registration.history.add_entry({ event_ids: event_ids, comment: comment, guests: guests, competing_status: registration.competing_status }, user_id)
+      registration.history.add_entry({ event_ids: event_ids, comment: comment, guests: guests, status: 'pending' }, user_id, 'Worker processed')
       if EnvConfig.CODE_ENVIRONMENT == 'production'
         EmailApi.send_creation_email(competition_id, user_id)
       end

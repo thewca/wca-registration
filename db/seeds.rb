@@ -59,7 +59,7 @@ unless Rails.env.production?
       (9001..9005).each do |user_id|
         Registration.create(attendee_id: "#{id}-#{user_id}", competition_id: id, user_id: user_id, guests: rand(1..10),
                             lanes: [LaneFactory.competing_lane(event_ids: competition['event_ids'].sample(rand(1..3)), comment: "Seed Registration #{user_id}")])
-        RegistrationHistory.create(attendee_id: "#{id}-#{user_id}", entries: [History.new({ 'changed_attributes' => {}, 'actor_user_id' => user_id })])
+        RegistrationHistory.create(attendee_id: "#{id}-#{user_id}", entries: [History.new({ 'changed_attributes' => {}, 'actor_user_id' => user_id, 'action' => 'seed registration' })])
       end
     end
   rescue Aws::DynamoDB::Errors::ResourceInUseException

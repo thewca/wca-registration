@@ -7,6 +7,7 @@ class History
     @changed_attributes = args['changed_attributes'] || {}
     @actor_user_id = args['actor_user_id'] || ''
     @timestamp = args['timestamp'] || Time.now
+    @action = args['action'] || 'unknown'
   end
 
   def dynamoid_dump

@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import _ from 'lodash'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import {
@@ -18,7 +24,7 @@ import {
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
-import { getUserInfo } from '../../../api/user/post/get_user_info'
+import { getUsersInfo } from '../../../api/user/post/get_user_info'
 import {
   getShortDateString,
   getShortTimeString,
@@ -54,9 +60,14 @@ export default function RegistrationEditor() {
     refetchOnMount: 'always',
   })
 
-  const { isLoading, data: competitorInfo } = useQuery({
+  const { isLoading, data: competitorsInfo } = useQuery({
     queryKey: ['info', userId],
-    queryFn: () => getUserInfo(userId),
+    queryFn: () =>
+      getUsersInfo([
+        userId,
+        ...serverRegistration.history.map((e) => e.acting_user_id),
+      ]),
+    enabled: Boolean(serverRegistration),
   })
 
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
@@ -165,6 +176,12 @@ export default function RegistrationEditor() {
   const registrationEditDeadlinePassed =
     Boolean(competitionInfo.event_change_deadline_date) &&
     hasPassed(competitionInfo.event_change_deadline_date)
+
+  const competitorInfo = useMemo(() => {
+    if (competitorsInfo) {
+      return competitorsInfo.find((c) => c.id === userId)
+    }
+  }, [competitorsInfo, userId])
 
   return (
     <Segment padded attached>
@@ -300,6 +317,7 @@ export default function RegistrationEditor() {
                 <Table.HeaderCell>Timestamp</Table.HeaderCell>
                 <Table.HeaderCell>Changes</Table.HeaderCell>
                 <Table.HeaderCell>Acting User</Table.HeaderCell>
+                <Table.HeaderCell>Action</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -324,7 +342,13 @@ export default function RegistrationEditor() {
                       <span>Registration Created</span>
                     )}
                   </Table.Cell>
-                  <Table.Cell>{entry.actor_user_id}</Table.Cell>
+                  <Table.Cell>
+                    {
+                      competitorsInfo.find((c) => c.id === entry.actor_user_id)
+                        .name
+                    }
+                  </Table.Cell>
+                  <Table.Cell>{entry.action}</Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>

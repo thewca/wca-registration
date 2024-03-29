@@ -149,7 +149,7 @@ class RegistrationController < ApplicationController
     registration = Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
     updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
-    registration.history.add_entry(update_request[:competing], @current_user)
+    registration.history.add_entry(update_request[:competing], @current_user, action_type(update_request))
     if old_status == 'accepted' && status != 'accepted'
       Registration.decrement_competitors_count(@competition_id)
     elsif old_status != 'accepted' && status == 'accepted'
@@ -273,6 +273,15 @@ class RegistrationController < ApplicationController
   end
 
   private
+
+    def action_type(request)
+      self_updating = request[:user_id] == @current_user
+      status = request.dig('competing', 'status')
+      if status == 'cancelled'
+        return self_updating ? 'Competitor delete' : 'Admin delete'
+      end
+      self_updating ? 'Competitor update' : 'Admin update'
+    end
 
     def registration_params
       params.require([:user_id, :competition_id])
