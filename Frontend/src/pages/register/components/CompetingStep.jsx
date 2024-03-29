@@ -156,8 +156,8 @@ export default function CompetingStep({ nextStep }) {
       user_id: registration.user_id,
       competition_id: competitionInfo.id,
       competing: {
-        comment,
-        event_ids: selectedEvents,
+        comment: hasCommentChanged ? comment : undefined,
+        event_ids: hasEventsChanged ? selectedEvents : undefined,
       },
       guests,
     })
