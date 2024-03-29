@@ -4,7 +4,6 @@ require_relative '../lib/redis_helper'
 require 'time'
 # Requiring even though it's in lib because the worker needs to find it too
 require_relative '../../lib/lane'
-require_relative './registration_history'
 
 class Registration
   include Dynamoid::Document
@@ -66,8 +65,8 @@ class Registration
     competing_lane&.lane_details&.[]('event_details')&.pluck('event_id')
   end
 
-  def attendee_id
-    "#{competition_id}-#{user_id}"
+  def history
+    RegistrationHistory.find_by_id(attendee_id)
   end
 
   def registered_event_ids
@@ -214,7 +213,6 @@ class Registration
   field :competing_status, :string
   field :hide_name_publicly, :boolean
   field :lanes, :array, of: Lane
-  has_one :history, class: RegistrationHistory
 
   global_secondary_index hash_key: :user_id, projected_attributes: :all
   global_secondary_index hash_key: :competition_id, projected_attributes: :all

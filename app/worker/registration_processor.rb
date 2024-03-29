@@ -41,6 +41,7 @@ class RegistrationProcessor
       empty_registration = Registration.new(attendee_id: "#{competition_id}-#{user_id}",
                                             competition_id: competition_id,
                                             user_id: user_id)
+      RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}")
       empty_registration.save!
     end
 
