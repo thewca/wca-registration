@@ -25,6 +25,8 @@ FactoryBot.define do
         waiting_list_position: waiting_list_position,
       )]
     }
+
+    history factory: :registration_history
   end
 
   trait :admin do
