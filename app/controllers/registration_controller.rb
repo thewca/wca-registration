@@ -286,7 +286,7 @@ class RegistrationController < ApplicationController
     def update_changes(update_request)
       changes = {}
 
-      update_request.dig('competing')&.each do |key, value|
+      update_request['competing']&.each do |key, value|
         changes[key.to_sym] = value if value.present?
       end
 
