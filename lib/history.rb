@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class History
-  attr_accessor :changed_attributes, :actor_user_id, :time_stamp
+  attr_accessor :changed_attributes, :actor_user_id, :time_stamp, :action
 
   def initialize(args)
     @changed_attributes = args['changed_attributes'] || {}
