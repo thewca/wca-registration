@@ -26,6 +26,8 @@ export const userProfileRoute = (wcaId: string) =>
 export const competitionsPDFRoute = (compId: string) =>
   `${process.env.WCA_URL}/competitions/${compId}.pdf`
 
+export const userPreferencesRoute = `${process.env.WCA_URL}/profile/edit?section=preferences`
+
 export const competitionContactFormRoute = (compId: string) =>
   `${process.env.WCA_URL}/contact/website?competitionId=${compId}`
 

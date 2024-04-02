@@ -158,7 +158,7 @@ export default function PageTabs() {
               {menuConfig.icon && !menuConfig.cubing && (
                 <UiIcon size="1x" name={menuConfig.icon} />
               )}
-              {menuConfig.label}
+              {t(menuConfig.i18nKey)}
             </Menu.Item>
           ))}
         </Menu>

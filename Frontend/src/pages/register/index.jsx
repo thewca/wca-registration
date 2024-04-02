@@ -95,7 +95,7 @@ export default function Register() {
                                     competitionInfo.currency_code,
                                   )
                                 : t(
-                                    'competitions.registration_v2.fees.guestNone',
+                                    'competitions.competition_form.choices.registration.guest_entry_status.free',
                                   )}
                             </List.Header>
                             <List.Description>

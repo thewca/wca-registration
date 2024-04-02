@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EventSelector, UiIcon } from '@thewca/wca-components'
 import _ from 'lodash'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import {
   Button,
   ButtonGroup,
@@ -23,6 +23,10 @@ import submitEventRegistration from '../../../api/registration/post/submit_regis
 import { getMediumDateString, hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import Processing from './Processing'
+import {
+  competitionsPDFRoute,
+  userPreferencesRoute,
+} from '../../../api/helper/routes'
 
 const maxCommentLength = 240
 
@@ -243,7 +247,13 @@ export default function CompetingStep({ nextStep }) {
               size="2x"
               id="event-selection"
             />
-            <p>{t('registrations.preferred_events_prompt_html')}</p>
+            <p>
+              <Trans
+                i18nKey="registrations.preferred_events_prompt_html"
+                values={{ link: '' }}
+              />
+              <a href={userPreferencesRoute}>here</a>
+            </p>
           </Form.Field>
           <Form.Field required={competitionInfo.force_comment_in_registration}>
             <label htmlFor="comment">

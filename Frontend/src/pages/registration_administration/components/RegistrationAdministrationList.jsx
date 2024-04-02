@@ -281,7 +281,7 @@ export default function RegistrationAdministrationList() {
           {t('registrations.list.approved_registrations')} ({accepted.length}
           {competitionInfo.competitor_limit && (
             <>
-              {`/${competitionInfo.competitor_limit}`}
+              {`/${competitionInfo.competitor_limit}; `}
               {spotsRemainingText}
             </>
           )}
@@ -300,8 +300,9 @@ export default function RegistrationAdministrationList() {
         />
 
         <Header>
-          {t('enums.competition_medium.status.waiting_list')} ({waiting.length}
-          {competitionInfo.competitor_limit && spotsRemainingText})
+          {t('simple_form.options.registration.status.waiting_list')} (
+          {waiting.length}
+          {competitionInfo.competitor_limit && `; ${spotsRemainingText}`})
         </Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
@@ -316,7 +317,8 @@ export default function RegistrationAdministrationList() {
         />
 
         <Header>
-          {t('enums.competition_medium.status.cancelled')} ({cancelled.length})
+          {t('simple_form.options.registration.status.cancelled')} (
+          {cancelled.length})
         </Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
