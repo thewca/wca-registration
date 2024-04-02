@@ -24,7 +24,7 @@ import styles from './editor.module.scss'
 import Refunds from './Refunds'
 
 export default function RegistrationEditor() {
-  const { user_id } = useParams()
+  const userId = Number.parseInt(useParams().user_id, 10)
   const { competitionInfo } = useContext(CompetitionContext)
   const { t } = useTranslation()
 
@@ -40,9 +40,8 @@ export default function RegistrationEditor() {
   const queryClient = useQueryClient()
 
   const { data: serverRegistration } = useQuery({
-    queryKey: ['registration', competitionInfo.id, user_id],
-    queryFn: () =>
-      getSingleRegistration(Number.parseInt(user_id, 10), competitionInfo.id),
+    queryKey: ['registration', competitionInfo.id, userId],
+    queryFn: () => getSingleRegistration(userId, competitionInfo.id),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
@@ -50,8 +49,8 @@ export default function RegistrationEditor() {
   })
 
   const { isLoading, data: competitorInfo } = useQuery({
-    queryKey: ['info', user_id],
-    queryFn: () => getUserInfo(Number.parseInt(user_id, 10)),
+    queryKey: ['info', userId],
+    queryFn: () => getUserInfo(userId),
   })
 
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
@@ -69,7 +68,7 @@ export default function RegistrationEditor() {
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
-          ['registration', competitionInfo.id, user_id],
+          ['registration', competitionInfo.id, userId],
           data,
         )
       },
@@ -131,7 +130,7 @@ export default function RegistrationEditor() {
     } else {
       setMessage('Updating Registration', 'basic')
       updateRegistrationMutation({
-        user_id,
+        user_id: userId,
         competing: {
           status,
           event_ids: selectedEvents,
@@ -148,7 +147,7 @@ export default function RegistrationEditor() {
     eventsAreValid,
     maxEvents,
     updateRegistrationMutation,
-    user_id,
+    userId,
     status,
     selectedEvents,
     comment,
@@ -167,6 +166,13 @@ export default function RegistrationEditor() {
         <LoadingMessage />
       ) : (
         <div>
+          {competitorInfo.wca_id && (
+            <Message>
+              This person registered with an account. You can edit their
+              personal information{' '}
+              <a href={`${process.env.WCA_URL}/users/${userId}/edit`}>here.</a>
+            </Message>
+          )}
           <Header>{competitorInfo.name}</Header>
           <EventSelector
             handleEventSelection={setSelectedEvents}
@@ -275,7 +281,7 @@ export default function RegistrationEditor() {
               )}
               <Refunds
                 competitionId={competitionInfo.id}
-                userId={user_id}
+                userId={userId}
                 open={isCheckingRefunds}
                 onExit={() => setIsCheckingRefunds(false)}
               />

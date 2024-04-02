@@ -8,6 +8,47 @@ import { PermissionsContext } from '../api/helper/context/permission_context'
 import { hasPassed } from '../lib/dates'
 import { BASE_ROUTE } from '../routes'
 
+const registerMenuConfig = {
+  key: 'register',
+  icon: 'sign in alt',
+  i18nKey: 'competitions.nav.menu.register',
+}
+const registrationsMenuConfig = {
+  key: 'registrations',
+  route: 'registrations/edit',
+  icon: 'list ul',
+  i18nKey: 'competitions.nav.menu.registration',
+}
+const waitingMenuConfig = {
+  key: 'waiting',
+  route: 'waiting',
+  icon: 'clock',
+  i18nKey: 'registrations.list.waiting_list',
+}
+const competitorsMenuConfig = {
+  key: 'competitors',
+  route: 'registrations',
+  icon: 'users',
+  i18nKey: 'competitions.nav.menu.competitors',
+}
+const generalInfoMenuConfig = {
+  key: 'info',
+  route: '',
+  icon: 'info',
+  i18nKey: 'competitions.show.general_info',
+}
+const eventsMenuConfig = (icon) => ({
+  key: 'events',
+  icon,
+  i18nKey: 'competitions.show.events',
+  cubing: true,
+})
+const scheduleMenuConfig = {
+  key: 'schedule',
+  icon: 'calendar',
+  i18nKey: 'competitions.show.schedule',
+}
+
 const adminMenu = [registrationsMenuConfig, waitingMenuConfig]
 
 export default function PageTabs() {
@@ -153,45 +194,4 @@ function pathMatch(name, pathname) {
       return name === Number.parseInt(pathname.split('/tabs/')[1], 10)
     }
   }
-}
-
-const registerMenuConfig = {
-  key: 'register',
-  icon: 'sign in alt',
-  i18nKey: 'competitions.nav.menu.register',
-}
-const registrationsMenuConfig = {
-  key: 'registrations',
-  route: 'registrations/edit',
-  icon: 'list ul',
-  i18nKey: 'competitions.nav.menu.registration',
-}
-const waitingMenuConfig = {
-  key: 'waiting',
-  route: 'waiting',
-  icon: 'clock',
-  i18nKey: 'registrations.list.waiting_list',
-}
-const competitorsMenuConfig = {
-  key: 'competitors',
-  route: 'registrations',
-  icon: 'users',
-  i18nKey: 'competitions.nav.menu.competitors',
-}
-const generalInfoMenuConfig = {
-  key: 'info',
-  route: '',
-  icon: 'info',
-  i18nKey: 'competitions.show.general_info',
-}
-const eventsMenuConfig = (icon) => ({
-  key: 'events',
-  icon,
-  i18nKey: 'competitions.show.events',
-  cubing: true,
-})
-const scheduleMenuConfig = {
-  key: 'schedule',
-  icon: 'calendar',
-  i18nKey: 'competitions.show.schedule',
 }

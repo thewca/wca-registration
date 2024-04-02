@@ -27,7 +27,7 @@ export const competitionsPDFRoute = (compId: string) =>
   `${process.env.WCA_URL}/competitions/${compId}.pdf`
 
 export const competitionContactFormRoute = (compId: string) =>
-  `https://www.worldcubeassociation.org/contact/website?competitionId=${compId}`
+  `${process.env.WCA_URL}/contact/website?competitionId=${compId}`
 
 export const pollingRoute = (userId: string, competitionId: string) =>
   `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`

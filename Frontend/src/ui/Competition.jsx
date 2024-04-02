@@ -69,7 +69,12 @@ export default function Competition({ children }) {
       ) : (
         <>
           <Header as="h1" textAlign="center" attached="top">
-            <Image src={src} centered floated="right" />
+            <Image
+              src={src}
+              className="competition-info-logo"
+              centered
+              floated="right"
+            />
             {competitionInfo.name}
             <Header.Subheader>
               <List horizontal>

@@ -74,7 +74,7 @@ const router = createBrowserRouter([
       {
         path: `${BASE_ROUTE}/:competition_id`,
         element: (
-          <Container>
+          <Container fluid>
             <Competition>
               <PermissionsProvider>
                 <RegistrationProvider>

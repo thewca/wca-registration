@@ -34,7 +34,7 @@ export default function RegistrationProvider({ children }) {
   ) : // eslint-disable-next-line unicorn/no-nested-ternary
   isError || !loggedIn || !registration ? (
     <RegistrationContext.Provider
-      value={{ registration: null, refetch: () => {}, isRegistered: false }}
+      value={{ registration: null, refetch, isRegistered: false }}
     >
       {children}
     </RegistrationContext.Provider>
