@@ -64,8 +64,10 @@ export default function RegistrationEditor() {
     queryKey: ['info', userId],
     queryFn: () =>
       getUsersInfo([
-        userId,
-        ...serverRegistration.history.map((e) => e.acting_user_id),
+        ...new Set([
+          userId,
+          ...serverRegistration.history.map((e) => e.acting_user_id),
+        ]),
       ]),
     enabled: Boolean(serverRegistration),
   })
