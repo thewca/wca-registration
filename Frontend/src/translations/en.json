@@ -726,7 +726,7 @@
         "in_progress": "This competition is ongoing. Come back after %{date} to see the results!",
         "in_progress_at_wca_live_html": "This competition is ongoing. You can check the live results <a href='%{link_here}'>here</a>!",
         "must_have_events": "Please add at least one event before confirming the competition.",
-        "name_too_long": "The competition name is longer than 32 characters. We prefer shorter ones and we will be glad if you change it.",
+        "name_too_long": "The competition name is longer than 32 characters. Please edit the competition ID and short name appropriately.",
         "no_main_event_results": "There are no results for the main event (%{event_name}).",
         "no_results": "There are no results.",
         "no_waiting_list_specified": "This competition does not have a deadline for accepting competitors on the waiting list. If you are using a waiting list, please specify a deadline. If you are not using a waiting list, please remember to specify this in the registration requirements.",
@@ -841,7 +841,7 @@
         },
         "list": {
           "empty": "No matching Records found",
-          "spots_remaining": "; %{spots} spot(s) remaining"
+          "spots_remaining": "%{spots} spot(s) remaining"
         },
         "pdf": {
           "link": "As a <0>%{pdfLink}</0>"
@@ -1290,9 +1290,7 @@
       "competition_medium": {
         "status": {
           "accepted": "Accepted",
-          "cancelled": "Cancelled",
-          "pending": "Pending",
-          "waiting_list": "On the Waiting List"
+          "pending": "Pending"
         },
         "type": {
           "article": "Article",
@@ -1813,6 +1811,19 @@
         "posts": "Posts",
         "regulations_and_guidelines": "Regulations and Guidelines",
         "search_for": "Search for <b>%{search_string}</b>"
+      }
+    },
+    "simple_form": {
+      "options": {
+        "registration": {
+          "status": {
+            "accepted": "Accepted",
+            "cancelled": "Cancelled",
+            "deleted": "Deleted",
+            "pending": "Waiting list",
+            "waiting_list": "On the Waiting List"
+          }
+        }
       }
     },
     "user_groups": {
