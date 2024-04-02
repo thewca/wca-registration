@@ -18,15 +18,12 @@ import {
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { RegistrationContext } from '../../../api/helper/context/registration_context'
 import { UserContext } from '../../../api/helper/context/user_context'
+import { userPreferencesRoute } from '../../../api/helper/routes'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
 import submitEventRegistration from '../../../api/registration/post/submit_registration'
 import { getMediumDateString, hasPassed } from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import Processing from './Processing'
-import {
-  competitionsPDFRoute,
-  userPreferencesRoute,
-} from '../../../api/helper/routes'
 
 const maxCommentLength = 240
 
