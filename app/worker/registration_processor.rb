@@ -44,7 +44,8 @@ class RegistrationProcessor
       empty_registration = Registration.new(attendee_id: "#{competition_id}-#{user_id}",
                                             competition_id: competition_id,
                                             user_id: user_id)
-      RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}", entries: [History.new({ 'changed_attributes' => {}, 'actor_user_id' => user_id, 'action' => 'Worker create' })])
+      initial_history = History.new({ 'changed_attributes' => {}, 'actor_user_id' => user_id, 'action' => 'Worker create' })
+      RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}", entries: [initial_history])
       empty_registration.save!
     end
 
