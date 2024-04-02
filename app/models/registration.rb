@@ -207,7 +207,7 @@ class Registration
   field :competing_status, :string
   field :hide_name_publicly, :boolean
   field :lanes, :array, of: Lane
-  # We only do this one way because Dynamoid doesn't allow us to overwrite the foreign_key for has_one
+  # We only do this one way because Dynamoid doesn't allow us to overwrite the foreign_key for has_one see https://github.com/Dynamoid/dynamoid/issues/740
   belongs_to :history, class: RegistrationHistory, foreign_key: :attendee_id
 
   global_secondary_index hash_key: :user_id, projected_attributes: :all
