@@ -59,7 +59,7 @@
     "esbuild": "0.20.2",
     "esbuild-sass-plugin": "3.1.0",
     "eslint": "8.57.0",
-    "eslint-kit": "10.18.0",
+    "eslint-kit": "10.24.0",
     "fishery": "2.2.2",
     "jest": "29.7.0",
     "openapi-zod": "0.2.7",
