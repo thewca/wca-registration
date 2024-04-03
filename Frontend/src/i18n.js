@@ -17,12 +17,18 @@ const shared = {
 if (process.env.NODE_ENV === 'production') {
   // Use the monoliths translations object
   const monolithTranslations = {}
+  // Always load en as a fallback
+  monolithTranslations.en = {
+    translations: window.I18n[TRANSLATIONS_NAMESPACE].en,
+  }
   monolithTranslations[window.I18n.locale] = {
     translations: window.I18n[TRANSLATIONS_NAMESPACE][window.I18n.locale],
   }
   i18n.use(initReactI18next).init({
     ...shared,
     resources: monolithTranslations,
+    fallbackLng: 'en',
+    fallbackNS: TRANSLATIONS_NAMESPACE,
     lng: window.I18n.locale,
   })
 } else {
