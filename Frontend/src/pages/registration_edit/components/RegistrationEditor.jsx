@@ -60,8 +60,8 @@ export default function RegistrationEditor() {
         const { errorCode } = data
         setMessage(
           errorCode
-            ? t(`errors.${errorCode}`)
-            : 'Registration update failed with error: ' + data.message,
+            ? t(`competitions.registration_v2.errors.${errorCode}`)
+            : t('registrations.flash.failed') + data.message,
           'negative',
         )
       },

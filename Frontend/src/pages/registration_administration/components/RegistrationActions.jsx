@@ -62,7 +62,7 @@ export default function RegistrationActions({
       const { errorCode } = data
       setMessage(
         errorCode
-          ? t(`errors.${errorCode}`)
+          ? t(`competitions.registration_v2.errors.${errorCode}`)
           : t('registrations.flash.failed') + data.message,
         'negative',
       )

@@ -149,8 +149,8 @@ export default function RegistrationAdministrationList() {
       const { errorCode } = err
       setMessage(
         errorCode
-          ? t(`errors.${errorCode}`)
-          : 'Fetching Registrations failed with error: ' + err.message,
+          ? t(`competitions.registration_v2.errors.${errorCode}`)
+          : t('registrations.flash.failed') + data.message,
         'negative',
       )
     },
