@@ -140,7 +140,8 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:DeleteItem",
       "dynamodb:DescribeTable",
     ]
-    resources = [aws_dynamodb_table.registrations.arn,"${aws_dynamodb_table.registrations.arn}/*"]
+    resources = [aws_dynamodb_table.registrations.arn,"${aws_dynamodb_table.registrations.arn}/*",
+                 aws_dynamodb_table.registration_history.arn,"${aws_dynamodb_table.registration_history.arn}/*"]
   }
   statement {
     effect = "Allow"

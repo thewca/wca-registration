@@ -39,6 +39,10 @@ resource "aws_dynamodb_table" "registrations" {
     read_capacity = 5
   }
 
+  point_in_time_recovery {
+    enabled = true
+  }
+
   lifecycle {
     ignore_changes = [ttl]
   }
