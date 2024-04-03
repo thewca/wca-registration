@@ -1,5 +1,6 @@
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import React, { useContext, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Menu } from 'semantic-ui-react'
 import { CompetitionContext } from '../api/helper/context/competition_context'
@@ -10,42 +11,42 @@ import { BASE_ROUTE } from '../routes'
 const registerMenuConfig = {
   key: 'register',
   icon: 'sign in alt',
-  label: 'Register',
+  i18nKey: 'competitions.nav.menu.register',
 }
 const registrationsMenuConfig = {
   key: 'registrations',
   route: 'registrations/edit',
   icon: 'list ul',
-  label: 'Registrations',
+  i18nKey: 'competitions.nav.menu.registration',
 }
 const waitingMenuConfig = {
   key: 'waiting',
   route: 'waiting',
   icon: 'clock',
-  label: 'Waiting list',
+  i18nKey: 'registrations.list.waiting_list',
 }
 const competitorsMenuConfig = {
   key: 'competitors',
   route: 'registrations',
   icon: 'users',
-  label: 'Competitors',
+  i18nKey: 'competitions.nav.menu.competitors',
 }
 const generalInfoMenuConfig = {
   key: 'info',
   route: '',
   icon: 'info',
-  label: 'General Info',
+  i18nKey: 'competitions.show.general_info',
 }
 const eventsMenuConfig = (icon) => ({
   key: 'events',
   icon,
-  label: 'Events',
+  i18nKey: 'competitions.show.events',
   cubing: true,
 })
 const scheduleMenuConfig = {
   key: 'schedule',
   icon: 'calendar',
-  label: 'Schedule',
+  i18nKey: 'competitions.show.schedule',
 }
 
 const adminMenu = [registrationsMenuConfig, waitingMenuConfig]
@@ -56,6 +57,8 @@ export default function PageTabs() {
 
   const navigate = useNavigate()
   const location = useLocation()
+
+  const { t } = useTranslation()
 
   const competitorMenu = useMemo(() => {
     const optionalTabs = []
@@ -107,7 +110,7 @@ export default function PageTabs() {
             {menuConfig.icon && !menuConfig.cubing && (
               <UiIcon size="1x" name={menuConfig.icon} />
             )}
-            {menuConfig.label}
+            {t(menuConfig.i18nKey)}
           </Menu.Item>
         ))}
       </Menu>
@@ -155,7 +158,7 @@ export default function PageTabs() {
               {menuConfig.icon && !menuConfig.cubing && (
                 <UiIcon size="1x" name={menuConfig.icon} />
               )}
-              {menuConfig.label}
+              {t(menuConfig.i18nKey)}
             </Menu.Item>
           ))}
         </Menu>

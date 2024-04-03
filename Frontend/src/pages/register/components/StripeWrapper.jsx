@@ -29,8 +29,8 @@ export default function StripeWrapper() {
       const { errorCode } = err
       setMessage(
         errorCode
-          ? t(`errors.${errorCode}`)
-          : 'Fetching Payment Information failed with error: ' + err.message,
+          ? t(`competitions.registration_v2.errors.${errorCode}`)
+          : t('registrations.flash.failed') + err.message,
         'negative',
       )
     },

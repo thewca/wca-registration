@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import React, { Fragment, useContext, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { Flag, Header, Image, List, Segment } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
@@ -18,7 +18,6 @@ import {
   userProfileRoute,
 } from '../api/helper/routes'
 import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
-import i18n from '../i18n'
 import { getMediumDateString } from '../lib/dates'
 import AddToCalendar from '../pages/schedule/AddToCalendar'
 import logo from '../static/wca2020.svg'
@@ -30,7 +29,7 @@ export default function Competition({ children }) {
 
   const { user } = useContext(UserContext)
 
-  const { t, ready } = useTranslation('translation', { i18n })
+  const { t } = useTranslation()
 
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
@@ -65,7 +64,7 @@ export default function Competition({ children }) {
     <CompetitionContext.Provider
       value={{ competitionInfo: competitionInfo ?? {} }}
     >
-      {isLoading || !ready ? (
+      {isLoading ? (
         <LoadingMessage />
       ) : (
         <>
@@ -169,7 +168,7 @@ export default function Competition({ children }) {
                       />
                     ) : (
                       <a href={competitionContactFormRoute(competitionInfo.id)}>
-                        Organization Team
+                        {t('competitions.competition_info.organization_team')}
                       </a>
                     )}
                   </List.Header>
@@ -177,7 +176,13 @@ export default function Competition({ children }) {
                     <List.Item>
                       <List.Icon name="user circle" />
                       <List.Content>
-                        <List.Header>Organizers</List.Header>
+                        <List.Header>
+                          {t(
+                            competitionInfo.organizers.length === 1
+                              ? 'competitions.competition_info.organizer_plural.one'
+                              : 'competitions.competition_info.organizer_plural.other',
+                          )}
+                        </List.Header>
                         <List.Description>
                           <PersonList people={competitionInfo.organizers} />
                         </List.Description>
@@ -186,7 +191,13 @@ export default function Competition({ children }) {
                     <List.Item>
                       <List.Icon name="user secret" />
                       <List.Content>
-                        <List.Header>Delegates</List.Header>
+                        <List.Header>
+                          {t(
+                            competitionInfo.delegates.length === 1
+                              ? 'competitions.competition_info.delegate.one'
+                              : 'competitions.competition_info.delegate.other',
+                          )}
+                        </List.Header>
                         <List.Description>
                           <PersonList people={competitionInfo.delegates} />
                         </List.Description>
@@ -203,15 +214,21 @@ export default function Competition({ children }) {
               <List.Item>
                 <List.Icon name="print" />
                 <List.Content>
-                  <List.Header>{t('test.test')}</List.Header>
+                  <List.Header>
+                    {t('competitions.registration_v2.info.download')}
+                  </List.Header>
                   <List.List>
                     <List.Item>
                       <List.Icon name="file pdf" />
                       <List.Content>
-                        As a{' '}
-                        <a href={competitionsPDFRoute(competitionInfo.id)}>
-                          PDF
-                        </a>
+                        <Trans
+                          i18nKey="competitions.registration_v2.pdf.link"
+                          values={{ pdfLink: 'PDF' }}
+                        >
+                          <a href={competitionsPDFRoute(competitionInfo.id)}>
+                            PDF
+                          </a>
+                        </Trans>
                       </List.Content>
                     </List.Item>
                   </List.List>
@@ -224,21 +241,30 @@ export default function Competition({ children }) {
                     if (competitionIsBookmarked) {
                       await unbookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage(t('bookmarks.unbookmark'), 'basic')
+                      setMessage(
+                        t('competitions.registration_v2.bookmark.unbookmark'),
+                        'basic',
+                      )
                     } else {
                       await bookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage(t('bookmarks.bookmark'), 'positive')
+                      setMessage(
+                        t('competitions.competition_info.is_bookmarked'),
+                        'positive',
+                      )
                     }
                   }}
                   name={bookmarkLoading ? 'spinner' : 'bookmark'}
                   color={competitionIsBookmarked ? 'black' : 'grey'}
                 />
                 <List.Content>
-                  <List.Header>Bookmark this competition</List.Header>
+                  <List.Header>
+                    {t('competitions.competition_info.bookmark')}
+                  </List.Header>
                   <List.Description>
-                    The Competition has been bookmarked{' '}
-                    {competitionInfo.number_of_bookmarks} times
+                    {t('competitions.competition_info.number_of_bookmarks', {
+                      number_of_bookmarks: competitionInfo.number_of_bookmarks,
+                    })}
                   </List.Description>
                 </List.Content>
               </List.Item>

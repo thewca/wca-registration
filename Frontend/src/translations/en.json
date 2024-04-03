@@ -1,31 +1,1856 @@
 {
-  "errors" : {
-    "-1": "You have sent an invalid token, please refresh the page. If this issue persists contact WST",
-    "-2": "Authentication Expired, please refresh the page",
-    "-3": "Missing Authentication, please log in",
-    "-1000": "Competition does not exist",
-    "-1001": "Error fetching Competition details, please try again later",
-    "-2001": "You are banned from competing at WCA Competitions",
-    "-2002": "Your profile is incomplete",
-    "-2003": "You don't have the permissions to complete this action",
-    "-3000": "Registration does not exist",
-    "-3001": "WCA Payment is not enabled for this competition",
-    "-3002": "You need to finish your registration before you can pay",
-    "-4000": "The Request contains invalid data",
-    "-4001": "The event edit deadline has passed",
-    "-4002": "The number of guests are over the allowed limit",
-    "-4003": "The comment provided is too long",
-    "-4004": "Invalid event selection submitted",
-    "-4005": "This competition requires a comment",
-    "-4006": "Competitor limit has been reached",
-    "-4007": "Invalid registration status provided",
-    "-4008": "Registration has closed"
-  },
-  "bookmarks": {
-    "unbookmark": "Unbookmarked this competition.",
-    "bookmark": "You bookmarked this competition. You will get an email 24h before Registration Opens."
-  },
-  "test": {
-    "test": "Download all of the competitions details"
+  "en": {
+    "about": {
+      "contributing_content_html": "You can donate by credit card using Guidestar %{here_credit}, or by Paypal %{here_paypal}. If you prefer to write a check, you can write to:",
+      "contributing_title": "Making a contribution",
+      "donation_banner": {
+        "content": "The World Cube Association is a 501(c)(3) tax-exempt organization. As a 100% volunteer-led nonprofit, we welcome your donations to help us further our vision of having more enjoyable competitions all over the world.",
+        "donate_credit": "Donate via credit card",
+        "donate_other": "Other ways to donate",
+        "donate_paypal": "Donate via Paypal"
+      },
+      "mission_footer": "WCA Mission Statement",
+      "mission_statement": "Our mission is to have more competitions in more countries with more people and more fun, under fair and equal conditions.",
+      "other_help_content_html": "<p>If you believe you would be able to contribute to the World Cube Association in a non-financial way, we would love to hear from you! Please get in touch with us at <a href=\"mailto:communication@worldcubeassociation.org\">communication@worldcubeassociation.org</a>.</p>",
+      "other_help_title": "Other ways to help",
+      "our_goals_content_html": "<p>The World Cube Association wants to bring opportunities for community membership and leadership to young people around the world through increasing the accessibility of our 'twisty puzzle' competitions. We believe that experiences at competitions and within our community create growth opportunities for the young people involved and that introducing puzzle events to new groups of people allows for our overall community to strengthen. A document containing the Board's Vision and Strategy for the WCA can be found <a href=\"https://documents.worldcubeassociation.org/documents/WCA_Vision_and_Strategy.pdf\">here</a>.</p>",
+      "our_goals_title": "Our goals",
+      "spirit": "Our spirit is that people from all over the world have fun together in a friendly atmosphere, help each other and behave sportsmanlike.",
+      "spirit_footer": "WCA Spirit",
+      "structure": {
+        "banned": {
+          "name": "Banned Competitors"
+        },
+        "board": {
+          "description": "The WCA Board is responsible for leading the organization as a whole, and fulfilling any duties not fulfilled by other Teams,  Committees, and Councils",
+          "name": "WCA Board of Directors"
+        },
+        "delegates_html": "<p><strong>WCA Delegate</strong> is a role defined in the WCA Motions and depicted in the WCA Regulations. The primary duty of a Delegate is to oversee competitions on behalf of the WCA. A WCA Delegate is responsible for making sure that all WCA Competitions are run according to the Mission, Spirit, and Regulations of the WCA. The WCA distinguishes between <strong>Senior Delegates</strong>, <strong>Regional Delegates</strong>, <strong>Full Delegates</strong>, <strong>Junior Delegates</strong>, and <strong>Trainee Delegates</strong>%{see_link}.</p> <p>In addition to the duties of a WCA Delegate, a Senior Delegate or Regional Delegate is responsible for managing the WCA Delegates in their area and can also be contacted by the community for regional matters.</p> <p>New Delegates are listed as Junior Delegates at first; afterwards they are requested to show proficiency managing WCA Competitions before being promoted to WCA Delegates.</p> <p>Trainee Delegates are being trained for the position of WCA Delegate and can only oversee competitions in which a WCA Delegate is present.</p>",
+        "leader": "Leader",
+        "members_html": "All competitors automatically become <strong>members</strong> of the WCA in their first WCA competition.",
+        "operations_html": "The day to day operations are run by the WCA's %{committees_and_teams}.",
+        "see_link_html": " (see %{link})",
+        "senior_member": "Senior Member",
+        "teams_committees": "Teams and Committees",
+        "title": "Structure",
+        "users": {
+          "profile": "%{user_name}'s profile"
+        },
+        "wac": {
+          "name": "WCA Advisory Council"
+        },
+        "wat": {
+          "name": "WCA Archive Team"
+        },
+        "wcat": {
+          "name": "WCA Competition Announcement Team"
+        },
+        "wct": {
+          "name": "WCA Communication Team"
+        },
+        "wct_china": {
+          "name": "WCT China"
+        },
+        "wdc": {
+          "name": "WCA Disciplinary Committee"
+        },
+        "wdpc": {
+          "name": "WCA Data Protection Committee"
+        },
+        "weat": {
+          "name": "WCA Executive Assistants Team"
+        },
+        "wec": {
+          "name": "WCA Ethics Committee"
+        },
+        "wfc": {
+          "name": "WCA Financial Committee"
+        },
+        "wmt": {
+          "name": "WCA Marketing Team"
+        },
+        "wqac": {
+          "name": "WCA Quality Assurance Committee"
+        },
+        "wrc": {
+          "name": "WCA Regulations Committee"
+        },
+        "wrt": {
+          "name": "WCA Results Team"
+        },
+        "wsot": {
+          "name": "WCA Sports Organization Team"
+        },
+        "wst": {
+          "name": "WCA Software Team"
+        },
+        "wst_admin": {
+          "name": "Software admins"
+        }
+      },
+      "tax_deductible_note": "Donations are tax-deductible in the United States.",
+      "title": "About the WCA",
+      "whats_next_content_html": "<p>The World Cube Association has had over 200,000 unique competitors across 158 different regions and we are not planning on slowing down anytime soon! The cubing community has been growing steadily since our founding in 2004 and we want to encourage this to continue into the future by increasing the accessibility of competitions to new areas. In the future, we hope to support our community even more through collaborations and outreach to those who care about puzzles.</p>",
+      "whats_next_title": "What's next for the WCA?",
+      "who_we_are_content_html": "<p>The World Cube Association governs competitions for mechanical puzzles that are operated by twisting groups of pieces, commonly known as 'twisty puzzles'. The most famous of these puzzles is the Rubik's Cube, invented by professor Rubik from Hungary. A selection of these puzzles are chosen as official events of the WCA.</p> <p>As the WCA has evolved over the past decade, over 200,000 people have competed in our competitions. Despite this growth, we remain an organization that is almost entirely run by volunteers, from local organizers to WCA Delegates to even the WCA Board. We are very grateful to everyone who takes time out of their lives to allow the WCA to function. With more financial support, we hope to bring an even greater level of professionalism to our competitions as we continue to sanction more events across the globe.</p>",
+      "who_we_are_title": "Who we are",
+      "world_championship_content_html": "<p>Every two years, we sanction the competition that ultimately determines the world champion. These events require extremely careful planning by a number of volunteers, as well as a large financial commitment to reserve the venue and make necessary preparations.</p>",
+      "world_championship_title": "World Championship"
+    },
+    "activerecord": {
+      "attributes": {
+        "registration": {
+          "administrative_notes": "Administrative notes",
+          "birthday": "Birthday",
+          "comments": "Comments",
+          "email": "Email",
+          "guests": "Guests",
+          "name": "Name",
+          "paid_entry_fees": "Paid",
+          "registration_competition_events": "Events",
+          "status": "Status"
+        },
+        "user": {
+          "confirmation_sent_at": "Confirmation sent at",
+          "confirmation_token": "Confirmation token",
+          "confirmed_at": "Confirmed at",
+          "country_iso2": "Representing",
+          "created_at": "Created at",
+          "current_password": "Current password",
+          "current_sign_in_at": "Current sign in at",
+          "current_sign_in_ip": "Current sign in IP",
+          "delegate_status": "Delegate status",
+          "dob": "Birthdate",
+          "dob_verification": "Your Birthdate",
+          "email": "Email",
+          "encrypted_password": "Encrypted password",
+          "failed_attempts": "Failed attempts",
+          "gender": "Gender",
+          "last_sign_in_at": "Last sign in at",
+          "last_sign_in_ip": "Last sign in IP",
+          "location": "Location",
+          "locked_at": "Locked at",
+          "login": "Email or WCA ID",
+          "name": "Full name",
+          "otp_attempt": "Enter your two-factor authentication code:",
+          "password": "Password",
+          "password_confirmation": "Re-enter password",
+          "pending_avatar": "Upload new avatar",
+          "receive_delegate_reports": "I would like to receive Delegate Reports of WCA Competitions by email",
+          "region": "Region",
+          "registration_notifications_enabled": "When I organize or delegate a competition, email me when new registrations are submitted.",
+          "remember_created_at": "Remember created at",
+          "remember_me": "Remember me",
+          "remove_avatar": "Remove avatar",
+          "reset_password_sent_at": "Reset password sent at",
+          "reset_password_token": "Reset password token",
+          "results_notifications_enabled": "Email me when my results are posted.",
+          "sign_in_count": "Sign in count",
+          "subRegion": "Subregion",
+          "unconfirmed_email": "Unconfirmed email",
+          "unconfirmed_wca_id": "Unconfirmed WCA ID",
+          "unlock_token": "Unlock token",
+          "updated_at": "Updated at",
+          "user_preferred_events": "Preferred events",
+          "wca_id": "WCA ID"
+        }
+      }
+    },
+    "api": {
+      "legal_tnoodle_api_header": "Legal TNoodle version",
+      "login_message": "Please log in",
+      "manage_oauth_html": "Go to %{oauth_link} to manage your OAuth applications.",
+      "token_request_intro": "Here is an example, using curl, of obtaining an access token using an Application ID, Client Secret, your WCA email, and your password:",
+      "user_email_placeholder": "YOUR_EMAIL",
+      "user_info_request_intro": "An OAuth access token can be used, until it expires, to make authorized API requests. For example, to access information about your account:",
+      "user_password_placeholder": "YOUR_PASSWORD"
+    },
+    "common": {
+      "all_regions": "All regions",
+      "average": "Average",
+      "best": "Best",
+      "continent": "Continent",
+      "country": "Region",
+      "date": {
+        "no_date": "No date"
+      },
+      "date_placeholder": "YYYY-MM-DD",
+      "datetime_placeholder": "YYYY-MM-DD HH:MM",
+      "days": {
+        "one": "1 day",
+        "other": "%{count} days"
+      },
+      "delete": "Delete",
+      "errors": {
+        "invalid": "invalid"
+      },
+      "filter": "Filter",
+      "hello": "Hello %{name},",
+      "here": "here",
+      "search_site": "Search site",
+      "single": "Single",
+      "solve_time": {
+        "unit_moves": "moves",
+        "unit_seconds": "seconds"
+      },
+      "solves": "Solves",
+      "these_events": {
+        "one": "this event",
+        "other": "these %{count} events"
+      },
+      "time_format": "12h",
+      "user": {
+        "representing": "Representing",
+        "wca_id": "WCA ID"
+      },
+      "world": "World"
+    },
+    "competitions": {
+      "adjacent_competitions": {
+        "after": "after",
+        "before": "before",
+        "competitors": "Competitors",
+        "date": "Date",
+        "delegates": "Delegate(s)",
+        "distance": "Distance",
+        "ends_on": "ends on",
+        "events": "Events",
+        "hide_events": "Hide events",
+        "label": "Nearby competitions (within %{days} days and %{kms} km)",
+        "limit": "Limit",
+        "location": "Location",
+        "name": "Name",
+        "no_comp_nearby": "No nearby competitions!",
+        "no_date_yet": "You have not assigned a date for this competition yet.",
+        "no_location_yet": "You have not assigned a location for this competition yet.",
+        "save_first": "Please save this competition before adding it to a Series.",
+        "show_events": "Show events",
+        "starts_on": "starts on",
+        "time": "Time"
+      },
+      "announce_confirm": "Are you sure you want to announce this competition?",
+      "announced_by_html": "Announced by %{announcer_name} on %{date_time}",
+      "announcements": "Announcements",
+      "cancel": "Cancel the competition",
+      "cancel_confirm": "Are you sure you want to cancel that competition?",
+      "cancel_mistake": "Made a mistake?",
+      "cancelled_by_html": "Cancelled by %{name} on %{date_time}",
+      "colliding_registration_start_competitions": {
+        "label": "Colliding registration periods (start within %{hours} hours)",
+        "no_comp_colliding": "No registration period collisions!",
+        "no_registration_start_date_yet": "You have not assigned a registration start date for this competition yet.",
+        "opens_registration_at": "opens registration at"
+      },
+      "competition_form": {
+        "add_championship": "Add Championship",
+        "championship_types": {
+          "continental": "Continental Championship: %{continent}",
+          "generic": "Championship: %{type}",
+          "greater_china": "Greater China Championship",
+          "national": "National Championship: %{country}",
+          "world": "World Championship"
+        },
+        "choices": {
+          "competitor_limit": {
+            "enabled": {
+              "false": "I DON'T WANT to specify a competitor limit",
+              "true": "I want to specify a competitor limit"
+            }
+          },
+          "event_restrictions": {
+            "qualification_results": {
+              "allow_registration_without": {
+                "false": "Competitors MUST be qualified to register for an event",
+                "true": "Competitors will be allowed to register for events they're not qualified for (I'll remove them later)"
+              }
+            }
+          },
+          "guests_enabled": {
+            "false": "Do NOT ask about guests",
+            "true": "Ask about guests"
+          },
+          "registration": {
+            "allow_on_the_spot": {
+              "false": "On the spot registrations WILL NOT be accepted",
+              "true": "On the spot registrations will be accepted"
+            },
+            "allow_self_delete_after_acceptance": {
+              "false": "Competitors may NOT delete their own registration once it has been accepted",
+              "true": "Competitors may delete their own registration even after it has been accepted"
+            },
+            "allow_self_edits": {
+              "false": "Competitors may NOT edit their registration once it has been accepted",
+              "true": "Competitors may edit their registration until the deadline for updating events"
+            },
+            "guest_entry_status": {
+              "free": "\"Any spectator can attend for free\"",
+              "restricted": "\"Spectators are only permitted as companions of competitors\"",
+              "unclear": "Do not display anything (and perhaps elaborate in the \"Extra registration requirements\" section)"
+            }
+          }
+        },
+        "confirmed_but_not_visible_html": "You've confirmed this competition, but it is not yet visible to the public. Wait for the %{contact} to make it visible.",
+        "coordinates": "Coordinates",
+        "dues_estimate": {
+          "ajax_error": "There is an error with Dues estimation, possibly because there are no available exchange rates for the selected currency.",
+          "calculated": "The estimated WCA Dues for %{limit} competitors are %{estimate}",
+          "per_competitor": "The estimated WCA Dues per competitor are %{estimate}"
+        },
+        "events": "Events",
+        "hints": {
+          "admin": {
+            "is_confirmed": "",
+            "is_visible": ""
+          },
+          "cloning": {
+            "clone_tabs": ""
+          },
+          "competition_id": "",
+          "competitor_limit": {
+            "count": "The number of competitors allowed in this competition. For now this number is informational only, and does not yet prevent more people from registering. We are working on adding explicit support for this to the registration flow, but it requires some other work first.",
+            "enabled": "Although it is not required by the Regulations to provide a competitor limit, it's highly recommended to do so.",
+            "reason": "What is the reason for the limit on competitors? Please fill this out in English!"
+          },
+          "end_date": "",
+          "entry_fees": {
+            "base_entry_fee": "The base registration fee for the competition. It will be displayed on the competition information page and the registration page if used. If this is set to 0, a sentence will be displayed saying that registrations will be accepted for free. <br><br><b>DISCLAIMER: The following WCA Dues estimate is solely an approximation based on current exchange rates and is in no way legally binding for the Dues payment.</b>",
+            "currency_code": "The currency code for fees.",
+            "donations_enabled": "",
+            "guest_entry_fee": "For now this number is informational only, guest fees cannot be managed through this website. If this is set to 0, a sentence of your choice will be displayed about the spectator policy.",
+            "on_the_spot_entry_fee": "If this is set to 0, a sentence will be displayed saying that on the spot registrations will be accepted for free.",
+            "refund_policy_limit_date": "Date after which no more refunds will be issued.",
+            "refund_policy_percent": "For now this number is informational only, refunds will have to be issued manually. If this is set to 0, a sentence will be displayed saying that registration fees won't be refunded under any circumstance."
+          },
+          "event_restrictions": {
+            "early_puzzle_submission": {
+              "enabled": "",
+              "reason": "Please elaborate here why you would like to require competitors to submit puzzles early. Please fill this out in English!"
+            },
+            "event_limitation": {
+              "enabled": "",
+              "per_registration_limit": "Optionally enforce the total number of events a competitor can register for (commonly used for \"Favorites\" competitions). You should add events before using this field. Registrations with too many events will be blocked. Leave blank if there is no limit.",
+              "reason": "Please elaborate here why you would like to restrict certain event combinations. Please fill this out in English!"
+            },
+            "main_event_id": "The winner of this event will be the winner of the competition.",
+            "qualification_results": {
+              "allow_registration_without": "",
+              "enabled": "",
+              "reason": "Please elaborate here why you would like to use qualification times. Please fill this out in English!"
+            }
+          },
+          "information": "Important information that competitors should know. It will be displayed on the competition main page. <br/>Please fill this out <b>in English</b> and whatever other languages your competitors speak.",
+          "name": "The full name of the competition including the year at the end (e.g., Danish Open 2016). Be sure to capitalize. The name must contain only alphanumeric characters, dashes(-), ampersands(&), periods(.), colons(:), apostrophes('), and spaces( ).",
+          "name_reason_html": "A brief explanation of the competition name. The name must comply with the <a href='https://documents.worldcubeassociation.org/documents/policies/external/Competition%20Requirements.pdf'>WCA Competition Requirements Policy</a>.",
+          "registration": {
+            "allow_on_the_spot": "",
+            "allow_self_delete_after_acceptance": "",
+            "allow_self_edits": "",
+            "closing_date_time": "",
+            "event_change_deadline_date": "Registered competitors have the right to update their registered events until this time by contacting the organization team. This deadline must not be set to a time before registration is set to close. Leaving this field blank means that competitors may add an event to their registered events up until that event is held. If you have on the spot registration, this must be set to the same day as the competition.",
+            "extra_requirements": "Please indicate here any extra registration requirements not covered above, like for example directions on how to pay. <br/>Please fill this out <b>in English</b> and whatever other languages your competitors speak; this will be displayed on the competition's information page, as well on the registration page if you are using the WCA website registrations.",
+            "force_comment": "",
+            "guest_entry_status": "",
+            "guests_enabled": "",
+            "guests_per_registration": "The number of guests per registration allowed at this competition. Registration with too many guests will be blocked. Leave blank if there is no limit.",
+            "opening_date_time": "Note: Registration open and close are in UTC time",
+            "waiting_list_deadline_date": "The date when waitlisted registrants will no longer be accepted. If you have a deadline for refunds, the deadline for being accepted should not be before the deadline for refunds."
+          },
+          "remarks": "Some additional information you want to pass on to the WCAT. For example, if there is something you are uncertain about, or if there are any special requests for the WCAT. Please fill this out in English!",
+          "series": {
+            "competition_ids": "<b>This field cannot be edited!</b><br/>To add competitions to this Series, you have to go to the individual 'Edit' pages of the competitions that you want to add.",
+            "name": "The full name of the Competition Series including the year at the end (e.g., Southern Australia 2022). Be sure to capitalize. The same rules as for the name of the individual competition apply.",
+            "series_id": "",
+            "short_name": "A short name for displaying. The same rules as for the name of the individual competition apply.."
+          },
+          "short_name": "A short name for displaying. If the name of the competition is below %{short_name_limit} characters this should not be edited and should be the same as the normal name.",
+          "staff": {
+            "contact_html": "Optional contact information. If you do not fill this in, contact inquiries will be submitted through a form without revealing organizers' emails. %{md}. Example: [Text to display](mailto:some@email.com)",
+            "organizer_ids": "Competition organizers (they need an account to be listed here).",
+            "staff_delegate_ids": "WCA Delegates for the competition.",
+            "trainee_delegate_ids": "WCA Trainee Delegates for the competition."
+          },
+          "start_date": "",
+          "user_settings": {
+            "receive_registration_emails": ""
+          },
+          "venue": {
+            "address": "",
+            "city_name": "Name of the city and state (if applicable) where the competition takes place. Do not include country (e.g., Paris OR San Francisco, California).",
+            "coordinates": {
+              "lat": "",
+              "long": ""
+            },
+            "country_id": "",
+            "details_html": "Details about the venue (e.g., On the first floor far in the back, follow the signs). %{md}",
+            "name_html": "The venue where the competition takes place. %{md}. For example: [Cité des Sciences et de l'Industrie](http://www.cite-sciences.fr)"
+          },
+          "website": {
+            "external_registration_page": "The page where the competitors have to register for the competition. Must be a valid http(s) url.",
+            "external_website": "The website of the competition. Must be a valid http(s) url.",
+            "generate_website": "",
+            "uses_wca_live": "",
+            "uses_wca_registration": ""
+          }
+        },
+        "is_visible": "This competition is publicly visible, any changes you make will show up to the public!",
+        "labels": {
+          "admin": {
+            "is_confirmed": "Do not let organizers edit this competition",
+            "is_visible": "Make competition visible to the public"
+          },
+          "championships": "Championships",
+          "cloning": {
+            "clone_tabs": "I would like to clone all tabs with additional information as well"
+          },
+          "competition_id": "ID",
+          "competitor_limit": {
+            "count": "Maximum number of competitors",
+            "enabled": "Competitor limit",
+            "reason": "The reason for the competitor limit"
+          },
+          "end_date": "End date",
+          "entry_fees": {
+            "base_entry_fee": "Base registration fee",
+            "currency_code": "Currency code",
+            "donations_enabled": "I want to enable donations additionally to collecting the registration fees",
+            "guest_entry_fee": "Entry fee for guests",
+            "on_the_spot_entry_fee": "On the spot base registration fee",
+            "refund_policy_limit_date": "Limit date for refunds",
+            "refund_policy_percent": "Percent to be refunded"
+          },
+          "event_restrictions": {
+            "early_puzzle_submission": {
+              "enabled": "I would like to require competitors to submit puzzles at a specific time before an event is scheduled to begin",
+              "reason": "Reason and details for submitting puzzles early"
+            },
+            "event_limitation": {
+              "enabled": "I would like to restrict competitors from registering for specific combinations of events",
+              "per_registration_limit": "Events per registration limit",
+              "reason": "Reason and details for event restrictions"
+            },
+            "main_event_id": "Main event",
+            "qualification_results": {
+              "allow_registration_without": "Events with Qualification",
+              "enabled": "I would like to use qualification results to limit who can compete in certain events",
+              "reason": "Reason and details for qualification results"
+            }
+          },
+          "information": "Information",
+          "name": "Name",
+          "name_reason": "The reason for the name",
+          "registration": {
+            "allow_on_the_spot": "On the spot registrations",
+            "allow_self_delete_after_acceptance": "Registration cancellations",
+            "allow_self_edits": "Registration edits",
+            "closing_date_time": "Registration close",
+            "event_change_deadline_date": "Deadline for competitors to update their registered events",
+            "extra_requirements": "Extra registration requirements",
+            "force_comment": "Force competitors to make a comment when registering",
+            "guest_entry_status": "Display message for free guest entry",
+            "guests_enabled": "Guests",
+            "guests_per_registration": "Maximum number of guests per registration",
+            "opening_date_time": "Registration open",
+            "waiting_list_deadline_date": "Deadline for accepting competitors from the waiting list"
+          },
+          "remarks": "Remarks",
+          "series": {
+            "competition_ids": "All competitions",
+            "name": "Series name",
+            "series_id": "Series ID",
+            "short_name": "Series nickname"
+          },
+          "short_name": "Competition short name",
+          "staff": {
+            "contact": "Contact",
+            "organizer_ids": "Organizer(s)",
+            "staff_delegate_ids": "WCA Delegate(s)",
+            "trainee_delegate_ids": "WCA Trainee Delegate(s)"
+          },
+          "start_date": "Start date",
+          "venue": {
+            "address": "Venue address",
+            "city_name": "City name",
+            "coordinates": "Coordinates",
+            "country_id": "Region",
+            "details": "Venue details",
+            "name": "Venue"
+          },
+          "website": {
+            "external_registration_page": "Registration page",
+            "external_website": "Website",
+            "generate_website": "I would like to use WCA website instead of an external one for additional information.",
+            "uses_wca_live": "I will be using WCA Live for scoretaking",
+            "uses_wca_registration": "I would like to use the WCA website for registration"
+          }
+        },
+        "pending_confirmation_html": "Fill in all the fields and make your Delegate click 'Confirm' when you're ready for the %{contact} to approve this competition.",
+        "public_and_locked_html": "This competition is publicly visible and locked for editing. If you need to make a change, please reply to the email thread where the competition was confirmed.",
+        "series_save_first_hint": "Note: You have to save the competition first before you can add a new Series.",
+        "submit_confirm": "Are you sure you're ready to confirm? After confirming, you won't be able to modify any information. Check your email after this to verify that the WCA Competition Announcement Team was notified.",
+        "submit_confirm_value": "Confirm",
+        "submit_create_value": "Create Competition",
+        "submit_delete": "Are you sure you want to delete this competition? There is no going back.",
+        "submit_delete_value": "Delete",
+        "submit_update_value": "Update Competition",
+        "supports_md_html": "Supports <a href='https://daringfireball.net/projects/markdown/basics' target='_blank'>Markdown</a>",
+        "wcat": "WCA Competition Announcement Team"
+      },
+      "competition_info": {
+        "add_to_calendar": "Add to calendar",
+        "address": "Address",
+        "and": "and",
+        "average": "an average",
+        "bookmark": "Bookmark this competition",
+        "city": "City",
+        "claim_wca_id_html": "If this is not your first competition, associate your WCA ID to your WCA account %{here}.",
+        "click_to_display_highlights_html": "Click %{link_here} to display the highlights of the competition.",
+        "click_to_display_requirements_html": "This competition is over, click %{link_here} to display the registration requirements it used.",
+        "competitor_limit": "Competitor limit",
+        "competitor_limit_is": "There is a competitor limit of %{competitor_limit} competitors.",
+        "contact": "Contact",
+        "create_wca_account_html": "Create a WCA account %{here} if you don't have one.",
+        "date": "Date",
+        "delegate": {
+          "one": "WCA Delegate",
+          "other": "WCA Delegates"
+        },
+        "details": "Details",
+        "display_name": "[Cancelled] %{name}",
+        "entry_fee_is": "The base registration fee for this competition is %{base_entry_fee}.",
+        "event_change_deadline_default_html": "We encourage everyone to register for the events they want to compete in via your online registration, however you may add events to your registration up until the event has started.",
+        "event_change_deadline_edits_allowed_html": "If you are a registered competitor you may change your registered events until %{event_change_deadline} on the %{register} tab.",
+        "event_change_deadline_html": "If you are a registered competitor you may change your registered events until %{event_change_deadline} by contacting the organization team.",
+        "event_limit": {
+          "one": "Competitors may register in exactly 1 event.",
+          "other": "Competitors may register in at most %{count} events."
+        },
+        "events": "Events",
+        "first_runner_up": "%{first_runner_up} finished second (%{first_runner_up_result})",
+        "guest_limit": {
+          "one": "Competitors may bring at most 1 guest.",
+          "other": "Competitors may bring at most %{count} guests."
+        },
+        "guests_free": {
+          "free": "Any spectator can attend for free.",
+          "restricted": "Spectators are only permitted as companions of competitors."
+        },
+        "guests_pay": "Spectators can attend paying an entry fee of %{guests_base_fee}.",
+        "hide_highlights": "Hide highlights.",
+        "hide_requirements": "Hide registration requirements.",
+        "highlights": "Highlights",
+        "information": "Information",
+        "is_bookmarked": "You've bookmarked this competition",
+        "main_event": "Main event",
+        "mean": "a mean",
+        "no_competitor_limit": "There is no competitor limit.",
+        "no_entry_fee": "Registering for this competition is free.",
+        "no_on_the_spot_registration": "No on the spot registrations will be accepted.",
+        "no_refunds": "Registration fees won't be refunded under any circumstance.",
+        "number_of_bookmarks": "Number of times bookmarked",
+        "on_the_spot_registration_fee_html": "On the spot registrations will be accepted with a base registration fee of %{on_the_spot_base_entry_fee}.",
+        "on_the_spot_registration_free": "On the spot registrations will be accepted for free.",
+        "organization_team": "Organization team",
+        "organizer_plural": {
+          "one": "Organizer",
+          "other": "Organizers"
+        },
+        "part_of_a_series": "This competition is part of a Competition Series.",
+        "part_of_a_series_list": "This competition is part of the %{name} Competition Series. Other competitions in this Series are:",
+        "pdf": {
+          "abbr_description": "%{short_name}: %{long_name}",
+          "cutoff": "Cutoff: %{short_cutoff}",
+          "download_html": "Download all the competition's details as PDF %{here}.",
+          "formats_abbr": "Abbreviations for formats:",
+          "terms_and_abbr": "Technical terms and abbreviations"
+        },
+        "records": {
+          "afr": "African records",
+          "asr": "Asian records",
+          "er": "European records",
+          "nar": "North American records",
+          "ocr": "Oceanian records",
+          "sar": "South American records",
+          "wr": "World records"
+        },
+        "refund_policy_html": "If your registration is cancelled before %{limit_date_and_time} you will be refunded %{refund_policy_percent} of your registration fee.",
+        "regional_average_record": "%{event_name} %{result} (average)",
+        "regional_single_record": "%{event_name} %{result} (single)",
+        "register_below_html": "Register for this competition below.",
+        "register_link_html": "Register for this competition %{here}.",
+        "registration_period": {
+          "label": "Registration period",
+          "range_future_html": "Online registration will be open from %{start_date_and_time} to %{end_date_and_time}.",
+          "range_ongoing_html": "Online registration opened %{start_date_and_time} and will close %{end_date_and_time}.",
+          "range_past_html": "Online registration opened %{start_date_and_time} and closed %{end_date_and_time}."
+        },
+        "registration_requirements": "Registration requirements",
+        "require_qualification": "Competitors may only register for events that they are already qualified for.",
+        "result": "a result",
+        "result_sentence": "with %{a_win_by_word} of %{result}",
+        "second_runner_up": "%{second_runner_up} finished third (%{second_runner_up_result}).",
+        "series_registration_warning_html": "Note: You can submit a registration for all competitions in a Series, but only one of those registrations can be confirmed and accepted. <b>You will only be allowed to compete in one of the Series competitions!</b>",
+        "single": "a single solve",
+        "use_stripe_below_html": "The registration fee has to be paid through Stripe below once registered.",
+        "use_stripe_link_html": "The registration fee has to be paid through Stripe %{here} once registered.",
+        "venue": "Venue",
+        "waiting_list_deadline_html": "Registrants on the waiting list may be accepted onto the competitor list until %{waiting_list_deadline}.",
+        "website": "Website",
+        "winner": "%{winner} won %{result_sentence} in the %{event_name} event."
+      },
+      "competition_series_fields": {
+        "add_series": "Add to Series",
+        "remove_series": "Remove from Series"
+      },
+      "errors": {
+        "advancement_condition_must_be_present_for_all_non_final_rounds": "must have an advancement condition to all non final rounds.",
+        "cannot_delete_confirmed": "Cannot delete a confirmed competition.",
+        "cannot_delete_public": "Cannot delete a competition that is publicly visible.",
+        "cannot_manage": "Cannot manage competition.",
+        "end_date_before_start": "End date cannot be before start date.",
+        "event_change_deadline_after_end_date": "Deadline for updating events cannot be after the competition.",
+        "event_change_deadline_before_registration_close": "Deadline for updating events cannot be before registration close date.",
+        "event_change_deadline_with_ots": "Deadline for updating events must be during the competition if on the spot registrations are accepted.",
+        "invalid_currency_code": "Selected currency code is invalid",
+        "invalid_name_message": "must end with a year and must contain only alphanumeric characters, dashes(-), ampersands(&), periods(.), colons(:), apostrophes('), and spaces( )",
+        "must_ask_about_guests_if_specifying_limit": "Must ask about guests if a guest limit is specified.",
+        "must_contain_delegate": "must contain at least one WCA Delegate",
+        "must_contain_event": "must contain at least one event for this competition",
+        "not_all_delegates": "are not all Delegates",
+        "refund_date_after_start": "Refund limit date cannot be after start date.",
+        "registration_already_closed": "registration must not already be closed.",
+        "registration_close_after_open": "registration close must be after registration open",
+        "registration_period_after_start": "Registration period cannot be after start date.",
+        "schedule_must_match_rounds": "must have at least one round, and all rounds must be included in the schedule.",
+        "series_distance_days": "The competition is scheduled too many days away from %{competition}.",
+        "series_distance_km": "The competition is located too far away from %{competition}.",
+        "span_too_many_days": "Competition cannot last more than %{max_days} days.",
+        "start_date_must_be_28_days_in_advance": "Start date must be at least 28 days in the future.",
+        "waiting_list_deadline_after_end": "Waiting list deadline must be before the competition ends.",
+        "waiting_list_deadline_before_refund_date": "Waiting list deadline cannot be before limit date for refunds.",
+        "waiting_list_deadline_before_registration_close": "Wailting list deadline cannot be before registration close date."
+      },
+      "events": {
+        "cutoff": "Cutoff",
+        "format": "Format",
+        "proceed": "Proceed",
+        "qualification": "Qualification",
+        "time_limit": "Time limit",
+        "time_limit_information": {
+          "cumulative_across_rounds_html": "A %{cumulative_time_limit} may be enforced across rounds (see %{guideline_link}).",
+          "cumulative_one_round_html": "A %{cumulative_time_limit} may be enforced (see %{regulation_link}).",
+          "cumulative_time_limit": "cumulative time limit",
+          "cutoff_html": "The result to beat to proceed to the second phase of a cutoff round (see %{regulation_link}).",
+          "format_html": "The format describes how to determine the ranking of competitors based on their results. The list of allowed formats per event is described in %{link_to_9b}. See %{link_to_9f} for a description of each format.",
+          "guideline_link_text": "Guideline %{number}",
+          "qualification_all_events_html": "Qualification times must be set before <b>%{date}</b>.",
+          "qualification_html": "Qualification times must be set in other WCA competitions in order to compete.",
+          "qualification_some_events_html": "Qualification times in %{events} must be set before <b>%{date}</b>.",
+          "regulation_link_text": "Regulation %{number}",
+          "time_limit_html": "If you reach the time limit during your solve, the judge will stop you and your result will be DNF (see %{regulation_link})."
+        }
+      },
+      "index": {
+        "all_events": "All",
+        "all_years": "All Years",
+        "by_announcement": "By announcement",
+        "clear": "Clear",
+        "custom": "Custom",
+        "delegates_loading": "Waiting to finish loading all Delegates...",
+        "from_date": "From",
+        "list": "List",
+        "map": "Map",
+        "no_access": "You don't have access to this page!",
+        "no_comp_found": "No competitions found.",
+        "no_comp_match": "We didn't find any competitions with %{events}! Try searching for fewer events.",
+        "no_delegates": "None",
+        "no_delegates_found": "No Delegates found.",
+        "no_more_comps": "No more competitions.",
+        "past": "Past",
+        "past_all": "Past from all years",
+        "past_from": "Past from %{year}",
+        "present": "Present",
+        "recent": "Recent",
+        "region": "Region",
+        "reset_filters": "Reset Filters",
+        "search": "Search",
+        "select_hint": "Please select events",
+        "show_cancelled": "Show cancelled competitions",
+        "show_registration_status": "Show registration status icon",
+        "sort_by_announcement": "Sort by announcement",
+        "state": "When",
+        "title": "Competitions",
+        "titles": {
+          "by_announcement": "Competitions sorted by announcement date, newest on top",
+          "custom": "Competitions in the selected period of time",
+          "in_progress": "Competitions in progress",
+          "past": "Past competitions from %{year}",
+          "past_all": "Past competitions from all years",
+          "recent": "Recent competitions (last %{count} days)",
+          "upcoming": "Upcoming competitions"
+        },
+        "to_date": "To",
+        "tooltips": {
+          "hourglass": {
+            "announced_on": "Announced on %{announcement_date}",
+            "ended": "Ended %{days} ago",
+            "in_progress": "In progress!",
+            "posted": "Results are posted!",
+            "starts_in": "Starts in %{days}"
+          },
+          "recent": "Last %{count} days",
+          "registration": {
+            "closed": "Registration has closed. Competition starts in %{days}",
+            "full": "Competitor limit reached, new registrations will go to the waiting list",
+            "open": "Registration is open!",
+            "opens_in": "Registration will open in %{duration}"
+          },
+          "search": "Name or city"
+        }
+      },
+      "messages": {
+        "advancement_condition_must_be_present_for_all_non_final_rounds": "Please make sure that all non final rounds have advancement condition specified.",
+        "announced_success": "Successfully announced competition!",
+        "cancel_failure": "Cannot cancel the competition.",
+        "cancel_success": "Successfully cancelled competition!",
+        "cancelled": "This competition has been cancelled. Please check the information section for more details.",
+        "cannot_activate_v2": "You cannot activate the new registration system if registration is open.",
+        "championship_exists": "There is already a %{championship_type} in %{year}.",
+        "computing_auxiliary_data": "Please wait until auxiliary data is computed.",
+        "confirmed_not_visible": "This competition is confirmed but not visible.",
+        "confirmed_visible": "This competition is confirmed and visible.",
+        "create_success": "Successfully created new competition!",
+        "cutoff_is_greater_than_time_limit": "Round %{round_number} in %{event} has a cutoff greater than the time limit, Please make sure the cutoff is not greater than the time limit.",
+        "cutoff_is_too_fast": "Round %{round_number} in %{event} has a cutoff less than 5 seconds. Please make sure that it is correct.",
+        "cutoff_is_too_slow": "Round %{round_number} in %{event} has a cutoff more than 10 minutes. Please make sure that it is correct.",
+        "id_starts_with_lowercase": "The competition id starts with a lowercase letter. We prefer to have it start with an uppercase.",
+        "in_progress": "This competition is ongoing. Come back after %{date} to see the results!",
+        "in_progress_at_wca_live_html": "This competition is ongoing. You can check the live results <a href='%{link_here}'>here</a>!",
+        "must_have_events": "Please add at least one event before confirming the competition.",
+        "name_too_long": "The competition name is longer than 32 characters. Please edit the competition ID and short name appropriately.",
+        "no_main_event_results": "There are no results for the main event (%{event_name}).",
+        "no_results": "There are no results.",
+        "no_waiting_list_specified": "This competition does not have a deadline for accepting competitors on the waiting list. If you are using a waiting list, please specify a deadline. If you are not using a waiting list, please remember to specify this in the registration requirements.",
+        "not_announced": "This competition is visible to the public but hasn't been announced yet.",
+        "not_confirmed_not_visible": "This competition is not confirmed and not visible.",
+        "not_confirmed_visible": "This competition is not confirmed but visible.",
+        "not_visible": "This competition is not visible to the public.",
+        "orga_closed_reg_failure": "Cannot close registration.",
+        "orga_closed_reg_success": "Sucessfully closed registration.",
+        "reg_opens_too_early": "Registration is set to start in less than the required 48 hours.",
+        "registration_already_closed": "The deadline to register has already passed. Please set it to be in the future.",
+        "registration_payment_info": "This competition has registration fees but no Stripe account is linked. If you are using Stripe through the WCA website, please remember to link your Stripe account. If you are using an external payment system, please remember to add all the relevant details in the registration requirements.",
+        "results_already_posted": "The results have already been posted.",
+        "results_not_posted": "This competition's results are visible but haven't been posted yet.",
+        "results_posted": "Successfully posted results!",
+        "results_preview_alert": "You are viewing results that have not been posted yet.",
+        "schedule_must_match_rounds": "Please make sure the competition has at least one round per event and that the schedule you created includes all the rounds you declared before confirming the competition.",
+        "time_limit_is_too_fast": "Round %{round_number} in %{event} has a time limit less than 10 seconds. Please make sure that it is correct.",
+        "time_limit_is_too_slow": "Round %{round_number} in %{event} has a time limit more than 10 minutes in a fast event. Please make sure that it is correct.",
+        "tooltip_deleted": "Unfortunately your registration has been deleted. Please check your email for details, or contact the organiser(s).",
+        "tooltip_registered": "You are registered.",
+        "tooltip_waiting_list": "You are currently on the waiting list.",
+        "uncancel_failure": "Cannot uncancel the competition.",
+        "uncancel_success": "Successfully uncancelled competition!",
+        "upload_results": "This competition is over, we are working to upload the results as soon as possible!"
+      },
+      "my_competitions": {
+        "bookmarked_explanation": "Competitions that you've bookmarked on the WCA site. We'll send you an email 24 hours before registration opens.",
+        "bookmarked_title": "Bookmarked competitions",
+        "disclaimer": "Only competitions that use the WCA registration system are shown here. If your competition isn't listed here, check the competition website's own competitor list.",
+        "past_competitions": "Past competitions",
+        "title": "My competitions"
+      },
+      "my_competitions_table": {
+        "competitions_list": "competitions list",
+        "edit": "Edit",
+        "edit_report": "Edit the report",
+        "missing_report": "Your report is not posted yet!",
+        "no_bookmarked_competitions": "You haven't bookmarked any upcoming competitions. Click the bookmark icon on a competition page to save it here!",
+        "no_past_competitions": "You have no past competitions.",
+        "no_upcoming_competitions_html": "You currently have no upcoming competitions! Check out the %{link}.",
+        "registrations": "Registrations",
+        "report": "View the Delegate report",
+        "results_up": "Results are up!"
+      },
+      "nav": {
+        "menu": {
+          "admin_view": "Admin view",
+          "all": "All",
+          "by_person": "By Person",
+          "clone": "Clone",
+          "competitors": "Competitors",
+          "delegate_report": "Delegate report",
+          "edit": "Edit",
+          "enable_v2": "Enable new Registration Service",
+          "event_view": "Manage events",
+          "import_registrations": "Import registrations",
+          "info": "Info",
+          "orga_view": "Organizer view",
+          "payment_view": "Setup payments",
+          "podiums": "Podiums",
+          "register": "Register",
+          "registration": "Registration",
+          "results": "Results",
+          "schedule_view": "Manage schedule",
+          "scrambles": "Scrambles",
+          "submit_results": "Submit results",
+          "tabs": "Manage tabs"
+        }
+      },
+      "new": {
+        "create_competition": "Create competition",
+        "note_clone": "To clone an existing competition visit the information page for that competition and click the \"Clone\" link in the menu."
+      },
+      "note_before_cancel": "Note: only confirmed competitions can be cancelled.",
+      "note_reg_closed_orga_close_reg": "Note: registration is already closed.",
+      "note_reg_not_full_orga_close_reg": "Note: you can only close registration once the competitor limit has been reached.",
+      "orga_close_reg": "Close registration",
+      "orga_close_reg_confirm": "Are you sure you want to close registration? You cannot undo this.",
+      "post_announcement": "Announce the competition",
+      "post_results": "Post the results",
+      "receive_registration_emails": "Notify me by email when someone registers for this competition",
+      "registration_v2": {
+        "bookmark": {
+          "unbookmark": "You have removed your bookmark"
+        },
+        "errors": {
+          "-1": "You have sent an invalid token, please refresh the page. If this issue persists contact WST",
+          "-1000": "Competition does not exist",
+          "-1001": "Error fetching Competition details, please try again later",
+          "-2": "Authentication Expired, please refresh the page",
+          "-2001": "You are banned from competing at WCA Competitions",
+          "-2002": "Your profile is incomplete",
+          "-2003": "You don't have the permissions to complete this action",
+          "-3": "Missing Authentication, please log in",
+          "-3000": "Registration does not exist",
+          "-3001": "WCA Payment is not enabled for this competition",
+          "-3002": "You need to finish your registration before you can pay",
+          "-4000": "The Request contains invalid data",
+          "-4001": "The event edit deadline has passed",
+          "-4002": "The number of guests are over the allowed limit",
+          "-4003": "The comment provided is too long",
+          "-4004": "Invalid event selection submitted",
+          "-4005": "This competition requires a comment",
+          "-4006": "Competitor limit has been reached",
+          "-4007": "Invalid registration status provided",
+          "-4008": "Registration has closed",
+          "events": "Loading Events failed, please try again"
+        },
+        "info": {
+          "download": "Download all of the competitions details."
+        },
+        "list": {
+          "empty": "No matching Records found",
+          "spots_remaining": "%{spots} spot(s) remaining"
+        },
+        "pdf": {
+          "link": "As a <0>%{pdfLink}</0>"
+        },
+        "register": {
+          "comment": "Additional comments to the organizers",
+          "disclaimer": "Submission of Registration does not mean approval to compete",
+          "early_registration": "Registration is not open yet, but you can still register as a competition organizer or Delegate.",
+          "editing_disabled": "Registration editing is disabled for this competition",
+          "error": "Registration failed with error %{error}",
+          "passed": "You can no longer update your registration",
+          "processing": "Your registration is processing...",
+          "processing_longer": "Processing is taking longer than usual, don't go away!",
+          "processing_queue": "Lots of Registrations being processed, %{queueCount} in the queue.",
+          "registration_status": {
+            "header": "Your Registration Status:"
+          },
+          "until": "You can update your registration until %{date}"
+        },
+        "requirements": {
+          "acknowledgement": "I have read and acknowledged all information under the 'Register' tab, including entry fees and refund policies",
+          "acknowledgment_extra": "I have read and understood all information listed above",
+          "next_step": "Continue to next Step",
+          "title": "Requirements"
+        },
+        "update": {
+          "cancel": "Cancel Registration",
+          "email_copy": "Copy Email",
+          "email_send": "Send Email",
+          "move_pending": "Move to Pending",
+          "move_waiting": "Move to Waiting List",
+          "no_changes": "There are no changes",
+          "too_many": "Accepting all these registrations would go over the competitor limit by %{count}"
+        }
+      },
+      "results_posted_by_html": "Posted by %{poster_name} on %{date_time}",
+      "results_table": {
+        "event": "Event",
+        "name": "Name",
+        "rank": {
+          "continent": "Continental Rank",
+          "national": "National Rank",
+          "world": "World Rank"
+        },
+        "round": "Round",
+        "wca_profile": "WCA profile"
+      },
+      "schedule": {
+        "activity": "Activity",
+        "display_as": {
+          "calendar": "Calendar",
+          "label": "Display the schedule as:",
+          "table": "Table"
+        },
+        "display_for_room": "Display schedule for:",
+        "end": "End",
+        "multiple_venues_available": "This competition has multiple venues, make sure to check out the schedule for the other venues as well!",
+        "range": {
+          "from": "From",
+          "to": "To"
+        },
+        "room": "Room",
+        "room_in_venue": "%{room} in %{venue}",
+        "schedule_for_date": "Schedule for %{day_name} (%{full_date})",
+        "start": "Start",
+        "timezone_message": "The schedule is displayed in the timezone %{timezone}.",
+        "venue_information_html": "You are viewing the schedule for the venue %{venue_name}."
+      },
+      "scrambles_table": {
+        "group": "Group",
+        "scramble": "Scramble"
+      },
+      "show": {
+        "events": "Events",
+        "general_info": "General info",
+        "no_schedule": "This competition has no schedule, the pdf can't be generated.",
+        "schedule": "Schedule"
+      },
+      "time_until_competition": {
+        "competition_in": "Competition is in %{n_days}.",
+        "competition_was": "Competition was %{n_days} ago."
+      },
+      "uncancel": "Uncancel the competition",
+      "update": {
+        "confirm_success": "Successfully confirmed competition. Check your email, and wait for the WCAT to announce it!",
+        "delete_success": "Successfully deleted competition %{id}.",
+        "save_success": "Successfully saved competition."
+      },
+      "user_preferences": "User Preferences"
+    },
+    "continents": {
+      "Africa": "Africa",
+      "Asia": "Asia",
+      "Europe": "Europe",
+      "Multiple Continents": "Multiple Continents",
+      "North America": "North America",
+      "Oceania": "Oceania",
+      "South America": "South America"
+    },
+    "countries": {
+      "AC": "Ascension Island",
+      "AD": "Andorra",
+      "AE": "United Arab Emirates",
+      "AF": "Afghanistan",
+      "AG": "Antigua and Barbuda",
+      "AI": "Anguilla",
+      "AL": "Albania",
+      "AM": "Armenia",
+      "AN": "Netherlands Antilles",
+      "AO": "Angola",
+      "AQ": "Antarctica",
+      "AR": "Argentina",
+      "AS": "American Samoa",
+      "AT": "Austria",
+      "AU": "Australia",
+      "AW": "Aruba",
+      "AX": "Åland Islands",
+      "AZ": "Azerbaijan",
+      "BA": "Bosnia and Herzegovina",
+      "BB": "Barbados",
+      "BD": "Bangladesh",
+      "BE": "Belgium",
+      "BF": "Burkina Faso",
+      "BG": "Bulgaria",
+      "BH": "Bahrain",
+      "BI": "Burundi",
+      "BJ": "Benin",
+      "BL": "St. Barthélemy",
+      "BM": "Bermuda",
+      "BN": "Brunei",
+      "BO": "Bolivia",
+      "BQ": "Caribbean Netherlands",
+      "BR": "Brazil",
+      "BS": "Bahamas",
+      "BT": "Bhutan",
+      "BV": "Bouvet Island",
+      "BW": "Botswana",
+      "BY": "Belarus",
+      "BZ": "Belize",
+      "CA": "Canada",
+      "CC": "Cocos (Keeling) Islands",
+      "CD": "Democratic Republic of the Congo",
+      "CF": "Central African Republic",
+      "CG": "Congo",
+      "CH": "Switzerland",
+      "CI": "Côte d'Ivoire",
+      "CK": "Cook Islands",
+      "CL": "Chile",
+      "CM": "Cameroon",
+      "CN": "China",
+      "CO": "Colombia",
+      "CP": "Clipperton Island",
+      "CR": "Costa Rica",
+      "CU": "Cuba",
+      "CV": "Cabo Verde",
+      "CW": "Curaçao",
+      "CX": "Christmas Island",
+      "CY": "Cyprus",
+      "CZ": "Czech Republic",
+      "DE": "Germany",
+      "DG": "Diego Garcia",
+      "DJ": "Djibouti",
+      "DK": "Denmark",
+      "DM": "Dominica",
+      "DO": "Dominican Republic",
+      "DZ": "Algeria",
+      "EA": "Ceuta & Melilla",
+      "EC": "Ecuador",
+      "EE": "Estonia",
+      "EG": "Egypt",
+      "EH": "Western Sahara",
+      "ER": "Eritrea",
+      "ES": "Spain",
+      "ET": "Ethiopia",
+      "EU": "European Union",
+      "FI": "Finland",
+      "FJ": "Fiji",
+      "FK": "Falkland Islands",
+      "FM": "Federated States of Micronesia",
+      "FO": "Faroe Islands",
+      "FR": "France",
+      "GA": "Gabon",
+      "GB": "United Kingdom",
+      "GD": "Grenada",
+      "GE": "Georgia",
+      "GF": "French Guiana",
+      "GG": "Guernsey",
+      "GH": "Ghana",
+      "GI": "Gibraltar",
+      "GL": "Greenland",
+      "GM": "Gambia",
+      "GN": "Guinea",
+      "GP": "Guadeloupe",
+      "GQ": "Equatorial Guinea",
+      "GR": "Greece",
+      "GS": "South Georgia & South Sandwich Islands",
+      "GT": "Guatemala",
+      "GU": "Guam",
+      "GW": "Guinea Bissau",
+      "GY": "Guyana",
+      "HK": "Hong Kong, China",
+      "HM": "Heard & McDonald Islands",
+      "HN": "Honduras",
+      "HR": "Croatia",
+      "HT": "Haiti",
+      "HU": "Hungary",
+      "IC": "Canary Islands",
+      "ID": "Indonesia",
+      "IE": "Ireland",
+      "IL": "Israel",
+      "IM": "Isle of Man",
+      "IN": "India",
+      "IO": "British Indian Ocean Territory",
+      "IQ": "Iraq",
+      "IR": "Iran",
+      "IS": "Iceland",
+      "IT": "Italy",
+      "JE": "Jersey",
+      "JM": "Jamaica",
+      "JO": "Jordan",
+      "JP": "Japan",
+      "KE": "Kenya",
+      "KG": "Kyrgyzstan",
+      "KH": "Cambodia",
+      "KI": "Kiribati",
+      "KM": "Comoros",
+      "KN": "Saint Kitts and Nevis",
+      "KP": "Democratic People's Republic of Korea",
+      "KR": "Republic of Korea",
+      "KW": "Kuwait",
+      "KY": "Cayman Islands",
+      "KZ": "Kazakhstan",
+      "LA": "Laos",
+      "LB": "Lebanon",
+      "LC": "Saint Lucia",
+      "LI": "Liechtenstein",
+      "LK": "Sri Lanka",
+      "LR": "Liberia",
+      "LS": "Lesotho",
+      "LT": "Lithuania",
+      "LU": "Luxembourg",
+      "LV": "Latvia",
+      "LY": "Libya",
+      "MA": "Morocco",
+      "MC": "Monaco",
+      "MD": "Moldova",
+      "ME": "Montenegro",
+      "MF": "St. Martin",
+      "MG": "Madagascar",
+      "MH": "Marshall Islands",
+      "MK": "North Macedonia",
+      "ML": "Mali",
+      "MM": "Myanmar",
+      "MN": "Mongolia",
+      "MO": "Macau, China",
+      "MP": "Northern Mariana Islands",
+      "MQ": "Martinique",
+      "MR": "Mauritania",
+      "MS": "Montserrat",
+      "MT": "Malta",
+      "MU": "Mauritius",
+      "MV": "Maldives",
+      "MW": "Malawi",
+      "MX": "Mexico",
+      "MY": "Malaysia",
+      "MZ": "Mozambique",
+      "NA": "Namibia",
+      "NC": "New Caledonia",
+      "NE": "Niger",
+      "NF": "Norfolk Island",
+      "NG": "Nigeria",
+      "NI": "Nicaragua",
+      "NL": "Netherlands",
+      "NO": "Norway",
+      "NP": "Nepal",
+      "NR": "Nauru",
+      "NU": "Niue",
+      "NZ": "New Zealand",
+      "OM": "Oman",
+      "PA": "Panama",
+      "PE": "Peru",
+      "PF": "French Polynesia",
+      "PG": "Papua New Guinea",
+      "PH": "Philippines",
+      "PK": "Pakistan",
+      "PL": "Poland",
+      "PM": "St. Pierre & Miquelon",
+      "PN": "Pitcairn Islands",
+      "PR": "Puerto Rico",
+      "PS": "Palestine",
+      "PT": "Portugal",
+      "PW": "Palau",
+      "PY": "Paraguay",
+      "QA": "Qatar",
+      "QO": "Outlying Oceania",
+      "RE": "Réunion",
+      "RO": "Romania",
+      "RS": "Serbia",
+      "RU": "Russia",
+      "RW": "Rwanda",
+      "SA": "Saudi Arabia",
+      "SB": "Solomon Islands",
+      "SC": "Seychelles",
+      "SD": "Sudan",
+      "SE": "Sweden",
+      "SG": "Singapore",
+      "SH": "St. Helena",
+      "SI": "Slovenia",
+      "SJ": "Svalbard & Jan Mayen",
+      "SK": "Slovakia",
+      "SL": "Sierra Leone",
+      "SM": "San Marino",
+      "SN": "Senegal",
+      "SO": "Somalia",
+      "SR": "Suriname",
+      "SS": "South Sudan",
+      "ST": "São Tomé and Príncipe",
+      "SV": "El Salvador",
+      "SX": "Saint Martin",
+      "SY": "Syria",
+      "SZ": "Eswatini",
+      "TA": "Tristan da Cunha",
+      "TC": "Turks & Caicos Islands",
+      "TD": "Chad",
+      "TF": "French Southern Territories",
+      "TG": "Togo",
+      "TH": "Thailand",
+      "TJ": "Tajikistan",
+      "TK": "Tokelau",
+      "TL": "Timor-Leste",
+      "TM": "Turkmenistan",
+      "TN": "Tunisia",
+      "TO": "Tonga",
+      "TR": "Turkey",
+      "TT": "Trinidad and Tobago",
+      "TV": "Tuvalu",
+      "TW": "Chinese Taipei",
+      "TZ": "Tanzania",
+      "UA": "Ukraine",
+      "UG": "Uganda",
+      "UM": "U.S. Outlying Islands",
+      "US": "United States",
+      "UY": "Uruguay",
+      "UZ": "Uzbekistan",
+      "VA": "Vatican City",
+      "VC": "Saint Vincent and the Grenadines",
+      "VE": "Venezuela",
+      "VG": "British Virgin Islands",
+      "VI": "U.S. Virgin Islands",
+      "VN": "Vietnam",
+      "VU": "Vanuatu",
+      "WF": "Wallis & Futuna",
+      "WS": "Samoa",
+      "XA": "Multiple Countries (Asia)",
+      "XE": "Multiple Countries (Europe)",
+      "XF": "Multiple Countries (Africa)",
+      "XK": "Kosovo",
+      "XM": "Multiple Countries (Americas)",
+      "XN": "Multiple Countries (North America)",
+      "XO": "Multiple Countries (Oceania)",
+      "XS": "Multiple Countries (South America)",
+      "XW": "Multiple Countries (World)",
+      "YE": "Yemen",
+      "YT": "Mayotte",
+      "ZA": "South Africa",
+      "ZM": "Zambia",
+      "ZW": "Zimbabwe"
+    },
+    "datetime": {
+      "distance_in_words": {
+        "about_x_hours": {
+          "one": "about %{count} hour",
+          "other": "about %{count} hours"
+        },
+        "about_x_months": {
+          "one": "about %{count} month",
+          "other": "about %{count} months"
+        },
+        "about_x_years": {
+          "one": "about %{count} year",
+          "other": "about %{count} years"
+        },
+        "almost_x_years": {
+          "one": "almost %{count} year",
+          "other": "almost %{count} years"
+        },
+        "half_a_minute": "half a minute",
+        "less_than_x_minutes": {
+          "one": "less than a minute",
+          "other": "less than %{count} minutes"
+        },
+        "less_than_x_seconds": {
+          "one": "less than %{count} second",
+          "other": "less than %{count} seconds"
+        },
+        "over_x_years": {
+          "one": "over %{count} year",
+          "other": "over %{count} years"
+        },
+        "x_days": {
+          "one": "%{count} day",
+          "other": "%{count} days"
+        },
+        "x_minutes": {
+          "one": "%{count} minute",
+          "other": "%{count} minutes"
+        },
+        "x_months": {
+          "one": "%{count} month",
+          "other": "%{count} months"
+        },
+        "x_seconds": {
+          "one": "%{count} second",
+          "other": "%{count} seconds"
+        },
+        "x_years": {
+          "one": "%{count} year",
+          "other": "%{count} years"
+        }
+      },
+      "prompts": {
+        "day": "Day",
+        "hour": "Hour",
+        "minute": "Minute",
+        "month": "Month",
+        "second": "Second",
+        "year": "Year"
+      }
+    },
+    "delegates_page": {
+      "acknowledges": "The WCA acknowledges the following WCA Delegates:",
+      "all_regions": "All Regions",
+      "regions": "Regions",
+      "table": {
+        "first_delegated": "First Delegated",
+        "history": "History",
+        "last_delegated": "Last Delegated",
+        "name": "Name",
+        "region": "Region",
+        "role": "Role",
+        "total_delegated": "Total Delegated"
+      },
+      "title": "WCA Delegates"
+    },
+    "enums": {
+      "competition_medium": {
+        "status": {
+          "accepted": "Accepted",
+          "pending": "Pending"
+        },
+        "type": {
+          "article": "Article",
+          "multimedia": "Multimedia",
+          "report": "Report"
+        }
+      },
+      "user": {
+        "gender": {
+          "f": "Female",
+          "m": "Male",
+          "o": "Other"
+        }
+      },
+      "user_roles": {
+        "status": {
+          "councils": {
+            "leader": "Leader",
+            "member": "Member",
+            "senior_member": "Senior Member"
+          },
+          "delegate_regions": {
+            "candidate_delegate": "Junior Delegate",
+            "delegate": "Delegate",
+            "regional_delegate": "Regional Delegate",
+            "senior_delegate": "Senior Delegate",
+            "trainee_delegate": "Trainee Delegate"
+          },
+          "officers": {
+            "chair": "WCA Chair",
+            "executive_director": "WCA Executive Director",
+            "secretary": "WCA Secretary",
+            "treasurer": "WCA Treasurer",
+            "vice_chair": "WCA Vice-Chair"
+          },
+          "teams_committees": {
+            "leader": "Leader",
+            "member": "Member",
+            "senior_member": "Senior Member"
+          }
+        }
+      }
+    },
+    "events": {
+      "222": "2x2x2 Cube",
+      "333": "3x3x3 Cube",
+      "333bf": "3x3x3 Blindfolded",
+      "333fm": "3x3x3 Fewest Moves",
+      "333ft": "3x3x3 With Feet",
+      "333mbf": "3x3x3 Multi-Blind",
+      "333mbo": "3x3x3 Multi-Blind Old Style",
+      "333oh": "3x3x3 One-Handed",
+      "444": "4x4x4 Cube",
+      "444bf": "4x4x4 Blindfolded",
+      "555": "5x5x5 Cube",
+      "555bf": "5x5x5 Blindfolded",
+      "666": "6x6x6 Cube",
+      "777": "7x7x7 Cube",
+      "clock": "Clock",
+      "magic": "Magic",
+      "minx": "Megaminx",
+      "mmagic": "Master Magic",
+      "pyram": "Pyraminx",
+      "skewb": "Skewb",
+      "sq1": "Square-1"
+    },
+    "formats": {
+      "1": "Best of 1",
+      "2": "Best of 2",
+      "3": "Best of 3",
+      "a": "Average of 5",
+      "m": "Mean of 3",
+      "short": {
+        "1": "Bo1",
+        "2": "Bo2",
+        "3": "Bo3",
+        "a": "Ao5",
+        "m": "Mo3"
+      }
+    },
+    "incidents_log": {
+      "i18n_disclaimer": "Please note the incidents section is only available in English, the content below is not translated.",
+      "incident": "Incident:"
+    },
+    "layouts": {
+      "navigation": {
+        "about": "About the WCA",
+        "about_regulations": "About the Regulations",
+        "administration": "Administration",
+        "all": "All",
+        "api": "API",
+        "competitions": "Competitions",
+        "contact": "Contact",
+        "db_dev_export": "Developer Export",
+        "db_results_export": "Results Export",
+        "delegate": "Delegate",
+        "delegates": "WCA Delegates",
+        "disciplinary": "Disciplinary log",
+        "disclaimer": "Disclaimer",
+        "documents": "WCA Documents",
+        "edit_profile": "Edit profile",
+        "education": "Educational resources",
+        "faq": "Frequently Asked Questions",
+        "find_us": "Find us",
+        "forum": "Forum",
+        "guidelines": "Guidelines",
+        "history": "History",
+        "incidents": "Incidents log",
+        "information": "Information",
+        "logo": "Logo",
+        "manage_app": "Manage your applications",
+        "manage_auth_app": "Manage authorized applications",
+        "manage_regional_organizations": "Manage Regional Organizations",
+        "manage_users": "Manage users",
+        "media_submission": "Media Submission",
+        "multimedia": "Multimedia",
+        "my_competitions": "My Competitions",
+        "my_results": "My Results",
+        "new_competition": "New Competition",
+        "new_post": "New post",
+        "new_regional_organization": "New Regional Organization",
+        "notifications": "Notifications",
+        "officers_and_board": "WCA Officers & Board",
+        "organizations": "Regional Organizations",
+        "panel": "Panel",
+        "persons": "Persons",
+        "polls": "Polls",
+        "privacy": "Privacy",
+        "rankings": "Rankings",
+        "records": "Records",
+        "regional_organizations": "Regional Organizations",
+        "regulations": "Regulations",
+        "results": "Results",
+        "results_admin": "Admin",
+        "results_database": "Database",
+        "results_sidekiq": "Sidekiq dashboard",
+        "results_team": "Results team",
+        "scrambles": "Scrambles",
+        "sign_out": "Sign out",
+        "speedcubing_history": "Speedcubing History",
+        "statistics": "Statistics",
+        "team_leader": "Team leader",
+        "teams": "Teams, Committees, and Councils",
+        "tools": "Tools",
+        "translations": "Translations",
+        "translators": "Translators",
+        "wca_live": "WCA Live"
+      }
+    },
+    "logo": {
+      "paragraphs": {
+        "1": "The WCA logo was designed by Justin Eastman, in a design contest in January 2005.<br />We liked the logo because of its design, the colours, and the fact that it does not specifically show a 3x3x3 cube.",
+        "2": "We have four different versions of the logo: a <a href=\"/files/WCAlogo_XL.jpg\">large version</a> (46 KB, 1756 px by 1068 px), a <a href=\"/files/WCAlogo.svg\">vector version</a>, a <a href=\"/files/WCAlogo_notext.svg\">vector version without text</a> and a <a href=\"/files/WCAlogo_monochrome.svg\">monochrome vector version</a>.",
+        "3": "3D version of the logo, designed by Vu Minh Tan from Vietnam: <a href=\"/files/WCALogo3D.png\">PNG version</a> (2.1 MB), a <a href=\"/files/WCALogo3Dsmall.png\">small PNG version</a> (0.25 MB).",
+        "4": "Acceptable usage of the WCA logo is outlined by the WCA Logo Usage policy which appears on the <a href=\"/documents\">WCA Documents page</a>."
+      },
+      "title": "WCA Logo"
+    },
+    "page": {
+      "officers_and_board": {
+        "board_description": "The WCA Board is responsible for leading the organization as a whole, and fulfilling any duties not fulfilled by other Teams,  Committees, and Councils",
+        "officers_description": "The officers of the WCA handle tasks relating to the non-profit status of the WCA. These officers are elected by the WCA Board. The Executive Director is the Chief Executive Officer of the WCA, the Chair presides over all Board meetings, the Secretary maintains the organization's documents, and the Treasurer manages financial matters of the WCA.",
+        "title": "WCA Officers & Board"
+      },
+      "teams_committees_councils": {
+        "description": "The WCA's teams and committees are an integral part of the organization and perform the day-to-day tasks that are required to keep it functioning. These committees are made up of WCA community members, including WCA Delegates and competitors. Each team has a leader, whose role is to ensure the proper functioning of the team and guide other team members. Councils are a special type of team that serve an advisory role to the WCA Board and are made up of community members, not WCA Staff members. When there are committee, team, or council openings, information about how to apply is posted on the front page.",
+        "groups_description": {
+          "wac": "The WAC is responsible for maintaining feedback and communication between the WCA Community and the WCA Staff. They maintain the WCA Forums and summarize surveys and attempt to increase reach across the worldwide community.",
+          "wat": "The WAT is responsible for managing the development and maintenance of the WCA's historical archive. They document key speedcubing events and notable WCA milestones to be presented as part of a broader WCA timeline, to preserve the legacy of the WCA in speedcubing.",
+          "wcat": "The WCA Competition Announcement Team (WCAT) has the role to approve and announce WCA Competitions submitted by delegates, and ensure such announcements adhere to WCA quality standards. This team is also responsible for maintaining proper competition submission protocol from documents such as the WCA Competition Requirements Policy. WCAT is NOT responsible for the organization and delegation of individual competitions.",
+          "wct": "The WCA Communication Team (WCT) has the role to oversee and support communications of the WCA with the Community and the general public. The communication of the WCA should contribute to the Objectives of the WCA and support a general positive culture of friendliness, transparency, inclusiveness, openness, and responsiveness.",
+          "wdc": "The WCA Disciplinary Committee (WDC) performs independent investigations regarding Registered Speedcubers and incidents during WCA Competitions or on official, online WCA platforms. These incidents are alleged violations of the Spirit, Code of Conduct, and/or Regulations of the WCA.",
+          "weat": "This team is responsible for carrying out the administrative tasks of the WCA Board of Directors.",
+          "wec": "This committee's role is to ensure that all the procedures followed by the WCA Staff abide by the Code of Ethics, and to perform independent investigations if the conduct of any of these members is not compliant with the Code. The WEC is a confidant for Registered Speedcubers who may report concerns and request an investigation. This committee also functions as the board of appeal if anyone involved disagrees with a decision made by the WCA Disciplinary Committee.",
+          "wfc": "This committee is responsible for managing the overall finances of the WCA, including budgeting, reporting, analysis, bookkeeping, and tax filings. They also manage the WCA's largest source of income, the WCA Dues System, along with various funding programs that provide support to local communities at different stages of development, including Travel Funding, Equipment Funding, and Regional Organization Support.",
+          "wmt": "This team is responsible for developing and managing the WCA Brand, seeking sponsorships, supporting the distribution of WCA Competition Gear, and marketing WCA Merchandise.",
+          "wqac": "This committee has the role to support and promote continuous quality improvement within the WCA, as well as worldwide application of quality standards to ensure consistent high quality of processes, WCA Staff, Regional Organizations, Competition Organizers, and Competition Staff.",
+          "wrc": "The WRC handles all issues which are related to the application, the improvement and the development of the WCA Regulations. They support WCA Delegates on any kind of procedural matters happening at competitions and decide on unresolved and uncovered incidents.",
+          "wrt": "The WRT is responsible for managing all data in the databases of the WCA, most importantly competition results and persons data.",
+          "wsot": "This team has the role to oversee and support the recognition of the WCA as an international sports organization.",
+          "wst": "This team is responsible for managing the WCA's software (website, scramblers, workbooks, admin tools)."
+        },
+        "groups_name": {
+          "wac": "WCA Advisory Council",
+          "wat": "WCA Archive Team",
+          "wcat": "WCA Competition Announcement Team",
+          "wct": "WCA Communication Team",
+          "wdc": "WCA Disciplinary Committee",
+          "weat": "WCA Executive Assistants Team",
+          "wec": "WCA Ethics Committee",
+          "wfc": "WCA Financial Committee",
+          "wmt": "WCA Marketing Team",
+          "wqac": "WCA Quality Assurance Committee",
+          "wrc": "WCA Regulations Committee",
+          "wrt": "WCA Results Team",
+          "wsot": "WCA Sports Organization Team",
+          "wst": "WCA Software Team"
+        },
+        "title": "WCA Teams, Committees, and Councils"
+      },
+      "translators": {
+        "title": "Translators"
+      }
+    },
+    "qualification": {
+      "average": {
+        "any_result": "Any average",
+        "moves": "Average under %{moves} moves",
+        "points": "Average over %{points} points",
+        "ranking": "Top %{ranking} by average",
+        "time": "Average under %{time}"
+      },
+      "deadline": {
+        "by_date": "by %{date}",
+        "description": "Qualification Deadline"
+      },
+      "for_event": "Qualification for %{event}",
+      "result_type": "Result Type",
+      "single": {
+        "any_result": "Any single solve",
+        "moves": "Single solve under %{moves} moves",
+        "points": "Single solve over %{points} points",
+        "ranking": "Top %{ranking} by single",
+        "time": "Single solve under %{time}"
+      },
+      "type": {
+        "any_result": "Any result",
+        "none": "No qualification",
+        "ranking": "Top N",
+        "result": "By Result"
+      },
+      "type_label": "Qualification Type"
+    },
+    "regional_organizations": {
+      "application_instructions": {
+        "description_html": "To apply for acknowledgment, please fill out <a href='/regional-organizations/new'>this form</a>.",
+        "title": "Application Instructions"
+      },
+      "content": "The WCA acknowledges the following Regional Organizations:",
+      "create": {
+        "create_success": "Application successfully submitted! Please check your email, and wait for the WCA Board of Directors to review it"
+      },
+      "delete": {
+        "confirm_delete": "Are you sure you want to delete this Regional Organization request?"
+      },
+      "empty": "No Regional Organizations are currently acknowledged by the WCA.",
+      "errors": {
+        "end_date_after_start_date": "cannot be after Acknowledged until"
+      },
+      "how_to": {
+        "description": "The WCA recognizes various Regional Organizations worldwide. The purpose of a WCA Regional Organization is to organize WCA Competitions and support the WCA’s activities in the region. Regions wishing to form a Regional Organization are encouraged to contribute to the WCA in their area before submitting their application. For help organizing a WCA competition in your area, please contact your nearest WCA Delegate.",
+        "title": "How to become an acknowledged WCA Regional Organization"
+      },
+      "regional_organization_form": {
+        "filling_instructions_html": "Please fill everything <b>in English!</b>",
+        "private_information": "Private information",
+        "private_information_disclaimer": "All the information below will only be visible to the WCA Board of Directors",
+        "public_information": "Public information"
+      },
+      "requirements": {
+        "list": {
+          "1": "To actively organize or support WCA Competitions in the region of the organization",
+          "2": "To contribute to the Continental WCA Competitions that are held in the continent of the Regional Organization, if required by the corresponding Organization Team",
+          "3": "To respect and operationalize the Objectives set out in the WCA Bylaws and Motions",
+          "4": "To comply with all applicable WCA Regulations",
+          "5": "To accept and comply with decisions of WCA Staff",
+          "6": "To keep on file at the WCA a copy of its current bylaws and, if applicable, regulations in an electronic format"
+        },
+        "title": "Requirements for WCA Regional Organizations"
+      },
+      "title": "Regional Organizations"
+    },
+    "registrations": {
+      "accepted": "Your registration has been accepted!",
+      "add": {
+        "add": "Add registration",
+        "errors": {
+          "already_registered": "This person already has a registration."
+        },
+        "info": "This will create an approved registration. Use this form to add walk-ins during the competition.",
+        "title": "Add registration for %{comp}"
+      },
+      "can_register": "You can register for %{comp} below.",
+      "check_registration_information": "Please check the information about registration to find out if you need to do something else, like paying a registration fee.",
+      "closed_html": "Registration closed <strong>%{days}</strong> ago on %{time}.",
+      "contact_organizer": "Contact the organizer if you wish to make a change.",
+      "delete": "Delete",
+      "delete_confirm": "Are you sure you want to delete your registration?",
+      "delete_registration": "Delete registration.",
+      "edit_registration": {
+        "title": "%{person} for %{comp}"
+      },
+      "entry_fees_fully_paid": "You have paid %{paid}, which fully covers the registration fees.",
+      "errors": {
+        "banned_html": "You are banned. If you believe this is an error, please contact the <a href='mailto:disciplinary@worldcubeassociation.org' target='_blank'>WDC</a>.",
+        "can_only_register_for_qualified_events": "You cannot register for events you are not qualified for.",
+        "cannot_be_deleted_and_accepted": "A registration cannot be deleted and accepted at the same time.",
+        "cannot_register_without_comment": "You must make a comment. Make sure to read the registration requirements what has to be included (e.g. in a FM simultaneous competition, which location you will compete at).",
+        "exceeds_event_limit": {
+          "one": "you must register in exactly 1 event",
+          "other": "you must register in less than or equal to %{count} events"
+        },
+        "must_register": "must register for at least one event",
+        "need_country": "Need a region",
+        "need_dob": "Need a birthdate",
+        "need_gender": "Need a gender",
+        "need_name": "Need a name",
+        "series_more_than_one_accepted": "You can only be accepted for one Series competition at a time.",
+        "undelete_banned": "is a banned competitor and cannot be undeleted"
+      },
+      "flash": {
+        "accepted_and_mailed": {
+          "one": "Registration accepted! Email notification sent.",
+          "other": "Registrations accepted! Email notifications sent."
+        },
+        "added": "Successfully added registration!",
+        "cannot_delete": "You cannot delete your registration.",
+        "deleted": "Successfully deleted your registration for %{comp}",
+        "deleted_and_mailed": {
+          "one": "Registration deleted",
+          "other": "Registrations deleted"
+        },
+        "failed": "Could not update registration",
+        "imported": "Successfully imported registrations!",
+        "not_using_wca": "This competition is not using WCA registration",
+        "registered": "Registration form submitted - make sure to follow all instructions from the Registration Requirements below to ensure your registration is complete.",
+        "rejected_and_mailed": {
+          "one": "Registration moved to waiting list",
+          "other": "Registrations moved to waiting list"
+        },
+        "single_deletion_and_mail": "Deleted registration and emailed %{mail}",
+        "updated": "Updated registration"
+      },
+      "greeting": "Hi, %{name}!",
+      "have_registered": "You have submitted your registration for %{comp}. You can see your registration details below.",
+      "import": {
+        "errors": {
+          "email_duplicates": "Email must be unique, found the following duplicates: %{emails}.",
+          "email_user_with_different_unconfirmed_wca_id": "There is already a user with email %{email}, but it has unconfirmed WCA ID of %{unconfirmed_wca_id} instead of %{registration_wca_id}.",
+          "email_user_with_different_wca_id": "There is already a user with email %{email}, but it has WCA ID of %{user_wca_id} instead of %{registration_wca_id}.",
+          "error": "Error importing %{registration}: %{error}.",
+          "invalid_event_column": "Event columns should include either 0 or 1, found %{value} in column %{column}.",
+          "missing_columns": "Missing columns: %{columns}.",
+          "non_existent_wca_id": "The WCA ID %{wca_id} doesn't exist.",
+          "over_competitor_limit": "The given file includes %{accepted_count} accepted registrations, which is more than the competitor limit of %{limit}.",
+          "wca_id_duplicates": "WCA ID must be unique, found the following duplicates: %{wca_ids}."
+        },
+        "import": "Import",
+        "info": "You can import registrations multiple times, changes will be determined and the database will be updated accordingly.",
+        "registrations_file_hint": "CSV file with columns: Status, Name, Region, WCA ID, Birth Date, Gender, Email, and one column for each event.",
+        "registrations_file_label": "Registrations file",
+        "title": "Import registrations for %{comp}"
+      },
+      "list": {
+        "approve": "Approve",
+        "approved_registrations": "Approved registrations",
+        "country_plural": {
+          "one": "1 region",
+          "other": "%{count} regions"
+        },
+        "delete": "Delete",
+        "deleted_registrations": "Deleted registrations",
+        "edit": "Edit",
+        "email": "Email",
+        "export_csv": "Export to CSV",
+        "n_events": "Number of events",
+        "non_competing": "Non-competing registrations",
+        "not_paid": "Not paid",
+        "payment_completed_on": "Payment completed on: %{date}",
+        "payment_requested_on": "Payment requested on: %{date}",
+        "registered": {
+          "with_stripe": "Paid on",
+          "without_stripe": "Registered on"
+        },
+        "reject": "Reject",
+        "series_registrations": "Series registrations",
+        "series_registrations_hint_html": "Hint: Series registrations are being displayed as <i>%{description}</i>",
+        "title": "Registrations for %{comp}",
+        "total": "Total",
+        "waiting_list": "Waiting List"
+      },
+      "mailer": {
+        "accepted": {
+          "mail_subject": "Registration Accepted: %{comp_name}",
+          "message_html": "Your registration for %{comp_name} has been accepted. As always, you can check the status of your registration %{here}.",
+          "see_you_soon": "We look forward to seeing you at %{comp_name}!"
+        },
+        "deleted": {
+          "causes": {
+            "competition_canceled": "The competition has been canceled",
+            "incomplete": "You didn't meet the registration criteria (for example, paying the registration fee in advance or meeting the qualifying times for events)",
+            "missing_info": "You did not submit all the required details",
+            "multiple_registrations": "You registered twice or more times",
+            "registrations_full": "The competitor limit has been reached and there are no more spots available"
+          },
+          "mail_subject": "Registration Deleted: %{comp_name}",
+          "message_html": "Your registration for %{comp_name} has been deleted. Possible causes are:"
+        },
+        "new": {
+          "approval_info_html": "You will be emailed when your registration is approved. Please note that registrations are not automatically approved, so be patient if you have not been accepted straight away. There may be more registration steps to follow before your registration will be approved. To see the approval criteria visit the competition website or contact the organizers. You can also check the status of your registration %{here}.",
+          "awaits_approval": "Please ensure that you have followed the competition's registration requirements. For example, a registration fee may need to be paid before the registration is complete.",
+          "mail_subject": "Registration Pending: %{comp_name}",
+          "registered_html": "Your registration for %{comp_name} is now pending, and awaiting approval from the organization team."
+        },
+        "pending": {
+          "causes": {
+            "accepted": "Your registration was accidentally accepted",
+            "withdrawal": "You asked for withdrawal"
+          },
+          "email_if_error": "If you think this is an error, please reply to this email.",
+          "mail_subject": "Registration Moved to Waitlist: %{comp_name}",
+          "moved_html": "Your registration for %{comp_name} has been moved to the waiting list. Possible causes are:"
+        },
+        "regards_html": "Regards, %{people}."
+      },
+      "new_registration": {
+        "title": "Register for %{comp}"
+      },
+      "not_qualified": "Not qualified",
+      "panel_title": "Registration details",
+      "payment_form": {
+        "alerts": {
+          "amount_rather_high": "You are about to pay at least double the required amount for your registration to proceed. Please confirm the payment by pressing OK.",
+          "amount_too_low": "The total amount must be at least the registration fees to be paid.",
+          "not_a_number": "Please enter a valid amount."
+        },
+        "button_text": "Pay now!",
+        "errors": {
+          "already_paid": "The charge was not placed because the registration fees are already paid.",
+          "not_allowed": "You can't pay for that registration.",
+          "payment_pending": "The payment has not been completed yet.",
+          "payment_reset": "The payment was rejected by Stripe.",
+          "stripe_failed": "Please check the Stripe transaction.",
+          "stripe_not_found": "Stripe reported back a transaction ID that couldn't be found.",
+          "stripe_secret_invalid": "Stripe reported back a transaction secret that doesn't match our records."
+        },
+        "hints": {
+          "donation": "Optional donation that will go only to the organization team",
+          "payment_button": "Your payment information never reaches the WCA website. It is securely sent to Stripe which handles the payment process and gets back to us."
+        },
+        "labels": {
+          "ajax_error": "WCA server error",
+          "donation": "Donation",
+          "entry_fees": "Registration fees",
+          "fees_paid": "Paid",
+          "fees_remaining": "Remaining",
+          "payment_button": "Pay your fees with Stripe",
+          "payment_information": "Payment information",
+          "payment_service_error": "Payment service error",
+          "show_donation": "I would like to make an additional optional donation that will go only to the organization team",
+          "subtotal": "Subtotal"
+        },
+        "payment_processing": "Your payment has been confirmed, but the transaction is still pending.",
+        "payment_successful": "Your payment was successful, and your registration should show up paid below.",
+        "title": "Registration fees"
+      },
+      "please_fix_profile_html": "In order to register for %{comp}, you must fix the following problems with your %{profile}:",
+      "please_sign_in_html": "%{sign_in} to register for %{comp}. If you do not yet have a WCA account, you can create one %{here}.",
+      "please_sign_in_not_yet_open_html": "%{sign_in} to check the status of your registration. If you do not yet have a WCA account, you can create one %{here}, but its registration is not yet open.",
+      "please_sign_in_past_html": "%{sign_in} to check the status of your registration. If you do not yet have a WCA account, you can create one %{here}, but it is too late to register for this competition.",
+      "preferred_events_populated_html": "We autopopulated this with your preferred events, which you can edit %{link}.",
+      "preferred_events_prompt_html": "To speed up registration in the future, you can set your preferred events %{link}.",
+      "profile": "profile",
+      "refund": "Refund Payment",
+      "refund_confirmation": "Are you sure you want to refund this payment?",
+      "refund_form": {
+        "hints": {
+          "refund_amount": "The amount to refund to the competitor, can be any value up to the amount already paid."
+        },
+        "labels": {
+          "refund_amount": "Refund Amount"
+        }
+      },
+      "register": "Register!",
+      "registered_with_account_html": "This person registered with an account. You can edit their personal information %{here}.",
+      "registration_full": "The competitor limit for this competition is %{competitor_limit} and it has already been reached. If you register, your registration will be placed on a waiting list. It may not be approved unless a spot frees up.",
+      "registration_full_include_waiting_list": "The competitor limit for this competition is %{competitor_limit} and it may be filled. If you register, your registration will be placed on a waiting list. It may not be approved unless a spot frees up.",
+      "registration_info_people": {
+        "newcomer": {
+          "one": "first-timer",
+          "other": "first-timers"
+        },
+        "person": {
+          "one": "person",
+          "other": "people"
+        },
+        "returner": {
+          "one": "returner",
+          "other": "returners"
+        }
+      },
+      "registration_requirements": "Registration requirements for the competition:",
+      "sign_in": "Sign in",
+      "update": "Update Registration",
+      "waiting_list": "Your registration is pending. For approval, you may need to pay a registration fee. Check the competition website for details.",
+      "will_close_html": "Registration closes in <strong>%{days}</strong> on %{time}.",
+      "will_open_html": "Registration will open in <strong>%{days}</strong> on %{time}.",
+      "will_pay_here": "You will pay them here after submitting your registration",
+      "wont_pay_here": "Please check competition's information for instruction about how to pay"
+    },
+    "round": {
+      "name": "%{event_name} %{round_name}"
+    },
+    "search_results": {
+      "index": {
+        "advanced_search": "Advanced search",
+        "competitions": "Competitions",
+        "incidents": "Incidents",
+        "not_found": {
+          "competitions": "No competitions found for",
+          "generic": "No results found",
+          "incidents": "No incidents found for",
+          "people": "No people found for",
+          "posts": "No posts found for",
+          "regulations_and_guidelines": "No Regulations or Guidelines found for"
+        },
+        "people": "People",
+        "posts": "Posts",
+        "regulations_and_guidelines": "Regulations and Guidelines",
+        "search_for": "Search for <b>%{search_string}</b>"
+      }
+    },
+    "simple_form": {
+      "options": {
+        "registration": {
+          "status": {
+            "accepted": "Accepted",
+            "cancelled": "Cancelled",
+            "deleted": "Deleted",
+            "pending": "Waiting list",
+            "waiting_list": "On the Waiting List"
+          }
+        }
+      }
+    },
+    "user_groups": {
+      "group_types": {
+        "board": "WCA Board of Directors",
+        "officers": "WCA Officers",
+        "translators": "Translators"
+      }
+    },
+    "user_roles": {
+      "email": {
+        "role_metadata": {
+          "locale": "Locale",
+          "region_name": "Region Name",
+          "status": "Status"
+        }
+      }
+    },
+    "wca": {
+      "errors": {
+        "messages": {
+          "form_error": {
+            "one": "The form contains one error:",
+            "other": "The form contains %{count} errors:"
+          }
+        }
+      }
+    }
   }
 }
