@@ -30,7 +30,7 @@ export default function StripeWrapper() {
       setMessage(
         errorCode
           ? t(`competitions.registration_v2.errors.${errorCode}`)
-          : t('registrations.flash.failed') + data.message,
+          : t('registrations.flash.failed') + err.message,
         'negative',
       )
     },
