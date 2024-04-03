@@ -40,6 +40,16 @@ describe RegistrationController do
     it 'change in status persisted to database' do
       expect(@updated_registration.competing_status).to eq('cancelled')
     end
+
+    it 'registration history to be written' do
+      expect(@updated_registration.history.entries.length).to eq(1)
+    end
+
+    it 'registration history contains the correct changes' do
+      expect(@updated_registration.history.entries[0].changed_attributes['status']).to eq('cancelled')
+      expect(@updated_registration.history.entries[0].changed_attributes['guests']).to eq(2)
+      expect(@updated_registration.history.entries[0].action).to eq('Competitor delete')
+    end
   end
 
   describe '#bulk_update' do
