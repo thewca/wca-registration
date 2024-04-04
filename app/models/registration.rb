@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../lib/redis_helper'
 require 'time'
 
 class Registration
