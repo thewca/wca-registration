@@ -14,11 +14,15 @@ end
 EnvConfig = SuperConfig.new do
   mandatory :QUEUE_URL, :string
   mandatory :DYNAMO_REGISTRATIONS_TABLE, :string
+  mandatory :REGISTRATION_HISTORY_DYNAMO_TABLE, :string
 end
 
 # We have to require the model after we initialized dynamoid
 # This is copied over when bundling the lambda
-require_relative 'registration'
+require_relative './registration_lib/lane.rb'
+require_relative './registration_lib/history.rb'
+require_relative './registration_lib/registration_history'
+require_relative './registration_lib/registration'
 
 def lambda_handler(event:, context:)
   # Parse the input event
