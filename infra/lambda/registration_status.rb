@@ -5,6 +5,7 @@ require 'dynamoid'
 require 'aws-sdk-dynamodb'
 require 'aws-sdk-sqs'
 require 'superconfig'
+require 'zeitwerk'
 
 Dynamoid.configure do |config|
   config.region = ENV.fetch('AWS_REGION', 'us-west-2')
@@ -17,12 +18,9 @@ EnvConfig = SuperConfig.new do
   mandatory :REGISTRATION_HISTORY_DYNAMO_TABLE, :string
 end
 
-# We have to require the model after we initialized dynamoid
-# This is copied over when bundling the lambda
-require_relative './registration_lib/lane.rb'
-require_relative './registration_lib/history.rb'
-require_relative './registration_lib/registration_history'
-require_relative './registration_lib/registration'
+loader = Zeitwerk::Loader.new
+loader.push_dir('./registration_lib')
+loader.setup
 
 def lambda_handler(event:, context:)
   # Parse the input event
