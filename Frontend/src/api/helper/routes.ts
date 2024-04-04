@@ -26,10 +26,12 @@ export const userProfileRoute = (wcaId: string) =>
 export const competitionsPDFRoute = (compId: string) =>
   `${process.env.WCA_URL}/competitions/${compId}.pdf`
 
-export const competitionContactFormRoute = (compId: string) =>
-  `https://www.worldcubeassociation.org/contact/website?competitionId=${compId}`
+export const userPreferencesRoute = `${process.env.WCA_URL}/profile/edit?section=preferences`
 
-export const pollingRoute = (userId: string, competitionId: string) =>
+export const competitionContactFormRoute = (compId: string) =>
+  `${process.env.WCA_URL}/contact/website?competitionId=${compId}`
+
+export const pollingRoute = (userId: number, competitionId: string) =>
   `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`
 export const meRoute = `${process.env.WCA_URL}/api/v0/users/me`
 

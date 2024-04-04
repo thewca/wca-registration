@@ -40,6 +40,10 @@ variable "shared_resources" {
       name: string,
       arn: string
     }),
+    dynamo_registration_history_table: object({
+      name: string,
+      arn: string
+    }),
     queue: object({
       arn: string,
       url: string
@@ -50,9 +54,6 @@ variable "shared_resources" {
     }),
     capacity_provider: object({
       name: string
-    }),
-    main_target_group: object({
-      arn: string
     }),
     cluster_security: object({
       id: string

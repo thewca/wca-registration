@@ -28,6 +28,10 @@ locals {
       name = "DYNAMO_REGISTRATIONS_TABLE",
       value = var.shared_resources.dynamo_registration_table.name
     },
+    {
+      name = "REGISTRATION_HISTORY_DYNAMO_TABLE",
+      value = var.shared_resources.dynamo_registration_history_table.name
+    },
   ]
 }
 
@@ -78,7 +82,8 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:DeleteItem",
       "dynamodb:DescribeTable",
     ]
-    resources = [var.shared_resources.dynamo_registration_table.arn, "${var.shared_resources.dynamo_registration_table.arn}/*"]
+    resources = [var.shared_resources.dynamo_registration_table.arn, "${var.shared_resources.dynamo_registration_table.arn}/*",
+                 var.shared_resources.dynamo_registration_history_table.arn, "${var.shared_resources.dynamo_registration_history_table.arn}/*"]
   }
   statement {
     effect = "Allow"

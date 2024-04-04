@@ -1,5 +1,6 @@
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import React, { useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { UserContext } from '../../../api/helper/context/user_context'
 import { paymentFinishRoute } from '../../../api/helper/routes'
@@ -11,6 +12,9 @@ export default function PaymentStep() {
   const [isLoading, setIsLoading] = useState(false)
   const { competitionInfo } = useContext(CompetitionContext)
   const { user } = useContext(UserContext)
+
+  const { t } = useTranslation()
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -37,7 +41,7 @@ export default function PaymentStep() {
     if (error.type === 'card_error' || error.type === 'validation_error') {
       setMessage(error.message, 'error')
     } else {
-      setMessage('An unexpected error occured.', 'error')
+      setMessage('An unexpected error occurred.', 'error')
     }
 
     setIsLoading(false)
@@ -48,7 +52,11 @@ export default function PaymentStep() {
       <PaymentElement id="payment-element" />
       <button disabled={isLoading || !stripe || !elements} id="submit">
         <span id="button-text">
-          {isLoading ? <div className="spinner" id="spinner" /> : 'Pay now'}
+          {isLoading ? (
+            <div className="spinner" id="spinner" />
+          ) : (
+            t('registrations.payment_form.button_text')
+          )}
         </span>
       </button>
     </form>

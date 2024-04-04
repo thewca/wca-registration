@@ -55,6 +55,8 @@ services:
       AWS_SECRET_ACCESS_KEY: "fake-access-key"
       PROMETHEUS_EXPORTER: "prometheus_exporter"
       DYNAMO_REGISTRATIONS_TABLE: "registrations-development"
+      REGISTRATION_HISTORY_DYNAMO_TABLE: "registration-history-development"
+      CODE_ENVIRONMENT: "development"
     volumes:
       - .:/app
       - gems_volume_worker:/usr/local/bundle

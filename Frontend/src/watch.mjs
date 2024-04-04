@@ -18,6 +18,7 @@ const context = await esbuild.context({
   entryPoints: ['src/index.dev.jsx'],
   bundle: true,
   outfile: 'dist/bundle.js',
+  sourcemap: true,
   jsxFactory: 'React.createElement',
   jsxFragment: 'React.Fragment',
   metafile: true,

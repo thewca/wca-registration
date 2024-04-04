@@ -25,6 +25,7 @@ FactoryBot.define do
         waiting_list_position: waiting_list_position,
       )]
     }
+    history { association :registration_history, attendee_id: "#{competition_id}-#{user_id}" }
   end
 
   trait :admin do

@@ -19,6 +19,7 @@ import { useWithUserData } from '../../../hooks/useUserData'
 import { createSortReducer } from '../../../reducers/sortReducer'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
+import styles from './list.module.scss'
 
 const sortReducer = createSortReducer(['name', 'country', 'total'])
 
@@ -34,8 +35,8 @@ export default function RegistrationList() {
       const { errorCode } = err
       setMessage(
         errorCode
-          ? t(`errors.${errorCode}`)
-          : 'Fetching Registrations failed with error: ' + err.message,
+          ? t(`competitions.registration_v2.errors.${errorCode}`)
+          : t('registrations.flash.failed') + data.message,
         'negative',
       )
     },
@@ -161,7 +162,7 @@ export default function RegistrationList() {
   return registrationsLoading || userInfoLoading ? (
     <LoadingMessage />
   ) : (
-    <div>
+    <div className={styles.tableContainer}>
       <Table sortable textAlign="left">
         <Table.Header>
           <Table.Row>

@@ -1,6 +1,7 @@
 import { UiIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Accordion,
   Button,
@@ -19,6 +20,8 @@ export default function RegistrationRequirements({ nextStep }) {
     useState(false)
 
   const [showRegRequirements, setShowRegRequirements] = useState(false)
+
+  const { t } = useTranslation()
 
   const setFromCheckbox = (data, setState) => {
     const { checked } = data
@@ -55,7 +58,7 @@ export default function RegistrationRequirements({ nextStep }) {
           onClick={(_, data) =>
             setFromCheckbox(data, setGeneralInfoAcknowledged)
           }
-          label="I have read and acknowledged all information under the 'Register' tab, including entry fees and refund policies"
+          label={t('competitions.registration_v2.requirements.acknowledgement')}
           required
         />
         {competitionInfo.extra_registration_requirements && (
@@ -67,7 +70,9 @@ export default function RegistrationRequirements({ nextStep }) {
                 onClick={handleAccordionClick}
               >
                 <UiIcon name="dropdown" />
-                Additional Registration Requirements
+                {t(
+                  'competitions.competition_form.labels.registration.extra_requirements',
+                )}
               </Accordion.Title>
               <Transition
                 visible={showRegRequirements}
@@ -88,7 +93,9 @@ export default function RegistrationRequirements({ nextStep }) {
                       onClick={(_, data) =>
                         setFromCheckbox(data, setRegRequirementsAcknowledged)
                       }
-                      label="I have read and understood all information listed above"
+                      label={t(
+                        'competitions.registration_v2.requirements.acknowledgment_extra',
+                      )}
                       required
                     />
                   </Message>
@@ -98,7 +105,7 @@ export default function RegistrationRequirements({ nextStep }) {
           </>
         )}
         <Button disabled={buttonDisabled} type="submit" positive>
-          Continue to next step
+          {t('competitions.registration_v2.requirements.next_step')}
         </Button>
       </Form>
     </Segment>

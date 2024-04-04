@@ -12,7 +12,7 @@ unless defined?(Rails)
       mandatory :AWS_ACCESS_KEY_ID, :string
       mandatory :AWS_SECRET_ACCESS_KEY, :string
       optional :WCA_HOST, :string, ''
-      optional :CODE_ENVIRONMENT, 'development'
+      optional :CODE_ENVIRONMENT, :string, 'development'
     else
       mandatory :QUEUE_URL, :string
       mandatory :WCA_HOST, :string
@@ -22,5 +22,6 @@ unless defined?(Rails)
     mandatory :AWS_REGION, :string
     mandatory :PROMETHEUS_EXPORTER, :string
     mandatory :DYNAMO_REGISTRATIONS_TABLE, :string
+    mandatory :REGISTRATION_HISTORY_DYNAMO_TABLE, :string
   end
 end
