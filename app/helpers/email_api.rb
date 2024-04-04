@@ -6,7 +6,7 @@ require_relative 'mocks'
 require_relative 'wca_api'
 
 def registration_email_path
-  "https://#{EnvConfig.WCA_HOST}/api/internal/v1/mailer/registration"
+  "https://#{EnvConfig.WCA_HOST}/api/internal/v1/mailers/registration"
 end
 
 class EmailApi < WcaApi
