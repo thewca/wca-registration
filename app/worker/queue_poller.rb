@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+require 'zeitwerk'
+loader = Zeitwerk::Loader.new
+loader.push_dir("#{__dir__}/../../lib")
+loader.push_dir("#{__dir__}/../helpers")
+loader.push_dir("#{__dir__}/../models")
+loader.setup
+
 require 'json'
 require 'aws-sdk-sqs'
 require 'prometheus_exporter/client'

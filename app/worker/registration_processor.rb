@@ -3,12 +3,6 @@
 require 'aws-sdk-dynamodb'
 require 'dynamoid'
 require 'httparty'
-require_relative '../helpers/wca_api'
-require_relative '../helpers/lane_factory'
-require_relative '../../lib/lane'
-require_relative '../../lib/history'
-require_relative '../../lib/redis_helper'
-require_relative 'env_config'
 
 class RegistrationProcessor
   def initialize
@@ -21,9 +15,6 @@ class RegistrationProcessor
         config.credentials = Aws::ECSCredentials.new(retries: 3)
       end
     end
-    # We have to require the models after we initialized dynamoid
-    require_relative '../models/registration_history'
-    require_relative '../models/registration'
   end
 
   def process_message(message)
