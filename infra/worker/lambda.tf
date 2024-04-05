@@ -9,6 +9,7 @@ resource "aws_lambda_function" "registration_status_lambda" {
     variables = {
       QUEUE_URL = var.shared_resources.queue.url
       DYNAMO_REGISTRATIONS_TABLE = var.shared_resources.dynamo_registration_table.name
+      REGISTRATION_HISTORY_DYNAMO_TABLE = var.shared_resources.dynamo_registration_history_table.name
     }
   }
 }

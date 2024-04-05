@@ -9,6 +9,7 @@ resource "aws_lambda_function" "registration_status_lambda" {
     variables = {
       QUEUE_URL = aws_sqs_queue.this.url
       DYNAMO_REGISTRATIONS_TABLE = aws_dynamodb_table.registrations.name
+      REGISTRATION_HISTORY_DYNAMO_TABLE = aws_dynamodb_table.registration_history.name
     }
   }
 }
