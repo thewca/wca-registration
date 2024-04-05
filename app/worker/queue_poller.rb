@@ -50,7 +50,7 @@ class QueuePoller
           # log it, and skip delete so it can be re-processed later
           puts "Error #{e} when processing message with ID #{msg}"
           error_counter.increment
-          throw :skip_delete
+          # throw :skip_delete
         end
       end
     end
