@@ -58,7 +58,7 @@ class RegistrationProcessor
         registration.update_attributes(lanes: registration.lanes.append(competing_lane), guests: guests)
       end
       registration.history.add_entry({ event_ids: event_ids, comment: comment, guests: guests, status: 'pending' }, user_id, 'Worker processed')
-      if EnvConfig.CODE_ENVIRONMENT == 'production'
+      if EnvConfig.CODE_ENVIRONMENT == 'staging' || EnvConfig.CODE_ENVIRONMENT == 'production'
         EmailApi.send_creation_email(competition_id, user_id)
       end
     end
