@@ -40,12 +40,12 @@ export default function Processing({ onProcessingComplete }) {
       <Modal.Content>
         {pollCounter > 3 && (
           <Message warning>
-            {t('competitions.registration_v2.register.processingLonger')}
+            {t('competitions.registration_v2.register.processing_longer')}
           </Message>
         )}
         {data && data.queueCount > 500 && (
           <Message warning>
-            {t('competitions.registration_v2.register.processingQueue', {
+            {t('competitions.registration_v2.register.processing_queue', {
               queueCount: data.queueCount,
             })}
           </Message>

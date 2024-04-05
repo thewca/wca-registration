@@ -318,7 +318,7 @@ export default function CompetingStep({ nextStep }) {
                     'competitions.registration_v2.register.registration_status.header',
                   )}
                   {t(
-                    `enums.competition_medium.status.${registration.competing.registration_status}`,
+                    `simple_form.options.registration.status.${registration.competing.registration_status}`,
                   )}
                 </Message.Header>
                 {canUpdateRegistration
