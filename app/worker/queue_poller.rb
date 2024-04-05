@@ -12,8 +12,8 @@ require 'aws-sdk-sqs'
 require 'prometheus_exporter/client'
 require 'prometheus_exporter/instrumentation'
 require 'prometheus_exporter/metric'
-require_relative 'registration_processor'
 require_relative 'env_config'
+require_relative 'registration_processor'
 
 class QueuePoller
   # Wait for 1 second so we can start work on 10 messages at at time
