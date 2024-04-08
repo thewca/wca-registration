@@ -20,6 +20,7 @@ class QueuePoller
   # These numbers can be tweaked after load testing
   WAIT_TIME = 1
   MAX_MESSAGES = 10
+  MAX_RETRY = 5
 
   def self.perform
     PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV.fetch('PROMETHEUS_EXPORTER'), port: 9091)
@@ -50,7 +51,8 @@ class QueuePoller
           # log it, and skip delete so it can be re-processed later
           puts "Error #{e} when processing message with ID #{msg}"
           error_counter.increment
-          # throw :skip_delete
+
+          throw :skip_delete
         end
       end
     end
