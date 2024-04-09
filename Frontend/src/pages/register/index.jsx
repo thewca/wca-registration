@@ -13,7 +13,11 @@ import { CompetitionContext } from '../../api/helper/context/competition_context
 import { PermissionsContext } from '../../api/helper/context/permission_context'
 import { RegistrationContext } from '../../api/helper/context/registration_context'
 import { UserContext } from '../../api/helper/context/user_context'
-import { getMediumDateString, hasPassed } from '../../lib/dates'
+import {
+  getFullDateTimeString,
+  getMediumDateString,
+  hasPassed,
+} from '../../lib/dates'
 import { displayMoneyISO4217 } from '../../lib/money'
 import { RegistrationPermissionMessage } from '../../ui/messages/permissionMessage'
 import { ClosedCompetitionMessage } from '../../ui/messages/registrationMessage'
@@ -32,10 +36,6 @@ export default function Register() {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAttendCompetition } = useContext(PermissionsContext)
-  const { isRegistered } = useContext(RegistrationContext)
-
-  // Show Registration Panel instead of Info if already registered
-  const [showRegisterSteps, setShowRegisterSteps] = useState(isRegistered)
 
   const { t } = useTranslation()
 
@@ -124,9 +124,11 @@ export default function Register() {
                     <List.Icon name="pencil" />
                     <List.Content>
                       <List.Header>
-                        {getMediumDateString(competitionInfo.registration_open)}
+                        {getFullDateTimeString(
+                          competitionInfo.registration_open,
+                        )}
                         {' until '}
-                        {getMediumDateString(
+                        {getFullDateTimeString(
                           competitionInfo.registration_close,
                         )}
                       </List.Header>
@@ -140,18 +142,10 @@ export default function Register() {
                           <List.Icon name="sync" />
                           <List.Content>
                             <List.Header>
-                              {competitionInfo.refund_policy_percent}
-                              {'% before '}
-                              {getMediumDateString(
-                                competitionInfo.refund_policy_limit_date ??
-                                  competitionInfo.start_date,
-                              )}
-                            </List.Header>
-                            <List.Description>
                               {t(
                                 'competitions.competition_info.refund_policy_html',
                                 {
-                                  limit_date_and_time: getMediumDateString(
+                                  limit_date_and_time: getFullDateTimeString(
                                     competitionInfo.refund_policy_limit_date ??
                                       competitionInfo.start_date,
                                   ),
@@ -159,14 +153,14 @@ export default function Register() {
                                     competitionInfo.refund_policy_percent + '%',
                                 },
                               )}
-                            </List.Description>
+                            </List.Header>
                           </List.Content>
                         </List.Item>
                         <List.Item>
                           <List.Icon name="save" />
                           <List.Content>
                             <List.Header>
-                              {getMediumDateString(
+                              {getFullDateTimeString(
                                 competitionInfo.event_change_deadline_date ??
                                   competitionInfo.end_date,
                               )}
@@ -182,7 +176,7 @@ export default function Register() {
                           <List.Icon name="hourglass half" />
                           <List.Content>
                             <List.Header>
-                              {getMediumDateString(
+                              {getFullDateTimeString(
                                 competitionInfo.waiting_list_deadline_date ??
                                   competitionInfo.start_date,
                               )}
@@ -198,58 +192,29 @@ export default function Register() {
                     </List.Content>
                   </List.Item>
                 </List>
-
-                <Transition
-                  visible={!showRegisterSteps}
-                  duration={500}
-                  animation="scale"
-                  unmountOnHide
-                >
-                  <Button
-                    primary
-                    size="huge"
-                    fluid
-                    disabled={
-                      !competitionInfo['registration_opened?'] &&
-                      !competitionInfo.organizers
-                        .concat(competitionInfo.delegates)
-                        .find((u) => u.id === user?.id)
-                    }
-                    onClick={(_, data) => {
-                      if (!data.disabled) {
-                        if (competitionInfo.use_wca_registration) {
-                          setShowRegisterSteps(true)
-                        } else {
-                          window.location =
-                            competitionInfo.external_registration_page
-                        }
-                      }
-                    }}
-                  >
-                    {t('registrations.new_registration.title', {
-                      comp: competitionInfo.name,
-                    })}
-                  </Button>
-                </Transition>
               </Segment>
-
-              <Transition
-                visible={showRegisterSteps}
-                duration={500}
-                animation="scale"
-              >
+              {competitionInfo.use_wca_registration ? (
                 <Segment padded basic>
-                  <Button
-                    floated="right"
-                    icon
-                    basic
-                    onClick={() => setShowRegisterSteps(false)}
-                  >
-                    <Icon name="close" />
-                  </Button>
                   <StepPanel />
                 </Segment>
-              </Transition>
+              ) : (
+                <Button
+                  primary
+                  size="huge"
+                  fluid
+                  disabled={!competitionInfo['registration_opened?']}
+                  onClick={(_, data) => {
+                    if (!data.disabled) {
+                      window.location =
+                        competitionInfo.external_registration_page
+                    }
+                  }}
+                >
+                  {t('registrations.new_registration.title', {
+                    comp: competitionInfo.name,
+                  })}
+                </Button>
+              )}
             </>
           ) : (
             <RegistrationPermissionMessage
