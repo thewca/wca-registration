@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { CubingIcon, UiIcon } from '@thewca/wca-components'
+import { CubingIcon } from '@thewca/wca-components'
 import { marked } from 'marked'
 import React, { Fragment, useContext, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -91,7 +91,7 @@ export default function Competition({ children }) {
             <List divided relaxed size="huge">
               <List.Item>
                 <List.Content>
-                  <b>Date</b>{' '}
+                  <b>{t('competitions.competition_info.date')}</b>{' '}
                   {competitionInfo.start_date === competitionInfo.end_date
                     ? getMediumDateString(competitionInfo.start_date)
                     : `${getMediumDateString(
@@ -108,13 +108,16 @@ export default function Competition({ children }) {
               </List.Item>
               <List.Item>
                 <List.Content>
-                  <b>City</b> {competitionInfo.city}
+                  <b>{t('competitions.competition_info.city')}</b>{' '}
+                  {competitionInfo.city}
                   <Flag name={competitionInfo.country_iso2.toLowerCase()} />
                 </List.Content>
               </List.Item>
               <List.Item>
                 <List.Content>
-                  <List.Header>Venue</List.Header>
+                  <List.Header>
+                    {t('competitions.competition_info.venue')}
+                  </List.Header>
                   <List.Item>
                     <List.Content>
                       <span
@@ -142,7 +145,7 @@ export default function Competition({ children }) {
               <List.Item>
                 <List.Content>
                   <List.Header>
-                    Contact
+                    {t('competitions.competition_info.contact')}
                     {competitionInfo.contact ? (
                       <span
                         dangerouslySetInnerHTML={{
