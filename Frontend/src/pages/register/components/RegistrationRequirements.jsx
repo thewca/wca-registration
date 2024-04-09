@@ -64,11 +64,7 @@ export default function RegistrationRequirements({ nextStep }) {
         {competitionInfo.extra_registration_requirements && (
           <>
             <Accordion as={Form.Field} styled fluid>
-              <Accordion.Title
-                active={showRegRequirements}
-                index={0}
-                onClick={handleAccordionClick}
-              >
+              <Accordion.Title active index={0} onClick={handleAccordionClick}>
                 <UiIcon name="dropdown" />
                 {t(
                   'competitions.competition_form.labels.registration.extra_requirements',
