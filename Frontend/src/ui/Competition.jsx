@@ -230,6 +230,10 @@ export default function Competition({ children }) {
                   </List.List>
                 </List.Content>
               </List.Item>
+              <List.Item>
+                <b>{t('competitions.competition_info.competitor_limit')}</b>{' '}
+                {competitionInfo.competitor_limit}
+              </List.Item>
             </List>
           </Segment>
           {children}
