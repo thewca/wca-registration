@@ -129,17 +129,21 @@ export default function Register() {
                           <List.Icon name="sync" />
                           <List.Content>
                             <List.Header>
-                              {t(
-                                'competitions.competition_info.refund_policy_html',
-                                {
-                                  limit_date_and_time: getFullDateTimeString(
-                                    competitionInfo.refund_policy_limit_date ??
-                                      competitionInfo.start_date,
-                                  ),
-                                  refund_policy_percent:
-                                    competitionInfo.refund_policy_percent + '%',
-                                },
-                              )}
+                              {competitionInfo.refund_policy_percent !== 0
+                                ? t(
+                                    'competitions.competition_info.refund_policy_html',
+                                    {
+                                      limit_date_and_time:
+                                        getFullDateTimeString(
+                                          competitionInfo.refund_policy_limit_date ??
+                                            competitionInfo.start_date,
+                                        ),
+                                      refund_policy_percent:
+                                        competitionInfo.refund_policy_percent +
+                                        '%',
+                                    },
+                                  )
+                                : t('competitions.competition_info.no_refunds')}
                             </List.Header>
                           </List.Content>
                         </List.Item>
