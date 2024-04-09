@@ -20,7 +20,6 @@ import {
 import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
 import { getMediumDateString } from '../lib/dates'
 import AddToCalendar from '../pages/schedule/AddToCalendar'
-import logo from '../static/wca2020.svg'
 import { setMessage } from './events/messages'
 import LoadingMessage from './messages/loadingMessage'
 
@@ -55,7 +54,7 @@ export default function Competition({ children }) {
     if (competitionInfo) {
       const div = document.createElement('DIV')
       div.innerHTML = marked(competitionInfo.information)
-      return div.querySelector('img')?.src ?? logo
+      return div.querySelector('img')?.src
     }
     return ''
   }, [competitionInfo])
@@ -68,25 +67,21 @@ export default function Competition({ children }) {
         <LoadingMessage />
       ) : (
         <>
-          <Header as="h1" textAlign="center" attached="top">
-            <Image
-              src={src}
-              className="competition-info-logo"
-              centered
-              floated="right"
-            />
+          <Header as="h1" attached="top">
+            {src && (
+              <Image
+                src={src}
+                className="competition-info-logo"
+                centered
+                floated="right"
+              />
+            )}
             {competitionInfo.name}
             <Header.Subheader>
               <List horizontal>
                 {competitionInfo.event_ids.map((event) => (
                   <List.Item key={event}>
-                    <CubingIcon
-                      event={event}
-                      size={
-                        event === competitionInfo.main_event_id ? '2x' : '1x'
-                      }
-                      selected
-                    />
+                    <CubingIcon event={event} size="1x" selected />
                   </List.Item>
                 ))}
               </List>
@@ -95,7 +90,13 @@ export default function Competition({ children }) {
           <Segment attached>
             <List divided relaxed size="huge">
               <List.Item>
-                <List.Content floated="right">
+                <List.Content>
+                  <b>Date</b>{' '}
+                  {competitionInfo.start_date === competitionInfo.end_date
+                    ? getMediumDateString(competitionInfo.start_date)
+                    : `${getMediumDateString(
+                        competitionInfo.start_date,
+                      )} to ${getMediumDateString(competitionInfo.end_date)}`}{' '}
                   <AddToCalendar
                     startDate={competitionInfo.start_date}
                     endDate={competitionInfo.end_date}
@@ -104,62 +105,44 @@ export default function Competition({ children }) {
                     allDay
                   />
                 </List.Content>
-                <List.Icon name="calendar alternate" />
-                <List.Content>
-                  {competitionInfo.start_date === competitionInfo.end_date
-                    ? getMediumDateString(competitionInfo.start_date)
-                    : `${getMediumDateString(
-                        competitionInfo.start_date,
-                      )} to ${getMediumDateString(competitionInfo.end_date)}`}
-                </List.Content>
               </List.Item>
               <List.Item>
-                <List.Icon name="globe" />
                 <List.Content>
-                  {competitionInfo.city}
+                  <b>City</b> {competitionInfo.city}
                   <Flag name={competitionInfo.country_iso2.toLowerCase()} />
                 </List.Content>
               </List.Item>
               <List.Item>
-                <List.Icon name="home" />
                 <List.Content>
-                  <List.Header>
-                    <p
-                      dangerouslySetInnerHTML={{
-                        __html: marked(competitionInfo.venue),
-                      }}
-                    />
-                  </List.Header>
-                  <List.List>
-                    <List.Item>
-                      <List.Content floated="right">
-                        <a
-                          href={`https://google.com/maps/place/${competitionInfo.latitude_degrees},${competitionInfo.longitude_degrees}`}
-                          target="_blank"
-                        >
-                          <UiIcon name="google" />
-                        </a>
-                      </List.Content>
-                      <List.Icon name="map" />
-                      <List.Content>
+                  <List.Header>Venue</List.Header>
+                  <List.Item>
+                    <List.Content>
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: marked(competitionInfo.venue),
+                        }}
+                      />
+                      <a
+                        href={`https://google.com/maps/place/${competitionInfo.latitude_degrees},${competitionInfo.longitude_degrees}`}
+                        target="_blank"
+                      >
                         {competitionInfo.venue_address}
+                      </a>
+                    </List.Content>
+                  </List.Item>
+                  {competitionInfo.venue_details && (
+                    <List.Item>
+                      <List.Content>
+                        {competitionInfo.venue_details}
                       </List.Content>
                     </List.Item>
-                    {competitionInfo.venue_details && (
-                      <List.Item>
-                        <List.Icon name="map signs" />
-                        <List.Content>
-                          {competitionInfo.venue_details}
-                        </List.Content>
-                      </List.Item>
-                    )}
-                  </List.List>
+                  )}
                 </List.Content>
               </List.Item>
               <List.Item>
-                <List.Icon name="mail" />
                 <List.Content>
                   <List.Header>
+                    Contact
                     {competitionInfo.contact ? (
                       <span
                         dangerouslySetInnerHTML={{
@@ -174,7 +157,6 @@ export default function Competition({ children }) {
                   </List.Header>
                   <List.List>
                     <List.Item>
-                      <List.Icon name="user circle" />
                       <List.Content>
                         <List.Header>
                           {t(
@@ -189,7 +171,6 @@ export default function Competition({ children }) {
                       </List.Content>
                     </List.Item>
                     <List.Item>
-                      <List.Icon name="user secret" />
                       <List.Content>
                         <List.Header>
                           {t(

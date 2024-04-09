@@ -1,6 +1,6 @@
-import { UiIcon } from '@thewca/wca-components'
 import { DateTime } from 'luxon'
 import React from 'react'
+import { List } from 'semantic-ui-react'
 
 export default function AddToCalendar({
   startDate,
@@ -24,7 +24,7 @@ export default function AddToCalendar({
 
   return (
     <a href={googleCalendarLink} target="_blank">
-      <UiIcon name="calendar plus" />
+      <List.Icon name="calendar plus" link />
     </a>
   )
 }
