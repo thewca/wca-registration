@@ -145,7 +145,7 @@ export default function Competition({ children }) {
               <List.Item>
                 <List.Content>
                   <List.Header>
-                    {t('competitions.competition_info.contact')}
+                    {t('competitions.competition_info.contact')}{' '}
                     {competitionInfo.contact ? (
                       <span
                         dangerouslySetInnerHTML={{
@@ -246,9 +246,9 @@ export default function Competition({ children }) {
                     {t('competitions.competition_info.bookmark')}
                   </List.Header>
                   <List.Description>
-                    {t('competitions.competition_info.number_of_bookmarks', {
-                      number_of_bookmarks: competitionInfo.number_of_bookmarks,
-                    })}
+                    {t('competitions.competition_info.number_of_bookmarks')}
+                    {': '}
+                    {competitionInfo.number_of_bookmarks}
                   </List.Description>
                 </List.Content>
               </List.Item>

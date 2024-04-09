@@ -10,6 +10,8 @@ import {
   Dropdown,
   Form,
   Icon,
+  Input,
+  Label,
   Message,
   Popup,
   Segment,
@@ -225,7 +227,7 @@ export default function CompetingStep({ nextStep }) {
       )}
 
       <>
-        {registration?.competing?.registration_status && (
+        {isRegistered && (
           <Message info>You have registered for {competitionInfo.name}</Message>
         )}
         {!competitionInfo['registration_opened?'] && (
@@ -272,23 +274,16 @@ export default function CompetingStep({ nextStep }) {
             </p>
           </Form.Field>
           <Form.Field>
-            <label htmlFor="guest-dropdown">Guests</label>
-            <Dropdown
+            <Input
               id="guest-dropdown"
+              type="number"
               value={guests}
-              onChange={(_, data) => setGuests(data.value)}
-              selection
-              options={[
-                ...new Array(
-                  (competitionInfo.guests_per_registration_limit ?? 99) + 1, // Arrays start at 0
-                ),
-              ].map((_, index) => {
-                return {
-                  key: `registration-guest-dropdown-${index}`,
-                  text: index,
-                  value: index,
-                }
-              })}
+              onChange={(_, data) => {
+                setGuests(Number.parseInt(data.value, 10))
+              }}
+              min="0"
+              label={<Label>Guests</Label>}
+              max={competitionInfo.guests_per_registration_limit ?? 10}
             />
           </Form.Field>
         </Form>
@@ -335,7 +330,7 @@ export default function CompetingStep({ nextStep }) {
               {shouldShowUpdateButton && (
                 <Button
                   primary
-                  disabled={isUpdating || !canUpdateRegistration}
+                  disabled={isUpdating || !canUpdateRegistration || !hasChanges}
                   onClick={() =>
                     attemptAction(actionUpdateRegistration, {
                       checkForChanges: true,
