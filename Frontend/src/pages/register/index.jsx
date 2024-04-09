@@ -1,23 +1,10 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  Button,
-  Icon,
-  Label,
-  List,
-  Message,
-  Segment,
-  Transition,
-} from 'semantic-ui-react'
+import { Button, Label, List, Message, Segment } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
-import { RegistrationContext } from '../../api/helper/context/registration_context'
 import { UserContext } from '../../api/helper/context/user_context'
-import {
-  getFullDateTimeString,
-  getMediumDateString,
-  hasPassed,
-} from '../../lib/dates'
+import { getFullDateTimeString, hasPassed } from '../../lib/dates'
 import { displayMoneyISO4217 } from '../../lib/money'
 import { RegistrationPermissionMessage } from '../../ui/messages/permissionMessage'
 import { ClosedCompetitionMessage } from '../../ui/messages/registrationMessage'
