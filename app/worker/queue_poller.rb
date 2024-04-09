@@ -1,18 +1,26 @@
 # frozen_string_literal: true
 
+require 'zeitwerk'
+loader = Zeitwerk::Loader.new
+loader.push_dir("#{__dir__}/../../lib")
+loader.push_dir("#{__dir__}/../helpers")
+loader.push_dir("#{__dir__}/../models")
+loader.setup
+
 require 'json'
 require 'aws-sdk-sqs'
 require 'prometheus_exporter/client'
 require 'prometheus_exporter/instrumentation'
 require 'prometheus_exporter/metric'
-require_relative 'registration_processor'
 require_relative 'env_config'
+require_relative 'registration_processor'
 
 class QueuePoller
   # Wait for 1 second so we can start work on 10 messages at at time
   # These numbers can be tweaked after load testing
   WAIT_TIME = 1
   MAX_MESSAGES = 10
+  MAX_RETRY = 5
 
   def self.perform
     PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV.fetch('PROMETHEUS_EXPORTER'), port: 9091)
@@ -43,6 +51,7 @@ class QueuePoller
           # log it, and skip delete so it can be re-processed later
           puts "Error #{e} when processing message with ID #{msg}"
           error_counter.increment
+
           throw :skip_delete
         end
       end

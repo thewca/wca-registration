@@ -68,7 +68,7 @@ export default function RegistrationEditor() {
       getUsersInfo([
         ...new Set([
           userId,
-          ...serverRegistration.history.map((e) => e.acting_user_id),
+          ...serverRegistration.history.map((e) => e.actor_user_id),
         ]),
       ]),
     enabled: Boolean(serverRegistration),
@@ -321,7 +321,7 @@ export default function RegistrationEditor() {
             >
               Registration History
             </Accordion.Title>
-            <Accordion.Content>
+            <Accordion.Content active={isHistoryCollapsed}>
               <Table>
                 <Table.Header>
                   <Table.Row>

@@ -14,13 +14,13 @@ class RegistrationController < ApplicationController
   # before_actions are triggered in the order they are defined
   before_action :validate_create_request, only: [:create]
   before_action :validate_show_registration, only: [:show]
-  before_action :ensure_lane_exists, only: [:create]
   before_action :validate_list_admin, only: [:list_admin]
   before_action :validate_update_request, only: [:update]
   before_action :validate_bulk_update_request, only: [:bulk_update]
   before_action :validate_payment_ticket_request, only: [:payment_ticket]
 
   def create
+    queue_url = ENV['QUEUE_URL'] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     event_ids = params.dig('competing', 'event_ids')
     comment = params['competing'][:comment] || ''
     guests = params['competing'][:guests] || 0
@@ -41,7 +41,7 @@ class RegistrationController < ApplicationController
     }
 
     $sqs.send_message({
-                        queue_url: @queue_url,
+                        queue_url: queue_url,
                         message_body: step_data.to_json,
                         message_group_id: id,
                         message_deduplication_id: id,
@@ -56,33 +56,6 @@ class RegistrationController < ApplicationController
     RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find(@competition_id), @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
-  end
-
-  # We don't know which lane the user is going to complete first, this ensures that an entry in the DB exists
-  # regardless of which lane the uses chooses to start with
-  def ensure_lane_exists
-    @queue_url = ENV['QUEUE_URL'] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
-    # TODO: Cache this call? We could keep a list of already created keys
-    lane_created = begin
-      Registration.find("#{@competition_id}-#{@user_id}")
-      true
-    rescue Dynamoid::Errors::RecordNotFound
-      false
-    end
-    unless lane_created
-      step_data = {
-        user_id: @user_id,
-        competition_id: @competition_id,
-        step: 'Lane Init',
-      }
-      id = SecureRandom.uuid
-      $sqs.send_message({
-                          queue_url: @queue_url,
-                          message_body: step_data.to_json,
-                          message_group_id: id,
-                          message_deduplication_id: id,
-                        })
-    end
   end
 
   def update

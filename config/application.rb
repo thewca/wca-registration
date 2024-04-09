@@ -16,6 +16,7 @@ module WcaRegistration
     config.load_defaults 7.0
 
     config.autoload_paths += Dir["#{config.root}/lib"]
+    Rails.autoloaders.main.ignore("#{config.root}/app/worker")
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
