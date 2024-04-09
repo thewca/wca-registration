@@ -6,6 +6,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import {
   Button,
   ButtonGroup,
+  ButtonOr,
   Divider,
   Form,
   Icon,
@@ -245,13 +246,13 @@ export default function CompetingStep({ nextStep }) {
               size="2x"
               id="event-selection"
             />
-            <p>
-              <Trans
-                i18nKey="registrations.preferred_events_prompt_html"
-                values={{ link: '' }}
-              />
-              <a href={userPreferencesRoute}>here</a>
-            </p>
+            <p
+              dangerouslySetInnerHTML={{
+                __html: t('registrations.preferred_events_prompt_html', {
+                  link: `<a href="${userPreferencesRoute}">here</a>`,
+                }),
+              }}
+            />
           </Form.Field>
           <Form.Field required={competitionInfo.force_comment_in_registration}>
             <label htmlFor="comment">
@@ -286,8 +287,6 @@ export default function CompetingStep({ nextStep }) {
             />
           </Form.Field>
         </Form>
-
-        <Divider />
 
         {isRegistered ? (
           <>
@@ -325,19 +324,24 @@ export default function CompetingStep({ nextStep }) {
               </Message.Content>
             </Message>
 
-            <ButtonGroup className="stackable">
+            <ButtonGroup widths={2}>
               {shouldShowUpdateButton && (
-                <Button
-                  primary
-                  disabled={isUpdating || !canUpdateRegistration || !hasChanges}
-                  onClick={() =>
-                    attemptAction(actionUpdateRegistration, {
-                      checkForChanges: true,
-                    })
-                  }
-                >
-                  {t('registrations.update')}
-                </Button>
+                <>
+                  <Button
+                    primary
+                    disabled={
+                      isUpdating || !canUpdateRegistration || !hasChanges
+                    }
+                    onClick={() =>
+                      attemptAction(actionUpdateRegistration, {
+                        checkForChanges: true,
+                      })
+                    }
+                  >
+                    {t('registrations.update')}
+                  </Button>
+                  <ButtonOr />
+                </>
               )}
 
               {shouldShowReRegisterButton && (
