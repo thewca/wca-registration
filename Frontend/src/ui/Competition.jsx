@@ -4,7 +4,15 @@ import { marked } from 'marked'
 import React, { Fragment, useContext, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import { Flag, Header, Image, List, Segment } from 'semantic-ui-react'
+import {
+  Flag,
+  Header,
+  Icon,
+  Image,
+  List,
+  Popup,
+  Segment,
+} from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import {
   bookmarkCompetition,
@@ -76,7 +84,39 @@ export default function Competition({ children }) {
                 floated="right"
               />
             )}
-            {competitionInfo.name}
+            <span>
+              <Popup
+                trigger={
+                  <Icon
+                    size="small"
+                    link
+                    onClick={async () => {
+                      if (competitionIsBookmarked) {
+                        await unbookmarkCompetition(competitionInfo.id)
+                        await refetch()
+                        setMessage(
+                          t('competitions.registration_v2.bookmark.unbookmark'),
+                          'basic',
+                        )
+                      } else {
+                        await bookmarkCompetition(competitionInfo.id)
+                        await refetch()
+                        setMessage(
+                          t('competitions.competition_info.is_bookmarked'),
+                          'positive',
+                        )
+                      }
+                    }}
+                    name={bookmarkLoading ? 'spinner' : 'bookmark'}
+                    color={competitionIsBookmarked ? 'black' : 'grey'}
+                  />
+                }
+              >
+                {t('competitions.competition_info.bookmark')}
+              </Popup>
+
+              {competitionInfo.name}
+            </span>
             <Header.Subheader>
               <List horizontal>
                 {competitionInfo.event_ids.map((event) => (
@@ -219,37 +259,12 @@ export default function Competition({ children }) {
                 </List.Content>
               </List.Item>
               <List.Item>
-                <List.Icon
-                  link
-                  onClick={async () => {
-                    if (competitionIsBookmarked) {
-                      await unbookmarkCompetition(competitionInfo.id)
-                      await refetch()
-                      setMessage(
-                        t('competitions.registration_v2.bookmark.unbookmark'),
-                        'basic',
-                      )
-                    } else {
-                      await bookmarkCompetition(competitionInfo.id)
-                      await refetch()
-                      setMessage(
-                        t('competitions.competition_info.is_bookmarked'),
-                        'positive',
-                      )
-                    }
-                  }}
-                  name={bookmarkLoading ? 'spinner' : 'bookmark'}
-                  color={competitionIsBookmarked ? 'black' : 'grey'}
-                />
                 <List.Content>
                   <List.Header>
-                    {t('competitions.competition_info.bookmark')}
-                  </List.Header>
-                  <List.Description>
                     {t('competitions.competition_info.number_of_bookmarks')}
                     {': '}
                     {competitionInfo.number_of_bookmarks}
-                  </List.Description>
+                  </List.Header>
                 </List.Content>
               </List.Item>
             </List>
