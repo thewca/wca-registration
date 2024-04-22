@@ -12,15 +12,13 @@ def comp_api_url(competition_id)
 end
 
 class CompetitionApi < WcaApi
-  def self.find(competition_id, child = nil)
-    url_suffix = child.present? ? "#{competition_id}/#{child}" : competition_id
-    competition_json = fetch_competition_data(url_suffix)
-
-    if child.present?
-      competition_json
-    else
-      CompetitionInfo.new(competition_json)
-    end
+  def self.find(competition_id)
+    competition_json = if Rails.env.development?
+                         Mocks.mock_competition(competition_id)
+                       else
+                         fetch_competition(competition_id)
+                       end
+    CompetitionInfo.new(competition_json)
   rescue RegistrationError
     # Try fetch the mock if fetch_competition_data yields an error and we're not in prod
     if Rails.env.production?
@@ -30,22 +28,13 @@ class CompetitionApi < WcaApi
     end
   end
 
-  def self.find!(competition_id, child = nil)
-    url_suffix = child.present? ? "#{competition_id}/#{child}" : competition_id
-    competition_json = fetch_competition_data(url_suffix)
-
-    if child.present?
-      competition_json
-    else
-      CompetitionInfo.new(competition_json)
-    end
-  rescue RegistrationError => e
-    # Try fetch the mock if fetch_competition_data yields an error and we're not in prod
-    unless Rails.env.production?
-      mock_result = Mocks.mock_competition(url_suffix)
-      return mock_result unless mock_result.nil?
-    end
-    raise RegistrationError.new(e.http_status, e.error)
+  def self.find!(competition_id)
+    competition_json = if Rails.env.development?
+                         Mocks.mock_competition(competition_id)
+                       else
+                         fetch_competition(competition_id)
+                       end
+    CompetitionInfo.new(competition_json)
   end
 
   # This is how you make a private class method
@@ -124,7 +113,7 @@ class CompetitionInfo
   end
 
   def is_organizer_or_delegate?(user_id)
-    (@competition_json['delegates'] + @competition_json['organizers']).any? { |p| p['id'].to_s == user_id }
+    (@competition_json['delegates'] + @competition_json['organizers']).any? { |p| p['id'] == user_id }
   end
 
   def name

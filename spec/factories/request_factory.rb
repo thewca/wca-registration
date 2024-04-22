@@ -10,7 +10,7 @@ FactoryBot.define do
       raw_comment { nil }
     end
 
-    user_id { '158817' }
+    user_id { 158817 }
     submitted_by { user_id }
     competition_id { 'CubingZANationalChampionship2023' }
     competing { { 'event_ids' => events, 'lane_state' => 'pending' } }
@@ -23,24 +23,24 @@ FactoryBot.define do
     end
 
     trait :organizer do
-      user_id { '1306' }
+      user_id { 1306 }
       jwt_token { fetch_jwt_token(user_id) }
     end
 
     trait :organizer_submits do
-      submitted_by { '1306' }
+      submitted_by { 1306 }
     end
 
     trait :impersonation do
-      submitted_by { '158810' }
+      submitted_by { 158810 }
     end
 
     trait :banned do
-      user_id { '209943' }
+      user_id { 209943 }
     end
 
     trait :incomplete do
-      user_id { '999999' }
+      user_id { 999999 }
     end
 
     initialize_with { attributes.stringify_keys }
@@ -49,7 +49,7 @@ end
 
 FactoryBot.define do
   factory :update_request, class: Hash do
-    user_id { '158817' }
+    user_id { 158817 }
     submitted_by { user_id }
     jwt_token { fetch_jwt_token(submitted_by) }
     competition_id { 'CubingZANationalChampionship2023' }
@@ -60,15 +60,15 @@ FactoryBot.define do
     end
 
     trait :organizer_as_user do
-      user_id { '1306' }
+      user_id { 1306 }
     end
 
     trait :organizer_for_user do
-      submitted_by { '1306' }
+      submitted_by { 1306 }
     end
 
     trait :for_another_user do
-      submitted_by { '158818' }
+      submitted_by { 158818 }
     end
 
     # initialize_with { attributes }
@@ -87,7 +87,7 @@ FactoryBot.define do
       user_ids { [] }
     end
 
-    submitted_by { '1306' }
+    submitted_by { 1306 }
     jwt_token { fetch_jwt_token(submitted_by) }
     requests do
       user_ids.map do |user_id|

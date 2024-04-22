@@ -15,7 +15,7 @@ import {
 } from './fixtures/competitions/series_competitions'
 
 export default async function getCompetitionInfoMockWithRealFallback(
-  competitionId: string
+  competitionId: string,
 ): Promise<CompetitionInfo> {
   switch (competitionId) {
     case 'KoelnerKubing2023': {

@@ -1,3 +1,4 @@
+import './overrides.css'
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 import { Container } from 'semantic-ui-react'
@@ -18,6 +19,7 @@ import PageTabs from './ui/PageTabs'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import RegistrationProvider from './ui/providers/RegistrationProvider'
 import UserProvider from './ui/providers/UserProvider'
+import ScrollToTopButton from './ui/ScrollToTopButton'
 
 export const BASE_ROUTE = '/competitions/v2'
 
@@ -36,13 +38,13 @@ const routes = [
       {
         path: ':competition_id',
         element: (
-          <Container>
+          <Container fluid={true} className="registration-container">
             <Competition>
               <PermissionsProvider>
                 <RegistrationProvider>
                   <PageTabs />
                   <Outlet />
-                  <PageTabs />
+                  <ScrollToTopButton />
                 </RegistrationProvider>
               </PermissionsProvider>
             </Competition>

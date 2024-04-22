@@ -1,18 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { CubingIcon, UiIcon } from '@thewca/wca-components'
-import { DateTime } from 'luxon'
 import { marked } from 'marked'
 import React, { Fragment, useContext, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import {
-  Container,
-  Flag,
-  Header,
-  Image,
-  List,
-  Segment,
-} from 'semantic-ui-react'
+import { Flag, Header, Image, List, Segment } from 'semantic-ui-react'
 import getCompetitionInfo from '../api/competition/get/get_competition_info'
 import {
   bookmarkCompetition,
@@ -26,8 +18,8 @@ import {
   userProfileRoute,
 } from '../api/helper/routes'
 import { getBookmarkedCompetitions } from '../api/user/get/get_bookmarked_competitions'
-import i18n from '../i18n'
-import { getMediumDate } from '../lib/dates'
+import { getMediumDateString } from '../lib/dates'
+import AddToCalendar from '../pages/schedule/AddToCalendar'
 import logo from '../static/wca2020.svg'
 import { setMessage } from './events/messages'
 import LoadingMessage from './messages/loadingMessage'
@@ -37,7 +29,7 @@ export default function Competition({ children }) {
 
   const { user } = useContext(UserContext)
 
-  const { t, ready } = useTranslation('translation', { i18n })
+  const { t } = useTranslation()
 
   const { isLoading, data: competitionInfo } = useQuery({
     queryKey: [competition_id],
@@ -55,7 +47,7 @@ export default function Competition({ children }) {
   })
 
   const competitionIsBookmarked = (bookmarkedCompetitions ?? []).includes(
-    competitionInfo?.id
+    competitionInfo?.id,
   )
 
   // Hack before we have an image Icon field in the DB
@@ -72,159 +64,171 @@ export default function Competition({ children }) {
     <CompetitionContext.Provider
       value={{ competitionInfo: competitionInfo ?? {} }}
     >
-      {isLoading || !ready ? (
+      {isLoading ? (
         <LoadingMessage />
       ) : (
         <>
-          <Container>
-            <Header as="h1" textAlign="center" attached="top">
-              <Image src={src} centered floated="right" />
-              {competitionInfo.name}
-              <Header.Subheader>
-                <List horizontal>
-                  {competitionInfo.event_ids.map((event) => (
-                    <List.Item key={event}>
-                      <CubingIcon
-                        event={event}
-                        size={
-                          event === competitionInfo.main_event_id ? '2x' : '1x'
-                        }
-                        selected
-                      />
+          <Header as="h1" textAlign="center" attached="top">
+            <Image
+              src={src}
+              className="competition-info-logo"
+              centered
+              floated="right"
+            />
+            {competitionInfo.name}
+            <Header.Subheader>
+              <List horizontal>
+                {competitionInfo.event_ids.map((event) => (
+                  <List.Item key={event}>
+                    <CubingIcon
+                      event={event}
+                      size={
+                        event === competitionInfo.main_event_id ? '2x' : '1x'
+                      }
+                      selected
+                    />
+                  </List.Item>
+                ))}
+              </List>
+            </Header.Subheader>
+          </Header>
+          <Segment attached>
+            <List divided relaxed size="huge">
+              <List.Item>
+                <List.Content floated="right">
+                  <AddToCalendar
+                    startDate={competitionInfo.start_date}
+                    endDate={competitionInfo.end_date}
+                    name={competitionInfo.name}
+                    address={competitionInfo.venue_address}
+                    allDay
+                  />
+                </List.Content>
+                <List.Icon name="calendar alternate" />
+                <List.Content>
+                  {competitionInfo.start_date === competitionInfo.end_date
+                    ? getMediumDateString(competitionInfo.start_date)
+                    : `${getMediumDateString(
+                        competitionInfo.start_date,
+                      )} to ${getMediumDateString(competitionInfo.end_date)}`}
+                </List.Content>
+              </List.Item>
+              <List.Item>
+                <List.Icon name="globe" />
+                <List.Content>
+                  {competitionInfo.city}
+                  <Flag name={competitionInfo.country_iso2.toLowerCase()} />
+                </List.Content>
+              </List.Item>
+              <List.Item>
+                <List.Icon name="home" />
+                <List.Content>
+                  <List.Header>
+                    <p
+                      dangerouslySetInnerHTML={{
+                        __html: marked(competitionInfo.venue),
+                      }}
+                    />
+                  </List.Header>
+                  <List.List>
+                    <List.Item>
+                      <List.Content floated="right">
+                        <a
+                          href={`https://google.com/maps/place/${competitionInfo.latitude_degrees},${competitionInfo.longitude_degrees}`}
+                          target="_blank"
+                        >
+                          <UiIcon name="google" />
+                        </a>
+                      </List.Content>
+                      <List.Icon name="map" />
+                      <List.Content>
+                        {competitionInfo.venue_address}
+                      </List.Content>
                     </List.Item>
-                  ))}
-                </List>
-              </Header.Subheader>
-            </Header>
-            <Segment attached>
-              <List divided relaxed size="huge">
-                <List.Item>
-                  <List.Content floated="right">
-                    <a
-                      href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${
-                        competitionInfo.id
-                      }&dates=${DateTime.fromISO(
-                        competitionInfo.start_date
-                      ).toFormat('yyyyMMdd')}/${DateTime.fromISO(
-                        competitionInfo.end_date
-                      ).toFormat('yyyyMMdd')}&location=${
-                        competitionInfo.venue_address
-                      }`}
-                      target="_blank"
-                    >
-                      <UiIcon name="calendar plus" />
-                    </a>
-                  </List.Content>
-                  <List.Icon name="calendar alternate" />
-                  <List.Content>
-                    {competitionInfo.start_date === competitionInfo.end_date
-                      ? getMediumDate(competitionInfo.start_date)
-                      : `${getMediumDate(
-                          competitionInfo.start_date
-                        )} to ${getMediumDate(competitionInfo.end_date)}`}
-                  </List.Content>
-                </List.Item>
-                <List.Item>
-                  <List.Icon name="globe" />
-                  <List.Content>
-                    {competitionInfo.city}
-                    <Flag name={competitionInfo.country_iso2.toLowerCase()} />
-                  </List.Content>
-                </List.Item>
-                <List.Item>
-                  <List.Icon name="home" />
-                  <List.Content>
-                    <List.Header>
-                      <p
+                    {competitionInfo.venue_details && (
+                      <List.Item>
+                        <List.Icon name="map signs" />
+                        <List.Content>
+                          {competitionInfo.venue_details}
+                        </List.Content>
+                      </List.Item>
+                    )}
+                  </List.List>
+                </List.Content>
+              </List.Item>
+              <List.Item>
+                <List.Icon name="mail" />
+                <List.Content>
+                  <List.Header>
+                    {competitionInfo.contact ? (
+                      <span
                         dangerouslySetInnerHTML={{
-                          __html: marked(competitionInfo.venue),
+                          __html: marked(competitionInfo.contact),
                         }}
                       />
-                    </List.Header>
-                    <List.List>
-                      <List.Item>
-                        <List.Content floated="right">
-                          <a
-                            href={`https://google.com/maps/place/${competitionInfo.latitude_degrees},${competitionInfo.longitude_degrees}`}
-                            target="_blank"
-                          >
-                            <UiIcon name="google" />
-                          </a>
-                        </List.Content>
-                        <List.Icon name="map" />
-                        <List.Content>
-                          {competitionInfo.venue_address}
-                        </List.Content>
-                      </List.Item>
-                      {competitionInfo.venue_details && (
-                        <List.Item>
-                          <List.Icon name="map signs" />
-                          <List.Content>
-                            {competitionInfo.venue_details}
-                          </List.Content>
-                        </List.Item>
-                      )}
-                    </List.List>
-                  </List.Content>
-                </List.Item>
-                <List.Item>
-                  <List.Icon name="mail" />
-                  <List.Content>
-                    <List.Header>
-                      {competitionInfo.contact ? (
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: marked(competitionInfo.contact),
-                          }}
-                        />
-                      ) : (
-                        <a
-                          href={competitionContactFormRoute(competitionInfo.id)}
-                        >
-                          Organization Team
-                        </a>
-                      )}
-                    </List.Header>
-                    <List.List>
-                      <List.Item>
-                        <List.Icon name="user circle" />
-                        <List.Content>
-                          <List.Header>Organizers</List.Header>
-                          <List.Description>
-                            <PersonList people={competitionInfo.organizers} />
-                          </List.Description>
-                        </List.Content>
-                      </List.Item>
-                      <List.Item>
-                        <List.Icon name="user secret" />
-                        <List.Content>
-                          <List.Header>Delegates</List.Header>
-                          <List.Description>
-                            <PersonList people={competitionInfo.delegates} />
-                          </List.Description>
-                        </List.Content>
-                      </List.Item>
-                    </List.List>
-                  </List.Content>
-                </List.Item>
-              </List>
-            </Segment>
-          </Container>
+                    ) : (
+                      <a href={competitionContactFormRoute(competitionInfo.id)}>
+                        {t('competitions.competition_info.organization_team')}
+                      </a>
+                    )}
+                  </List.Header>
+                  <List.List>
+                    <List.Item>
+                      <List.Icon name="user circle" />
+                      <List.Content>
+                        <List.Header>
+                          {t(
+                            competitionInfo.organizers.length === 1
+                              ? 'competitions.competition_info.organizer_plural.one'
+                              : 'competitions.competition_info.organizer_plural.other',
+                          )}
+                        </List.Header>
+                        <List.Description>
+                          <PersonList people={competitionInfo.organizers} />
+                        </List.Description>
+                      </List.Content>
+                    </List.Item>
+                    <List.Item>
+                      <List.Icon name="user secret" />
+                      <List.Content>
+                        <List.Header>
+                          {t(
+                            competitionInfo.delegates.length === 1
+                              ? 'competitions.competition_info.delegate.one'
+                              : 'competitions.competition_info.delegate.other',
+                          )}
+                        </List.Header>
+                        <List.Description>
+                          <PersonList people={competitionInfo.delegates} />
+                        </List.Description>
+                      </List.Content>
+                    </List.Item>
+                  </List.List>
+                </List.Content>
+              </List.Item>
+            </List>
+          </Segment>
           {children}
           <Segment padded attached secondary>
             <List divided relaxed>
               <List.Item>
                 <List.Icon name="print" />
                 <List.Content>
-                  <List.Header>{t('test.test')}</List.Header>
+                  <List.Header>
+                    {t('competitions.registration_v2.info.download')}
+                  </List.Header>
                   <List.List>
                     <List.Item>
                       <List.Icon name="file pdf" />
                       <List.Content>
-                        As a{' '}
-                        <a href={competitionsPDFRoute(competitionInfo.id)}>
-                          PDF
-                        </a>
+                        <Trans
+                          i18nKey="competitions.registration_v2.pdf.link"
+                          values={{ pdfLink: 'PDF' }}
+                        >
+                          <a href={competitionsPDFRoute(competitionInfo.id)}>
+                            PDF
+                          </a>
+                        </Trans>
                       </List.Content>
                     </List.Item>
                   </List.List>
@@ -237,21 +241,30 @@ export default function Competition({ children }) {
                     if (competitionIsBookmarked) {
                       await unbookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage(t('bookmarks.unbookmark'), 'basic')
+                      setMessage(
+                        t('competitions.registration_v2.bookmark.unbookmark'),
+                        'basic',
+                      )
                     } else {
                       await bookmarkCompetition(competitionInfo.id)
                       await refetch()
-                      setMessage(t('bookmarks.bookmark'), 'positive')
+                      setMessage(
+                        t('competitions.competition_info.is_bookmarked'),
+                        'positive',
+                      )
                     }
                   }}
                   name={bookmarkLoading ? 'spinner' : 'bookmark'}
                   color={competitionIsBookmarked ? 'black' : 'grey'}
                 />
                 <List.Content>
-                  <List.Header>Bookmark this competition</List.Header>
+                  <List.Header>
+                    {t('competitions.competition_info.bookmark')}
+                  </List.Header>
                   <List.Description>
-                    The Competition has been bookmarked{' '}
-                    {competitionInfo.number_of_bookmarks} times
+                    {t('competitions.competition_info.number_of_bookmarks', {
+                      number_of_bookmarks: competitionInfo.number_of_bookmarks,
+                    })}
                   </List.Description>
                 </List.Content>
               </List.Item>

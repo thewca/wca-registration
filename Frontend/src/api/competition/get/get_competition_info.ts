@@ -4,7 +4,7 @@ import getCompetitionInfoMockWithRealFallback from '../../mocks/get_competition_
 import { CompetitionInfo } from '../../types'
 
 export default async function getCompetitionInfo(
-  competitionId: string
+  competitionId: string,
 ): Promise<CompetitionInfo> {
   if (process.env.NODE_ENV !== 'production') {
     return getCompetitionInfoMockWithRealFallback(competitionId)

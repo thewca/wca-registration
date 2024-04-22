@@ -38,7 +38,7 @@ FactoryBot.define do
     force_comment_in_registration { false }
     allow_registration_self_delete_after_acceptance { true }
     allow_registration_edits { true }
-    delegates { [{ 'id' => '1306' }] }
+    delegates { [{ 'id' => 1306 }] }
     organizers { [] }
 
     initialize_with { attributes.stringify_keys }

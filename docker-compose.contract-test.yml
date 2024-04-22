@@ -1,0 +1,160 @@
+version: "3.8"
+services:
+  wca_registration_handler_contract:
+    container_name: wca_registration_handler_contract
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    ports:
+      - "3001:3000"
+    environment:
+      LOCALSTACK_ENDPOINT: "http://localstack:4566"
+      PROMETHEUS_EXPORTER: "prometheus_exporter"
+      REDIS_URL: "redis://redis:6379"
+      RAILS_ENV: development
+    volumes:
+      - .:/app
+      - gems_volume_handler:/usr/local/bundle
+    tty: true
+    command: >
+      bash -c 'bundle install && yarn install && bin/rake db:seed &&
+      bin/rails server -b 0.0.0.0'
+    networks:
+      wca-registration:
+        ipv4_address: 10.0.2.10
+    depends_on:
+      - localstack
+      - prometheus_exporter
+      - redis
+    healthcheck:
+      test: curl --fail http://localhost:3000/healthcheck || exit 1
+    dns:
+      # Set the DNS server to be the LocalStack container
+      - 10.0.2.20
+
+
+  prometheus_exporter:
+    build:
+      context: .
+      dockerfile: dockerfile.metrics
+    tty: true
+    ports:
+      - "9090:9090"
+    networks:
+      - wca-registration
+
+  wca_registration_worker_contract:
+    container_name: wca_registration_worker_contract
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    environment:
+      LOCALSTACK_ENDPOINT: "http://localstack:4566"
+      AWS_REGION: "us-east-1"
+      AWS_ACCESS_KEY_ID: "fake-key"
+      AWS_SECRET_ACCESS_KEY: "fake-access-key"
+      PROMETHEUS_EXPORTER: "prometheus_exporter"
+      DYNAMO_REGISTRATIONS_TABLE: "registrations-development"
+    volumes:
+      - .:/app
+      - gems_volume_worker:/usr/local/bundle
+    tty: true
+    # First, install Ruby and Node dependencies
+    # Start the server and bind to 0.0.0.0 (vs 127.0.0.1) so Docker's port mappings work correctly
+    command: >
+      bash -c 'bundle install &&
+      while ! curl http://wca_registration_handler:3000/healthcheck >/dev/null 2>&1; do
+              echo "Waiting for Handler to be ready" && sleep 5 ;
+            done && ruby -r "/app/app/worker/queue_poller.rb" -e "QueuePoller.perform"'
+    networks:
+      - wca-registration
+    healthcheck:
+      test: pgrep ruby || exit 1
+    dns:
+      # Set the DNS server to be the LocalStack container
+      - 10.0.2.20
+
+  # Frontend
+  frontend:
+    container_name: frontend_contract
+    build:
+      context: Frontend
+    tty:
+      true
+    command: bash -c "npm run watch"
+    networks:
+      - wca-registration
+    volumes:
+      - ./Frontend/src:/app/src
+      - ./Frontend/__tests__:/app/__tests__
+      - ./swagger/v1/swagger.yaml:/swagger/v1/swagger.yaml
+    healthcheck:
+      test: curl --fail http://localhost:3000 || exit 1
+    depends_on:
+      wca_registration_handler_contract:
+        condition: service_healthy
+    dns:
+      # Set the DNS server to be the LocalStack container
+      - 10.0.2.20
+
+  nginx:
+    container_name: nginx_contract
+    image: nginx:latest
+    ports:
+      - "3002:80"
+    networks:
+      - wca-registration
+    volumes:
+      - ./Frontend/frontend_local.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+    healthcheck:
+      test: curl --fail http://localhost || exit 1
+
+  # Emulate AWS Services Locally
+  localstack:
+    container_name: "localstack_contract"
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      - DEBUG=${DEBUG-}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "./localstack/volume:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      wca-registration:
+        ipv4_address: 10.0.2.20
+
+  # Use redis for tests that enable redis
+  redis:
+    container_name: redis_contract
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data
+    networks:
+      - wca-registration
+    healthcheck:
+      test: redis-cli ping || exit 1
+
+volumes:
+  gems_volume_handler:
+    driver: local
+  gems_volume_worker:
+    driver: local
+  cache:
+    driver: local
+
+
+
+networks:
+  wca-registration:
+    name: wca-registration
+    ipam:
+      config:
+        # Specify the subnet range for IP address allocation
+        - subnet: 10.0.2.0/24

@@ -1,4 +1,5 @@
 import React, { useContext, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Step } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { RegistrationContext } from '../../../api/helper/context/registration_context'
@@ -9,6 +10,8 @@ import StripeWrapper from './StripeWrapper'
 export default function StepPanel() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { isRegistered } = useContext(RegistrationContext)
+
+  const { t } = useTranslation()
 
   const steps = useMemo(() => {
     const steps = [requirementsStepConfig, competingStepConfig]
@@ -23,8 +26,8 @@ export default function StepPanel() {
   const [activeIndex, setActiveIndex] = useState(() =>
     steps.findIndex(
       (step) =>
-        step === (isRegistered ? competingStepConfig : requirementsStepConfig)
-    )
+        step === (isRegistered ? competingStepConfig : requirementsStepConfig),
+    ),
   )
 
   const CurrentStepPanel = steps[activeIndex].component
@@ -40,7 +43,7 @@ export default function StepPanel() {
             disabled={activeIndex < index}
           >
             <Step.Content>
-              <Step.Title>{stepConfig.label}</Step.Title>
+              <Step.Title>{t(stepConfig.i18nKey)}</Step.Title>
             </Step.Content>
           </Step>
         ))}
@@ -54,16 +57,16 @@ export default function StepPanel() {
 
 const requirementsStepConfig = {
   key: 'requirements',
-  label: 'Requirements',
+  i18nKey: 'competitions.registration_v2.requirements.title',
   component: RegistrationRequirements,
 }
 const competingStepConfig = {
   key: 'competing',
-  label: 'Register',
+  i18nKey: 'competitions.nav.menu.register',
   component: CompetingStep,
 }
 const paymentStepConfig = {
   key: 'payment',
-  label: 'Payment',
+  i18nKey: 'competitions.registration_v2.tabs.payment',
   component: StripeWrapper,
 }

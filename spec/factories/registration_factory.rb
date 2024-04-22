@@ -13,7 +13,7 @@ FactoryBot.define do
       waiting_list_position { nil }
     end
 
-    user_id { rand(100000..200000).to_s }
+    user_id { rand(100000..200000) }
     competition_id { 'CubingZANationalChampionship2023' }
     attendee_id { "#{competition_id}-#{user_id}" }
     lanes {
@@ -25,14 +25,15 @@ FactoryBot.define do
         waiting_list_position: waiting_list_position,
       )]
     }
+    history { association :registration_history, attendee_id: "#{competition_id}-#{user_id}" }
   end
 
   trait :admin do
-    user_id { '15073' }
+    user_id { 15073 }
   end
 
   trait :organizer do
-    user_id { '1' }
+    user_id { 1 }
   end
 
   factory :organizer_registration, traits: [:organizer]

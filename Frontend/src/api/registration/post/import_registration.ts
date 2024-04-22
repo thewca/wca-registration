@@ -14,7 +14,7 @@ export default async function importRegistration(body: {
       headers: {
         Authorization: await getJWT(),
       },
-    }
+    },
   )
   return response.json()
 }

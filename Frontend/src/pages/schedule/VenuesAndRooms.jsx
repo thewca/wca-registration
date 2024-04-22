@@ -1,5 +1,7 @@
 import React from 'react'
 import { Form, Grid, Menu, Message } from 'semantic-ui-react'
+import { getTextColor } from '../../lib/colors'
+import { toDegrees } from '../../lib/venues'
 
 export default function VenuesAndRooms({
   venues,
@@ -29,6 +31,7 @@ export default function VenuesAndRooms({
           secondary
           fluid
           stackable
+          // TODO: can't scroll left when 6+ venues
           widths={Math.min(6, venueCount + 1)}
           style={{ overflowX: 'auto', overflowY: 'hidden' }}
         >
@@ -54,27 +57,39 @@ export default function VenuesAndRooms({
         timeZoneCount={timeZoneCount}
       />
 
-      <RoomSelector
-        rooms={rooms}
-        activeRoomIds={activeRoomIds}
-        toggleRoom={(id) => dispatchRooms({ type: 'toggle', id })}
-      />
+      {rooms.length > 1 && (
+        <RoomSelector
+          rooms={rooms}
+          activeRoomIds={activeRoomIds}
+          toggleRoom={(id) => dispatchRooms({ type: 'toggle', id })}
+        />
+      )}
     </>
   )
 }
 
 function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
   return (
-    <Grid stackable columns={Math.min(5, rooms.length)}>
-      {rooms.map(({ id, name }) => (
-        // TODO: show color
+    <Grid stackable columns={Math.min(4, rooms.length)}>
+      {rooms.map(({ id, name, color }) => (
         <Grid.Column key={id}>
-          <Form.Checkbox
-            slider
-            checked={activeRoomIds.includes(id)}
-            label={name}
-            onChange={() => toggleRoom(id)}
-          />
+          <div
+            style={{
+              backgroundColor: color,
+              opacity: activeRoomIds.includes(id) ? 1 : 0.5,
+              border: 'solid black 1px',
+              padding: '1em',
+              height: '100%',
+            }}
+          >
+            <Form.Checkbox
+              label={
+                <label style={{ color: getTextColor(color) }}>{name}</label>
+              }
+              checked={activeRoomIds.includes(id)}
+              onChange={() => toggleRoom(id)}
+            />
+          </div>
         </Grid.Column>
       ))}
     </Grid>
@@ -83,12 +98,9 @@ function RoomSelector({ rooms, activeRoomIds, toggleRoom }) {
 
 function VenueInfo({ activeVenueOrNull, venueCount, timeZoneCount }) {
   const { name, timezone } = activeVenueOrNull || {}
-  // TODO: fix map link
-  const mapLink =
-    activeVenueOrNull &&
-    `https://www.google.com/maps/place/${activeVenueOrNull.latitudeMicrodegrees},${activeVenueOrNull.longitudeMicrodegrees}`
-
-  // TODO: add add-to-calendar icon/functionality
+  const latitude = toDegrees(activeVenueOrNull?.latitudeMicrodegrees)
+  const longitude = toDegrees(activeVenueOrNull?.longitudeMicrodegrees)
+  const mapLink = `https://google.com/maps/place/${latitude},${longitude}`
 
   return (
     <>

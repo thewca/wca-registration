@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { USER_KEY } from '../../ui/providers/UserProvider'
+import { USER_KEY } from '../../api/mocks/get_jwt'
 
 export default function TestLogout() {
   useEffect(() => localStorage.removeItem(USER_KEY), [])

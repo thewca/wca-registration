@@ -1,7 +1,8 @@
-import { JWT_KEY } from '../../ui/providers/UserProvider'
-import { BackendError } from '../helper/backend_fetch'
+import { BackendError } from '../helper/error_codes'
 import { tokenRoute } from '../helper/routes'
 import getJWTMock from '../mocks/get_jwt'
+
+const JWT_KEY = 'jwt'
 
 export async function getJWT(reauthenticate = false): Promise<string> {
   if (process.env.NODE_ENV !== 'production') {

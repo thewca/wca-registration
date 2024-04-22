@@ -14,13 +14,13 @@ class RegistrationController < ApplicationController
   # before_actions are triggered in the order they are defined
   before_action :validate_create_request, only: [:create]
   before_action :validate_show_registration, only: [:show]
-  before_action :ensure_lane_exists, only: [:create]
   before_action :validate_list_admin, only: [:list_admin]
   before_action :validate_update_request, only: [:update]
   before_action :validate_bulk_update_request, only: [:bulk_update]
   before_action :validate_payment_ticket_request, only: [:payment_ticket]
 
   def create
+    queue_url = ENV['QUEUE_URL'] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     event_ids = params.dig('competing', 'event_ids')
     comment = params['competing'][:comment] || ''
     guests = params['competing'][:guests] || 0
@@ -41,7 +41,7 @@ class RegistrationController < ApplicationController
     }
 
     $sqs.send_message({
-                        queue_url: @queue_url,
+                        queue_url: queue_url,
                         message_body: step_data.to_json,
                         message_group_id: id,
                         message_deduplication_id: id,
@@ -53,36 +53,9 @@ class RegistrationController < ApplicationController
   def validate_create_request
     @competition_id = registration_params[:competition_id]
     @user_id = registration_params[:user_id]
-    RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find!(@competition_id), @current_user)
+    RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find(@competition_id), @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
-  end
-
-  # We don't know which lane the user is going to complete first, this ensures that an entry in the DB exists
-  # regardless of which lane the uses chooses to start with
-  def ensure_lane_exists
-    @queue_url = ENV['QUEUE_URL'] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
-    # TODO: Cache this call? We could keep a list of already created keys
-    lane_created = begin
-      Registration.find("#{@competition_id}-#{@user_id}")
-      true
-    rescue Dynamoid::Errors::RecordNotFound
-      false
-    end
-    unless lane_created
-      step_data = {
-        user_id: @user_id,
-        competition_id: @competition_id,
-        step: 'Lane Init',
-      }
-      id = SecureRandom.uuid
-      $sqs.send_message({
-                          queue_url: @queue_url,
-                          message_body: step_data.to_json,
-                          message_group_id: id,
-                          message_deduplication_id: id,
-                        })
-    end
   end
 
   def update
@@ -105,16 +78,17 @@ class RegistrationController < ApplicationController
 
   def show
     registration = get_single_registration(@user_id, @competition_id)
-    render json: { registration: registration, status: 'ok' }
+    render json: registration
   rescue Dynamoid::Errors::RecordNotFound
-    render json: { registration: {}, status: 'ok' }
+    render json: {}, status: :not_found
+  rescue RegistrationError => e
+    render_error(e.http_status, e.error)
   end
 
   # You can either view your own registration or one for a competition you administer
   def validate_show_registration
     @user_id, @competition_id = show_params
-    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
-      @current_user.to_s == @user_id.to_s || UserApi.can_administer?(@current_user, @competition_id)
+    render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless @current_user == @user_id.to_i || UserApi.can_administer?(@current_user, @competition_id)
   end
 
   def bulk_update
@@ -143,15 +117,20 @@ class RegistrationController < ApplicationController
     comment = update_request.dig('competing', 'comment')
     event_ids = update_request.dig('competing', 'event_ids')
     admin_comment = update_request.dig('competing', 'admin_comment')
+    user_id = update_request[:user_id]
 
-    registration = Registration.find("#{@competition_id}-#{update_request[:user_id]}")
+    registration = Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
     updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
-
+    registration.history.add_entry(update_changes(update_request), @current_user, action_type(update_request))
     if old_status == 'accepted' && status != 'accepted'
       Registration.decrement_competitors_count(@competition_id)
     elsif old_status != 'accepted' && status == 'accepted'
       Registration.increment_competitors_count(@competition_id)
+    end
+
+    if Rails.env.production?
+      EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
     {
@@ -202,7 +181,7 @@ class RegistrationController < ApplicationController
 
   def mine
     my_registrations = Registration.where(user_id: @current_user).map { |x| { competition_id: x.competition_id, status: x.competing_status } }
-    render json: { registrations: my_registrations }
+    render json: my_registrations
   rescue Dynamoid::Errors::Error => e
     # Render an error response
     puts e
@@ -217,10 +196,7 @@ class RegistrationController < ApplicationController
     waiting = Registration.get_registrations_by_status(competition_id, 'waiting_list').map do |registration|
       {
         user_id: registration[:user_id],
-        competing: {
-          event_ids: registration.event_ids,
-          waiting_list_position: registration.competing_waiting_list_position || 0,
-        },
+        waiting_list_position: registration.competing_waiting_list_position || 0,
       }
     end
     render json: waiting
@@ -235,7 +211,6 @@ class RegistrationController < ApplicationController
   # To list Registrations in the admin view you need to be able to administer the competition
   def validate_list_admin
     @competition_id = list_params
-
     unless UserApi.can_administer?(@current_user, @competition_id)
       render_error(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
     end
@@ -243,7 +218,7 @@ class RegistrationController < ApplicationController
 
   def list_admin
     registrations = get_registrations(@competition_id)
-    render json: registrations
+    render json: add_pii(registrations)
   rescue Dynamoid::Errors::Error => e
     puts e
     # Is there a reason we aren't using an error code here?
@@ -272,6 +247,26 @@ class RegistrationController < ApplicationController
 
   private
 
+    def action_type(request)
+      self_updating = request[:user_id] == @current_user
+      status = request.dig('competing', 'status')
+      if status == 'cancelled'
+        return self_updating ? 'Competitor delete' : 'Admin delete'
+      end
+      self_updating ? 'Competitor update' : 'Admin update'
+    end
+
+    def update_changes(update_request)
+      changes = {}
+
+      update_request['competing']&.each do |key, value|
+        changes[key.to_sym] = value if value.present?
+      end
+
+      changes[:guests] = update_request[:guests] if update_request[:guests].present?
+      changes
+    end
+
     def registration_params
       params.require([:user_id, :competition_id])
       params.require(:competing).require(:event_ids)
@@ -291,9 +286,20 @@ class RegistrationController < ApplicationController
       params.require(:competition_id)
     end
 
+    def add_pii(registrations)
+      pii = RedisHelper.cache_info_by_ids('pii', registrations.pluck(:user_id)) do |ids|
+        UserApi.get_user_info_pii(ids)
+      end
+
+      registrations.map do |r|
+        user = pii.find { |u| u['id'] == r[:user_id] }
+        r.merge(email: user['email'], dob: user['dob'])
+      end
+    end
+
     def get_registrations(competition_id, only_attending: false)
       if only_attending
-        Registration.where(competition_id: competition_id, is_competing: true).all.map do |x|
+        Registration.where(competition_id: competition_id, competing_status: 'accepted').all.map do |x|
           { user_id: x['user_id'],
             competing: {
               event_ids: x.event_ids,
@@ -336,6 +342,7 @@ class RegistrationController < ApplicationController
           payment_status: registration.payment_status,
           updated_at: registration.payment_date,
         },
+        history: registration.history.entries,
       }
     end
 end

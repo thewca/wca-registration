@@ -6,9 +6,6 @@ import getMe from '../../api/user/get/get_me'
 import getPreferredEvents from '../../api/user/get/get_preferred_events'
 import LoadingMessage from '../messages/loadingMessage'
 
-// The User key is just for mocks, so it can probably be moved somewhere else
-export const USER_KEY = 'user'
-export const JWT_KEY = 'jwt'
 export default function UserProvider({ children }) {
   const {
     isLoading,

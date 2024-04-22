@@ -16,7 +16,7 @@ export const refundRoute = (
   competitionId: string,
   userId: string,
   paymentId: string,
-  amount: number
+  amount: number,
 ) =>
   `${process.env.WCA_URL}/payment/refund?attendee_id=${competitionId}-${userId}&payment_id=${paymentId}&refund_amount=${amount}`
 
@@ -26,21 +26,19 @@ export const userProfileRoute = (wcaId: string) =>
 export const competitionsPDFRoute = (compId: string) =>
   `${process.env.WCA_URL}/competitions/${compId}.pdf`
 
-export const competitionContactFormRoute = (compId: string) =>
-  `https://www.worldcubeassociation.org/contact/website?competitionId=${compId}`
+export const userPreferencesRoute = `${process.env.WCA_URL}/profile/edit?section=preferences`
 
-export const pollingRoute = (userId: string, competitionId: string) =>
+export const competitionContactFormRoute = (compId: string) =>
+  `${process.env.WCA_URL}/contact/website?competitionId=${compId}`
+
+export const pollingRoute = (userId: number, competitionId: string) =>
   `${process.env.POLL_URL}?attendee_id=${competitionId}-${userId}`
 export const meRoute = `${process.env.WCA_URL}/api/v0/users/me`
 
 export const preferredEventsRoute = `${process.env.WCA_URL}/api/v0/users/me/preferred_events`
 
 export const myBookmarkedCompetitionsRoute = `${process.env.WCA_URL}/api/v0/users/me/bookmarks`
-// This will break when urls get really big, maybe we should switch to POST?
-export const usersInfoRoute = (ids: string[]) =>
-  `${process.env.WCA_URL}/api/v0/users?${ids
-    .map((id) => 'ids[]=' + id)
-    .join('&')}`
+
 export const competitionInfoRoute = (id: string) =>
   `${process.env.WCA_URL}/api/v0/competitions/${id}`
 export const competitionWCIFRoute = (id: string) =>

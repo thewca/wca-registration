@@ -12,7 +12,7 @@ export default function RegistrationProvider({ children }) {
   const loggedIn = user !== null
   const { competitionInfo } = useContext(CompetitionContext)
   const {
-    data: registrationRequest,
+    data: registration,
     isLoading,
     isError,
     refetch,
@@ -32,20 +32,19 @@ export default function RegistrationProvider({ children }) {
   return loggedIn && isLoading ? (
     <LoadingMessage />
   ) : // eslint-disable-next-line unicorn/no-nested-ternary
-  isError || !loggedIn ? (
+  isError || !loggedIn || !registration ? (
     <RegistrationContext.Provider
-      value={{ registration: null, refetch: () => {}, isRegistered: false }}
+      value={{ registration: null, refetch, isRegistered: false }}
     >
       {children}
     </RegistrationContext.Provider>
   ) : (
     <RegistrationContext.Provider
       value={{
-        registration: registrationRequest.registration,
+        registration,
         refetch,
         isRegistered:
-          registrationRequest.registration?.competing?.registration_status !==
-          undefined,
+          registration?.competing?.registration_status !== undefined,
       }}
     >
       {children}

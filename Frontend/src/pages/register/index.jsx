@@ -1,5 +1,5 @@
-import { DateTime } from 'luxon'
 import React, { useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Button,
   Icon,
@@ -11,27 +11,33 @@ import {
 } from 'semantic-ui-react'
 import { CompetitionContext } from '../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../api/helper/context/permission_context'
+import { RegistrationContext } from '../../api/helper/context/registration_context'
 import { UserContext } from '../../api/helper/context/user_context'
-import { getLongDate, getMediumDate, isAfterNow } from '../../lib/dates'
+import { getMediumDateString, hasPassed } from '../../lib/dates'
 import { displayMoneyISO4217 } from '../../lib/money'
-import PermissionMessage from '../../ui/messages/permissionMessage'
+import { RegistrationPermissionMessage } from '../../ui/messages/permissionMessage'
+import { ClosedCompetitionMessage } from '../../ui/messages/registrationMessage'
 import StepPanel from './components/StepPanel'
 
 function registrationStatusLabel(competitionInfo) {
   if (competitionInfo['registration_opened?']) {
     return 'OPEN'
   }
-  return isAfterNow(competitionInfo.registration_open)
-    ? 'NOT YET OPEN'
-    : 'CLOSED'
+  return hasPassed(competitionInfo.registration_open)
+    ? 'CLOSED'
+    : 'NOT YET OPEN'
 }
 
 export default function Register() {
   const { user } = useContext(UserContext)
   const { competitionInfo } = useContext(CompetitionContext)
   const { canAttendCompetition } = useContext(PermissionsContext)
+  const { isRegistered } = useContext(RegistrationContext)
 
-  const [showRegisterSteps, setShowRegisterSteps] = useState(false)
+  // Show Registration Panel instead of Info if already registered
+  const [showRegisterSteps, setShowRegisterSteps] = useState(isRegistered)
+
+  const { t } = useTranslation()
 
   const loggedIn = user !== null
 
@@ -57,7 +63,9 @@ export default function Register() {
                       <List.Header>
                         {competitionInfo.competitor_limit}
                       </List.Header>
-                      <List.Description>Competitor Limit</List.Description>
+                      <List.Description>
+                        {t('competitions.competition_info.competitor_limit')}
+                      </List.Description>
                     </List.Content>
                   </List.Item>
                   <List.Item>
@@ -67,11 +75,15 @@ export default function Register() {
                         {competitionInfo.base_entry_fee_lowest_denomination
                           ? displayMoneyISO4217(
                               competitionInfo.base_entry_fee_lowest_denomination,
-                              competitionInfo.currency_code
+                              competitionInfo.currency_code,
                             )
-                          : 'No Entry Fee'}
+                          : t('competitions.registration_v2.fees.none')}
                       </List.Header>
-                      <List.Description>Base Registration Fee</List.Description>
+                      <List.Description>
+                        {t(
+                          'competitions.competition_form.labels.entry_fees.base_entry_fee',
+                        )}
+                      </List.Description>
                       <List.List>
                         <List.Item>
                           <List.Icon name="user plus" />
@@ -80,11 +92,17 @@ export default function Register() {
                               {competitionInfo.guests_entry_fee_lowest_denomination
                                 ? displayMoneyISO4217(
                                     competitionInfo.guests_entry_fee_lowest_denomination,
-                                    competitionInfo.currency_code
+                                    competitionInfo.currency_code,
                                   )
-                                : 'Guests attend for free'}
+                                : t(
+                                    'competitions.competition_form.choices.registration.guest_entry_status.free',
+                                  )}
                             </List.Header>
-                            <List.Description>Guest Entry Fee</List.Description>
+                            <List.Description>
+                              {t(
+                                'competitions.competition_form.labels.entry_fees.guest_entry_fee',
+                              )}
+                            </List.Description>
                           </List.Content>
                         </List.Item>
                       </List.List>
@@ -106,11 +124,17 @@ export default function Register() {
                     <List.Icon name="pencil" />
                     <List.Content>
                       <List.Header>
-                        {getMediumDate(competitionInfo.registration_open)}
+                        {getMediumDateString(competitionInfo.registration_open)}
                         {' until '}
-                        {getMediumDate(competitionInfo.registration_close)}
+                        {getMediumDateString(
+                          competitionInfo.registration_close,
+                        )}
                       </List.Header>
-                      <List.Description>Registration Period</List.Description>
+                      <List.Description>
+                        {t(
+                          'competitions.competition_info.registration_period.label',
+                        )}
+                      </List.Description>
                       <List.List>
                         <List.Item>
                           <List.Icon name="sync" />
@@ -118,25 +142,39 @@ export default function Register() {
                             <List.Header>
                               {competitionInfo.refund_policy_percent}
                               {'% before '}
-                              {getMediumDate(
+                              {getMediumDateString(
                                 competitionInfo.refund_policy_limit_date ??
-                                  competitionInfo.start_date
+                                  competitionInfo.start_date,
                               )}
                             </List.Header>
-                            <List.Description>Refund policy</List.Description>
+                            <List.Description>
+                              {t(
+                                'competitions.competition_info.refund_policy_html',
+                                {
+                                  limit_date_and_time: getMediumDateString(
+                                    competitionInfo.refund_policy_limit_date ??
+                                      competitionInfo.start_date,
+                                  ),
+                                  refund_policy_percent:
+                                    competitionInfo.refund_policy_percent + '%',
+                                },
+                              )}
+                            </List.Description>
                           </List.Content>
                         </List.Item>
                         <List.Item>
                           <List.Icon name="save" />
                           <List.Content>
                             <List.Header>
-                              {getMediumDate(
+                              {getMediumDateString(
                                 competitionInfo.event_change_deadline_date ??
-                                  competitionInfo.end_date
+                                  competitionInfo.end_date,
                               )}
                             </List.Header>
                             <List.Description>
-                              Edit registration deadline
+                              {t(
+                                'competitions.competition_form.labels.registration.event_change_deadline_date',
+                              )}
                             </List.Description>
                           </List.Content>
                         </List.Item>
@@ -144,13 +182,15 @@ export default function Register() {
                           <List.Icon name="hourglass half" />
                           <List.Content>
                             <List.Header>
-                              {getMediumDate(
+                              {getMediumDateString(
                                 competitionInfo.waiting_list_deadline_date ??
-                                  competitionInfo.start_date
+                                  competitionInfo.start_date,
                               )}
                             </List.Header>
                             <List.Description>
-                              Waiting list acceptance date
+                              {t(
+                                'competitions.competition_form.labels.registration.waiting_list_deadline_date',
+                              )}
                             </List.Description>
                           </List.Content>
                         </List.Item>
@@ -186,7 +226,9 @@ export default function Register() {
                       }
                     }}
                   >
-                    Sounds awesome, count me in!
+                    {t('registrations.new_registration.title', {
+                      comp: competitionInfo.name,
+                    })}
                   </Button>
                 </Transition>
               </Segment>
@@ -210,27 +252,18 @@ export default function Register() {
               </Transition>
             </>
           ) : (
-            <PermissionMessage>
-              {loggedIn
-                ? 'You are not allowed to Register for a competition, make sure your profile is complete and you are not banned.'
-                : 'You need to log in to Register for a competition.'}
-            </PermissionMessage>
+            <RegistrationPermissionMessage
+              loggedIn={loggedIn}
+              userInfo={user}
+            />
           )}
         </div>
       ) : (
-        <Message warning>
-          {!isAfterNow(competitionInfo.registration_close)
-            ? `Competition Registration closed on ${getMediumDate(
-                competitionInfo.registration_close
-              )}`
-            : `Competition Registration will open ${DateTime.fromISO(
-                competitionInfo.registration_open
-              ).toRelativeCalendar()} on ${getLongDate(
-                competitionInfo.registration_open
-              )}, ${
-                !loggedIn ? 'you will need a WCA Account to register' : ''
-              }`}
-        </Message>
+        <ClosedCompetitionMessage
+          loggedIn={loggedIn}
+          competitionRegistrationEnd={competitionInfo.registration_open}
+          competitionRegistrationStart={competitionInfo.registration_close}
+        />
       )}
     </div>
   )

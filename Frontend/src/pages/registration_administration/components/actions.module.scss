@@ -2,5 +2,7 @@
   position: fixed;
   z-index: 1000;
   bottom: 5vh;
-  left: 20vw;
+  left: 20px;
+  right: 20px;
+  flex-wrap: wrap;
 }

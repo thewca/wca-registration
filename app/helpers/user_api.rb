@@ -9,8 +9,13 @@ def permissions_path(user_id)
   "https://#{EnvConfig.WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
 end
 
-def personal_records_path(user_id)
-  "https://#{EnvConfig.WCA_HOST}/api/v0/results/personal_records/#{user_id}"
+def competitor_info_path
+  "https://#{EnvConfig.WCA_HOST}/api/internal/v1/users/competitor-info"
+end
+
+def users_info_path(ids)
+  ids_query = ids.map { |id| "ids[]=#{id}" }.join('&')
+  "https://#{EnvConfig.WCA_HOST}/api/v0/users?#{ids_query}"
 end
 
 class UserApi < WcaApi
@@ -19,6 +24,22 @@ class UserApi < WcaApi
       HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.get_wca_token })
     else
       Mocks.permissions_mock(user_id)
+    end
+  end
+
+  def self.get_user_info_pii(user_ids)
+    if Rails.env.production?
+      HTTParty.post(competitor_info_path, headers: { WCA_API_HEADER => self.get_wca_token }, body: { ids: user_ids.to_a })
+    else
+      Mocks.pii_mock(user_ids)
+    end
+  end
+
+  def self.get_user_info(user_ids)
+    if Rails.env.production?
+      HTTParty.get(users_info_path(user_ids))
+    else
+      Mocks.user_info_mock(user_ids)
     end
   end
 

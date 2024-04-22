@@ -4,13 +4,14 @@ import { useTranslation } from 'react-i18next'
 import { Table, TableFooter } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getWaitingCompetitors } from '../../../api/registration/get/get_registrations'
+import { useWithUserData } from '../../../hooks/useUserData'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 
 export default function WaitingList() {
   const { competitionInfo } = useContext(CompetitionContext)
   const { t } = useTranslation()
-  const { isLoading, data: waiting } = useQuery({
+  const { isLoading: waitingLoading, data: waiting } = useQuery({
     queryKey: ['waiting', competitionInfo.id],
     queryFn: () => getWaitingCompetitors(competitionInfo.id),
     retry: false,
@@ -18,13 +19,17 @@ export default function WaitingList() {
       const { errorCode } = err
       setMessage(
         errorCode
-          ? t(`errors.${errorCode}`)
-          : 'Fetching Registrations failed with error: ' + err.message,
-        'negative'
+          ? t(`competitions.registration_v2.errors.${errorCode}`)
+          : t('registrations.flash.failed') + err.message,
+        'negative',
       )
     },
   })
-  return isLoading ? (
+
+  const { isLoading: infoLoading, data: registrationsWithUser } =
+    useWithUserData(waiting ?? [])
+
+  return waitingLoading || infoLoading ? (
     <LoadingMessage />
   ) : (
     <Table>
@@ -35,20 +40,16 @@ export default function WaitingList() {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {waiting?.length ? (
-          waiting
-            .sort(
-              (w1, w2) =>
-                w1.competing.waiting_list_position -
-                w2.competing.waiting_list_position
+        {registrationsWithUser?.length ? (
+          registrationsWithUser
+            .toSorted(
+              (w1, w2) => w1.waiting_list_position - w2.waiting_list_position,
             ) // Once a waiting list is established, we just care about the order of the waitlisted competitors
             .map((w, i) => (
               <Table.Row key={w.user_id}>
                 <Table.Cell>{w.user.name}</Table.Cell>
                 <Table.Cell>
-                  {w.competing.waiting_list_position === 0
-                    ? 'Not yet assigned'
-                    : i + 1}
+                  {w.waiting_list_position === 0 ? 'Not yet assigned' : i + 1}
                 </Table.Cell>
               </Table.Row>
             ))

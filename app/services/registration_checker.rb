@@ -7,7 +7,7 @@ class RegistrationChecker
     @request = registration_request.stringify_keys
     @competition_info = competition_info
     @requestee_user_id = @request['user_id']
-    @requester_user_id = requesting_user.to_s
+    @requester_user_id = requesting_user
 
     user_can_create_registration!
     validate_create_events!
@@ -19,7 +19,7 @@ class RegistrationChecker
     @request = update_request.stringify_keys
     @competition_info = competition_info
     @requestee_user_id = @request['user_id']
-    @requester_user_id = requesting_user.to_s
+    @requester_user_id = requesting_user
     @registration = Registration.find("#{update_request['competition_id']}-#{update_request['user_id']}")
 
     user_can_modify_registration!
@@ -56,7 +56,7 @@ class RegistrationChecker
       # Only organizers can register when registration is closed, and they can only register for themselves - not for other users
       raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || organizer_modifying_own_registration?
 
-      can_compete = UserApi.can_compete?(@request['user_id'])
+      can_compete = UserApi.can_compete?(@requestee_user_id)
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
 
       # Users cannot sign up for multiple competitions in a series
@@ -70,14 +70,14 @@ class RegistrationChecker
     end
 
     def organizer_modifying_own_registration?
-      @competition_info.is_organizer_or_delegate?(@requester_user_id) && (@requester_user_id == @request['user_id'].to_s)
+      @competition_info.is_organizer_or_delegate?(@requester_user_id) && (@requester_user_id == @requestee_user_id)
     end
 
     def is_organizer_or_current_user?
       # Only an organizer or the user themselves can create a registration for the user
       # One case where organizers need to create registrations for users is if a 3rd-party registration system is being used, and registration data is being
       # passed to the Registration Service from it
-      (@requester_user_id == @request['user_id'].to_s) || @competition_info.is_organizer_or_delegate?(@requester_user_id)
+      (@requester_user_id == @requestee_user_id) || @competition_info.is_organizer_or_delegate?(@requester_user_id)
     end
 
     def validate_create_events!

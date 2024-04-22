@@ -14,15 +14,27 @@ jobs:
       - name: Set up Ruby # Only install ruby to get Rubocop
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2.2'
+          bundler-cache: true
       - name: Lint with Rubocop
         run: |
-          gem install rubocop
-          rubocop
+          bundle exec rubocop
       - name: Lint with Eslint
         run: |
           cd ./Frontend
           npm install
           npm run lint
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: pre-build images for caching
+        uses: docker/bake-action@v4
+        with:
+          load: true
+          files: |
+            docker-compose.backend-test.yml
+          set: |
+            *.cache-to=type=gha,mode=max                                                                                
+            *.cache-from=type=gha
       - name: Backend Tests
-        run: docker compose -f "docker-compose.backend-test.yml" up wca_registration_handler --abort-on-container-exit
+        run: docker compose -f "docker-compose.backend-test.yml" run wca_registration_test bash -c 'bundle install && yarn install && bin/rake db:seed && RAILS_ENV=test bundle exec rspec --exclude-pattern spec/cache'
+      - name: Contract Test
+        run: docker compose -f "docker-compose.contract-test.yml" run frontend bash -c 'npm run test:contract'

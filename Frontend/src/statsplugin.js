@@ -12,7 +12,7 @@ const statsPlugin = () => ({
         Object.entries(result.metafile.outputs).forEach(([file, { bytes }]) => {
           const relPath = path.relative(
             process.cwd(),
-            path.resolve(__dirname, file)
+            path.resolve(__dirname, file),
           )
 
           const i = Math.floor(Math.log(bytes) / Math.log(1024))
@@ -23,7 +23,7 @@ const statsPlugin = () => ({
         })
       } else if ('errors' in result) {
         console.info(
-          `build failed with ${result.errors.length} errors, ${result.warnings.length} warnings`
+          `build failed with ${result.errors.length} errors, ${result.warnings.length} warnings`,
         )
         console.info(result)
       } else {

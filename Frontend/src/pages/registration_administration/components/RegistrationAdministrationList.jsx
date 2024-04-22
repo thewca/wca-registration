@@ -7,6 +7,9 @@ import { Checkbox, Form, Header, Icon, Popup, Table } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { PermissionsContext } from '../../../api/helper/context/permission_context'
 import { getAllRegistrations } from '../../../api/registration/get/get_registrations'
+import { useWithUserData } from '../../../hooks/useUserData'
+import { getShortDateString, getShortTimeString } from '../../../lib/dates'
+import { createSortReducer } from '../../../reducers/sortReducer'
 import { BASE_ROUTE } from '../../../routes'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
@@ -41,6 +44,18 @@ const selectedReducer = (state, action) => {
   return newState
 }
 
+const sortReducer = createSortReducer([
+  'name',
+  'wca_id',
+  'country',
+  'registered_on',
+  'events',
+  'guests',
+  'paid_on',
+  'comment',
+  'dob',
+])
+
 const partitionRegistrations = (registrations) => {
   return registrations.reduce(
     (result, registration) => {
@@ -62,7 +77,7 @@ const partitionRegistrations = (registrations) => {
       }
       return result
     },
-    { pending: [], waiting: [], accepted: [], cancelled: [] }
+    { pending: [], waiting: [], accepted: [], cancelled: [] },
   )
 }
 
@@ -105,11 +120,21 @@ export default function RegistrationAdministrationList() {
 
   const [expandedColumns, dispatchColumns] = useReducer(
     columnReducer,
-    initialExpandedColumns
+    initialExpandedColumns,
   )
 
+  const [state, dispatchSort] = useReducer(sortReducer, {
+    sortColumn: competitionInfo['using_stripe_payments?']
+      ? 'paid_on'
+      : 'registered_on',
+    sortDirection: undefined,
+  })
+  const { sortColumn, sortDirection } = state
+  const changeSortColumn = (name) =>
+    dispatchSort({ type: 'CHANGE_SORT', sortColumn: name })
+
   const {
-    isLoading,
+    isLoading: isRegistrationsLoading,
     data: registrations,
     refetch,
   } = useQuery({
@@ -124,35 +149,74 @@ export default function RegistrationAdministrationList() {
       const { errorCode } = err
       setMessage(
         errorCode
-          ? t(`errors.${errorCode}`)
-          : 'Fetching Registrations failed with error: ' + err.message,
-        'negative'
+          ? t(`competitions.registration_v2.errors.${errorCode}`)
+          : t('registrations.flash.failed') + err.message,
+        'negative',
       )
     },
   })
 
+  const { isLoading: infoLoading, data: registrationsWithUser } =
+    useWithUserData(registrations ?? [])
+
+  const sortedRegistrationsWithUser = useMemo(() => {
+    if (registrationsWithUser) {
+      const sorted = registrationsWithUser.toSorted((a, b) => {
+        switch (sortColumn) {
+          case 'name':
+            return a.user.name.localeCompare(b.user.name)
+          case 'wca_id':
+            return a.user.wca_id.localeCompare(b.user.wca_id)
+          case 'country':
+            return a.user.country.name.localeCompare(b.user.country.name)
+          case 'events':
+            return a.competing.event_ids.length - b.competing.event_ids.length
+          case 'guests':
+            return a.guests - b.guests
+          case 'dob':
+            return a.user.dob - b.user.dob
+          case 'comment':
+            return a.competing.comment.localeCompare(b.competing.comment)
+          case 'registered_on':
+            return a.competing.registered_on.localeCompare(
+              b.competing.registered_on,
+            )
+          case 'paid_on':
+            return a.payment.updated_at.localeCompare(b.payment.updated_at)
+          default:
+            return 0
+        }
+      })
+      if (sortDirection === 'descending') {
+        return sorted.toReversed()
+      }
+      return sorted
+    }
+    return []
+  }, [registrationsWithUser, sortColumn, sortDirection])
+
   const { waiting, accepted, cancelled, pending } = useMemo(
-    () => partitionRegistrations(registrations ?? []),
-    [registrations]
+    () => partitionRegistrations(sortedRegistrationsWithUser ?? []),
+    [sortedRegistrationsWithUser],
   )
 
   const [selected, dispatch] = useReducer(selectedReducer, [])
   const partitionedSelected = useMemo(
     () => ({
       pending: selected.filter((id) =>
-        pending.some((reg) => id === reg.user.id)
+        pending.some((reg) => id === reg.user.id),
       ),
       waiting: selected.filter((id) =>
-        waiting.some((reg) => id === reg.user.id)
+        waiting.some((reg) => id === reg.user.id),
       ),
       accepted: selected.filter((id) =>
-        accepted.some((reg) => id === reg.user.id)
+        accepted.some((reg) => id === reg.user.id),
       ),
       cancelled: selected.filter((id) =>
-        cancelled.some((reg) => id === reg.user.id)
+        cancelled.some((reg) => id === reg.user.id),
       ),
     }),
-    [selected, pending, waiting, accepted, cancelled]
+    [selected, pending, waiting, accepted, cancelled],
   )
 
   const select = (attendees) => dispatch({ type: 'add', attendees })
@@ -162,9 +226,24 @@ export default function RegistrationAdministrationList() {
   // than putting this in the table headers which scroll out of sight
   const spotsRemaining =
     (competitionInfo.competitor_limit ?? Infinity) - accepted.length
-  const spotsRemainingText = `; ${spotsRemaining} spot(s) remaining`
+  const spotsRemainingText = t(
+    'competitions.registration_v2.list.spots_remaining',
+    'competitions.registration_v2.list.spots_remaining',
+    { spots: spotsRemaining },
+  )
 
-  return isLoading ? (
+  const userEmailMap = useMemo(
+    () =>
+      Object.fromEntries(
+        (registrationsWithUser ?? []).map((registration) => [
+          registration.user.id,
+          registration.email,
+        ]),
+      ),
+    [registrationsWithUser],
+  )
+
+  return isRegistrationsLoading || infoLoading ? (
     <LoadingMessage />
   ) : (
     <>
@@ -185,7 +264,7 @@ export default function RegistrationAdministrationList() {
       </Form>
 
       <div className={styles.listContainer}>
-        <Header> Pending registrations ({pending.length}) </Header>
+        <Header>Pending registrations ({pending.length})</Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={pending}
@@ -193,13 +272,16 @@ export default function RegistrationAdministrationList() {
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
+          changeSortColumn={changeSortColumn}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
         />
 
         <Header>
-          Approved registrations ({accepted.length}
+          {t('registrations.list.approved_registrations')} ({accepted.length}
           {competitionInfo.competitor_limit && (
             <>
-              {`/${competitionInfo.competitor_limit}`}
+              {`/${competitionInfo.competitor_limit}; `}
               {spotsRemainingText}
             </>
           )}
@@ -212,11 +294,15 @@ export default function RegistrationAdministrationList() {
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
+          changeSortColumn={changeSortColumn}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
         />
 
         <Header>
-          Waitlisted registrations ({waiting.length}
-          {competitionInfo.competitor_limit && spotsRemainingText})
+          {t('simple_form.options.registration.status.waiting_list')} (
+          {waiting.length}
+          {competitionInfo.competitor_limit && `; ${spotsRemainingText}`})
         </Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
@@ -225,9 +311,15 @@ export default function RegistrationAdministrationList() {
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
+          changeSortColumn={changeSortColumn}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
         />
 
-        <Header>Cancelled registrations ({cancelled.length})</Header>
+        <Header>
+          {t('simple_form.options.registration.status.cancelled')} (
+          {cancelled.length})
+        </Header>
         <RegistrationAdministrationTable
           columnsExpanded={expandedColumns}
           registrations={cancelled}
@@ -235,6 +327,9 @@ export default function RegistrationAdministrationList() {
           select={select}
           unselect={unselect}
           competition_id={competitionInfo.id}
+          changeSortColumn={changeSortColumn}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
         />
       </div>
 
@@ -246,6 +341,7 @@ export default function RegistrationAdministrationList() {
         }}
         registrations={registrations}
         spotsRemaining={spotsRemaining}
+        userEmailMap={userEmailMap}
       />
     </>
   )
@@ -257,7 +353,12 @@ function RegistrationAdministrationTable({
   selected,
   select,
   unselect,
+  sortDirection,
+  sortColumn,
+  changeSortColumn,
 }) {
+  const { t } = useTranslation()
+
   const handleHeaderCheck = (_, data) => {
     if (data.checked) {
       select(registrations.map(({ user }) => user.id))
@@ -267,41 +368,48 @@ function RegistrationAdministrationTable({
   }
 
   return (
-    <Table striped textAlign="left">
-      <TableHeader
-        columnsExpanded={columnsExpanded}
-        showCheckbox={registrations.length > 0}
-        isChecked={registrations.length === selected.length}
-        onCheckboxChanged={handleHeaderCheck}
-      />
+    <div className={styles.tableContainer}>
+      <Table sortable striped textAlign="left">
+        <TableHeader
+          columnsExpanded={columnsExpanded}
+          showCheckbox={registrations.length > 0}
+          isChecked={registrations.length === selected.length}
+          onCheckboxChanged={handleHeaderCheck}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
+          changeSortColumn={changeSortColumn}
+        />
 
-      <Table.Body>
-        {registrations.length > 0 ? (
-          registrations.map((registration) => {
-            const id = registration.user.id
-            return (
-              <TableRow
-                key={id}
-                columnsExpanded={columnsExpanded}
-                registration={registration}
-                isSelected={selected.includes(id)}
-                onCheckboxChange={(_, data) => {
-                  if (data.checked) {
-                    select([id])
-                  } else {
-                    unselect([id])
-                  }
-                }}
-              />
-            )
-          })
-        ) : (
-          <Table.Row>
-            <Table.Cell colSpan={6}>No matching records found</Table.Cell>
-          </Table.Row>
-        )}
-      </Table.Body>
-    </Table>
+        <Table.Body>
+          {registrations.length > 0 ? (
+            registrations.map((registration) => {
+              const id = registration.user.id
+              return (
+                <TableRow
+                  key={id}
+                  columnsExpanded={columnsExpanded}
+                  registration={registration}
+                  isSelected={selected.includes(id)}
+                  onCheckboxChange={(_, data) => {
+                    if (data.checked) {
+                      select([id])
+                    } else {
+                      unselect([id])
+                    }
+                  }}
+                />
+              )
+            })
+          ) : (
+            <Table.Row>
+              <Table.Cell colSpan={6}>
+                {t('competitions.registration_v2.list.empty')}
+              </Table.Cell>
+            </Table.Row>
+          )}
+        </Table.Body>
+      </Table>
+    </div>
   )
 }
 
@@ -310,9 +418,14 @@ function TableHeader({
   showCheckbox,
   isChecked,
   onCheckboxChanged,
+  sortDirection,
+  sortColumn,
+  changeSortColumn,
 }) {
   const { competitionInfo } = useContext(CompetitionContext)
   const { isOrganizerOrDelegate } = useContext(PermissionsContext)
+
+  const { t } = useTranslation()
 
   const { dob, events, comments } = columnsExpanded
 
@@ -325,15 +438,47 @@ function TableHeader({
           )}
         </Table.HeaderCell>
         {isOrganizerOrDelegate && <Table.HeaderCell />}
-        <Table.HeaderCell>WCA ID</Table.HeaderCell>
-        <Table.HeaderCell>Name</Table.HeaderCell>
-        {dob && <Table.HeaderCell>DOB</Table.HeaderCell>}
-        <Table.HeaderCell>Region</Table.HeaderCell>
-        <Table.HeaderCell>Registered on</Table.HeaderCell>
+        <Table.HeaderCell
+          sorted={sortColumn === 'wca_id' ? sortDirection : undefined}
+          onClick={() => changeSortColumn('wca_id')}
+        >
+          {t('common.user.wca_id')}
+        </Table.HeaderCell>
+        <Table.HeaderCell
+          sorted={sortColumn === 'name' ? sortDirection : undefined}
+          onClick={() => changeSortColumn('name')}
+        >
+          {t('delegates_page.table.name')}
+        </Table.HeaderCell>
+        {dob && (
+          <Table.HeaderCell
+            sorted={sortColumn === 'dob' ? sortDirection : undefined}
+            onClick={() => changeSortColumn('dob')}
+          >
+            {t('activerecord.attributes.user.dob')}
+          </Table.HeaderCell>
+        )}
+        <Table.HeaderCell
+          sorted={sortColumn === 'country' ? sortDirection : undefined}
+          onClick={() => changeSortColumn('country')}
+        >
+          {t('common.user.representing')}
+        </Table.HeaderCell>
+        <Table.HeaderCell
+          sorted={sortColumn === 'registered_on' ? sortDirection : undefined}
+          onClick={() => changeSortColumn('registered_on')}
+        >
+          {t('registrations.list.registered.without_stripe')}
+        </Table.HeaderCell>
         {competitionInfo['using_stripe_payments?'] && (
           <>
             <Table.HeaderCell>Payment Status</Table.HeaderCell>
-            <Table.HeaderCell>Paid on</Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={sortColumn === 'paid_on' ? sortDirection : undefined}
+              onClick={() => changeSortColumn('paid_on')}
+            >
+              {t('registrations.list.registered.with_stripe')}
+            </Table.HeaderCell>
           </>
         )}
         {events ? (
@@ -343,16 +488,35 @@ function TableHeader({
             </Table.HeaderCell>
           ))
         ) : (
-          <Table.HeaderCell>Events</Table.HeaderCell>
+          <Table.HeaderCell
+            sorted={sortColumn === 'events' ? sortDirection : undefined}
+            onClick={() => changeSortColumn('events')}
+          >
+            {t('competitions.competition_info.events')}
+          </Table.HeaderCell>
         )}
-        <Table.HeaderCell>Guests</Table.HeaderCell>
+        <Table.HeaderCell
+          sorted={sortColumn === 'guests' ? sortDirection : undefined}
+          onClick={() => changeSortColumn('guests')}
+        >
+          {t(
+            'competitions.competition_form.labels.registration.guests_enabled',
+          )}
+        </Table.HeaderCell>
         {comments && (
           <>
-            <Table.HeaderCell>Comment</Table.HeaderCell>
-            <Table.HeaderCell>Admin Note</Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={sortColumn === 'comment' ? sortDirection : undefined}
+              onClick={() => changeSortColumn('comment')}
+            >
+              {t('activerecord.attributes.registration.comments')}
+            </Table.HeaderCell>
+            <Table.HeaderCell>
+              {t('activerecord.attributes.registration.administrative_notes')}
+            </Table.HeaderCell>
           </>
         )}
-        <Table.HeaderCell>Email</Table.HeaderCell>
+        <Table.HeaderCell>{t('registrations.list.email')}</Table.HeaderCell>
       </Table.Row>
     </Table.Header>
   )
@@ -371,12 +535,8 @@ function TableRow({
   const { id, wca_id, name, country } = registration.user
   const { registered_on, event_ids, comment, admin_comment } =
     registration.competing
+  const { dob: dateOfBirth, email: emailAddress } = registration
   const { payment_status, updated_at } = registration.payment
-
-  // TODO: get actual email
-  const emailAddress = `${registration.user_id}@worldcubeassociation.org`
-  // TODO: get actual dob
-  const dateOfBirth = new Date()
 
   const copyEmail = () => {
     navigator.clipboard.writeText(emailAddress)
@@ -398,28 +558,32 @@ function TableRow({
       )}
 
       <Table.Cell>
-        {wca_id && (
-          <a href={`https://www.worldcubeassociation.org/persons/${wca_id}`}>
-            {wca_id}
+        {wca_id ? (
+          <a href={`${process.env.WCA_URL}/persons/${wca_id}`}>{wca_id}</a>
+        ) : (
+          <a href={`${process.env.WCA_URL}/users/${id}/edit`}>
+            <Icon name="edit" />
+            Profile
           </a>
         )}
       </Table.Cell>
 
       <Table.Cell>{name}</Table.Cell>
 
-      {dob && <Table.Cell>{dateOfBirth.toLocaleDateString()}</Table.Cell>}
+      {dob && <Table.Cell>{dateOfBirth}</Table.Cell>}
 
       <Table.Cell>
         {region ? (
           <>
-            <FlagIcon iso2={country.iso2} /> {region && country.name}
+            <FlagIcon iso2={country.iso2.toLowerCase()} />
+            {region && country.name}
           </>
         ) : (
           <Popup
             content={country.name}
             trigger={
               <span>
-                <FlagIcon iso2={country.iso2} />
+                <FlagIcon iso2={country.iso2.toLowerCase()} />
               </span>
             }
           />
@@ -428,8 +592,8 @@ function TableRow({
 
       <Table.Cell>
         <Popup
-          content={new Date(registered_on).toTimeString()}
-          trigger={<span>{new Date(registered_on).toLocaleDateString()}</span>}
+          content={getShortTimeString(registered_on)}
+          trigger={<span>{getShortDateString(registered_on)}</span>}
         />
       </Table.Cell>
 
@@ -439,10 +603,8 @@ function TableRow({
           <Table.Cell>
             {updated_at && (
               <Popup
-                content={new Date(updated_at).toTimeString()}
-                trigger={
-                  <span>{new Date(updated_at).toLocaleDateString()}</span>
-                }
+                content={getShortTimeString(updated_at)}
+                trigger={<span>{getShortDateString(updated_at)}</span>}
               />
             )}
           </Table.Cell>

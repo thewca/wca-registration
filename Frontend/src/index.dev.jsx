@@ -1,7 +1,9 @@
 // External Styles (this is probably not the best way to load this?)
 import 'fomantic-ui-css/semantic.css'
 import './global.scss'
+import './overrides.css'
 import '@thewca/wca-components/dist/index.esm.css'
+import './i18n'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import {
@@ -33,6 +35,7 @@ import PageTabs from './ui/PageTabs'
 import PermissionsProvider from './ui/providers/PermissionsProvider'
 import RegistrationProvider from './ui/providers/RegistrationProvider'
 import UserProvider from './ui/providers/UserProvider'
+import ScrollToTopButton from './ui/ScrollToTopButton'
 
 const router = createBrowserRouter([
   {
@@ -71,13 +74,13 @@ const router = createBrowserRouter([
       {
         path: `${BASE_ROUTE}/:competition_id`,
         element: (
-          <Container>
+          <Container fluid>
             <Competition>
               <PermissionsProvider>
                 <RegistrationProvider>
                   <PageTabs />
                   <Outlet />
-                  <PageTabs />
+                  <ScrollToTopButton />
                 </RegistrationProvider>
               </PermissionsProvider>
             </Competition>

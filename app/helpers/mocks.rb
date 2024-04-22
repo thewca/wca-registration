@@ -8,9 +8,47 @@ module Mocks
     Date.today.prev_month(months).next_day(days).to_s
   end
 
+  def self.pii_mock(user_ids)
+    user_ids.map { |u| { 'id' => u, 'dob' => '1993-01-01', 'email' => "#{u}@worldcubeassociation.org" } }
+  end
+
+  def self.user_info_mock(user_ids)
+    {
+      'users' => user_ids.map do |u|
+        iso = %w[AD AE AI AL BW BY BZ CA CC NU NZ OM PA PE PN PR PS PTF TG TH TJ WS ZW].sample
+        wca_id = "2023TEST#{u % 99}"
+        {
+          'id' => u,
+          'created_at' => Time.now.to_s,
+          'updated_at' => Time.now.to_s,
+          'name' => "Name #{u}",
+          'wca_id' => wca_id,
+          'delegate_status' => nil,
+          'gender' => 'm',
+          'country_iso2' => iso,
+          'url' => "https://#{EnvConfig.WCA_HOST}/persons/#{wca_id}",
+          'country' => {
+            'id' => 'Test Country',
+            'name' => 'Test Country',
+            'continentId' => '_Europe',
+            'iso2' => iso,
+          },
+          'class' => 'user',
+          'teams' => [],
+          'avatar' => {
+            'url' => '',
+            'pending_url' => '',
+            'thumb_url' => '',
+            'is_default' => false,
+          },
+        }
+      end,
+    }
+  end
+
   def self.permissions_mock(user_id)
     case user_id
-    when '1' # Test Organizer
+    when 1 # Test Organizer
       {
         'can_attend_competitions' => {
           'scope' => '*',
@@ -22,7 +60,7 @@ module Mocks
           'scope' => %w[CubingZANationalChampionship2023 LowLimit2023],
         },
       }
-    when '2' # Test Multi-Comp Organizer
+    when 2 # Test Multi-Comp Organizer
       {
         'can_attend_competitions' => {
           'scope' => '*',
@@ -34,7 +72,7 @@ module Mocks
           'scope' => %w[LazarilloOpen2023 CubingZANationalChampionship2023 KoelnerKubing2023 LowLimit2023],
         },
       }
-    when '15073', '15074' # Test Admin
+    when 15073, 15074 # Test Admin
       {
         'can_attend_competitions' => {
           'scope' => '*',
@@ -46,7 +84,7 @@ module Mocks
           'scope' => '*',
         },
       }
-    when '209943', '999999' # Test banned/incomplete profile User
+    when 209943, 999999 # Test banned/incomplete profile User
       {
         'can_attend_competitions' => {
           'scope' => [],

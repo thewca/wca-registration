@@ -1,30 +1,43 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EventSelector } from '@thewca/wca-components'
 import _ from 'lodash'
-import { DateTime } from 'luxon'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import {
+  Accordion,
   Button,
   Checkbox,
   Header,
   Input,
   Message,
+  Popup,
   Segment,
+  Table,
   TextArea,
 } from 'semantic-ui-react'
 import { CompetitionContext } from '../../../api/helper/context/competition_context'
 import { getSingleRegistration } from '../../../api/registration/get/get_registrations'
 import { updateRegistration } from '../../../api/registration/patch/update_registration'
-import { getCompetitorInfo } from '../../../api/user/get/get_user_info'
+import { getUsersInfo } from '../../../api/user/post/get_user_info'
+import {
+  getShortDateString,
+  getShortTimeString,
+  hasPassed,
+} from '../../../lib/dates'
 import { setMessage } from '../../../ui/events/messages'
 import LoadingMessage from '../../../ui/messages/loadingMessage'
 import styles from './editor.module.scss'
 import Refunds from './Refunds'
 
 export default function RegistrationEditor() {
-  const { user_id } = useParams()
+  const userId = Number.parseInt(useParams().user_id, 10)
   const { competitionInfo } = useContext(CompetitionContext)
   const { t } = useTranslation()
 
@@ -36,22 +49,29 @@ export default function RegistrationEditor() {
   const [selectedEvents, setSelectedEvents] = useState([])
   const [registration, setRegistration] = useState({})
   const [isCheckingRefunds, setIsCheckingRefunds] = useState(false)
+  const [isHistoryCollapsed, setIsHistoryCollapsed] = useState(true)
 
   const queryClient = useQueryClient()
 
   const { data: serverRegistration } = useQuery({
-    queryKey: ['registration', competitionInfo.id, user_id],
-    queryFn: () =>
-      getSingleRegistration(Number.parseInt(user_id, 10), competitionInfo.id),
+    queryKey: ['registration-admin', competitionInfo.id, userId],
+    queryFn: () => getSingleRegistration(userId, competitionInfo.id),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
     refetchOnMount: 'always',
   })
 
-  const { isLoading, data: competitorInfo } = useQuery({
-    queryKey: ['info', user_id],
-    queryFn: () => getCompetitorInfo(user_id),
+  const { isLoading, data: competitorsInfo } = useQuery({
+    queryKey: ['info', userId],
+    queryFn: () =>
+      getUsersInfo([
+        ...new Set([
+          userId,
+          ...serverRegistration.history.map((e) => e.actor_user_id),
+        ]),
+      ]),
+    enabled: Boolean(serverRegistration),
   })
 
   const { mutate: updateRegistrationMutation, isLoading: isUpdating } =
@@ -61,50 +81,46 @@ export default function RegistrationEditor() {
         const { errorCode } = data
         setMessage(
           errorCode
-            ? t(`errors.${errorCode}`)
-            : 'Registration update failed with error: ' + data.message,
-          'negative'
+            ? t(`competitions.registration_v2.errors.${errorCode}`)
+            : t('registrations.flash.failed') + data.message,
+          'negative',
         )
       },
       onSuccess: (data) => {
         setMessage('Registration update succeeded', 'positive')
         queryClient.setQueryData(
-          ['registration', competitionInfo.id, user_id],
-          data
+          ['registration', competitionInfo.id, userId],
+          data,
         )
       },
     })
 
   useEffect(() => {
     if (serverRegistration) {
-      setRegistration(serverRegistration.registration)
-      setComment(serverRegistration.registration.competing.comment ?? '')
-      setStatus(serverRegistration.registration.competing.registration_status)
-      setSelectedEvents(serverRegistration.registration.competing.event_ids)
-      setAdminComment(
-        serverRegistration.registration.competing.admin_comment ?? ''
-      )
+      setRegistration(serverRegistration)
+      setComment(serverRegistration.competing.comment ?? '')
+      setStatus(serverRegistration.competing.registration_status)
+      setSelectedEvents(serverRegistration.competing.event_ids)
+      setAdminComment(serverRegistration.competing.admin_comment ?? '')
       setWaitingListPosition(
-        serverRegistration.registration.competing.waiting_list_position ?? 0
+        serverRegistration.competing.waiting_list_position ?? 0,
       )
-      setGuests(serverRegistration.registration.guests ?? 0)
+      setGuests(serverRegistration.guests ?? 0)
     }
   }, [serverRegistration])
 
   const hasEventsChanged =
     serverRegistration &&
-    _.xor(serverRegistration.registration.competing.event_ids, selectedEvents)
-      .length > 0
+    _.xor(serverRegistration.competing.event_ids, selectedEvents).length > 0
   const hasCommentChanged =
     serverRegistration &&
-    comment !== (serverRegistration.registration.competing.comment ?? '')
+    comment !== (serverRegistration.competing.comment ?? '')
   const hasAdminCommentChanged =
     serverRegistration &&
-    adminComment !==
-      (serverRegistration.registration.competing.admin_comment ?? '')
+    adminComment !== (serverRegistration.competing.admin_comment ?? '')
   const hasStatusChanged =
     serverRegistration &&
-    status !== serverRegistration.registration.competing.registration_status
+    status !== serverRegistration.competing.registration_status
   const hasGuestsChanged = false
 
   const hasChanges =
@@ -130,12 +146,12 @@ export default function RegistrationEditor() {
         maxEvents === Infinity
           ? 'You must select at least 1 event'
           : `You must select between 1 and ${maxEvents} events`,
-        'negative'
+        'negative',
       )
     } else {
       setMessage('Updating Registration', 'basic')
       updateRegistrationMutation({
-        user_id,
+        user_id: userId,
         competing: {
           status,
           event_ids: selectedEvents,
@@ -152,7 +168,7 @@ export default function RegistrationEditor() {
     eventsAreValid,
     maxEvents,
     updateRegistrationMutation,
-    user_id,
+    userId,
     status,
     selectedEvents,
     comment,
@@ -162,9 +178,14 @@ export default function RegistrationEditor() {
   ])
 
   const registrationEditDeadlinePassed =
-    DateTime.fromISO(
-      competitionInfo.event_change_deadline_date ?? new Date().toISOString()
-    ) < DateTime.fromJSDate(new Date())
+    Boolean(competitionInfo.event_change_deadline_date) &&
+    hasPassed(competitionInfo.event_change_deadline_date)
+
+  const competitorInfo = useMemo(() => {
+    if (competitorsInfo) {
+      return competitorsInfo.find((c) => c.id === userId)
+    }
+  }, [competitorsInfo, userId])
 
   return (
     <Segment padded attached>
@@ -172,7 +193,14 @@ export default function RegistrationEditor() {
         <LoadingMessage />
       ) : (
         <div>
-          <Header>{competitorInfo.user.name}</Header>
+          {competitorInfo.wca_id && (
+            <Message>
+              This person registered with an account. You can edit their
+              personal information{' '}
+              <a href={`${process.env.WCA_URL}/users/${userId}/edit`}>here.</a>
+            </Message>
+          )}
+          <Header>{competitorInfo.name}</Header>
           <EventSelector
             handleEventSelection={setSelectedEvents}
             selected={selectedEvents}
@@ -280,12 +308,67 @@ export default function RegistrationEditor() {
               )}
               <Refunds
                 competitionId={competitionInfo.id}
-                userId={user_id}
+                userId={userId}
                 open={isCheckingRefunds}
                 onExit={() => setIsCheckingRefunds(false)}
               />
             </>
           )}
+          <Accordion>
+            <Accordion.Title
+              active={isHistoryCollapsed}
+              onClick={() => setIsHistoryCollapsed(!isHistoryCollapsed)}
+            >
+              Registration History
+            </Accordion.Title>
+            <Accordion.Content active={isHistoryCollapsed}>
+              <Table>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell>Timestamp</Table.HeaderCell>
+                    <Table.HeaderCell>Changes</Table.HeaderCell>
+                    <Table.HeaderCell>Acting User</Table.HeaderCell>
+                    <Table.HeaderCell>Action</Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {registration.history.map((entry) => (
+                    <Table.Row key={entry.timestamp}>
+                      <Table.Cell>
+                        <Popup
+                          content={getShortTimeString(entry.timestamp)}
+                          trigger={
+                            <span>{getShortDateString(entry.timestamp)}</span>
+                          }
+                        />
+                      </Table.Cell>
+                      <Table.Cell>
+                        {!_.isEmpty(entry.changed_attributes) ? (
+                          Object.entries(entry.changed_attributes).map(
+                            ([k, v]) => (
+                              <span key={k}>
+                                Changed {k} to {JSON.stringify(v)} <br />
+                              </span>
+                            ),
+                          )
+                        ) : (
+                          <span>Registration Created</span>
+                        )}
+                      </Table.Cell>
+                      <Table.Cell>
+                        {
+                          competitorsInfo.find(
+                            (c) => c.id === entry.actor_user_id,
+                          ).name
+                        }
+                      </Table.Cell>
+                      <Table.Cell>{entry.action}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </Accordion.Content>
+          </Accordion>
         </div>
       )}
     </Segment>

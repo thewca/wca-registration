@@ -479,7 +479,7 @@ describe RegistrationChecker do
     it 'raises error if registration doesnt exist' do
       registration = FactoryBot.create(:registration)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-      update_request = FactoryBot.build(:update_request, user_id: (registration[:user_id].to_i-1).to_s)
+      update_request = FactoryBot.build(:update_request, user_id: (registration[:user_id] -1))
 
       expect {
         RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
@@ -1328,7 +1328,7 @@ describe RegistrationChecker do
 
     it 'returns an error if the registration isnt found' do
       registration = FactoryBot.create(:registration)
-      missing_registration_user_id = (registration[:user_id].to_i-1).to_s
+      missing_registration_user_id = (registration[:user_id]-1)
       failed_update = FactoryBot.build(:update_request, user_id: missing_registration_user_id)
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: [failed_update])
 
@@ -1354,7 +1354,7 @@ describe RegistrationChecker do
       failed_update = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'event_ids' => [] })
       normal_update = FactoryBot.build(:update_request, user_id: registration2[:user_id], competing: { 'status' => 'accepted' })
 
-      missing_registration_user_id = (registration3[:user_id].to_i-1).to_s
+      missing_registration_user_id = (registration3[:user_id].to_i-1)
       failed_update2 = FactoryBot.build(:update_request, user_id: missing_registration_user_id)
       updates = [failed_update, normal_update, failed_update2]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
