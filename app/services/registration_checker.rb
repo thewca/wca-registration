@@ -11,6 +11,7 @@ class RegistrationChecker
 
     user_can_create_registration!
     validate_create_events!
+    validate_qualifications!
     validate_guests!
     validate_comment!
   end
@@ -87,9 +88,11 @@ class RegistrationChecker
 
       event_limit = @competition_info.event_limit
       raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_EVENT_SELECTION) if event_limit.present? && event_ids.count > event_limit
+    end
 
-      # User must meet qualification for events
+    def validate_qualifications!
       return unless @competition_info.enforces_qualifications?
+      event_ids = @request['competing']['event_ids']
       event_ids.each do |event|
         qualification = @competition_info.get_qualification_for(event)
         next if qualification.nil?

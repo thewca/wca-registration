@@ -179,9 +179,28 @@ describe RegistrationChecker do
     end
   end
 
-  describe '#create_registration_allowed!.validate_create_events!', focus: true do
-    it 'rejects registration if user doesnt meet qualification for any of the selected events' do
-      competition = FactoryBot.build(:competition, :enforces_qualifications)
+  describe '#create_registration_allowed!.validate_qualifications!' do
+    context 'qualification exists but not enforced' do
+      it 'succeeds with ranking quali' do
+        # Create a competition with ranking qualification enabled but not enforced
+        competition = FactoryBot.build(:competition, :has_qualifications, :qualifications_not_enforced)
+        competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+        # Mock the qualification endpoint
+        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+
+        # Register with an event which wouldnt meet qualification
+        registration_request = FactoryBot.build(:registration_request, events: ['555'])
+
+        # Expect success
+        expect {
+          RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+        }.not_to raise_error
+      end
+    end
+
+    it 'fails if user is slower than attemptResult-single' do
+      competition = FactoryBot.build(:competition, :has_qualifications)
       competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
       registration_request = FactoryBot.build(:registration_request, events: ['333', '444', '333mbf'])
@@ -198,7 +217,7 @@ describe RegistrationChecker do
     end
 
     it 'user can register for all events if they meet all qualifications' do
-      competition = CompetitionInfo.new(FactoryBot.build(:competition, :enforces_qualifications))
+      competition = CompetitionInfo.new(FactoryBot.build(:competition, :has_qualifications))
       registration_request = FactoryBot.build(:registration_request, events: ['444', '333mbf'])
 
       # Mock the qualification endpoint
@@ -210,7 +229,7 @@ describe RegistrationChecker do
     end
 
     it 'user without a result in an event doesnt qualify for it' do
-      competition = CompetitionInfo.new(FactoryBot.build(:competition, :enforces_qualifications))
+      competition = CompetitionInfo.new(FactoryBot.build(:competition, :has_qualifications))
       registration_request = FactoryBot.build(:registration_request, events: ['555'])
 
       # Mock the qualification endpoint
@@ -225,7 +244,7 @@ describe RegistrationChecker do
     end
 
     it 'users can register even if they dont meet qualification when qualification isnt enforced' do
-      competition = CompetitionInfo.new(FactoryBot.build(:competition, :qualification_not_enforced))
+      competition = CompetitionInfo.new(FactoryBot.build(:competition, :has_qualifications, :qualification_not_enforced))
       registration_request = FactoryBot.build(:registration_request, events: ['555'])
 
       # Mock the qualification endpoint

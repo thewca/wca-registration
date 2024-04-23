@@ -12,7 +12,7 @@ def comp_api_url(competition_id)
 end
 
 class CompetitionApi < WcaApi
-  def self.find(competition_id)
+ def self.find(competition_id)
     competition_json = if Rails.env.development?
                          Mocks.mock_competition(competition_id)
                        else
@@ -20,12 +20,7 @@ class CompetitionApi < WcaApi
                        end
     CompetitionInfo.new(competition_json)
   rescue RegistrationError
-    # Try fetch the mock if fetch_competition_data yields an error and we're not in prod
-    if Rails.env.production?
-      nil
-    else
-      Mocks.mock_competition(url_suffix)
-    end
+    nil
   end
 
   def self.find!(competition_id)
@@ -37,11 +32,29 @@ class CompetitionApi < WcaApi
     CompetitionInfo.new(competition_json)
   end
 
+  # TODO: Refactor this to be consistent with fetch_competition, and rethink this entire interface tbh
+  def self.fetch_qualifications(competition_id)
+    Rails.cache.fetch("#{competition_id}/qualifications", expires_in: 5.minutes) do
+      response = HTTParty.get("#{comp_api_url(competition_id)}/qualifications")
+      case response.code
+      when 200
+        @status = 200
+        JSON.parse response.body
+      when 404
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
+      else
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
+      end
+    end
+  end
+
   # This is how you make a private class method
   class << self
-    def fetch_competition_data(url_suffix)
-      Rails.cache.fetch(url_suffix, expires_in: 5.minutes) do
-        response = HTTParty.get(comp_api_url(url_suffix))
+    def fetch_competition(competition_id)
+      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+        response = HTTParty.get(comp_api_url(competition_id))
         case response.code
         when 200
           @status = 200
@@ -56,8 +69,8 @@ class CompetitionApi < WcaApi
       end
     end
   end
-end
-
+end 
+ 
 class CompetitionInfo
   attr_accessor :competition_id
 
@@ -129,7 +142,7 @@ class CompetitionInfo
   end
 
   def fetch_qualifications
-    @qualifications = CompetitionApi.find(@competition_id, 'qualifications')
+    @qualifications = CompetitionApi.fetch_qualifications(@competition_id)
   end
 
   def qualifications

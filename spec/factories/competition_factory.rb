@@ -52,11 +52,13 @@ FactoryBot.define do
       guests_per_registration_limit { nil }
     end
 
-    trait :enforces_qualifications do
+    trait :has_qualifications do
       qualifications {
         {
           '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 1000 },
-          '555' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 1000 },
+          '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 6000 },
+          'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 100 },
+          'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 200 },
         }
       }
       qualification_results { true }
@@ -64,13 +66,6 @@ FactoryBot.define do
     end
 
     trait :qualification_not_enforced do
-      qualifications {
-        {
-          '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 1000 },
-          '555' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 1000 },
-        }
-      }
-      qualification_results { true }
       allow_registration_without_qualification { true }
     end
 
