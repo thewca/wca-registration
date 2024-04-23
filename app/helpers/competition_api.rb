@@ -12,7 +12,7 @@ def comp_api_url(competition_id)
 end
 
 class CompetitionApi < WcaApi
- def self.find(competition_id)
+  def self.find(competition_id)
     competition_json = if Rails.env.development?
                          Mocks.mock_competition(competition_id)
                        else
@@ -69,8 +69,8 @@ class CompetitionApi < WcaApi
       end
     end
   end
-end 
- 
+end
+
 class CompetitionInfo
   attr_accessor :competition_id
 

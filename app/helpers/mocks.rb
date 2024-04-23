@@ -853,7 +853,7 @@ module Mocks
             'continentRank' => 425,
             'countryRank' => 203,
           },
-        }
+        },
       }
     when 1003 # same as 1002 but nil for 333
       {
@@ -878,7 +878,7 @@ module Mocks
             'continentRank' => 425,
             'countryRank' => 203,
           },
-        }
+        },
       }
     when 1004 # same as 1002 but nil for 555
       {
@@ -897,13 +897,13 @@ module Mocks
           },
         },
         'average' => {
-         '555bf' => {
+          '555bf' => {
             'best' => 189700,
             'worldRank' => 52964,
             'continentRank' => 425,
             'countryRank' => 203,
           },
-        }
+        },
       }
     when 1005 # same as 1002 but nil for 222
       {
@@ -928,7 +928,7 @@ module Mocks
             'continentRank' => 425,
             'countryRank' => 203,
           },
-        }
+        },
       }
     when 1006 # same as 1002 but nil for 555bf
       {
@@ -953,7 +953,7 @@ module Mocks
             'continentRank' => 772,
             'countryRank' => 453,
           },
-        }
+        },
       }
     when 1007 # 333 doesnt make quali
       {
@@ -984,7 +984,7 @@ module Mocks
             'continentRank' => 425,
             'countryRank' => 203,
           },
-        }
+        },
       }
     when 1008 # 555 doesnt make quali
       {
@@ -1015,7 +1015,7 @@ module Mocks
             'continentRank' => 425,
             'countryRank' => 203,
           },
-        }
+        },
       }
     when 1009 # 333 exactly matches quali
       {
@@ -1046,7 +1046,7 @@ module Mocks
             'continentRank' => 425,
             'countryRank' => 203,
           },
-        }
+        },
       }
     when 1010 # 555 exactly matches quali
       {
@@ -1077,7 +1077,7 @@ module Mocks
             'continentRank' => 425,
             'countryRank' => 203,
           },
-        }
+        },
       }
     when 1011 # Only has 333, which passes qualification
       {
@@ -1088,7 +1088,7 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
-        }
+        },
       }
     when 1012 # Only has 555, which passes qualification
       {
@@ -1099,7 +1099,7 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
-        }
+        },
       }
     when 1013 # Only has 222
       {
@@ -1110,7 +1110,7 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
-        }
+        },
       }
     when 1014 # Only has 555bf
       {
@@ -1121,7 +1121,7 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
-        }
+        },
       }
     else
       {

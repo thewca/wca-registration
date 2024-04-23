@@ -188,7 +188,7 @@ describe RegistrationChecker do
       # Mock the qualification endpoint
       stub_request(:get, comp_api_url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
 
-      registration_request = FactoryBot.build(:registration_request, user_id: 1002, events: ['222', '333', '555', '555bf', '333mbf', '444'])  #User id returns nil for personal records
+      registration_request = FactoryBot.build(:registration_request, user_id: 1002, events: ['222', '333', '555', '555bf', '333mbf', '444']) # User id returns nil for personal records
 
       expect {
         RegistrationChecker.create_registration_allowed!(registration_request, @competition_info, registration_request['submitted_by'])
@@ -279,7 +279,6 @@ describe RegistrationChecker do
 
       it_behaves_like 'succeed: qualification enforced', 'can register when 222 single exists for anyResult-single', 1013, ['222']
       it_behaves_like 'succeed: qualification enforced', 'can register when 555bf average exists for anyResult-average', 1014, ['555bf']
-
     end
   end
 
@@ -521,7 +520,6 @@ describe RegistrationChecker do
     end
   end
 
-
   describe '#update_registration_allowed!.validate_qualifications!' do
     it 'smoketest - succeeds when all qualifications are met' do
       # Create a competition with ranking qualification enabled but not enforced
@@ -534,7 +532,7 @@ describe RegistrationChecker do
       update_request = FactoryBot.build(
         :update_request, user_id: 1002, competing: { 'event_ids' => ['222', '333', '555', '555bf', '333mbf', '444'] }
       )
-      registration = FactoryBot.create(:registration, user_id: update_request['user_id'])
+      FactoryBot.create(:registration, user_id: update_request['user_id'])
 
       expect {
         RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
@@ -551,7 +549,7 @@ describe RegistrationChecker do
         stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
 
         update_request = FactoryBot.build(:update_request, user_id: user_id, competing: { 'event_ids' => event_ids })
-        registration = FactoryBot.create(:registration, user_id: update_request['user_id'])
+        FactoryBot.create(:registration, user_id: update_request['user_id'])
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
@@ -569,7 +567,7 @@ describe RegistrationChecker do
         stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
 
         update_request = FactoryBot.build(:update_request, user_id: user_id, competing: { 'event_ids' => event_ids })
-        registration = FactoryBot.create(:registration, user_id: update_request['user_id'])
+        FactoryBot.create(:registration, user_id: update_request['user_id'])
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
@@ -587,7 +585,7 @@ describe RegistrationChecker do
         stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
 
         update_request = FactoryBot.build(:update_request, user_id: user_id, competing: { 'event_ids' => event_ids })
-        registration = FactoryBot.create(:registration, user_id: update_request['user_id'])
+        FactoryBot.create(:registration, user_id: update_request['user_id'])
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
@@ -628,7 +626,6 @@ describe RegistrationChecker do
 
       it_behaves_like 'update succeed: qualification enforced', 'can register when 222 single exists for anyResult-single', 1013, ['222']
       it_behaves_like 'update succeed: qualification enforced', 'can register when 555bf average exists for anyResult-average', 1014, ['555bf']
-
     end
   end
 
