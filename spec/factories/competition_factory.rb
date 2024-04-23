@@ -59,13 +59,15 @@ FactoryBot.define do
           '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 6000 },
           'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 100 },
           'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 200 },
+          '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 0 },
+          '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 0 },
         }
       }
       qualification_results { true }
       allow_registration_without_qualification { false }
     end
 
-    trait :qualification_not_enforced do
+    trait :qualifications_not_enforced do
       allow_registration_without_qualification { true }
     end
 

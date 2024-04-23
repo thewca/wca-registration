@@ -821,102 +821,199 @@ module Mocks
   end
 
   def self.personal_records_mock(user_id)
-    {
-      'single' => {
-        '222' => {
-          'best' => 513,
-          'worldRank' => 53640,
-          'continentRank' => 468,
-          'countryRank' => 280,
+    case user_id
+    when 1001 # Nil array
+      {}
+    when 1002 # Passes all default qualifications in competition factory
+      {
+        'single' => {
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333bf' => {
+            'eventId' => '333bf',
+            'best' => 2455,
+            'worldRank' => 171,
+            'continentRank' => 1,
+            'countryRank' => 1,
+          },
+          '333mbf' => {
+            'eventId' => '333mbf',
+            'best' => 760335903,
+            'worldRank' => 79,
+            'continentRank' => 1,
+            'countryRank' => 1,
+          },
+          '333oh' => {
+            'eventId' => '333oh',
+            'best' => 6565,
+            'worldRank' => 47381,
+            'continentRank' => 433,
+            'countryRank' => 213,
+          },
+          '444' => {
+            'eventId' => '444',
+            'best' => 8052,
+            'worldRank' => 34123,
+            'continentRank' => 219,
+            'countryRank' => 114,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
         },
-        '333' => {
-          'best' => 1581,
-          'worldRank' => 53361,
-          'continentRank' => 445,
-          'countryRank' => 215,
+        'average' => {
+          '222' => {
+            'best' => 1029,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '333' => {
+            'best' => 1897,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          '333bf' => {
+            'best' => 3694,
+            'worldRank' => 222,
+            'continentRank' => 1,
+            'countryRank' => 1,
+          },
+          '444' => {
+            'best' => 9030,
+            'worldRank' => 30796,
+            'continentRank' => 207,
+            'countryRank' => 109,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 16306,
+            'worldRank' => 11623,
+            'continentRank' => 88,
+            'countryRank' => 59,
+          },
+          'pyram' => {
+            'eventId' => 'pyram',
+            'best' => 2405,
+            'worldRank' => 79462,
+            'continentRank' => 832,
+            'countryRank' => 497,
+          },
         },
-        '333bf' => {
-          'eventId' => '333bf',
-          'best' => 2455,
-          'worldRank' => 171,
-          'continentRank' => 1,
-          'countryRank' => 1,
+      }
+    else
+      {
+        'single' => {
+          '222' => {
+            'best' => 513,
+            'worldRank' => 53640,
+            'continentRank' => 468,
+            'countryRank' => 280,
+          },
+          '333' => {
+            'best' => 1581,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333bf' => {
+            'eventId' => '333bf',
+            'best' => 2455,
+            'worldRank' => 171,
+            'continentRank' => 1,
+            'countryRank' => 1,
+          },
+          '333mbf' => {
+            'eventId' => '333mbf',
+            'best' => 760335903,
+            'worldRank' => 79,
+            'continentRank' => 1,
+            'countryRank' => 1,
+          },
+          '333oh' => {
+            'eventId' => '333oh',
+            'best' => 6565,
+            'worldRank' => 47381,
+            'continentRank' => 433,
+            'countryRank' => 213,
+          },
+          '444' => {
+            'eventId' => '444',
+            'best' => 8052,
+            'worldRank' => 34123,
+            'continentRank' => 219,
+            'countryRank' => 114,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
         },
-        '333mbf' => {
-          'eventId' => '333mbf',
-          'best' => 760335903,
-          'worldRank' => 79,
-          'continentRank' => 1,
-          'countryRank' => 1,
+        'average' => {
+          '222' => {
+            'best' => 1029,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '333' => {
+            'best' => 1897,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          '333bf' => {
+            'best' => 3694,
+            'worldRank' => 222,
+            'continentRank' => 1,
+            'countryRank' => 1,
+          },
+          '444' => {
+            'best' => 9030,
+            'worldRank' => 30796,
+            'continentRank' => 207,
+            'countryRank' => 109,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 16306,
+            'worldRank' => 11623,
+            'continentRank' => 88,
+            'countryRank' => 59,
+          },
+          'pyram' => {
+            'eventId' => 'pyram',
+            'best' => 2405,
+            'worldRank' => 79462,
+            'continentRank' => 832,
+            'countryRank' => 497,
+          },
         },
-        '333oh' => {
-          'eventId' => '333oh',
-          'best' => 6565,
-          'worldRank' => 47381,
-          'continentRank' => 433,
-          'countryRank' => 213,
-        },
-        '444' => {
-          'eventId' => '444',
-          'best' => 8052,
-          'worldRank' => 34123,
-          'continentRank' => 219,
-          'countryRank' => 114,
-        },
-        'minx' => {
-          'eventId' => 'minx',
-          'best' => 13887,
-          'worldRank' => 12664,
-          'continentRank' => 84,
-          'countryRank' => 55,
-        },
-        'pyram' => {
-          'best' => 1625,
-          'worldRank' => 79098,
-          'continentRank' => 841,
-          'countryRank' => 512,
-        },
-      },
-      'average' => [
-        '222' => {
-          'best' => 1029,
-          'worldRank' => 83789,
-          'continentRank' => 772,
-          'countryRank' => 453,
-        },
-        '333' => {
-          'best' => 1897,
-          'worldRank' => 52964,
-          'continentRank' => 425,
-          'countryRank' => 203,
-        },
-        '333bf' => {
-          'best' => 3694,
-          'worldRank' => 222,
-          'continentRank' => 1,
-          'countryRank' => 1,
-        },
-        '444' => {
-          'best' => 9030,
-          'worldRank' => 30796,
-          'continentRank' => 207,
-          'countryRank' => 109,
-        },
-        'minx' => {
-          'eventId' => 'minx',
-          'best' => 16306,
-          'worldRank' => 11623,
-          'continentRank' => 88,
-          'countryRank' => 59,
-        },
-        'pyram' => {
-          'eventId' => 'pyram',
-          'best' => 2405,
-          'worldRank' => 79462,
-          'continentRank' => 832,
-          'countryRank' => 497,
-        },
-      ],
-    }
+      }
+    end
   end
 end
