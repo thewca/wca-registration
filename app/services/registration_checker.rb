@@ -31,6 +31,7 @@ class RegistrationChecker
     validate_waiting_list_position!
     validate_update_status!
     validate_update_events!
+    validate_qualifications!
   rescue Dynamoid::Errors::RecordNotFound
     # We capture and convert the error so that it can be included in the error array of a bulk update request
     raise RegistrationError.new(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
@@ -95,7 +96,6 @@ class RegistrationChecker
       event_ids = @request['competing']['event_ids']
       event_ids.each do |event|
         qualification = @competition_info.get_qualification_for(event)
-        puts "checking qualification for #{event} with quali: #{qualification}"
         next if qualification.nil?
 
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET) unless competitor_qualifies_for_event?(event, qualification)

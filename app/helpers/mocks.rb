@@ -955,6 +955,174 @@ module Mocks
           },
         }
       }
+    when 1007 # 333 doesnt make quali
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 1100,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+        }
+      }
+    when 1008 # 555 doesnt make quali
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 7000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+        }
+      }
+    when 1009 # 333 exactly matches quali
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 1000,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+        }
+      }
+    when 1010 # 555 exactly matches quali
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 6000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+        }
+      }
+    when 1011 # Only has 333, which passes qualification
+      {
+        'single' => {
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        }
+      }
+    when 1012 # Only has 555, which passes qualification
+      {
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        }
+      }
+    when 1013 # Only has 222
+      {
+        'single' => {
+          '222' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        }
+      }
+    when 1014 # Only has 555bf
+      {
+        'average' => {
+          '555bf' => {
+            'best' => 500000,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        }
+      }
     else
       {
         'single' => {
