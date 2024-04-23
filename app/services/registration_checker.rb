@@ -95,6 +95,7 @@ class RegistrationChecker
       event_ids = @request['competing']['event_ids']
       event_ids.each do |event|
         qualification = @competition_info.get_qualification_for(event)
+        puts "checking qualification for #{event} with quali: #{qualification}"
         next if qualification.nil?
 
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET) unless competitor_qualifies_for_event?(event, qualification)
@@ -218,9 +219,14 @@ class RegistrationChecker
       result_type = qualification['resultType']
 
       case qualification['type']
+      when 'anyResult'
+        competitor_pr = competitor_personal_records.dig(result_type, event, 'best')
+        competitor_pr.present?
       when 'attemptResult'
         competitor_pr = competitor_personal_records.dig(result_type, event, 'best')
         competitor_pr.present? && competitor_pr < qualification['level']
+      else
+        false
       end
     end
   end
