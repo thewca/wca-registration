@@ -219,7 +219,7 @@ class RegistrationChecker
       result_type = qualification['resultType']
 
       case qualification['type']
-      when 'anyResult'
+      when 'anyResult', 'ranking'
         competitor_pr = competitor_personal_records.dig(result_type, event, 'best')
         competitor_pr.present?
       when 'attemptResult'

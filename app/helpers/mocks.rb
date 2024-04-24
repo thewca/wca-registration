@@ -839,6 +839,12 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
         },
         'average' => {
           '555' => {
@@ -852,6 +858,13 @@ module Mocks
             'worldRank' => 52964,
             'continentRank' => 425,
             'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
           },
         },
       }
@@ -864,6 +877,12 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
         },
         'average' => {
           '555' => {
@@ -877,6 +896,13 @@ module Mocks
             'worldRank' => 52964,
             'continentRank' => 425,
             'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
           },
         },
       }
@@ -895,6 +921,12 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
         },
         'average' => {
           '555bf' => {
@@ -902,6 +934,13 @@ module Mocks
             'worldRank' => 52964,
             'continentRank' => 425,
             'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
           },
         },
       }
@@ -913,6 +952,12 @@ module Mocks
             'worldRank' => 53361,
             'continentRank' => 445,
             'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
           },
         },
         'average' => {
@@ -927,6 +972,13 @@ module Mocks
             'worldRank' => 52964,
             'continentRank' => 425,
             'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
           },
         },
       }
@@ -945,6 +997,12 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
         },
         'average' => {
           '555' => {
@@ -952,6 +1010,88 @@ module Mocks
             'worldRank' => 83789,
             'continentRank' => 772,
             'countryRank' => 453,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 10061 # same as 1002 but nil for pyram
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 10062 # Passes all default qualifications in competition factory
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
           },
         },
       }
@@ -970,6 +1110,12 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
         },
         'average' => {
           '555' => {
@@ -983,6 +1129,13 @@ module Mocks
             'worldRank' => 52964,
             'continentRank' => 425,
             'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
           },
         },
       }
@@ -1001,6 +1154,12 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
         },
         'average' => {
           '555' => {
@@ -1014,6 +1173,13 @@ module Mocks
             'worldRank' => 52964,
             'continentRank' => 425,
             'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
           },
         },
       }
@@ -1032,6 +1198,12 @@ module Mocks
             'continentRank' => 445,
             'countryRank' => 215,
           },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
         },
         'average' => {
           '555' => {
@@ -1045,6 +1217,13 @@ module Mocks
             'worldRank' => 52964,
             'continentRank' => 425,
             'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
           },
         },
       }
@@ -1062,6 +1241,12 @@ module Mocks
             'worldRank' => 53361,
             'continentRank' => 445,
             'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
           },
         },
         'average' => {
@@ -1117,6 +1302,28 @@ module Mocks
         'average' => {
           '555bf' => {
             'best' => 500000,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+      }
+    when 1015 # Only has pyram
+      {
+        'single' => {
+          'pyram' => {
+            'best' => 300,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+      }
+    when 1016 # Only has minx
+      {
+        'average' => {
+          'minx' => {
+            'best' => 6000,
             'worldRank' => 53361,
             'continentRank' => 445,
             'countryRank' => 215,
