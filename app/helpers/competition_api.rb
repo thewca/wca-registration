@@ -34,14 +34,13 @@ class CompetitionApi < WcaApi
 
   def self.find_qualifications(competition_id)
     if Rails.env.development?
-       Mocks.mock_competition(competition_id)
-     else
-       fetch_competition(competition_id)
-     end
+      Mocks.mock_competition(competition_id)
+    else
+      fetch_competition(competition_id)
+    end
   rescue RegistrationError
     nil
   end
-
 
   private_class_method def self.fetch_qualifications(competition_id)
     Rails.cache.fetch("#{competition_id}/qualifications", expires_in: 5.minutes) do
