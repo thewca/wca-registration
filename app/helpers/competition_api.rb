@@ -32,8 +32,18 @@ class CompetitionApi < WcaApi
     CompetitionInfo.new(competition_json)
   end
 
-  # TODO: Refactor this to be consistent with fetch_competition, and rethink this entire interface tbh
-  def self.fetch_qualifications(competition_id)
+  def self.find_qualifications(competition_id)
+    if Rails.env.development?
+       Mocks.mock_competition(competition_id)
+     else
+       fetch_competition(competition_id)
+     end
+  rescue RegistrationError
+    nil
+  end
+
+
+  private_class_method def self.fetch_qualifications(competition_id)
     Rails.cache.fetch("#{competition_id}/qualifications", expires_in: 5.minutes) do
       response = HTTParty.get("#{comp_api_url(competition_id)}/qualifications")
       case response.code
@@ -50,22 +60,19 @@ class CompetitionApi < WcaApi
     end
   end
 
-  # This is how you make a private class method
-  class << self
-    def fetch_competition(competition_id)
-      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        response = HTTParty.get(comp_api_url(competition_id))
-        case response.code
-        when 200
-          @status = 200
-          JSON.parse response.body
-        when 404
-          Metrics.registration_competition_api_error_counter.increment
-          raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
-        else
-          Metrics.registration_competition_api_error_counter.increment
-          raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
-        end
+  private_class_method def self.fetch_competition(competition_id)
+    Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+      response = HTTParty.get(comp_api_url(competition_id))
+      case response.code
+      when 200
+        @status = 200
+        JSON.parse response.body
+      when 404
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
+      else
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
       end
     end
   end
@@ -142,7 +149,7 @@ class CompetitionInfo
   end
 
   def fetch_qualifications
-    @qualifications = CompetitionApi.fetch_qualifications(@competition_id)
+    @qualifications = CompetitionApi.find_qualifications(@competition_id)
   end
 
   def qualifications
