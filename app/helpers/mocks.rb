@@ -13,37 +13,72 @@ module Mocks
   end
 
   def self.user_info_mock(user_ids)
-    {
-      'users' => user_ids.map do |u|
-        iso = %w[AD AE AI AL BW BY BZ CA CC NU NZ OM PA PE PN PR PS PTF TG TH TJ WS ZW].sample
-        wca_id = "2023TEST#{u % 99}"
-        {
-          'id' => u,
-          'created_at' => Time.now.to_s,
-          'updated_at' => Time.now.to_s,
-          'name' => "Name #{u}",
-          'wca_id' => wca_id,
-          'delegate_status' => nil,
-          'gender' => 'm',
-          'country_iso2' => iso,
-          'url' => "https://#{EnvConfig.WCA_HOST}/persons/#{wca_id}",
-          'country' => {
-            'id' => 'Test Country',
-            'name' => 'Test Country',
-            'continentId' => '_Europe',
-            'iso2' => iso,
-          },
-          'class' => 'user',
-          'teams' => [],
-          'avatar' => {
-            'url' => '',
-            'pending_url' => '',
-            'thumb_url' => '',
-            'is_default' => false,
-          },
-        }
-      end,
-    }
+    case user_ids
+    when [50]
+      {
+        'users' => user_ids.map do |u|
+          iso = %w[AD AE AI AL BW BY BZ CA CC NU NZ OM PA PE PN PR PS PTF TG TH TJ WS ZW].sample
+          wca_id = nil
+          {
+            'id' => u,
+            'created_at' => Time.now.to_s,
+            'updated_at' => Time.now.to_s,
+            'name' => "Name #{u}",
+            'wca_id' => wca_id,
+            'delegate_status' => nil,
+            'gender' => 'm',
+            'country_iso2' => iso,
+            'url' => nil,
+            'country' => {
+              'id' => 'Test Country',
+              'name' => 'Test Country',
+              'continentId' => '_Europe',
+              'iso2' => iso,
+            },
+            'class' => 'user',
+            'teams' => [],
+            'avatar' => {
+              'url' => '',
+              'pending_url' => '',
+              'thumb_url' => '',
+              'is_default' => false,
+            },
+          }
+        end,
+      }
+    else
+      {
+        'users' => user_ids.map do |u|
+          iso = %w[AD AE AI AL BW BY BZ CA CC NU NZ OM PA PE PN PR PS PTF TG TH TJ WS ZW].sample
+          wca_id = "2023TEST#{u % 99}"
+          {
+            'id' => u,
+            'created_at' => Time.now.to_s,
+            'updated_at' => Time.now.to_s,
+            'name' => "Name #{u}",
+            'wca_id' => wca_id,
+            'delegate_status' => nil,
+            'gender' => 'm',
+            'country_iso2' => iso,
+            'url' => "https://#{EnvConfig.WCA_HOST}/persons/#{wca_id}",
+            'country' => {
+              'id' => 'Test Country',
+              'name' => 'Test Country',
+              'continentId' => '_Europe',
+              'iso2' => iso,
+            },
+            'class' => 'user',
+            'teams' => [],
+            'avatar' => {
+              'url' => '',
+              'pending_url' => '',
+              'thumb_url' => '',
+              'is_default' => false,
+            },
+          }
+        end,
+      }
+    end
   end
 
   def self.permissions_mock(user_id)

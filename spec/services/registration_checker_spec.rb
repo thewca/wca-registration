@@ -188,6 +188,27 @@ describe RegistrationChecker do
         .not_to raise_error
     end
 
+    it 'user with wca id can register when wca id required' do
+      registration_request = FactoryBot.build(:registration_request)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, newcomers_allowed: false))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.not_to raise_error
+    end
+
+    it 'newcomer cant register when wca id required' do
+      registration_request = FactoryBot.build(:registration_request, :newcomer)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, newcomers_allowed: false))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::WCA_ID_REQUIRED)
+      end
+    end
+
     it 'users can only register for themselves' do
       registration_request = FactoryBot.build(:registration_request, :impersonation)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))

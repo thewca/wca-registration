@@ -24,6 +24,7 @@ FactoryBot.define do
     venue_address { 'South Africa, 28 Droste Cres, Droste Park, Johannesburg, 2094' }
     venue_details { '' }
     latitude_degrees { -26.21117 }
+    newcomers_allowed { true }
     longitude_degrees { 28.06449 }
     country_iso2 { 'ZA' }
     guest_entry_status { 'restricted' }
