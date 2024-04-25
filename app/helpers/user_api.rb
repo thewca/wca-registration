@@ -43,6 +43,10 @@ class UserApi < WcaApi
     end
   end
 
+  def self.is_newcomer?(user_id)
+    self.get_user_info([user_id])['users'].first['wca_id'].nil?
+  end
+
   def self.can_compete?(user_id)
     # All User Related cache Keys should start with the UserID, so we could invalidate them on user update
     # TODO: Move this to it's own cache helper class so this is guaranteed?

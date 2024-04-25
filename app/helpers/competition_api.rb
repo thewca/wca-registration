@@ -125,4 +125,8 @@ class CompetitionInfo
   def other_series_ids
     @competition_json['competition_series_ids']&.reject { |id| id == competition_id }
   end
+
+  def newcomers_allowed?
+    @competition_json['newcomers_allowed']
+  end
 end

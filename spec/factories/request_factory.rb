@@ -22,6 +22,10 @@ FactoryBot.define do
       competing { { 'event_ids' => events, 'comment' => raw_comment, 'lane_state' => 'pending' } }
     end
 
+    trait :newcomer do
+      user_id { 50 }
+    end
+
     trait :organizer do
       user_id { 1306 }
       jwt_token { fetch_jwt_token(user_id) }

@@ -59,6 +59,9 @@ class RegistrationChecker
       can_compete = UserApi.can_compete?(@requestee_user_id)
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
 
+      # Newcomers cannot sign up if no newcomers are allowed
+      raise RegistrationError.new(:forbidden, ErrorCodes::WCA_ID_REQUIRED) if !@competition_info.newcomers_allowed? && UserApi.is_newcomer?(@requestee_user_id)
+
       # Users cannot sign up for multiple competitions in a series
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
