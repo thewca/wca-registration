@@ -3,6 +3,59 @@
 require 'rails_helper'
 
 describe RegistrationController do
+  describe '#create', :focus do
+    it 'successfully creates a registration' do
+      @competition = FactoryBot.build(:competition)
+      stub_request(:get, comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
+
+      registration_request = FactoryBot.build(:registration_request)
+
+      request.headers['Authorization'] = registration_request['jwt_token']
+      post :create, params: registration_request, as: :json
+      sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+
+      created_registration = Registration.find("#{@competition['id']}-#{registration_request['user_id']}")
+
+      expect(response.code).to eq('202')
+      expect(created_registration.event_ids).to eq(registration_request['competing']['event_ids'])
+    end
+
+    it 'registration succeeds when qualifications are met' do
+      @competition = FactoryBot.build(:competition, :has_qualifications)
+      stub_request(:get, comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
+      stub_request(:get, comp_api_url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
+
+      registration_request = FactoryBot.build(:registration_request, user_id: 1002)
+
+      request.headers['Authorization'] = registration_request['jwt_token']
+      post :create, params: registration_request, as: :json
+      sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+
+      created_registration = Registration.find("#{@competition['id']}-#{registration_request['user_id']}")
+
+      expect(response.code).to eq('202')
+      expect(created_registration.event_ids).to eq(registration_request['competing']['event_ids'])
+    end
+
+    it 'registration fails when qualifications not met' do
+      @competition = FactoryBot.build(:competition, :has_qualifications)
+      stub_request(:get, comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
+      stub_request(:get, comp_api_url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
+
+      registration_request = FactoryBot.build(:registration_request, user_id: 1001)
+
+      request.headers['Authorization'] = registration_request['jwt_token']
+      post :create, params: registration_request, as: :json
+      sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+
+      expect(response.code).to eq('422')
+      expect(response.body).to eq({error: -4012}.to_json)
+      expect{ Registration.find("#{@competition['id']}-#{registration_request['user_id']}") }.to raise_error(Dynamoid::Errors::RecordNotFound)
+
+    end
+
+  end
+
   describe '#update' do
     # NOTE: This code only needs to run once before the assertions, but before(:create) doesnt work because `request` defined then
     before do

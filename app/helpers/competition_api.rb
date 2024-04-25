@@ -36,7 +36,7 @@ class CompetitionApi < WcaApi
     if Rails.env.development?
       Mocks.mock_competition(competition_id)
     else
-      fetch_competition(competition_id)
+      fetch_qualifications(competition_id)
     end
   rescue RegistrationError
     nil
