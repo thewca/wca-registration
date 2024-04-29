@@ -83,7 +83,7 @@ class CompetitionInfo
   def initialize(competition_json)
     @competition_json = competition_json
     @competition_id = competition_json['id']
-    @qualifications = @competition_json['qualifications']
+    @qualifications = nil
   end
 
   def within_event_change_deadline?
@@ -147,18 +147,14 @@ class CompetitionInfo
     @competition_json['allow_registration_self_delete_after_acceptance']
   end
 
-  def fetch_qualifications
-    @qualifications = CompetitionApi.find_qualifications(@competition_id)
-  end
-
-  def qualifications
-    fetch_qualifications unless @qualifications.present?
-    @competition_json['qualifications']
-  end
-
   def get_qualification_for(event)
     fetch_qualifications unless @qualifications.present?
     @qualifications[event]
+  end
+
+  private def fetch_qualifications
+    return nil unless enforces_qualifications?
+    @qualifications = CompetitionApi.find_qualifications(@competition_id)
   end
 
   def enforces_qualifications?
