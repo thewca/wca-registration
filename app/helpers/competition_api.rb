@@ -83,7 +83,7 @@ class CompetitionInfo
   def initialize(competition_json)
     @competition_json = competition_json
     @competition_id = competition_json['id']
-    @qualifications = nil
+    @qualifications = fetch_qualifications
   end
 
   def within_event_change_deadline?
@@ -148,7 +148,6 @@ class CompetitionInfo
   end
 
   def get_qualification_for(event)
-    fetch_qualifications unless @qualifications.present?
     @qualifications[event]
   end
 
