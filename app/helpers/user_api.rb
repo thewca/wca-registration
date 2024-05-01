@@ -19,11 +19,11 @@ end
 
 class UserApi < WcaApi
   def self.get_permissions(user_id)
-    HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.get_wca_token })
+    HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.wca_token })
   end
 
   def self.get_user_info_pii(user_ids)
-    HTTParty.post(competitor_info_path, headers: { WCA_API_HEADER => self.get_wca_token }, body: { ids: user_ids.to_a })
+    HTTParty.post(competitor_info_path, headers: { WCA_API_HEADER => self.wca_token }, body: { ids: user_ids.to_a })
   end
 
   def self.can_compete?(user_id)
