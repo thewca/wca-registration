@@ -38,7 +38,7 @@
     "events": "3.3.0",
     "fomantic-ui-css": "2.9.3",
     "jest-localstorage-mock": "2.4.26",
-    "i18next": "23.10.0",
+    "i18next": "23.11.3",
     "luxon": "3.4.4",
     "marked": "12.0.1",
     "openapi-fetch": "0.9.3",
