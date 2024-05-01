@@ -13,7 +13,7 @@ Run
 docker compose -f docker-compose.dev.yml up
 ```
 
-The frontend will then be running at http://localhost:3002/.
+This system is backend only. You need to run the WCA Frontend separately (currently hosted [here](https://github.com/thewca/worldcubeassociation.org)). The backend is then available at localhost:8000
 
 ### Running tests
 

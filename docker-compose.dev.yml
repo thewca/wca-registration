@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: dockerfile.dev
     ports:
-      - "3001:3000"
+      - "8000:3000"
     environment:
       LOCALSTACK_ENDPOINT: "http://localstack:4566"
       PROMETHEUS_EXPORTER: "prometheus_exporter"
