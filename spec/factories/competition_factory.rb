@@ -49,7 +49,7 @@ FactoryBot.define do
       guests_per_registration_limit { nil }
     end
 
-    trait :closed do
+    trait :not_open_yet do
       registration_opened? { false }
       event_change_deadline_date { '2022-06-14T00:00:00.000Z' }
     end
