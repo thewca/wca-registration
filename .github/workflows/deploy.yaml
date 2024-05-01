@@ -41,10 +41,3 @@ jobs:
       - name: Deploy worker
         run: |
           aws ecs update-service --cluster wca-registration --service wca-registration-worker --force-new-deployment
-      - name: Deploy Frontend
-        run: |
-          cd ./Frontend
-          npm install
-          npm run build:prod
-          aws s3 sync dist s3://assets.registration.worldcubeassociation.org/dist
-          aws cloudfront create-invalidation --distribution-id E322K044MBR5FG --paths "/dist/*" --output text

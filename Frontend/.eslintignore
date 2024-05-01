@@ -1,5 +1,0 @@
-/src/api/schema.d.ts
-/src/api/mocks/fixtures/competitions/*.ts
-/src/api/validations.ts
-__tests__/*
-dist
