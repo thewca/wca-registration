@@ -65,7 +65,7 @@ FactoryBot.define do
     trait :series do
       competition_series_ids { ['CubingZANationalChampionship2023', 'CubingZAWarmup2023'] }
     end
-    
+
     trait :closed do
       registration_opened? { false }
       registration_open { DateTime.now-3 }

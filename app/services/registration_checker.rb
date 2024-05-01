@@ -78,7 +78,7 @@ class RegistrationChecker
       return false unless @competition_info.is_organizer_or_delegate?(@requester_user_id)
 
       # Organizer/delegate cannot preregister someone else
-      return false unless (@requester_user_id == @requestee_user_id)
+      return false unless @requester_user_id == @requestee_user_id
 
       # Can only preregister if preregisration limit is not reached
       preregistrations_allowed = (@competition_info.competitor_limit*PREREGISTRATIONS_FRACTION_ALLOWED).to_i
