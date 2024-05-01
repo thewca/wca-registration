@@ -13,22 +13,14 @@ end
 
 class CompetitionApi < WcaApi
   def self.find(competition_id)
-    competition_json = if Rails.env.development?
-                         Mocks.mock_competition(competition_id)
-                       else
-                         fetch_competition(competition_id)
-                       end
+    competition_json = fetch_competition(competition_id)
     CompetitionInfo.new(competition_json)
   rescue RegistrationError
     nil
   end
 
   def self.find!(competition_id)
-    competition_json = if Rails.env.development?
-                         Mocks.mock_competition(competition_id)
-                       else
-                         fetch_competition(competition_id)
-                       end
+    competition_json = fetch_competition(competition_id)
     CompetitionInfo.new(competition_json)
   end
 

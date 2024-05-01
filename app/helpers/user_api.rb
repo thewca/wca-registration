@@ -20,27 +20,11 @@ end
 
 class UserApi < WcaApi
   def self.get_permissions(user_id)
-    if Rails.env.production?
-      HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.get_wca_token })
-    else
-      Mocks.permissions_mock(user_id)
-    end
+    HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.get_wca_token })
   end
 
   def self.get_user_info_pii(user_ids)
-    if Rails.env.production?
-      HTTParty.post(competitor_info_path, headers: { WCA_API_HEADER => self.get_wca_token }, body: { ids: user_ids.to_a })
-    else
-      Mocks.pii_mock(user_ids)
-    end
-  end
-
-  def self.get_user_info(user_ids)
-    if Rails.env.production?
-      HTTParty.get(users_info_path(user_ids))
-    else
-      Mocks.user_info_mock(user_ids)
-    end
+    HTTParty.post(competitor_info_path, headers: { WCA_API_HEADER => self.get_wca_token }, body: { ids: user_ids.to_a })
   end
 
   def self.can_compete?(user_id)
