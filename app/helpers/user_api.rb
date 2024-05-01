@@ -2,7 +2,6 @@
 
 require 'httparty'
 require 'json'
-require_relative 'mocks'
 require_relative 'wca_api'
 
 def permissions_path(user_id)
