@@ -11,6 +11,7 @@ RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
     registration = FactoryBot.create(:registration, registration_status: old_status)
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => new_status })
+    stub_request(:get, permissions_path(registration[:user_id])).to_return(status: 200, body: FactoryBot.build(:permissions_response))
 
     expect {
       RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
@@ -26,6 +27,7 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
     registration = FactoryBot.create(:registration, registration_status: old_status)
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
+    stub_request(:get, permissions_path(registration[:user_id])).to_return(status: 200, body: FactoryBot.build(:permissions_response, organized_competitions: [competition_info.id]))
 
     expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
       .not_to raise_error
@@ -35,6 +37,7 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
     registration = FactoryBot.create(:registration, registration_status: old_status)
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
+    stub_request(:get, permissions_path(registration[:user_id])).to_return(status: 200, body: FactoryBot.build(:permissions_response, organized_competitions: [competition_info.id]))
 
     expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
       .not_to raise_error
@@ -43,6 +46,10 @@ end
 
 describe RegistrationChecker do
   describe '#create_registration_allowed!' do
+    before do
+      stub_request(:get, permissions_path(registration[:user_id])).to_return(status: 200, body: FactoryBot.build(:permissions_response))
+    end
+
     it 'user must have events selected' do
       registration_request = FactoryBot.build(:registration_request, events: [])
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
