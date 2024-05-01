@@ -65,6 +65,10 @@ class CompetitionInfo
     Time.now < @competition_json['event_change_deadline_date']
   end
 
+  def registration_not_yet_opened?
+    DateTime.now < @competition_json['registration_open']
+  end
+
   def competitor_limit
     @competition_json['competitor_limit']
   end

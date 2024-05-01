@@ -55,7 +55,7 @@ class RegistrationChecker
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_organizer_or_current_user?
 
       # Only organizers can register when registration is closed, and they can only register for themselves - not for other users
-      raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || user_can_preregister?
+      raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || user_may_preregister?
 
       can_compete = UserApi.can_compete?(@requestee_user_id)
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
@@ -70,7 +70,10 @@ class RegistrationChecker
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
 
-    def user_can_preregister?
+    def user_may_preregister?
+      # Can only preregister if registration hasn't closed (ie, if registration is not yet open)
+      return false unless @competition_info.registration_not_yet_opened?
+
       # User must be a listed organizer/delegate to preregister
       return false unless @competition_info.is_organizer_or_delegate?(@requester_user_id)
 

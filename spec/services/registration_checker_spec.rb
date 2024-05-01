@@ -243,9 +243,17 @@ describe RegistrationChecker do
       end
     end
 
-    # TODO
-    # it 'organizers cant register after registration closes' do
-    # end
+    it 'organizers cant register after registration closes' do
+      registration_request = FactoryBot.build(:registration_request, :organizer)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.http_status).to eq(:forbidden)
+        expect(error.error).to eq(ErrorCodes::REGISTRATION_CLOSED)
+      end
+    end
 
     it 'organizers can create registrations for users' do
       registration_request = FactoryBot.build(:registration_request, :organizer_submits)
@@ -950,7 +958,7 @@ describe RegistrationChecker do
 
     it 'user cant cancel registration after registration ends' do
       registration = FactoryBot.create(:registration)
-      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :not_open_yet))
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
       update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'cancelled' })
 
       expect {
