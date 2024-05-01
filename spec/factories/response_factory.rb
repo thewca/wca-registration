@@ -4,7 +4,6 @@ require 'factory_bot_rails'
 
 FactoryBot.define do
   factory :permissions_response, class: Hash do
-
     organized_competitions { [] }
 
     can_attend_competitions { { 'scope' => '*' } }
@@ -12,7 +11,7 @@ FactoryBot.define do
     can_administer_competitions { { 'scope' => organized_competitions } }
 
     trait :admin do
-      organized_competitions { "*" }
+      organized_competitions { '*' }
     end
 
     trait :banned do
