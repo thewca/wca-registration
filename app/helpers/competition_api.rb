@@ -32,22 +32,46 @@ class CompetitionApi < WcaApi
     CompetitionInfo.new(competition_json)
   end
 
-  # This is how you make a private class method
-  class << self
-    def fetch_competition(competition_id)
-      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        response = HTTParty.get(comp_api_url(competition_id))
-        case response.code
-        when 200
-          @status = 200
-          JSON.parse response.body
-        when 404
-          Metrics.registration_competition_api_error_counter.increment
-          raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
-        else
-          Metrics.registration_competition_api_error_counter.increment
-          raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
-        end
+  def self.find_qualifications(competition_id)
+    if Rails.env.development?
+      Mocks.mock_competition(competition_id)
+    else
+      fetch_qualifications(competition_id)
+    end
+  rescue RegistrationError
+    nil
+  end
+
+  private_class_method def self.fetch_qualifications(competition_id)
+    Rails.cache.fetch("#{competition_id}/qualifications", expires_in: 5.minutes) do
+      response = HTTParty.get("#{comp_api_url(competition_id)}/qualifications")
+      case response.code
+      when 200
+        @status = 200
+        JSON.parse response.body
+      when 404
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
+      else
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
+      end
+    end
+  end
+
+  private_class_method def self.fetch_competition(competition_id)
+    Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+      response = HTTParty.get(comp_api_url(competition_id))
+      case response.code
+      when 200
+        @status = 200
+        JSON.parse response.body
+      when 404
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
+      else
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
       end
     end
   end
@@ -59,6 +83,7 @@ class CompetitionInfo
   def initialize(competition_json)
     @competition_json = competition_json
     @competition_id = competition_json['id']
+    @qualifications = fetch_qualifications
   end
 
   def within_event_change_deadline?
@@ -120,6 +145,19 @@ class CompetitionInfo
 
   def user_can_cancel?
     @competition_json['allow_registration_self_delete_after_acceptance']
+  end
+
+  def get_qualification_for(event)
+    @qualifications[event]
+  end
+
+  private def fetch_qualifications
+    return nil unless enforces_qualifications?
+    @qualifications = CompetitionApi.find_qualifications(@competition_id)
+  end
+
+  def enforces_qualifications?
+    @competition_json['qualification_results'] && !@competition_json['allow_registration_without_qualification']
   end
 
   def other_series_ids

@@ -18,6 +18,10 @@ def users_info_path(ids)
   "https://#{EnvConfig.WCA_HOST}/api/v0/users?#{ids_query}"
 end
 
+def personal_records_path(user_id)
+  "https://#{EnvConfig.WCA_HOST}/api/records/personal-records/#{user_id}"
+end
+
 class UserApi < WcaApi
   def self.get_permissions(user_id)
     if Rails.env.production?
@@ -57,5 +61,13 @@ class UserApi < WcaApi
       self.get_permissions(user_id)
     end
     permissions['can_administer_competitions']['scope'] == '*' || permissions['can_administer_competitions']['scope'].include?(competition_id)
+  end
+
+  def self.personal_records(user_id)
+    if Rails.env.production?
+      HTTParty.get(personal_records_path(user_id))
+    else
+      Mocks.personal_records_mock(user_id)
+    end
   end
 end

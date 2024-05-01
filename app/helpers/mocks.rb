@@ -815,8 +815,619 @@ module Mocks
         'class' => 'competition',
       }
     else
+      nil
+      # CompetitionApi.find!(competition_id)
+    end
+  end
 
-      CompetitionApi.find!(competition_id)
+  def self.personal_records_mock(user_id)
+    case user_id
+    when 1001 # Nil array
+      {}
+    when 1002 # Passes all default qualifications in competition factory
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 1003 # same as 1002 but nil for 333
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 1004 # same as 1002 but nil for 555
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 1005 # same as 1002 but nil for 222
+      {
+        'single' => {
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 1006 # same as 1002 but nil for 555bf
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 10061 # same as 1002 but nil for pyram
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 10062 # Passes all default qualifications in competition factory
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+        },
+      }
+    when 1007 # 333 doesnt make quali
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 1100,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 1008 # 555 doesnt make quali
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 7000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 1009 # 333 exactly matches quali
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 1000,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+        },
+      }
+    when 1010 # 555 exactly matches quali
+      {
+        'single' => {
+          '222' => {
+            'best' => 200,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '555' => {
+            'best' => 6000,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '555bf' => {
+            'best' => 189700,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+        },
+      }
+    when 1011 # Only has 333, which passes qualification
+      {
+        'single' => {
+          '333' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+      }
+    when 1012 # Only has 555, which passes qualification
+      {
+        'average' => {
+          '555' => {
+            'best' => 5000,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+      }
+    when 1013 # Only has 222
+      {
+        'single' => {
+          '222' => {
+            'best' => 900,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+      }
+    when 1014 # Only has 555bf
+      {
+        'average' => {
+          '555bf' => {
+            'best' => 500000,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+      }
+    when 1015 # Only has pyram
+      {
+        'single' => {
+          'pyram' => {
+            'best' => 300,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+      }
+    when 1016 # Only has minx
+      {
+        'average' => {
+          'minx' => {
+            'best' => 6000,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+        },
+      }
+    else
+      {
+        'single' => {
+          '222' => {
+            'best' => 513,
+            'worldRank' => 53640,
+            'continentRank' => 468,
+            'countryRank' => 280,
+          },
+          '333' => {
+            'best' => 1581,
+            'worldRank' => 53361,
+            'continentRank' => 445,
+            'countryRank' => 215,
+          },
+          '333bf' => {
+            'eventId' => '333bf',
+            'best' => 2455,
+            'worldRank' => 171,
+            'continentRank' => 1,
+            'countryRank' => 1,
+          },
+          '333mbf' => {
+            'eventId' => '333mbf',
+            'best' => 760335903,
+            'worldRank' => 79,
+            'continentRank' => 1,
+            'countryRank' => 1,
+          },
+          '333oh' => {
+            'eventId' => '333oh',
+            'best' => 6565,
+            'worldRank' => 47381,
+            'continentRank' => 433,
+            'countryRank' => 213,
+          },
+          '444' => {
+            'eventId' => '444',
+            'best' => 8052,
+            'worldRank' => 34123,
+            'continentRank' => 219,
+            'countryRank' => 114,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 13887,
+            'worldRank' => 12664,
+            'continentRank' => 84,
+            'countryRank' => 55,
+          },
+          'pyram' => {
+            'best' => 1625,
+            'worldRank' => 79098,
+            'continentRank' => 841,
+            'countryRank' => 512,
+          },
+        },
+        'average' => {
+          '222' => {
+            'best' => 1029,
+            'worldRank' => 83789,
+            'continentRank' => 772,
+            'countryRank' => 453,
+          },
+          '333' => {
+            'best' => 1897,
+            'worldRank' => 52964,
+            'continentRank' => 425,
+            'countryRank' => 203,
+          },
+          '333bf' => {
+            'best' => 3694,
+            'worldRank' => 222,
+            'continentRank' => 1,
+            'countryRank' => 1,
+          },
+          '444' => {
+            'best' => 9030,
+            'worldRank' => 30796,
+            'continentRank' => 207,
+            'countryRank' => 109,
+          },
+          'minx' => {
+            'eventId' => 'minx',
+            'best' => 16306,
+            'worldRank' => 11623,
+            'continentRank' => 88,
+            'countryRank' => 59,
+          },
+          'pyram' => {
+            'eventId' => 'pyram',
+            'best' => 2405,
+            'worldRank' => 79462,
+            'continentRank' => 832,
+            'countryRank' => 497,
+          },
+        },
+      }
     end
   end
 end

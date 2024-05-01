@@ -11,6 +11,7 @@ class RegistrationChecker
 
     user_can_create_registration!
     validate_create_events!
+    validate_qualifications!
     validate_guests!
     validate_comment!
   end
@@ -30,6 +31,7 @@ class RegistrationChecker
     validate_waiting_list_position!
     validate_update_status!
     validate_update_events!
+    validate_qualifications!
   rescue Dynamoid::Errors::RecordNotFound
     # We capture and convert the error so that it can be included in the error array of a bulk update request
     raise RegistrationError.new(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
@@ -87,6 +89,17 @@ class RegistrationChecker
 
       event_limit = @competition_info.event_limit
       raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_EVENT_SELECTION) if event_limit.present? && event_ids.count > event_limit
+    end
+
+    def validate_qualifications!
+      return unless @competition_info.enforces_qualifications?
+      event_ids = @request['competing']['event_ids']
+      event_ids.each do |event|
+        qualification = @competition_info.get_qualification_for(event)
+        next if qualification.nil?
+
+        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET) unless competitor_qualifies_for_event?(event, qualification)
+      end
     end
 
     def validate_guests!
@@ -199,6 +212,22 @@ class RegistrationChecker
         next
       end
       false
+    end
+
+    def competitor_qualifies_for_event?(event, qualification)
+      competitor_personal_records = UserApi.personal_records(@requestee_user_id)
+      result_type = qualification['resultType']
+
+      case qualification['type']
+      when 'anyResult', 'ranking'
+        competitor_pr = competitor_personal_records.dig(result_type, event, 'best')
+        competitor_pr.present?
+      when 'attemptResult'
+        competitor_pr = competitor_personal_records.dig(result_type, event, 'best')
+        competitor_pr.present? && competitor_pr < qualification['level']
+      else
+        false
+      end
     end
   end
 end

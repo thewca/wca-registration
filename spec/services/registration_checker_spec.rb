@@ -179,6 +179,114 @@ describe RegistrationChecker do
     end
   end
 
+  describe '#create_registration_allowed!.validate_qualifications!' do
+    it 'smoketest - succeeds when all qualifications are met' do
+      # Create a competition with ranking qualification enabled but not enforced
+      @competition = FactoryBot.build(:competition, :has_qualifications)
+      @competition_info = CompetitionInfo.new(@competition.except('qualifications'))
+
+      # Mock the qualification endpoint
+      stub_request(:get, comp_api_url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
+
+      registration_request = FactoryBot.build(:registration_request, user_id: 1002, events: ['222', '333', '555', '555bf', '333mbf', '444', 'pyram', 'minx']) # User id returns nil for personal records
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, @competition_info, registration_request['submitted_by'])
+      }.not_to raise_error
+    end
+
+    RSpec.shared_examples 'succeed: qualification not enforced' do |description, user_id, event_ids|
+      it "succeeds given #{description}" do
+        # Create a competition with ranking qualification enabled but not enforced
+        competition = FactoryBot.build(:competition, :has_qualifications, :qualifications_not_enforced)
+        competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+        # Mock the qualification endpoint
+        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+
+        registration_request = FactoryBot.build(:registration_request, user_id: user_id, events: event_ids)
+
+        expect {
+          RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+        }.not_to raise_error
+      end
+    end
+
+    RSpec.shared_examples 'succeed: qualification enforced' do |description, user_id, event_ids|
+      it "succeeds given given #{description}" do
+        # Create a competition with ranking qualification enabled but not enforced
+        competition = FactoryBot.build(:competition, :has_qualifications)
+        competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+        # Mock the qualification endpoint
+        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+
+        registration_request = FactoryBot.build(:registration_request, user_id: user_id, events: event_ids)
+
+        expect {
+          RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+        }.not_to raise_error
+      end
+    end
+
+    RSpec.shared_examples 'fail: qualification enforced' do |description, user_id, event_ids|
+      it "fails given #{description}" do
+        # Create a competition with ranking qualification enabled but not enforced
+        competition = FactoryBot.build(:competition, :has_qualifications)
+        competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+        # Mock the qualification endpoint
+        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+
+        registration_request = FactoryBot.build(:registration_request, user_id: user_id, events: event_ids)
+
+        expect {
+          RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+        }.to raise_error(RegistrationError) do |error|
+          expect(error.error).to eq(ErrorCodes::QUALIFICATION_NOT_MET)
+          expect(error.http_status).to eq(:unprocessable_entity)
+        end
+      end
+    end
+
+    context 'succeed: qualification not enforced' do
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 333 for attemptResult-single', 1001, ['333']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 555 for attemptResult-average', 1001, ['555']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 222 for anyResult-single', 1001, ['222']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', 1001, ['555bf']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil pyram for ranking-single', 1001, ['pyram']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil minx for ranking-average', 1001, ['minx']
+
+      it_behaves_like 'succeed: qualification not enforced', 'no error even though 333 doesnt make quali for attemptResult-single', 1007, ['333']
+      it_behaves_like 'succeed: qualification not enforced', 'no error even though 555 doesnt make quali for attemptResult-average', 1008, ['555']
+    end
+
+    context 'fail: qualification enforced' do
+      it_behaves_like 'fail: qualification enforced', 'cant register when nil 333 for attemptResult-single', 1003, ['333']
+      it_behaves_like 'fail: qualification enforced', 'cant register when nil 555 for attemptResult-average', 1004, ['555']
+      it_behaves_like 'fail: qualification enforced', 'cant register when nil 222 for anyResult-single', 1005, ['222']
+      it_behaves_like 'fail: qualification enforced', 'cant register when nil 555bf for anyResult-average', 1006, ['555bf']
+      it_behaves_like 'fail: qualification enforced', 'cant register when nil pyram for ranking-single', 10061, ['pyram']
+      it_behaves_like 'fail: qualification enforced', 'cant register when nil minx for ranking-average', 10062, ['minx']
+
+      it_behaves_like 'fail: qualification enforced', 'cant register when 333 slower than attemptResult-single', 1007, ['333']
+      it_behaves_like 'fail: qualification enforced', 'cant register when 333 equal to attemptResult-single', 1009, ['333']
+      it_behaves_like 'fail: qualification enforced', 'cant register when 555 slower than attemptResult-average', 1008, ['555']
+      it_behaves_like 'fail: qualification enforced', 'cant register when 555 equal to attemptResult-average', 1010, ['555']
+    end
+
+    context 'succeed: qualification enforced' do
+      it_behaves_like 'succeed: qualification enforced', 'can register when 333 faster than attemptResult-single', 1011, ['333']
+      it_behaves_like 'succeed: qualification enforced', 'can register when 555 faster than attemptResult-average', 1012, ['555']
+
+      it_behaves_like 'succeed: qualification enforced', 'can register when 222 single exists for anyResult-single', 1013, ['222']
+      it_behaves_like 'succeed: qualification enforced', 'can register when 555bf average exists for anyResult-average', 1014, ['555bf']
+
+      it_behaves_like 'succeed: qualification enforced', 'can register when pyram single exists for ranking-single', 1015, ['pyram']
+      it_behaves_like 'succeed: qualification enforced', 'can register when 555bf average exists for ranking-average', 1016, ['minx']
+    end
+  end
+
   describe '#create_registration_allowed!.user_can_create_registration!' do
     it 'user can create a registration' do
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
@@ -414,6 +522,122 @@ describe RegistrationChecker do
         expect(error.http_status).to eq(:forbidden)
         expect(error.error).to eq(ErrorCodes::INVALID_EVENT_SELECTION)
       end
+    end
+  end
+
+  describe '#update_registration_allowed!.validate_qualifications!' do
+    it 'smoketest - succeeds when all qualifications are met' do
+      # Create a competition with ranking qualification enabled but not enforced
+      @competition = FactoryBot.build(:competition, :has_qualifications)
+      @competition_info = CompetitionInfo.new(@competition.except('qualifications'))
+
+      # Mock the qualification endpoint
+      stub_request(:get, comp_api_url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
+
+      update_request = FactoryBot.build(
+        :update_request, user_id: 1002, competing: { 'event_ids' => ['222', '333', '555', '555bf', '333mbf', '444', 'pyram', 'minx'] }
+      )
+      FactoryBot.create(:registration, user_id: update_request['user_id'])
+
+      expect {
+        RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
+      }.not_to raise_error
+    end
+
+    RSpec.shared_examples 'update succeed: qualification not enforced' do |description, user_id, event_ids|
+      it "succeeds given #{description}" do
+        # Create a competition with ranking qualification enabled but not enforced
+        competition = FactoryBot.build(:competition, :has_qualifications, :qualifications_not_enforced)
+        competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+        # Mock the qualification endpoint
+        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+
+        update_request = FactoryBot.build(:update_request, user_id: user_id, competing: { 'event_ids' => event_ids })
+        FactoryBot.create(:registration, user_id: update_request['user_id'])
+
+        expect {
+          RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+        }.not_to raise_error
+      end
+    end
+
+    RSpec.shared_examples 'update succeed: qualification enforced' do |description, user_id, event_ids|
+      it "succeeds given given #{description}" do
+        # Create a competition with ranking qualification enabled but not enforced
+        competition = FactoryBot.build(:competition, :has_qualifications)
+        competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+        # Mock the qualification endpoint
+        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+
+        update_request = FactoryBot.build(:update_request, user_id: user_id, competing: { 'event_ids' => event_ids })
+        FactoryBot.create(:registration, user_id: update_request['user_id'])
+
+        expect {
+          RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+        }.not_to raise_error
+      end
+    end
+
+    RSpec.shared_examples 'update fail: qualification enforced' do |description, user_id, event_ids|
+      it "fails given #{description}" do
+        # Create a competition with ranking qualification enabled but not enforced
+        competition = FactoryBot.build(:competition, :has_qualifications)
+        competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+        # Mock the qualification endpoint
+        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+
+        update_request = FactoryBot.build(:update_request, user_id: user_id, competing: { 'event_ids' => event_ids })
+        FactoryBot.create(:registration, user_id: update_request['user_id'])
+
+        expect {
+          RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+        }.to raise_error(RegistrationError) do |error|
+          expect(error.error).to eq(ErrorCodes::QUALIFICATION_NOT_MET)
+          expect(error.http_status).to eq(:unprocessable_entity)
+        end
+      end
+    end
+
+    context 'succeed: qualification not enforced' do
+      # The competition in the shared example has the necessary qualifications set up
+      # Thus, we don't have to define the qualification for each example, just the event relating to the qualification under test
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 333 for attemptResult-single', 1001, ['333']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555 for attemptResult-average', 1001, ['555']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 222 for anyResult-single', 1001, ['222']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', 1001, ['555bf']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', 1001, ['pyram']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', 1001, ['minx']
+
+      it_behaves_like 'update succeed: qualification not enforced', 'no error even though 333 doesnt make quali for attemptResult-single', 1007, ['333']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error even though 555 doesnt make quali for attemptResult-average', 1008, ['555']
+    end
+
+    context 'fail: qualification enforced' do
+      it_behaves_like 'update fail: qualification enforced', 'cant register when nil 333 for attemptResult-single', 1003, ['333']
+      it_behaves_like 'update fail: qualification enforced', 'cant register when nil 555 for attemptResult-average', 1004, ['555']
+      it_behaves_like 'update fail: qualification enforced', 'cant register when nil 222 for anyResult-single', 1005, ['222']
+      it_behaves_like 'update fail: qualification enforced', 'cant register when nil 555bf for anyResult-average', 1006, ['555bf']
+      it_behaves_like 'update fail: qualification enforced', 'cant register when nil pyram for ranking-single', 10061, ['pyram']
+      it_behaves_like 'update fail: qualification enforced', 'cant register when nil minx for ranking-average', 10062, ['minx']
+
+      it_behaves_like 'update fail: qualification enforced', 'cant register when 333 slower than attemptResult-single', 1007, ['333']
+      it_behaves_like 'update fail: qualification enforced', 'cant register when 333 equal to attemptResult-single', 1009, ['333']
+      it_behaves_like 'update fail: qualification enforced', 'cant register when 555 slower than attemptResult-average', 1008, ['555']
+      it_behaves_like 'update fail: qualification enforced', 'cant register when 555 equal to attemptResult-average', 1010, ['555']
+    end
+
+    context 'succeed: qualification enforced' do
+      it_behaves_like 'update succeed: qualification enforced', 'can register when 333 faster than attemptResult-single', 1011, ['333']
+      it_behaves_like 'update succeed: qualification enforced', 'can register when 555 faster than attemptResult-average', 1012, ['555']
+
+      it_behaves_like 'update succeed: qualification enforced', 'can register when 222 single exists for anyResult-single', 1013, ['222']
+      it_behaves_like 'update succeed: qualification enforced', 'can register when 555bf average exists for anyResult-average', 1014, ['555bf']
+
+      it_behaves_like 'update succeed: qualification enforced', 'can register when pyram average exists for ranking-single', 1015, ['pyram']
+      it_behaves_like 'update succeed: qualification enforced', 'can register when minx average exists for ranking-average', 1016, ['minx']
     end
   end
 
