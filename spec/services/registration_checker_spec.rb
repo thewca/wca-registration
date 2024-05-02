@@ -420,8 +420,7 @@ describe RegistrationChecker do
     it 'events must be held at the competition' do
       registration_request = FactoryBot.build(:registration_request, events: ['333', '333fm'])
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-      stub_request(:get, permissions_path(registration_request['user_id'])).to_return(status: 200, body: FactoryBot.build(:permissions_response).to_json, headers: { content_type: 'application/json' },
-                                                                                      headers: { content_type: 'application/json' })
+      stub_request(:get, permissions_path(registration_request['user_id'])).to_return(status: 200, body: FactoryBot.build(:permissions_response).to_json, headers: { content_type: 'application/json' })
 
       expect {
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
