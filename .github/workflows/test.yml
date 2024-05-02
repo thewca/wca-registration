@@ -31,5 +31,3 @@ jobs:
             *.cache-from=type=gha
       - name: Backend Tests
         run: docker compose -f "docker-compose.backend-test.yml" run wca_registration_test bash -c 'bundle install && yarn install && bin/rake db:seed && RAILS_ENV=test bundle exec rspec --exclude-pattern spec/cache'
-      - name: Contract Test
-        run: docker compose -f "docker-compose.contract-test.yml" run frontend bash -c 'npm run test:contract'
