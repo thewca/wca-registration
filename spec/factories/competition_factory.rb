@@ -30,7 +30,7 @@ FactoryBot.define do
     guests_per_registration_limit { 2 }
     event_change_deadline_date { '2024-06-14T00:00:00.000Z' }
     events_per_registration_limit { 'null' }
-    using_stripe_payments? { true }
+    using_payment_integrations? { true }
     competition_series_ids { nil }
     force_comment_in_registration { false }
     allow_registration_self_delete_after_acceptance { true }
