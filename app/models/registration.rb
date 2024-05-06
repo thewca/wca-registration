@@ -161,8 +161,8 @@ class Registration
     updated_values
   end
 
-  def init_payment_lane(amount, currency_code, id)
-    payment_lane = LaneFactory.payment_lane(amount, currency_code, id)
+  def init_payment_lane(amount, currency_code, id, donation)
+    payment_lane = LaneFactory.payment_lane(amount, currency_code, id, donation)
     update_attributes(lanes: lanes.append(payment_lane))
   end
 

@@ -17,7 +17,7 @@ class LaneFactory
     competing_lane
   end
 
-  def self.payment_lane(fee_lowest_denominator, currency_code, payment_id)
+  def self.payment_lane(fee_lowest_denominator, currency_code, payment_id, donation)
     payment_lane = Lane.new({})
     payment_lane.lane_name = 'payment'
     payment_lane.completed_steps = ['Payment Intent Init']
@@ -28,6 +28,7 @@ class LaneFactory
       'currency_code' => currency_code,
       'last_updated' => Time.now,
       'payment_history' => [],
+      'donation_lowest_denominator' => donation,
     }
     payment_lane
   end
