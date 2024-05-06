@@ -83,7 +83,7 @@ class CompetitionInfo
   end
 
   def using_wca_payment?
-    @competition_json['using_stripe_payments?']
+    @competition_json['using_payment_integrations?']
   end
 
   def force_comment?
