@@ -23,6 +23,7 @@ services:
       bin/rails server -b 0.0.0.0'
     networks:
       - wca-registration
+      - wca-main
     depends_on:
       - localstack
       - prometheus_exporter
@@ -92,6 +93,7 @@ services:
     networks:
       wca-registration:
         ipv4_address: 10.0.2.20
+      wca-main:
 
   dynamodb-admin:
     container_name: dynamodb-admin
@@ -134,3 +136,6 @@ networks:
       config:
         # Specify the subnet range for IP address allocation
         - subnet: 10.0.2.0/24
+  wca-main:
+    name: wca-main
+    external: true

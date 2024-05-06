@@ -5,16 +5,16 @@ require 'json'
 require_relative 'wca_api'
 
 def permissions_path(user_id)
-  "https://#{EnvConfig.WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
+  "#{EnvConfig.WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
 end
 
 def competitor_info_path
-  "https://#{EnvConfig.WCA_HOST}/api/internal/v1/users/competitor-info"
+  "#{EnvConfig.WCA_HOST}/api/internal/v1/users/competitor-info"
 end
 
 def users_info_path(ids)
   ids_query = ids.map { |id| "ids[]=#{id}" }.join('&')
-  "https://#{EnvConfig.WCA_HOST}/api/v0/users?#{ids_query}"
+  "#{EnvConfig.WCA_HOST}/api/v0/users?#{ids_query}"
 end
 
 class UserApi < WcaApi

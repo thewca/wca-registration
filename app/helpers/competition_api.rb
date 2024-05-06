@@ -8,7 +8,7 @@ require_relative 'error_codes'
 require_relative 'wca_api'
 
 def comp_api_url(competition_id)
-  "https://#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
+  "#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
 end
 
 class CompetitionApi < WcaApi
