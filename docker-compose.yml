@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: dockerfile.dev
     ports:
-      - "3001:3000"
+      - "8000:3000"
     environment:
       LOCALSTACK_ENDPOINT: "http://localstack:4566"
       PROMETHEUS_EXPORTER: "prometheus_exporter"
@@ -107,34 +107,6 @@ services:
       - localstack
     networks:
       - wca-registration
-
-  # Frontend
-  frontend:
-    container_name: frontend
-    build:
-      context: Frontend
-    ports:
-      - "3000:3000"
-    tty:
-      true
-    command: bash -c "npm run watch"
-    networks:
-      - wca-registration
-    volumes:
-      - ./Frontend/src:/app/src
-      - ./swagger/v1/swagger.yaml:/swagger/v1/swagger.yaml
-
-  nginx:
-    container_name: nginx
-    image: nginx:latest
-    ports:
-      - "3002:80"
-    networks:
-      - wca-registration
-    volumes:
-      - ./Frontend/frontend_local.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - frontend
 
   redis:
     container_name: redis
