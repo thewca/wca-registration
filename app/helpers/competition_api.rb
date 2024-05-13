@@ -54,6 +54,7 @@ class CompetitionInfo
   end
 
   def within_event_change_deadline?
+    return true if @competition_json['event_change_deadline_date'].nil?
     Time.now < @competition_json['event_change_deadline_date']
   end
 
