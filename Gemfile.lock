@@ -124,7 +124,7 @@ GEM
       dotenv (= 3.1.1)
       railties (>= 6.1)
     drb (2.2.1)
-    dynamoid (3.8.0)
+    dynamoid (3.10.0)
       activemodel (>= 4)
       aws-sdk-dynamodb (~> 1.0)
       concurrent-ruby (>= 1.0)
@@ -347,7 +347,7 @@ DEPENDENCIES
   connection_pool
   debug
   dotenv-rails
-  dynamoid (= 3.8.0)
+  dynamoid (= 3.10.0)
   factory_bot_rails
   hiredis
   httparty
