@@ -8,7 +8,7 @@ require_relative 'error_codes'
 require_relative 'wca_api'
 
 def comp_api_url(competition_id)
-  "https://#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
+  "#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
 end
 
 class CompetitionApi < WcaApi
@@ -54,6 +54,7 @@ class CompetitionInfo
   end
 
   def within_event_change_deadline?
+    return true if @competition_json['event_change_deadline_date'].nil?
     Time.now < @competition_json['event_change_deadline_date']
   end
 
@@ -83,7 +84,7 @@ class CompetitionInfo
   end
 
   def using_wca_payment?
-    @competition_json['using_stripe_payments?']
+    @competition_json['using_payment_integrations?']
   end
 
   def force_comment?

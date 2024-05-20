@@ -11,12 +11,12 @@ class PaymentApi < WcaApi
     unless response.ok?
       raise 'Error from the payments service'
     end
-    response['id']
+    [response['client_secret'], response['id']]
   end
 
   class << self
     def payment_init_path
-      "https://#{EnvConfig.WCA_HOST}/api/internal/v1/payment/init-stripe"
+      "#{EnvConfig.WCA_HOST}/api/internal/v1/payment/init_stripe"
     end
   end
 end

@@ -45,9 +45,9 @@ describe CompetitionInfo do
         expect(result).to be true
       end
 
-      it "PASSING false if the competition doesn't use WCA paymet" do
+      it "PASSING false if the competition doesn't use WCA payment" do
         # Instantiate a CompetitionInfo object with the sample data
-        competition_info = CompetitionInfo.new(FactoryBot.build(:competition, using_stripe_payments?: false))
+        competition_info = CompetitionInfo.new(FactoryBot.build(:competition, using_payment_integrations?: false))
 
         # Call the method being tested
         result = competition_info.using_wca_payment?

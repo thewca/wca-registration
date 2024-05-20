@@ -8,7 +8,7 @@ require_relative '../helpers/user_api'
 require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
-  skip_before_action :validate_token, only: [:list, :list_waiting]
+  skip_before_action :validate_jwt_token, only: [:list, :list_waiting]
   # The order of the validations is important to not leak any non public info via the API
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
@@ -147,15 +147,11 @@ class RegistrationController < ApplicationController
   end
 
   def payment_ticket
-    refresh = params[:refresh]
-    if refresh || @registration.payment_ticket.nil?
-      amount, currency_code = @competition.payment_info
-      ticket = PaymentApi.get_ticket(@registration[:attendee_id], amount, currency_code, @current_user)
-      @registration.init_payment_lane(amount, currency_code, ticket)
-    else
-      ticket = @registration.payment_ticket
-    end
-    render json: { id: ticket, status: @registration.payment_status }
+    donation = params[:donation_iso].to_i || 0
+    amount, currency_code = @competition.payment_info
+    client_secret, ticket = PaymentApi.get_ticket(@registration[:attendee_id], amount + donation, currency_code, @current_user)
+    @registration.init_payment_lane(amount, currency_code, ticket, donation)
+    render json: { client_secret: client_secret, status: @registration.payment_status }
   end
 
   def validate_payment_ticket_request
