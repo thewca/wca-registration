@@ -4,7 +4,7 @@ require 'time'
 
 class InternalController < ApplicationController
   prepend_before_action :validate_wca_token unless Rails.env.development?
-  skip_before_action :validate_token
+  skip_before_action :validate_jwt_token
 
   def validate_wca_token
     service_token = request.headers['X-WCA-Service-Token']
