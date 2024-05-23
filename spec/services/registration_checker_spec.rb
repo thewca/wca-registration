@@ -269,10 +269,24 @@ describe RegistrationChecker do
       end
     end
 
-    it 'banned user cant register' do
+    it 'can register if ban ends before competition starts', :focus do
+      registration_request = FactoryBot.build(:registration_request, :unbanned_soon)
+      competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+      stub_request( :get, permissions_path(registration_request['user_id'])).to_return(
+          status: 200,
+        body: FactoryBot.build(:permissions_response, :unbanned_soon, ban_end_date: DateTime.parse(competition_info.start_date)-1).to_json,
+          headers: { content_type: 'application/json' }
+        )
+
+      expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
+        .not_to raise_error
+    end
+
+    it 'cant register if ban ends after competition starts', :focus do
       registration_request = FactoryBot.build(:registration_request, :banned)
       competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-      stub_request(:get, permissions_path(registration_request['user_id'])).to_return(status: 200, body: FactoryBot.build(:permissions_response, :banned).to_json, headers: { content_type: 'application/json' })
+      stub_request(:get, permissions_path(registration_request['user_id'])).to_return(
+        status: 200, body: FactoryBot.build(:permissions_response, :banned).to_json, headers: { content_type: 'application/json' })
 
       expect {
         RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
