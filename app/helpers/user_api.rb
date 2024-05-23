@@ -34,17 +34,10 @@ class UserApi < WcaApi
     end
 
     competition_permissions = permissions['can_attend_competitions']
-
-    # User can compete if they have global attend permissions
-    return true if competition_permissions['scope'] == '*'
-
-    # If the above check fails, then the user is banned. Return false if they are permabanned
-    return false unless competition_permissions['until'].present?
-
-    # If the user's ban has an end date, check if the ban ends before the competition starts
-    ban_end = DateTime.parse(permissions['can_attend_competitions']['until'])
     competition_start = DateTime.parse(competition_start_date)
-    ban_end < competition_start
+    ban_end = DateTime.parse(permissions['can_attend_competitions']['until'] || "3099-09-09")
+
+    competition_permissions['scope'] == '*' || ban_end < competition_start
   end
 
   def self.can_administer?(user_id, competition_id)
