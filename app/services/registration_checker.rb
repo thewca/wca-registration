@@ -56,7 +56,7 @@ class RegistrationChecker
       # Only organizers can register when registration is closed, and they can only register for themselves - not for other users
       raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || organizer_modifying_own_registration?
 
-      can_compete = UserApi.can_compete?(@requestee_user_id)
+      can_compete = UserApi.can_compete?(@requestee_user_id, @competition_info.start_date)
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
 
       # Users cannot sign up for multiple competitions in a series

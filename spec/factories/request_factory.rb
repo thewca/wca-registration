@@ -39,6 +39,10 @@ FactoryBot.define do
       user_id { 209943 }
     end
 
+    trait :unbanned_soon do
+      user_id { 209944 }
+    end
+
     trait :incomplete do
       user_id { 999999 }
     end
