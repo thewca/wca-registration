@@ -35,7 +35,7 @@ class UserApi < WcaApi
 
     competition_permissions = permissions['can_attend_competitions']
     competition_start = DateTime.parse(competition_start_date)
-    ban_end = DateTime.parse(permissions['can_attend_competitions']['until'] || "3099-09-09")
+    ban_end = DateTime.parse(permissions['can_attend_competitions']['until'] || '3099-09-09')
 
     competition_permissions['scope'] == '*' || ban_end < competition_start
   end
