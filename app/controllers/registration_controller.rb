@@ -27,6 +27,7 @@ class RegistrationController < ApplicationController
     id = SecureRandom.uuid
 
     step_data = {
+      created_at: Time.now,
       attendee_id: "#{@competition_id}-#{@user_id}",
       user_id: @user_id,
       competition_id: @competition_id,
@@ -122,7 +123,7 @@ class RegistrationController < ApplicationController
     registration = Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
     updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
-    registration.history.add_entry(update_changes(update_request), @current_user, action_type(update_request))
+    registration.history.add_entry(update_changes(update_request),'user', @current_user, action_type(update_request))
     if old_status == 'accepted' && status != 'accepted'
       Registration.decrement_competitors_count(@competition_id)
     elsif old_status != 'accepted' && status == 'accepted'

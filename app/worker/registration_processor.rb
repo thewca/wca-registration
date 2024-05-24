@@ -24,13 +24,14 @@ class RegistrationProcessor
                          message['user_id'],
                          message['step_details']['event_ids'],
                          message['step_details']['comment'],
-                         message['step_details']['guests'])
+                         message['step_details']['guests'],
+                         message['created_at'],)
     end
   end
 
   private
 
-    def event_registration(competition_id, user_id, event_ids, comment, guests)
+    def event_registration(competition_id, user_id, event_ids, comment, guests, created_at)
       # Event Registration might not be the first lane that is completed
       # TODO: When we add another lane, we need to update the registration history instead of creating it
       registration = begin
@@ -38,12 +39,16 @@ class RegistrationProcessor
       rescue Dynamoid::Errors::RecordNotFound
         initial_history = History.new({ 'changed_attributes' =>
                                           { event_ids: event_ids, comment: comment, guests: guests, status: 'pending' },
-                                        'actor_user_id' => user_id,
-                                        'action' => 'Worker processed' })
+                                        'actor_type' => 'user',
+                                        'actor_id' => user_id,
+                                        'action' => 'Worker processed',
+                                        'timestamp' => created_at,
+                                      })
         RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}", entries: [initial_history])
         Registration.new(attendee_id: "#{competition_id}-#{user_id}",
                          competition_id: competition_id,
-                         user_id: user_id)
+                         user_id: user_id,
+                         created_at: created_at)
       end
       competing_lane = LaneFactory.competing_lane(event_ids: event_ids, comment: comment)
       if registration.lanes.nil?
