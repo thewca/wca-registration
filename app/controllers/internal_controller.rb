@@ -44,7 +44,7 @@ class InternalController < ApplicationController
     acting_type = params.require(:acting_type)
     registration = Registration.find(attendee_id)
     registration.update_payment_lane(payment_id, iso_amount, currency_iso, payment_status)
-    registration.history.add_entry({ payment_status: payment_status }, acting_type, acting_id, "Payment Update")
+    registration.history.add_entry({ payment_status: payment_status }, acting_type, acting_id, 'Payment Update')
     render json: { status: 'ok' }
   end
 

@@ -25,7 +25,7 @@ class RegistrationProcessor
                          message['step_details']['event_ids'],
                          message['step_details']['comment'],
                          message['step_details']['guests'],
-                         message['created_at'],)
+                         message['created_at'])
     end
   end
 
@@ -42,8 +42,7 @@ class RegistrationProcessor
                                         'actor_type' => 'user',
                                         'actor_id' => user_id,
                                         'action' => 'Worker processed',
-                                        'timestamp' => created_at,
-                                      })
+                                        'timestamp' => created_at })
         RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}", entries: [initial_history])
         Registration.new(attendee_id: "#{competition_id}-#{user_id}",
                          competition_id: competition_id,
