@@ -31,6 +31,7 @@ class RegistrationProcessor
 
   private
 
+    # rubocop:disable Metrics/ParameterLists
     def event_registration(competition_id, user_id, event_ids, comment, guests, created_at)
       # Event Registration might not be the first lane that is completed
       # TODO: When we add another lane, we need to update the registration history instead of creating it
@@ -59,4 +60,5 @@ class RegistrationProcessor
         EmailApi.send_creation_email(competition_id, user_id)
       end
     end
+  # rubocop:enable Metrics/ParameterLists
 end
