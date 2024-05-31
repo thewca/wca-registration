@@ -22,8 +22,8 @@ class RegistrationController < ApplicationController
   def create
     queue_url = ENV['QUEUE_URL'] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     event_ids = params.dig('competing', 'event_ids')
-    comment = params['competing'][:comment] || ''
-    guests = params['competing'][:guests] || 0
+    comment = params.dig('competing', 'comment') || ''
+    guests = params['guests'] || 0
     id = SecureRandom.uuid
 
     step_data = {
