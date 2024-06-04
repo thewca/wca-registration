@@ -16,7 +16,6 @@ class CompetitionApi < WcaApi
     "#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
   end
 
-
   def self.find!(competition_id)
     competition_json = fetch_competition(competition_id)
     CompetitionInfo.new(competition_json)
