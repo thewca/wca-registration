@@ -179,7 +179,7 @@ class Registration
         lane.lane_details['payment_id'] = id
         lane.lane_details['amount_lowest_denominator'] = iso_amount
         lane.lane_details['currency_code'] = currency_iso
-        lane.lane_details['last_updated'] = Time.now
+        lane.lane_details['last_updated'] = Time.now.utc
       end
       lane
     end
