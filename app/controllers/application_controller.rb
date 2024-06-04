@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../helpers/error_codes'
 class ApplicationController < ActionController::API
   prepend_before_action :validate_jwt_token
   around_action :performance_profile if Rails.env.development?
