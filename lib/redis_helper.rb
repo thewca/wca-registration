@@ -22,7 +22,7 @@ module RedisHelper
     keys = ids.map { |id| "#{key_prefix}-#{id}" }.to_a
 
     info = Rails.cache.read_multi(*keys)
-    uncached_ids = ids.to_a - info.values.map { |u| u['id'] }
+    uncached_ids = ids.to_a - info.values.pluck('id')
 
     # Don't call hydration function if we have cached all data
     unless uncached_ids.empty?

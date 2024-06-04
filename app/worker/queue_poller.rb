@@ -40,8 +40,8 @@ class QueuePoller
     poller.poll(wait_time_seconds: WAIT_TIME, max_number_of_messages: MAX_MESSAGES) do |messages|
       messages.each do |msg|
         # messages are deleted from the queue when the block returns normally!
-        puts "Received message with ID: #{msg.message_id}"
-        puts "Message body: #{msg.body}"
+        Rails.logger.debug { "Received message with ID: #{msg.message_id}" }
+        Rails.logger.debug { "Message body: #{msg.body}" }
         body = JSON.parse msg.body
         begin
           processor.process_message(body)
@@ -49,7 +49,7 @@ class QueuePoller
         rescue StandardError => e
           # unexpected error occurred while processing messages,
           # log it, and skip delete so it can be re-processed later
-          puts "Error #{e} when processing message with ID #{msg}"
+          Rails.logger.debug { "Error #{e} when processing message with ID #{msg}" }
           error_counter.increment
 
           throw :skip_delete

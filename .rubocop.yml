@@ -9,11 +9,13 @@ AllCops:
     - 'vendor/**/*'
     - 'infra/**/*'
 
+require: rubocop-rails
+
 Bundler/OrderedGems:
   Enabled: false
 
 Lint/MissingSuper:
-  Exclude: 
+  Exclude:
     - 'lib/registration_error.rb'
     - 'lib/bulk_update_error.rb'
     - 'app/helpers/competition_api.rb'
@@ -34,6 +36,9 @@ Style/Alias:
   Enabled: false
 
 Style/NumericLiterals:
+  Enabled: false
+
+Rails/ActiveRecordAliases:
   Enabled: false
 
 Style/EmptyMethod:

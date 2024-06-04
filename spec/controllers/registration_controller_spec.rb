@@ -17,7 +17,7 @@ describe RegistrationController do
       patch :update, params: update_request, as: :json
 
       @response = response
-      @body = JSON.parse(response.body)
+      @body = response.parsed_body
       @updated_registration = Registration.find("#{@competition['id']}-#{@registration[:user_id]}")
     end
 
@@ -115,7 +115,7 @@ describe RegistrationController do
       patch :bulk_update, params: bulk_update_request, as: :json
       expect(response.code).to eq('200')
 
-      body = JSON.parse(response.body)['updated_registrations']
+      body = response.parsed_body['updated_registrations']
 
       expect(body[registration[:user_id].to_s]['competing']['registration_status']).to eq('accepted')
       expect(body[registration3[:user_id].to_s]['competing']['comment']).to eq('test comment update')

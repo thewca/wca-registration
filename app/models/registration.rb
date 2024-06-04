@@ -146,11 +146,7 @@ class Registration
       lane
     end
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
-    updated_guests = if update_params[:guests].present?
-                       update_params[:guests]
-                     else
-                       guests
-                     end
+    updated_guests = (update_params[:guests].presence || guests)
     updated_values = update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests)
     if has_waiting_list_changed
       # Update waiting list caches
@@ -227,7 +223,7 @@ class Registration
     end
 
     def waiting_list_position_changed?(update_params)
-      return false unless update_params[:waiting_list_position].present?
+      return false if update_params[:waiting_list_position].blank?
       update_params[:waiting_list_position] != competing_waiting_list_position
     end
 

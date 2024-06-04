@@ -19,6 +19,15 @@ class RegistrationController < ApplicationController
   before_action :validate_bulk_update_request, only: [:bulk_update]
   before_action :validate_payment_ticket_request, only: [:payment_ticket]
 
+  def show
+    registration = get_single_registration(@user_id, @competition_id)
+    render json: registration
+  rescue Dynamoid::Errors::RecordNotFound
+    render json: {}, status: :not_found
+  rescue RegistrationError => e
+    render_error(e.http_status, e.error)
+  end
+
   def create
     queue_url = ENV['QUEUE_URL'] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     event_ids = params.dig('competing', 'event_ids')
@@ -61,7 +70,7 @@ class RegistrationController < ApplicationController
   def update
     render json: { status: 'ok', registration: process_update(params) }
   rescue Dynamoid::Errors::Error => e
-    puts e
+    Rails.logger.debug e
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error Updating Registration: #{e.message}" },
            status: :internal_server_error
@@ -72,15 +81,6 @@ class RegistrationController < ApplicationController
     @competition_id = params[:competition_id]
 
     RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
-  rescue RegistrationError => e
-    render_error(e.http_status, e.error)
-  end
-
-  def show
-    registration = get_single_registration(@user_id, @competition_id)
-    render json: registration
-  rescue Dynamoid::Errors::RecordNotFound
-    render json: {}, status: :not_found
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
   end
@@ -169,7 +169,7 @@ class RegistrationController < ApplicationController
     render json: registrations
   rescue Dynamoid::Errors::Error => e
     # Render an error response
-    puts e
+    Rails.logger.debug e
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
@@ -180,7 +180,7 @@ class RegistrationController < ApplicationController
     render json: my_registrations
   rescue Dynamoid::Errors::Error => e
     # Render an error response
-    puts e
+    Rails.logger.debug e
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
@@ -198,7 +198,7 @@ class RegistrationController < ApplicationController
     render json: waiting
   rescue Dynamoid::Errors::Error => e
     # Render an error response
-    puts e
+    Rails.logger.debug e
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
@@ -216,7 +216,7 @@ class RegistrationController < ApplicationController
     registrations = get_registrations(@competition_id)
     render json: add_pii(registrations)
   rescue Dynamoid::Errors::Error => e
-    puts e
+    Rails.logger.debug e
     # Is there a reason we aren't using an error code here?
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },

@@ -67,7 +67,7 @@ class CompetitionInfo
   end
 
   def guest_limit_exceeded?(guest_count)
-    return false unless @competition_json['guests_per_registration_limit'].present?
+    return false if @competition_json['guests_per_registration_limit'].blank?
     @competition_json['guest_entry_status'] == 'restricted' && @competition_json['guests_per_registration_limit'] < guest_count
   end
 
