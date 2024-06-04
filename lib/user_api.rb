@@ -2,7 +2,6 @@
 
 require 'httparty'
 require 'json'
-require_relative 'wca_api'
 
 def permissions_path(user_id)
   "#{EnvConfig.WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"

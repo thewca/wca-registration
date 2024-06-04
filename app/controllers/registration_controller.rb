@@ -3,9 +3,6 @@
 require 'securerandom'
 require 'jwt'
 require 'time'
-require_relative '../helpers/competition_api'
-require_relative '../helpers/user_api'
-require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
   skip_before_action :validate_jwt_token, only: [:list, :list_waiting]

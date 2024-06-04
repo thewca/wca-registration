@@ -2,7 +2,6 @@
 
 require 'httparty'
 require 'json'
-require_relative 'wca_api'
 
 def registration_email_path
   "#{EnvConfig.WCA_HOST}/api/internal/v1/mailers/registration"

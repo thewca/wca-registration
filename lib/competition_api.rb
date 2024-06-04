@@ -4,9 +4,6 @@ require 'httparty'
 require 'uri'
 require 'json'
 
-require_relative 'error_codes'
-require_relative 'wca_api'
-
 def comp_api_url(competition_id)
   "#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
 end
@@ -31,7 +28,6 @@ class CompetitionApi < WcaApi
         response = HTTParty.get(comp_api_url(competition_id))
         case response.code
         when 200
-          @status = 200
           JSON.parse response.body
         when 404
           Metrics.registration_competition_api_error_counter.increment

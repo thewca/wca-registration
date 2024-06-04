@@ -4,8 +4,6 @@ require 'prometheus_exporter/client'
 require 'prometheus_exporter/instrumentation'
 require 'prometheus_exporter/metric'
 
-require_relative '../../app/helpers/metrics'
-
 PrometheusExporter::Client.default = PrometheusExporter::Client.new(host: ENV.fetch('PROMETHEUS_EXPORTER'), port: 9091)
 
 if Rails.env.production? && !EnvConfig.REGISTRATION_LIVE_SITE?

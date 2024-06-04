@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'error_codes'
-require_relative 'wca_api'
 class PaymentApi < WcaApi
   def self.get_ticket(attendee_id, amount, currency_code, current_user)
     response = HTTParty.post(payment_init_path,

@@ -38,7 +38,12 @@ Style/Alias:
 Style/NumericLiterals:
   Enabled: false
 
+# Dynamoid needs update_attributes
 Rails/ActiveRecordAliases:
+  Enabled: false
+
+# Dynamoid doesn't have inverse_of for belongs_to
+Rails/InverseOf:
   Enabled: false
 
 Style/EmptyMethod:
