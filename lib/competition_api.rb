@@ -4,10 +4,6 @@ require 'httparty'
 require 'uri'
 require 'json'
 
-def comp_api_url(competition_id)
-  "#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
-end
-
 class CompetitionApi < WcaApi
   def self.find(competition_id)
     competition_json = fetch_competition(competition_id)
@@ -15,6 +11,11 @@ class CompetitionApi < WcaApi
   rescue RegistrationError
     nil
   end
+
+  def self.comp_api_url(competition_id)
+    "#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
+  end
+
 
   def self.find!(competition_id)
     competition_json = fetch_competition(competition_id)
@@ -25,7 +26,7 @@ class CompetitionApi < WcaApi
   class << self
     def fetch_competition(competition_id)
       Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        response = HTTParty.get(comp_api_url(competition_id))
+        response = HTTParty.get(CompetitionApi.comp_api_url(competition_id))
         case response.code
         when 200
           JSON.parse response.body

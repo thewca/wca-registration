@@ -7,7 +7,7 @@ describe RegistrationController do
     # NOTE: This code only needs to run once before the assertions, but before(:create) doesnt work because `request` defined then
     before do
       @competition = FactoryBot.build(:competition)
-      stub_request(:get, comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.to_json)
+      stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.to_json)
 
       @registration = FactoryBot.create(:registration)
 
@@ -63,7 +63,7 @@ describe RegistrationController do
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id])
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -82,7 +82,7 @@ describe RegistrationController do
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id])
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -106,7 +106,7 @@ describe RegistrationController do
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'comment' => 'test comment update' })
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -130,7 +130,7 @@ describe RegistrationController do
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'comment' => 'test comment update' })
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -151,7 +151,7 @@ describe RegistrationController do
       bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: bulk_update_request, as: :json
@@ -163,7 +163,7 @@ describe RegistrationController do
       bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: {}, as: :json

@@ -3,26 +3,21 @@
 require 'httparty'
 require 'json'
 
-def permissions_path(user_id)
-  "#{EnvConfig.WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
-end
-
-def competitor_info_path
-  "#{EnvConfig.WCA_HOST}/api/internal/v1/users/competitor-info"
-end
-
-def users_info_path(ids)
-  ids_query = ids.map { |id| "ids[]=#{id}" }.join('&')
-  "#{EnvConfig.WCA_HOST}/api/v0/users?#{ids_query}"
-end
-
 class UserApi < WcaApi
+  def self.permissions_path(user_id)
+    "#{EnvConfig.WCA_HOST}/api/internal/v1/users/#{user_id}/permissions"
+  end
+
+  def self.competitor_info_path
+    "#{EnvConfig.WCA_HOST}/api/internal/v1/users/competitor-info"
+  end
+
   def self.get_permissions(user_id)
     HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.wca_token })
   end
 
   def self.get_user_info_pii(user_ids)
-    HTTParty.post(competitor_info_path, headers: { WCA_API_HEADER => self.wca_token }, body: { ids: user_ids.to_a })
+    HTTParty.post(UserApi.competitor_info_path, headers: { WCA_API_HEADER => self.wca_token }, body: { ids: user_ids.to_a })
   end
 
   def self.can_compete?(user_id, competition_start_date)
