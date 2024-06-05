@@ -3,8 +3,6 @@ AllCops:
   DisplayCopNames: true
   NewCops: enable
   Exclude:
-    - 'node_modules/**/*'
-    - 'Frontend/**/*'
     - 'bin/**/*'
     - 'vendor/**/*'
     - 'infra/**/*'
@@ -45,6 +43,10 @@ Rails/ActiveRecordAliases:
 # Dynamoid doesn't have inverse_of for belongs_to
 Rails/InverseOf:
   Enabled: false
+
+Rails:
+  Exclude:
+    - 'app/worker/**/*'
 
 Style/EmptyMethod:
   EnforcedStyle: expanded

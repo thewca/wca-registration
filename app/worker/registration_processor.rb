@@ -18,7 +18,7 @@ class RegistrationProcessor
   end
 
   def process_message(message)
-    Rails.logger.debug { "Working on Message: #{message}" }
+    puts "Working on Message: #{message}"
     if message['step'] == 'Event Registration'
       event_registration(message['competition_id'],
                          message['user_id'],
