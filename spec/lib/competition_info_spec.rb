@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../app/helpers/competition_api'
 
 describe CompetitionInfo do
   context 'competition object' do

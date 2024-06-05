@@ -7,7 +7,7 @@ class History
     @changed_attributes = args['changed_attributes'] || {}
     @actor_type = args['actor_type'] || ''
     @actor_id = args['actor_id'] || ''
-    @timestamp = args['timestamp'] || Time.now
+    @timestamp = args['timestamp'] || Time.now.utc
     @action = args['action'] || 'unknown'
   end
 

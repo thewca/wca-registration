@@ -79,6 +79,7 @@ group :development, :test do
   gem 'webmock', require: false
 
   gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
 
   # Use factories instead of fixtures
   gem 'factory_bot_rails'

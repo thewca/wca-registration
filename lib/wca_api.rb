@@ -17,7 +17,7 @@ class WcaApi
       if data.present?
         data.data[:token]
       else # TODO: should we hard error out here?
-        puts 'Tried to get identity token, but got error'
+        Rails.logger.debug 'Tried to get identity token, but got error'
       end
     end
   end

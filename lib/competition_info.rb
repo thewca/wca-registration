@@ -1,50 +1,5 @@
 # frozen_string_literal: true
 
-require 'httparty'
-require 'uri'
-require 'json'
-
-require_relative 'error_codes'
-require_relative 'wca_api'
-
-def comp_api_url(competition_id)
-  "#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
-end
-
-class CompetitionApi < WcaApi
-  def self.find(competition_id)
-    competition_json = fetch_competition(competition_id)
-    CompetitionInfo.new(competition_json)
-  rescue RegistrationError
-    nil
-  end
-
-  def self.find!(competition_id)
-    competition_json = fetch_competition(competition_id)
-    CompetitionInfo.new(competition_json)
-  end
-
-  # This is how you make a private class method
-  class << self
-    def fetch_competition(competition_id)
-      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        response = HTTParty.get(comp_api_url(competition_id))
-        case response.code
-        when 200
-          @status = 200
-          JSON.parse response.body
-        when 404
-          Metrics.registration_competition_api_error_counter.increment
-          raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
-        else
-          Metrics.registration_competition_api_error_counter.increment
-          raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
-        end
-      end
-    end
-  end
-end
-
 class CompetitionInfo
   attr_accessor :competition_id
 
@@ -53,9 +8,13 @@ class CompetitionInfo
     @competition_id = competition_json['id']
   end
 
+  def start_date
+    @competition_json['start_date']
+  end
+
   def within_event_change_deadline?
     return true if @competition_json['event_change_deadline_date'].nil?
-    Time.now < @competition_json['event_change_deadline_date']
+    Time.now.utc < @competition_json['event_change_deadline_date']
   end
 
   def competitor_limit
@@ -63,7 +22,7 @@ class CompetitionInfo
   end
 
   def guest_limit_exceeded?(guest_count)
-    return false unless @competition_json['guests_per_registration_limit'].present?
+    return false if @competition_json['guests_per_registration_limit'].blank?
     @competition_json['guest_entry_status'] == 'restricted' && @competition_json['guests_per_registration_limit'] < guest_count
   end
 
