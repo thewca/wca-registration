@@ -26,7 +26,7 @@ class LaneFactory
       'amount_lowest_denominator' => fee_lowest_denominator,
       'payment_id' => payment_id,
       'currency_code' => currency_code,
-      'last_updated' => Time.now,
+      'last_updated' => Time.now.utc,
       'payment_history' => [],
       'donation_lowest_denominator' => donation,
     }

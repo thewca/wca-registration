@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'factory_bot_rails'
-require_relative '../../app/helpers/competition_api'
 
 FactoryBot.define do
   factory :competition, class: Hash do

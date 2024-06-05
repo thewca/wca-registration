@@ -8,7 +8,7 @@ class InternalController < ApplicationController
 
   def validate_wca_token
     service_token = request.headers['X-WCA-Service-Token']
-    unless service_token.present?
+    if service_token.blank?
       return render json: { error: 'Missing Authentication' }, status: :forbidden
     end
     # The Vault CLI can't parse the response from identity/oidc/introspect so
