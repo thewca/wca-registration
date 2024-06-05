@@ -33,7 +33,7 @@ class RegistrationController < ApplicationController
     id = SecureRandom.uuid
 
     step_data = {
-      created_at: Time.now,
+      created_at: Time.now.utc,
       attendee_id: "#{@competition_id}-#{@user_id}",
       user_id: @user_id,
       competition_id: @competition_id,
