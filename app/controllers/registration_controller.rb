@@ -5,7 +5,7 @@ require 'jwt'
 require 'time'
 
 class RegistrationController < ApplicationController
-  skip_before_action :validate_jwt_token, only: [:list, :list_waiting]
+  skip_before_action :validate_jwt_token, only: [:list, :list_waiting, :count]
   # The order of the validations is important to not leak any non public info via the API
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
@@ -23,6 +23,12 @@ class RegistrationController < ApplicationController
     render json: {}, status: :not_found
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
+  end
+
+  def count
+    competition_id = params.require(:competition_id)
+
+    render json: { count: Registration.accepted_competitors_count(competition_id) }
   end
 
   def create

@@ -44,7 +44,7 @@ class InternalController < ApplicationController
     acting_type = params.require(:acting_type)
     registration = Registration.find(attendee_id)
     registration.update_payment_lane(payment_id, iso_amount, currency_iso, payment_status)
-    if payment_status === "refund"
+    if payment_status == 'refund'
       registration.history.add_entry({ payment_status: payment_status, iso_amount: iso_amount }, acting_type, acting_id, 'Payment Refund')
     else
       registration.history.add_entry({ payment_status: payment_status, iso_amount: iso_amount }, acting_type, acting_id, 'Payment')
