@@ -28,7 +28,7 @@ class RegistrationController < ApplicationController
   def count
     competition_id = params.require(:competition_id)
 
-    render json: { count: Registration.accepted_competitors_count(competition_id) }
+    render json: { count: Registration.accepted_competitors_count(competition_id).to_i }
   end
 
   def create
