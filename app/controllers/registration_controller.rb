@@ -5,7 +5,7 @@ require 'jwt'
 require 'time'
 
 class RegistrationController < ApplicationController
-  skip_before_action :validate_jwt_token, only: [:list, :list_waiting]
+  skip_before_action :validate_jwt_token, only: [:list, :list_waiting, :count]
   # The order of the validations is important to not leak any non public info via the API
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
@@ -25,6 +25,12 @@ class RegistrationController < ApplicationController
     render_error(e.http_status, e.error)
   end
 
+  def count
+    competition_id = params.require(:competition_id)
+
+    render json: { count: Registration.accepted_competitors_count(competition_id) }
+  end
+
   def create
     queue_url = ENV['QUEUE_URL'] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     event_ids = params.dig('competing', 'event_ids')
@@ -33,6 +39,7 @@ class RegistrationController < ApplicationController
     id = SecureRandom.uuid
 
     step_data = {
+      created_at: Time.now.utc,
       attendee_id: "#{@competition_id}-#{@user_id}",
       user_id: @user_id,
       competition_id: @competition_id,
@@ -119,7 +126,7 @@ class RegistrationController < ApplicationController
     registration = Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
     updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
-    registration.history.add_entry(update_changes(update_request), @current_user, action_type(update_request))
+    registration.history.add_entry(update_changes(update_request), 'user', @current_user, action_type(update_request))
     if old_status == 'accepted' && status != 'accepted'
       Registration.decrement_competitors_count(@competition_id)
     elsif old_status != 'accepted' && status == 'accepted'
