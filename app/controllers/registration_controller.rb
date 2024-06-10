@@ -32,11 +32,9 @@ class RegistrationController < ApplicationController
   end
 
   def create
-    queue_url = ENV['QUEUE_URL'] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     event_ids = params.dig('competing', 'event_ids')
     comment = params.dig('competing', 'comment') || ''
     guests = params['guests'] || 0
-    id = SecureRandom.uuid
 
     step_data = {
       created_at: Time.now.utc,
@@ -53,12 +51,7 @@ class RegistrationController < ApplicationController
       },
     }
 
-    $sqs.send_message({
-                        queue_url: queue_url,
-                        message_body: step_data.to_json,
-                        message_group_id: id,
-                        message_deduplication_id: id,
-                      })
+    RegistrationProcessor.perform_now(step_data)
 
     render json: { status: 'accepted', message: 'Started Registration Process' }, status: :accepted
   end
@@ -133,9 +126,7 @@ class RegistrationController < ApplicationController
       Registration.increment_competitors_count(@competition_id)
     end
 
-    if Rails.env.production?
-      EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
-    end
+    EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
 
     {
       user_id: updated_registration['user_id'],
