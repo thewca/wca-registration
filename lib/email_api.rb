@@ -4,7 +4,7 @@ require 'httparty'
 require 'json'
 
 class EmailApi < WcaApi
-  def registration_email_path
+  def self.registration_email_path
     "#{EnvConfig.WCA_HOST}/api/internal/v1/mailers/registration"
   end
 
