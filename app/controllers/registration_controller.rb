@@ -340,6 +340,7 @@ class RegistrationController < ApplicationController
         },
         payment: {
           payment_status: registration.payment_status,
+          payment_amount_human_readable: registration.payment_amount_human_readable,
           updated_at: registration.payment_date,
         },
         history: registration.history.entries,
