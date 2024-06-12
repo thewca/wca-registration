@@ -5,7 +5,6 @@ require 'money-rails'
 
 class Registration
   include Dynamoid::Document
-  include MoneyRails::ActionViewExtension
 
   # We autoscale dynamodb
   table name: EnvConfig.DYNAMO_REGISTRATIONS_TABLE, capacity_mode: nil, key: :attendee_id
@@ -107,7 +106,7 @@ class Registration
     payment_details = payment_lane&.lane_details
     unless payment_details.nil?
       money = Money.from_cents(payment_details['amount_lowest_denominator'], payment_details['currency_code'])
-      "#{humanized_money_with_symbol(money)} (#{money.currency.name})"
+      "#{money.format} (#{money.currency.name})"
     end
   end
 
