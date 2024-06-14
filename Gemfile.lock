@@ -175,6 +175,15 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.5)
     minitest (5.23.1)
+    monetize (1.13.0)
+      money (~> 6.12)
+    money (6.19.0)
+      i18n (>= 0.6.4, <= 2)
+    money-rails (1.15.0)
+      activesupport (>= 3.0)
+      monetize (~> 1.9)
+      money (~> 6.13)
+      railties (>= 3.0)
     msgpack (1.7.2)
     multi_xml (0.7.1)
       bigdecimal (~> 3.1)
@@ -359,6 +368,7 @@ DEPENDENCIES
   jbuilder
   jwt
   kredis
+  money-rails
   overcommit
   prometheus_exporter
   pry
