@@ -17,7 +17,7 @@ describe RegistrationController do
       patch :update, params: update_request, as: :json
 
       @response = response
-      puts response.parsed_body
+
       @body = response.parsed_body
       @updated_registration = Registration.find("#{@competition['id']}-#{@registration[:user_id]}")
     end
