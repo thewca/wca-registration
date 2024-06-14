@@ -92,6 +92,7 @@ FactoryBot.define do
     end
 
     submitted_by { 1306 }
+    competition_id { 'CubingZANationalChampionship2023' }
     jwt_token { fetch_jwt_token(submitted_by) }
     requests do
       user_ids.map do |user_id|

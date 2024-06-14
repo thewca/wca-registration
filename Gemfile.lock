@@ -79,17 +79,17 @@ GEM
       public_suffix (>= 2.0.2, < 6.0)
     ast (2.4.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.937.0)
-    aws-sdk-core (3.196.1)
+    aws-partitions (1.942.0)
+    aws-sdk-core (3.197.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.8)
       jmespath (~> 1, >= 1.6.1)
-    aws-sdk-dynamodb (1.111.0)
-      aws-sdk-core (~> 3, >= 3.193.0)
+    aws-sdk-dynamodb (1.112.0)
+      aws-sdk-core (~> 3, >= 3.197.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-sqs (1.74.0)
-      aws-sdk-core (~> 3, >= 3.193.0)
+    aws-sdk-sqs (1.76.0)
+      aws-sdk-core (~> 3, >= 3.197.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.8.0)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -175,6 +175,15 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.5)
     minitest (5.23.1)
+    monetize (1.13.0)
+      money (~> 6.12)
+    money (6.19.0)
+      i18n (>= 0.6.4, <= 2)
+    money-rails (1.15.0)
+      activesupport (>= 3.0)
+      monetize (~> 1.9)
+      money (~> 6.13)
+      railties (>= 3.0)
     msgpack (1.7.2)
     multi_xml (0.7.1)
       bigdecimal (~> 3.1)
@@ -359,6 +368,7 @@ DEPENDENCIES
   jbuilder
   jwt
   kredis
+  money-rails
   overcommit
   prometheus_exporter
   pry

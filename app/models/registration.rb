@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'time'
+require 'money-rails'
 
 class Registration
   include Dynamoid::Document
@@ -95,6 +96,18 @@ class Registration
 
   def payment_status
     payment_lane&.lane_state
+  end
+
+  def payment_amount
+    payment_lane&.lane_details&.[]('amount_lowest_denominator')
+  end
+
+  def payment_amount_human_readable
+    payment_details = payment_lane&.lane_details
+    unless payment_details.nil?
+      money = Money.from_cents(payment_details['amount_lowest_denominator'], payment_details['currency_code'])
+      "#{money.format} (#{money.currency.name})"
+    end
   end
 
   def payment_date

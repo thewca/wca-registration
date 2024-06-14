@@ -99,8 +99,8 @@ class RegistrationController < ApplicationController
   end
 
   def validate_bulk_update_request
-    @competition_id = params[:requests][0]['competition_id']
-    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find!(@competition_id), params[:submitted_by])
+    @competition_id = params.require('competition_id')
+    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
   rescue BulkUpdateError => e
     render_error(e.http_status, e.errors)
   rescue NoMethodError
@@ -331,6 +331,7 @@ class RegistrationController < ApplicationController
         },
         payment: {
           payment_status: registration.payment_status,
+          payment_amount_human_readable: registration.payment_amount_human_readable,
           updated_at: registration.payment_date,
         },
         history: registration.history.entries,

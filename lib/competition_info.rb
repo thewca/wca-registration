@@ -66,6 +66,10 @@ class CompetitionInfo
     @competition_json['name']
   end
 
+  def id
+    @competition_json['id']
+  end
+
   def registration_edits_allowed?
     @competition_json['allow_registration_edits'] && within_event_change_deadline?
   end
