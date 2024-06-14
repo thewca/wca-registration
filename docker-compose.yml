@@ -72,6 +72,7 @@ services:
       bash -c 'bundle install && bundle exec shoryuken -R -q registrations.fifo'
     networks:
       - wca-registration
+      - wca-main
     depends_on:
       wca_registration_handler:
         condition: service_healthy
