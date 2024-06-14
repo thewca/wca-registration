@@ -5,15 +5,15 @@ class RegistrationProcessor < ActiveJob::Base
 
   queue_as EnvConfig.QUEUE_NAME
 
-  def perform(message, name)
+  def perform(message)
     puts "Working on Message: #{message}"
-    if message['step'] == 'Event Registration'
-      event_registration(message['competition_id'],
-                         message['user_id'],
-                         message['step_details']['event_ids'],
-                         message['step_details']['comment'],
-                         message['step_details']['guests'],
-                         message['created_at'])
+    if message[:step] == 'Event Registration'
+      event_registration(message[:competition_id],
+                         message[:user_id],
+                         message[:step_details][:event_ids],
+                         message[:step_details][:comment],
+                         message[:step_details][:guests],
+                         message[:created_at])
     end
   end
 

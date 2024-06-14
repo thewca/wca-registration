@@ -12,6 +12,7 @@ services:
       PROMETHEUS_EXPORTER: "prometheus_exporter"
       REDIS_URL: "redis://redis:6379"
       RAILS_ENV: development
+      QUEUE_NAME: "registrations.fifo"
     volumes:
       - .:/app
       - gems_volume_handler:/usr/local/bundle
@@ -28,6 +29,8 @@ services:
       - localstack
       - prometheus_exporter
       - redis
+    healthcheck:
+      test: curl --fail http://localhost:3000/healthcheck
     dns:
       # Set the DNS server to be the LocalStack container
       - 10.0.2.20
@@ -58,6 +61,7 @@ services:
       DYNAMO_REGISTRATIONS_TABLE: "registrations-development"
       REGISTRATION_HISTORY_DYNAMO_TABLE: "registration-history-development"
       CODE_ENVIRONMENT: "development"
+      QUEUE_NAME: "registrations.fifo"
     volumes:
       - .:/app
       - gems_volume_worker:/usr/local/bundle
@@ -65,14 +69,12 @@ services:
     # First, install Ruby and Node dependencies
     # Start the server and bind to 0.0.0.0 (vs 127.0.0.1) so Docker's port mappings work correctly
     command: >
-      bash -c 'bundle install &&
-      while ! curl http://wca_registration_handler:3000/healthcheck >/dev/null 2>&1; do
-              echo "Waiting for Handler to be ready" && sleep 5 ;
-            done && ruby -r "/app/app/worker/queue_poller.rb" -e "QueuePoller.perform"'
+      bash -c 'bundle install && bundle exec shoryuken -R -q registrations.fifo'
     networks:
       - wca-registration
     depends_on:
-      - wca_registration_handler
+      wca_registration_handler:
+        condition: service_healthy
     dns:
       # Set the DNS server to be the LocalStack container
       - 10.0.2.20
@@ -85,7 +87,7 @@ services:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway
       - "127.0.0.1:4510-4559:4510-4559"  # external services port range
     environment:
-      - DEBUG=${DEBUG-}
+      - LS_LOG=error
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - "./localstack/volume:/var/lib/localstack"

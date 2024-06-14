@@ -326,6 +326,10 @@ GEM
       rubocop-ast (>= 1.31.1, < 2.0)
     ruby-prof (1.7.0)
     ruby-progressbar (1.13.0)
+    shoryuken (6.2.1)
+      aws-sdk-core (>= 2)
+      concurrent-ruby
+      thor
     sqlite3 (1.7.3-aarch64-linux)
     sqlite3 (1.7.3-x86_64-linux)
     stringio (3.1.0)
@@ -381,6 +385,7 @@ DEPENDENCIES
   rubocop
   rubocop-rails
   ruby-prof
+  shoryuken
   sqlite3 (~> 1.4)
   superconfig
   tzinfo-data

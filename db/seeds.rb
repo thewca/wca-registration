@@ -59,9 +59,8 @@ unless Rails.env.production?
   end
 
   # Create SQS Queue
-  queue_name = 'registrations.fifo'
   sqs.create_queue({
-                      queue_name: queue_name,
+                      queue_name: EnvConfig.QUEUE_NAME,
                       attributes: {
                         FifoQueue: 'true',
                       },
