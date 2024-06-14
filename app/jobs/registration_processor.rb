@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-class RegistrationProcessor < ActiveJob::Base
+class RegistrationProcessor < ApplicationJob
   include Shoryuken::Worker
 
   queue_as EnvConfig.QUEUE_NAME
 
   def perform(message)
-    puts "Working on Message: #{message}"
+    Rails.logger.debug { "Working on Message: #{message}" }
     if message[:step] == 'Event Registration'
       event_registration(message[:competition_id],
                          message[:user_id],

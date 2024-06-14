@@ -48,21 +48,21 @@ unless Rails.env.production?
   ]
   begin
     dynamodb.create_table({
-                             table_name: table_name,
-                             key_schema: key_schema,
-                             attribute_definitions: attribute_definitions,
-                             provisioned_throughput: provisioned_throughput,
-                             global_secondary_indexes: global_secondary_indexes,
-                           })
+                            table_name: table_name,
+                            key_schema: key_schema,
+                            attribute_definitions: attribute_definitions,
+                            provisioned_throughput: provisioned_throughput,
+                            global_secondary_indexes: global_secondary_indexes,
+                          })
   rescue Aws::DynamoDB::Errors::ResourceInUseException
     Rails.logger.debug 'Database Already exists'
   end
 
   # Create SQS Queue
   sqs.create_queue({
-                      queue_name: EnvConfig.QUEUE_NAME,
-                      attributes: {
-                        FifoQueue: 'true',
-                      },
-                    })
+                     queue_name: EnvConfig.QUEUE_NAME,
+                     attributes: {
+                       FifoQueue: 'true',
+                     },
+                   })
 end
