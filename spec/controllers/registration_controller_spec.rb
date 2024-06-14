@@ -8,6 +8,7 @@ describe RegistrationController do
     before do
       @competition = FactoryBot.build(:competition)
       stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.to_json)
+      stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
 
       @registration = FactoryBot.create(:registration)
 
