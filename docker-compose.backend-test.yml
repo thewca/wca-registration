@@ -66,9 +66,6 @@ services:
       bash -c 'bundle install && bundle exec shoryuken -R -q registrations.fifo'
     networks:
       - wca-registration
-    depends_on:
-      wca_registration_handler:
-        condition: service_healthy
     dns:
       # Set the DNS server to be the LocalStack container
       - 10.0.2.20
