@@ -90,6 +90,8 @@ FactoryBot.define do
     transient do
       user_ids { [] }
     end
+
+    submitted_by { 1306 }
     competition_id { 'CubingZANationalChampionship2023' }
     jwt_token { fetch_jwt_token(submitted_by) }
     requests do

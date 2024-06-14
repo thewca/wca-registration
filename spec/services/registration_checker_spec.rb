@@ -1262,8 +1262,8 @@ describe RegistrationChecker do
 
       expect {
         RegistrationChecker.bulk_update_allowed!(bulk_update_request, competition_info, bulk_update_request['submitted_by'])
-      }.to raise_error(RegistrationError) do |error|
-        expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+      }.to raise_error(BulkUpdateError) do |error|
+        expect(error.errors).to eq([ErrorCodes::USER_INSUFFICIENT_PERMISSIONS])
         expect(error.http_status).to eq(:unauthorized)
       end
     end

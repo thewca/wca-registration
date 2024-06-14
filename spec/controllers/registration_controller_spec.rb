@@ -17,6 +17,7 @@ describe RegistrationController do
       patch :update, params: update_request, as: :json
 
       @response = response
+      puts response.parsed_body
       @body = response.parsed_body
       @updated_registration = Registration.find("#{@competition['id']}-#{@registration[:user_id]}")
     end
@@ -158,7 +159,7 @@ describe RegistrationController do
       expect(response.code).to eq('200')
     end
 
-    it 'returns 422 if blank json submitted' do
+    it 'returns 400 if blank json submitted' do
       registration = FactoryBot.create(:registration)
       bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
 
@@ -167,7 +168,7 @@ describe RegistrationController do
 
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: {}, as: :json
-      expect(response.code).to eq('422')
+      expect(response.code).to eq('400')
     end
   end
 end
