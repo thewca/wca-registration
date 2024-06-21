@@ -135,9 +135,9 @@ class RegistrationController < ApplicationController
     end
 
     # Don't send email if we only change the waiting list position
-    unless waiting_list_position.present?
+    if waiting_list_position.blank?
       # commented out until shuryuken PR is merged
-      #EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
+      # EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
     {
@@ -150,7 +150,7 @@ class RegistrationController < ApplicationController
         comment: updated_registration.competing_comment,
         admin_comment: updated_registration.admin_comment,
       },
-      history: updated_registration.history.entries
+      history: updated_registration.history.entries,
     }
   end
 
