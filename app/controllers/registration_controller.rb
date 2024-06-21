@@ -121,11 +121,12 @@ class RegistrationController < ApplicationController
     comment = update_request.dig('competing', 'comment')
     event_ids = update_request.dig('competing', 'event_ids')
     admin_comment = update_request.dig('competing', 'admin_comment')
+    waiting_list_position = update_request.dig('competing', 'waiting_list_position')
     user_id = update_request[:user_id]
 
     registration = Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
-    updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
+    updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position })
     registration.history.add_entry(update_changes(update_request), 'user', @current_user, action_type(update_request))
     if old_status == 'accepted' && status != 'accepted'
       Registration.decrement_competitors_count(@competition_id)
@@ -133,8 +134,10 @@ class RegistrationController < ApplicationController
       Registration.increment_competitors_count(@competition_id)
     end
 
-    if Rails.env.production?
-      EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
+    # Don't send email if we only change the waiting list position
+    if waiting_list_position.blank?
+      # commented out until shuryuken PR is merged
+      # EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
     {
@@ -147,6 +150,7 @@ class RegistrationController < ApplicationController
         comment: updated_registration.competing_comment,
         admin_comment: updated_registration.admin_comment,
       },
+      history: updated_registration.history.entries,
     }
   end
 
