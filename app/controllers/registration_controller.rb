@@ -51,7 +51,7 @@ class RegistrationController < ApplicationController
       },
     }
 
-    RegistrationProcessor.perform_later(step_data)
+    RegistrationProcessor.perform_later(step_data, message_group_id: @competition_id)
 
     render json: { status: 'accepted', message: 'Started Registration Process' }, status: :accepted
   end
