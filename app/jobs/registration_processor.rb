@@ -7,13 +7,13 @@ class RegistrationProcessor < ApplicationJob
 
   def perform(message)
     Rails.logger.debug { "Working on Message: #{message}" }
-    if message[:step] == 'Event Registration'
-      event_registration(message[:competition_id],
-                         message[:user_id],
-                         message[:step_details][:event_ids],
-                         message[:step_details][:comment],
-                         message[:step_details][:guests],
-                         message[:created_at])
+    if message["step"] == 'EventRegistration'
+      event_registration(message["competition_id"],
+                         message["user_id"],
+                         message["step_details"]["event_ids"],
+                         message["step_details"]["comment"],
+                         message["step_details"]["guests"],
+                         message["created_at"])
     end
   end
 

@@ -42,7 +42,7 @@ class RegistrationController < ApplicationController
       user_id: @user_id,
       competition_id: @competition_id,
       lane_name: 'competing',
-      step: 'Event Registration',
+      step: 'EventRegistration',
       step_details: {
         registration_status: 'pending',
         event_ids: event_ids,
@@ -51,7 +51,9 @@ class RegistrationController < ApplicationController
       },
     }
 
-    RegistrationProcessor.perform_later(step_data, message_group_id: @competition_id)
+    Shoryuken::Client.queues(EnvConfig.QUEUE_NAME).send_message(
+      QueueMessage.generate_register_message(step_data),
+    )
 
     render json: { status: 'accepted', message: 'Started Registration Process' }, status: :accepted
   end
