@@ -210,7 +210,7 @@ GEM
     parser (3.3.2.0)
       ast (~> 2.4.1)
       racc
-    prometheus_exporter (2.1.0)
+    prometheus_exporter (2.1.1)
       webrick
     pry (0.14.2)
       coderay (~> 1.1)
