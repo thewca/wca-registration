@@ -51,9 +51,7 @@ class RegistrationController < ApplicationController
       },
     }
 
-    Shoryuken::Client.queues(EnvConfig.QUEUE_NAME).send_message(
-      QueueMessage.generate_register_message(step_data),
-    )
+    RegistrationProcessor.set(message_group_id: step_data[:competition_id], message_deduplication_id: "#{step_data[:lane_name]}-#{step_data[:step]}-#{step_data[:attendee_id]}").perform_later(step_data)
 
     render json: { status: 'accepted', message: 'Started Registration Process' }, status: :accepted
   end
