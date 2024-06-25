@@ -11,6 +11,7 @@ services:
       PROMETHEUS_EXPORTER: "prometheus_exporter"
       REDIS_URL: "redis://redis:6379"
       RAILS_ENV: test
+      QUEUE_NAME: "registrations.fifo"
     volumes:
       - .:/app
       - gems_volume_handler:/usr/local/bundle
@@ -54,6 +55,7 @@ services:
       AWS_SECRET_ACCESS_KEY: "fake-access-key"
       PROMETHEUS_EXPORTER: "prometheus_exporter"
       DYNAMO_REGISTRATIONS_TABLE: "registrations-development"
+      QUEUE_NAME: "registrations.fifo"
     volumes:
       - .:/app
       - gems_volume_worker:/usr/local/bundle
@@ -61,14 +63,9 @@ services:
     # First, install Ruby and Node dependencies
     # Start the server and bind to 0.0.0.0 (vs 127.0.0.1) so Docker's port mappings work correctly
     command: >
-      bash -c 'bundle install &&
-      while ! curl http://wca_registration_handler:3000/healthcheck >/dev/null 2>&1; do
-              echo "Waiting for Handler to be ready" && sleep 5 ;
-            done && ruby -r "/app/app/worker/queue_poller.rb" -e "QueuePoller.perform"'
+      bash -c 'bundle install && bundle exec shoryuken -R -q registrations.fifo'
     networks:
       - wca-registration
-    healthcheck:
-      test: pgrep ruby || exit 1
     dns:
       # Set the DNS server to be the LocalStack container
       - 10.0.2.20

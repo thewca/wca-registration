@@ -45,6 +45,9 @@ gem 'dynamoid', '3.8.0'
 # SQS for adding data into a queue
 gem 'aws-sdk-sqs'
 
+# SQS Job Management
+gem 'shoryuken'
+
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 gem 'kredis'
 

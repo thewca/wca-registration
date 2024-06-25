@@ -108,6 +108,7 @@ resource "aws_api_gateway_method_response" "staging_method_response" {
 
   response_parameters = {
     "method.response.header.Content-Type" = true
+    "method.response.header.Access-Control-Allow-Origin" = false
   }
 }
 
@@ -122,6 +123,9 @@ resource "aws_api_gateway_integration_response" "registration_status_integration
       status = "Registration Status"
       queue_count = "Queue Count"
     })
+  }
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'*'"
   }
   depends_on = [aws_api_gateway_resource.prod, aws_api_gateway_method.poll_registration_status_method, aws_api_gateway_method_response.staging_method_response, aws_api_gateway_integration.poll_registration_integration]
 }

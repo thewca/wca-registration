@@ -8,7 +8,6 @@ EnvConfig = SuperConfig.new do
     mandatory :VAULT_ADDR, :string
     mandatory :TASK_ROLE, :string
     mandatory :REGISTRATION_LIVE_SITE, :bool
-    mandatory :QUEUE_URL, :string
     mandatory :WCA_HOST, :string
     mandatory :REDIS_URL, :string
     mandatory :VAULT_APPLICATION, :string
@@ -27,4 +26,5 @@ EnvConfig = SuperConfig.new do
   mandatory :PROMETHEUS_EXPORTER, :string
   mandatory :DYNAMO_REGISTRATIONS_TABLE, :string
   mandatory :REGISTRATION_HISTORY_DYNAMO_TABLE, :string
+  mandatory :QUEUE_NAME, :string
 end
