@@ -5,7 +5,7 @@ tmp/*
 log/*
 infra
 storage/*
-docker-compose.dev.yml
+docker-compose.yml
 dockerfile.dev
 dockerfile.handler
 dockerfile.worker

@@ -21,6 +21,8 @@ gem 'jbuilder'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors'
 
+gem 'money-rails'
+
 # much better gem for http requests than the native ruby one
 gem 'httparty'
 
@@ -32,7 +34,7 @@ gem 'bootsnap', require: false
 
 # Use Redis adapter to run Action Cable in production
 gem 'hiredis'
-gem 'redis', '~> 5.1'
+gem 'redis', '~> 5.2'
 # So Redis can share connections
 gem 'connection_pool'
 
@@ -79,6 +81,7 @@ group :development, :test do
   gem 'webmock', require: false
 
   gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
 
   # Use factories instead of fixtures
   gem 'factory_bot_rails'

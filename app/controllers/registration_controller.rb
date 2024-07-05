@@ -3,12 +3,9 @@
 require 'securerandom'
 require 'jwt'
 require 'time'
-require_relative '../helpers/competition_api'
-require_relative '../helpers/user_api'
-require_relative '../helpers/error_codes'
 
 class RegistrationController < ApplicationController
-  skip_before_action :validate_token, only: [:list, :list_waiting]
+  skip_before_action :validate_jwt_token, only: [:list, :list_waiting, :count]
   # The order of the validations is important to not leak any non public info via the API
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
@@ -19,14 +16,30 @@ class RegistrationController < ApplicationController
   before_action :validate_bulk_update_request, only: [:bulk_update]
   before_action :validate_payment_ticket_request, only: [:payment_ticket]
 
+  def show
+    registration = get_single_registration(@user_id, @competition_id)
+    render json: registration
+  rescue Dynamoid::Errors::RecordNotFound
+    render json: {}, status: :not_found
+  rescue RegistrationError => e
+    render_error(e.http_status, e.error)
+  end
+
+  def count
+    competition_id = params.require(:competition_id)
+
+    render json: { count: Registration.accepted_competitors_count(competition_id).to_i }
+  end
+
   def create
     queue_url = ENV['QUEUE_URL'] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     event_ids = params.dig('competing', 'event_ids')
-    comment = params['competing'][:comment] || ''
-    guests = params['competing'][:guests] || 0
+    comment = params.dig('competing', 'comment') || ''
+    guests = params['guests'] || 0
     id = SecureRandom.uuid
 
     step_data = {
+      created_at: Time.now.utc,
       attendee_id: "#{@competition_id}-#{@user_id}",
       user_id: @user_id,
       competition_id: @competition_id,
@@ -61,7 +74,7 @@ class RegistrationController < ApplicationController
   def update
     render json: { status: 'ok', registration: process_update(params) }
   rescue Dynamoid::Errors::Error => e
-    puts e
+    Rails.logger.debug e
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error Updating Registration: #{e.message}" },
            status: :internal_server_error
@@ -72,15 +85,6 @@ class RegistrationController < ApplicationController
     @competition_id = params[:competition_id]
 
     RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
-  rescue RegistrationError => e
-    render_error(e.http_status, e.error)
-  end
-
-  def show
-    registration = get_single_registration(@user_id, @competition_id)
-    render json: registration
-  rescue Dynamoid::Errors::RecordNotFound
-    render json: {}, status: :not_found
   rescue RegistrationError => e
     render_error(e.http_status, e.error)
   end
@@ -102,8 +106,8 @@ class RegistrationController < ApplicationController
   end
 
   def validate_bulk_update_request
-    @competition_id = params[:requests][0]['competition_id']
-    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find!(@competition_id), params[:submitted_by])
+    @competition_id = params.require('competition_id')
+    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
   rescue BulkUpdateError => e
     render_error(e.http_status, e.errors)
   rescue NoMethodError
@@ -117,20 +121,23 @@ class RegistrationController < ApplicationController
     comment = update_request.dig('competing', 'comment')
     event_ids = update_request.dig('competing', 'event_ids')
     admin_comment = update_request.dig('competing', 'admin_comment')
+    waiting_list_position = update_request.dig('competing', 'waiting_list_position')
     user_id = update_request[:user_id]
 
     registration = Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
-    updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests })
-    registration.history.add_entry(update_changes(update_request), @current_user, action_type(update_request))
+    updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position })
+    registration.history.add_entry(update_changes(update_request), 'user', @current_user, action_type(update_request))
     if old_status == 'accepted' && status != 'accepted'
       Registration.decrement_competitors_count(@competition_id)
     elsif old_status != 'accepted' && status == 'accepted'
       Registration.increment_competitors_count(@competition_id)
     end
 
-    if Rails.env.production?
-      EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
+    # Don't send email if we only change the waiting list position
+    if waiting_list_position.blank?
+      # commented out until shuryuken PR is merged
+      # EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
     {
@@ -143,19 +150,16 @@ class RegistrationController < ApplicationController
         comment: updated_registration.competing_comment,
         admin_comment: updated_registration.admin_comment,
       },
+      history: updated_registration.history.entries,
     }
   end
 
   def payment_ticket
-    refresh = params[:refresh]
-    if refresh || @registration.payment_ticket.nil?
-      amount, currency_code = @competition.payment_info
-      ticket = PaymentApi.get_ticket(@registration[:attendee_id], amount, currency_code, @current_user)
-      @registration.init_payment_lane(amount, currency_code, ticket)
-    else
-      ticket = @registration.payment_ticket
-    end
-    render json: { id: ticket, status: @registration.payment_status }
+    donation = params[:donation_iso].to_i || 0
+    amount, currency_code = @competition.payment_info
+    client_secret, ticket = PaymentApi.get_ticket(@registration[:attendee_id], amount + donation, currency_code, @current_user)
+    @registration.init_payment_lane(amount, currency_code, ticket, donation)
+    render json: { client_secret: client_secret, status: @registration.payment_status }
   end
 
   def validate_payment_ticket_request
@@ -173,7 +177,7 @@ class RegistrationController < ApplicationController
     render json: registrations
   rescue Dynamoid::Errors::Error => e
     # Render an error response
-    puts e
+    Rails.logger.debug e
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
@@ -184,7 +188,7 @@ class RegistrationController < ApplicationController
     render json: my_registrations
   rescue Dynamoid::Errors::Error => e
     # Render an error response
-    puts e
+    Rails.logger.debug e
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
@@ -202,7 +206,7 @@ class RegistrationController < ApplicationController
     render json: waiting
   rescue Dynamoid::Errors::Error => e
     # Render an error response
-    puts e
+    Rails.logger.debug e
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
@@ -220,7 +224,7 @@ class RegistrationController < ApplicationController
     registrations = get_registrations(@competition_id)
     render json: add_pii(registrations)
   rescue Dynamoid::Errors::Error => e
-    puts e
+    Rails.logger.debug e
     # Is there a reason we aren't using an error code here?
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
@@ -340,6 +344,7 @@ class RegistrationController < ApplicationController
         },
         payment: {
           payment_status: registration.payment_status,
+          payment_amount_human_readable: registration.payment_amount_human_readable,
           updated_at: registration.payment_date,
         },
         history: registration.history.entries,

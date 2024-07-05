@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'factory_bot_rails'
-require_relative '../../app/helpers/competition_api'
 
 FactoryBot.define do
   factory :competition, class: Hash do
@@ -11,7 +10,7 @@ FactoryBot.define do
     name { 'CubingZA National Championship 2023' }
     event_ids { events }
     registration_open { '2023-05-05T04:00:00.000Z' }
-    registration_close { '2024-06-14T00:00:00.000Z' }
+    registration_close { 1.week.from_now.iso8601 }
     announced_at { '2023-05-01T15:59:53.000Z' }
     start_date { '2023-06-16' }
     end_date { '2023-06-18' }
@@ -31,9 +30,9 @@ FactoryBot.define do
     allow_registration_without_qualification { false }
     guest_entry_status { 'restricted' }
     guests_per_registration_limit { 2 }
-    event_change_deadline_date { '2024-06-14T00:00:00.000Z' }
+    event_change_deadline_date { 1.week.from_now.iso8601 }
     events_per_registration_limit { 'null' }
-    using_stripe_payments? { true }
+    using_payment_integrations? { true }
     competition_series_ids { nil }
     force_comment_in_registration { false }
     allow_registration_self_delete_after_acceptance { true }
