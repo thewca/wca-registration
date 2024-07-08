@@ -23,7 +23,7 @@ describe RegistrationController do
       expect(created_registration.event_ids).to eq(registration_request['competing']['event_ids'])
     end
 
-    it 'registration succeeds when qualifications are met', :focus, :qualification do
+    it 'registration succeeds when qualifications are met', :qualification do
       @competition = FactoryBot.build(:competition, :has_qualifications)
       stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
       stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
@@ -32,11 +32,9 @@ describe RegistrationController do
       permissions = FactoryBot.build(:permissions)
       stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
       
-      user_qualifications = qualifications([
-      ])
-      binding.pry
+      user_qualifications = QualificationResultsFaker.new().qualification_results
       stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id'])).
-        to_return(status: 200, body: user_qualficiations.to_json)
+        to_return(status: 200, body: user_qualifications.to_json)
 
       request.headers['Authorization'] = registration_request['jwt_token']
       post :create, params: registration_request, as: :json
@@ -53,7 +51,12 @@ describe RegistrationController do
       stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
       stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
 
-      registration_request = FactoryBot.build(:registration_request, user_id: 1001)
+      registration_request = FactoryBot.build(:registration_request)
+      permissions = FactoryBot.build(:permissions)
+      stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
+
+      stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id'])).
+        to_return(status: 200, body: [].to_json)
 
       request.headers['Authorization'] = registration_request['jwt_token']
       post :create, params: registration_request, as: :json

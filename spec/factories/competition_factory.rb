@@ -52,16 +52,21 @@ FactoryBot.define do
     end
 
     trait :has_qualifications do
-      qualifications {
-        {
-          '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 1000 },
-          '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 6000 },
-          'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 100 },
-          'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 200 },
-          '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 0 },
-          '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 0 },
+      transient do 
+        extra_qualifications { {} }
+        standard_qualifications {
+          {
+            '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 1000 },
+            '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 6000 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 100 },
+            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 200 },
+            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 0 },
+            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 0 },
+          }
         }
-      }
+      end
+
+      qualifications { standard_qualifications.merge(extra_qualifications) }
       qualification_results { true }
       allow_registration_without_qualification { false }
     end
@@ -86,6 +91,10 @@ FactoryBot.define do
     trait :series do
       competition_series_ids { ['CubingZANationalChampionship2023', 'CubingZAWarmup2023'] }
     end
+
+    # after(:build) do |competition, evaluator|
+    #   binding.pry
+    # end
 
     # TODO: Create a flag that returns either the raw JSON (for mocking) or a CompetitionInfo object
     after(:create) do |competition, evaluator|

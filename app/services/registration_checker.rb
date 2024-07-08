@@ -215,15 +215,22 @@ class RegistrationChecker
     end
 
     def competitor_qualifies_for_event?(event, qualification)
-      competitor_personal_records = UserApi.qualifications(@requestee_user_id)
+      competitor_qualification_results = UserApi.qualifications(@requestee_user_id)
       result_type = qualification['resultType']
+
+      # TODO: Refactor to be not disgusting
+      competitor_pr = nil
+      competitor_qualification_results.each do |result|
+        next unless result['eventId'] == event
+        next unless result['type'] == result_type
+        competitor_pr = result['best'].to_i
+        break
+      end
 
       case qualification['type']
       when 'anyResult', 'ranking'
-        competitor_pr = competitor_personal_records.dig(result_type, event, 'best')
         competitor_pr.present?
       when 'attemptResult'
-        competitor_pr = competitor_personal_records.dig(result_type, event, 'best')
         competitor_pr.present? && competitor_pr < qualification['level']
       else
         false
