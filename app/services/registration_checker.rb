@@ -215,7 +215,7 @@ class RegistrationChecker
     end
 
     def competitor_qualifies_for_event?(event, qualification)
-      competitor_personal_records = UserApi.personal_records(@requestee_user_id)
+      competitor_personal_records = UserApi.qualifications(@requestee_user_id)
       result_type = qualification['resultType']
 
       case qualification['type']

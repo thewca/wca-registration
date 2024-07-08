@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/helper_functions'
 
 describe RegistrationController do
   describe '#create' do
     it 'successfully creates a registration' do
       @competition = FactoryBot.build(:competition)
-      stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
+      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
 
       registration_request = FactoryBot.build(:registration_request)
       permissions = FactoryBot.build(:permissions)
@@ -22,12 +23,20 @@ describe RegistrationController do
       expect(created_registration.event_ids).to eq(registration_request['competing']['event_ids'])
     end
 
-    it 'registration succeeds when qualifications are met' do
+    it 'registration succeeds when qualifications are met', :focus, :qualification do
       @competition = FactoryBot.build(:competition, :has_qualifications)
-      stub_request(:get, comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
-      stub_request(:get, comp_api_url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
+      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
+      stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
 
       registration_request = FactoryBot.build(:registration_request, user_id: 1002)
+      permissions = FactoryBot.build(:permissions)
+      stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
+      
+      user_qualifications = qualifications([
+      ])
+      binding.pry
+      stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id'])).
+        to_return(status: 200, body: user_qualficiations.to_json)
 
       request.headers['Authorization'] = registration_request['jwt_token']
       post :create, params: registration_request, as: :json
@@ -39,10 +48,10 @@ describe RegistrationController do
       expect(created_registration.event_ids).to eq(registration_request['competing']['event_ids'])
     end
 
-    it 'registration fails when qualifications not met' do
+    it 'registration fails when qualifications not met', :qualification do
       @competition = FactoryBot.build(:competition, :has_qualifications)
-      stub_request(:get, comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
-      stub_request(:get, comp_api_url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
+      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
+      stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
 
       registration_request = FactoryBot.build(:registration_request, user_id: 1001)
 
@@ -60,7 +69,7 @@ describe RegistrationController do
     # NOTE: This code only needs to run once before the assertions, but before(:create) doesnt work because `request` defined then
     before do
       @competition = FactoryBot.build(:competition)
-      stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.to_json)
+      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.to_json)
 
       @registration = FactoryBot.create(:registration)
 
@@ -117,7 +126,7 @@ describe RegistrationController do
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id])
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -136,7 +145,7 @@ describe RegistrationController do
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id])
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -160,7 +169,7 @@ describe RegistrationController do
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'comment' => 'test comment update' })
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -184,7 +193,7 @@ describe RegistrationController do
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'comment' => 'test comment update' })
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -205,7 +214,7 @@ describe RegistrationController do
       bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: bulk_update_request, as: :json
@@ -217,7 +226,7 @@ describe RegistrationController do
       bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
 
       competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
+      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: {}, as: :json

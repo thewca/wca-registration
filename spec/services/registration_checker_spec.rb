@@ -195,14 +195,14 @@ describe RegistrationChecker do
     end
   end
 
-  describe '#create_registration_allowed!.validate_qualifications!' do
+  describe '#create_registration_allowed!.validate_qualifications!', :qualification do
     it 'smoketest - succeeds when all qualifications are met' do
       # Create a competition with ranking qualification enabled but not enforced
       @competition = FactoryBot.build(:competition, :has_qualifications)
       @competition_info = CompetitionInfo.new(@competition.except('qualifications'))
 
       # Mock the qualification endpoint
-      stub_request(:get, comp_api_url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
+      stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
 
       registration_request = FactoryBot.build(:registration_request, user_id: 1002, events: ['222', '333', '555', '555bf', '333mbf', '444', 'pyram', 'minx']) # User id returns nil for personal records
 
@@ -218,7 +218,7 @@ describe RegistrationChecker do
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
         # Mock the qualification endpoint
-        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
 
         registration_request = FactoryBot.build(:registration_request, user_id: user_id, events: event_ids)
 
@@ -235,7 +235,7 @@ describe RegistrationChecker do
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
         # Mock the qualification endpoint
-        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
 
         registration_request = FactoryBot.build(:registration_request, user_id: user_id, events: event_ids)
 
@@ -252,7 +252,7 @@ describe RegistrationChecker do
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
         # Mock the qualification endpoint
-        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
 
         registration_request = FactoryBot.build(:registration_request, user_id: user_id, events: event_ids)
 
@@ -588,14 +588,14 @@ describe RegistrationChecker do
     end
   end
 
-  describe '#update_registration_allowed!.validate_qualifications!' do
+  describe '#update_registration_allowed!.validate_qualifications!', :qualification do
     it 'smoketest - succeeds when all qualifications are met' do
       # Create a competition with ranking qualification enabled but not enforced
       @competition = FactoryBot.build(:competition, :has_qualifications)
       @competition_info = CompetitionInfo.new(@competition.except('qualifications'))
 
       # Mock the qualification endpoint
-      stub_request(:get, comp_api_url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
+      stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
 
       update_request = FactoryBot.build(
         :update_request, user_id: 1002, competing: { 'event_ids' => ['222', '333', '555', '555bf', '333mbf', '444', 'pyram', 'minx'] }
@@ -614,7 +614,7 @@ describe RegistrationChecker do
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
         # Mock the qualification endpoint
-        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
 
         update_request = FactoryBot.build(:update_request, user_id: user_id, competing: { 'event_ids' => event_ids })
         FactoryBot.create(:registration, user_id: update_request['user_id'])
@@ -632,7 +632,7 @@ describe RegistrationChecker do
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
         # Mock the qualification endpoint
-        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
 
         update_request = FactoryBot.build(:update_request, user_id: user_id, competing: { 'event_ids' => event_ids })
         FactoryBot.create(:registration, user_id: update_request['user_id'])
@@ -650,7 +650,7 @@ describe RegistrationChecker do
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
         # Mock the qualification endpoint
-        stub_request(:get, comp_api_url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
 
         update_request = FactoryBot.build(:update_request, user_id: user_id, competing: { 'event_ids' => event_ids })
         FactoryBot.create(:registration, user_id: update_request['user_id'])

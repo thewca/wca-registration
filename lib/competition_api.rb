@@ -12,7 +12,7 @@ class CompetitionApi < WcaApi
     nil
   end
 
-  def self.comp_api_url(competition_id)
+  def self.url(competition_id)
     "#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
   end
 
@@ -21,21 +21,35 @@ class CompetitionApi < WcaApi
     CompetitionInfo.new(competition_json)
   end
 
-  # This is how you make a private class method
-  class << self
-    def fetch_competition(competition_id)
-      Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-        response = HTTParty.get(CompetitionApi.comp_api_url(competition_id))
-        case response.code
-        when 200
-          JSON.parse response.body
-        when 404
-          Metrics.registration_competition_api_error_counter.increment
-          raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
-        else
-          Metrics.registration_competition_api_error_counter.increment
-          raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
-        end
+  def self.fetch_qualifications(competition_id)
+    Rails.cache.fetch("#{competition_id}/qualifications", expires_in: 5.minutes) do
+      response = HTTParty.get("#{url(competition_id)}/qualifications")
+      case response.code
+      when 200
+        @status = 200
+        JSON.parse response.body
+      when 404
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
+      else
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
+      end
+    end
+  end
+
+  private_class_method def self.fetch_competition(competition_id)
+    Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
+      response = HTTParty.get(CompetitionApi.url(competition_id))
+      case response.code
+      when 200
+        JSON.parse response.body
+      when 404
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
+      else
+        Metrics.registration_competition_api_error_counter.increment
+        raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
       end
     end
   end
