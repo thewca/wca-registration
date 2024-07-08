@@ -23,7 +23,7 @@ describe RegistrationController do
       expect(created_registration.event_ids).to eq(registration_request['competing']['event_ids'])
     end
 
-    it 'registration succeeds when qualifications are met', :qualification do
+    it 'registration succeeds when qualifications are met'  do
       @competition = FactoryBot.build(:competition, :has_qualifications)
       stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
       stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
@@ -46,7 +46,7 @@ describe RegistrationController do
       expect(created_registration.event_ids).to eq(registration_request['competing']['event_ids'])
     end
 
-    it 'registration fails when qualifications not met', :qualification do
+    it 'registration fails when qualifications not met' do
       @competition = FactoryBot.build(:competition, :has_qualifications)
       stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
       stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
