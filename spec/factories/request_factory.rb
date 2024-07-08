@@ -103,3 +103,19 @@ FactoryBot.define do
     initialize_with { attributes.stringify_keys }
   end
 end
+
+FactoryBot.define do
+  factory :permissions, class: Hash do
+    can_attend_competitions  { {'scope' => '*'} }
+    can_organize_competitions { {'scope' => []} }
+    can_administer_competitions { {'scope' => []} }
+
+    # trait :admin do
+    #   can_organize_competitions { 'scope' => '*' }
+    #   can_administer_competitions { 'scope' => '*' }
+    # end
+
+    initialize_with { attributes.stringify_keys }
+  end
+end
+

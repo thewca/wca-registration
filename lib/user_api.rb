@@ -13,7 +13,7 @@ class UserApi < WcaApi
   end
 
   def self.get_permissions(user_id)
-    HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.wca_token })
+    JSON.parse(HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.wca_token }).body)
   end
 
   def self.get_user_info_pii(user_ids)

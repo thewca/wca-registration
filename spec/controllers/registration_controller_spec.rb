@@ -3,20 +3,22 @@
 require 'rails_helper'
 
 describe RegistrationController do
-  describe '#create', :focus do
+  describe '#create' do
     it 'successfully creates a registration' do
       @competition = FactoryBot.build(:competition)
-      stub_request(:get, comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
+      stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
 
       registration_request = FactoryBot.build(:registration_request)
+      permissions = FactoryBot.build(:permissions)
+      stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
 
       request.headers['Authorization'] = registration_request['jwt_token']
       post :create, params: registration_request, as: :json
       sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
 
-      created_registration = Registration.find("#{@competition['id']}-#{registration_request['user_id']}")
-
       expect(response.code).to eq('202')
+
+      created_registration = Registration.find("#{@competition['id']}-#{registration_request['user_id']}")
       expect(created_registration.event_ids).to eq(registration_request['competing']['event_ids'])
     end
 
