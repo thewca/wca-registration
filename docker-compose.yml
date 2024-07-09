@@ -69,7 +69,7 @@ services:
     # First, install Ruby and Node dependencies
     # Start the server and bind to 0.0.0.0 (vs 127.0.0.1) so Docker's port mappings work correctly
     command: >
-      bash -c 'bundle install && bundle exec shoryuken -R -q registrations.fifo'
+      bash -c 'bundle install && bundle exec shoryuken -R -C config/shoryuken.yml'
     networks:
       - wca-registration
       - wca-main
