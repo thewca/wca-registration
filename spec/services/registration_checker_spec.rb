@@ -294,9 +294,9 @@ describe RegistrationChecker do
       it_behaves_like 'succeed: qualification not enforced', 'no error even though 555 doesnt make quali for attemptResult-average', 1008, ['555']
     end
 
-    context 'fail: qualification enforced' do
-      today = Date.today.iso8601
-      last_year = (Date.today - 365).iso8601
+    context 'fail: qualification enforced', :tag do
+      today = Time.zone.today.iso8601
+      last_year = (Time.zone.today - 365).iso8601
 
       it_behaves_like 'fail: qualification enforced', 'no qualifying result for attemptResult-single', ['666'], {
         '666' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10000 },

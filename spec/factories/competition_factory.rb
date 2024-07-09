@@ -52,7 +52,7 @@ FactoryBot.define do
     end
 
     trait :has_qualifications do
-      today = Date.today.iso8601
+      today = Time.zone.today.iso8601
 
       transient do
         extra_qualifications { {} }
