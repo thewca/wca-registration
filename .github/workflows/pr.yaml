@@ -46,7 +46,7 @@ jobs:
         if: steps.trigger-deployment.outputs.triggered == 'true'
       - name: Build and push handler Image
         if: steps.trigger-deployment.outputs.triggered == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -59,7 +59,7 @@ jobs:
             BUILD_TAG=${{ github.sha }}
       - name: Build and push worker Image
         if: steps.trigger-deployment.outputs.triggered == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
