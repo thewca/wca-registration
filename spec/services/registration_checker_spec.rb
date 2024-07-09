@@ -203,13 +203,13 @@ describe RegistrationChecker do
       @competition_info = CompetitionInfo.new(@competition.except('qualifications'))
 
       registration_request = FactoryBot.build(:registration_request, user_id: 1002, events: ['222', '333', '555', '555bf', '333mbf', '444', 'pyram', 'minx']) # User id returns nil for personal records
-      
+
       permissions = FactoryBot.build(:permissions)
       stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
 
-      user_qualifications = QualificationResultsFaker.new().qualification_results
-      stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id'])).
-        to_return(status: 200, body: user_qualifications.to_json)
+      user_qualifications = QualificationResultsFaker.new.qualification_results
+      stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id']))
+        .to_return(status: 200, body: user_qualifications.to_json)
 
       expect {
         RegistrationChecker.create_registration_allowed!(registration_request, @competition_info, registration_request['submitted_by'])
@@ -227,9 +227,9 @@ describe RegistrationChecker do
         permissions = FactoryBot.build(:permissions)
         stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
 
-        user_qualifications = QualificationResultsFaker.new().qualification_results
-        stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id'])).
-          to_return(status: 200, body: user_qualifications.to_json)
+        user_qualifications = QualificationResultsFaker.new.qualification_results
+        stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id']))
+          .to_return(status: 200, body: user_qualifications.to_json)
 
         expect {
           RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
@@ -248,9 +248,9 @@ describe RegistrationChecker do
         permissions = FactoryBot.build(:permissions)
         stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
 
-        user_qualifications = QualificationResultsFaker.new().qualification_results
-        stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id'])).
-          to_return(status: 200, body: user_qualifications.to_json)
+        user_qualifications = QualificationResultsFaker.new.qualification_results
+        stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id']))
+          .to_return(status: 200, body: user_qualifications.to_json)
 
         expect {
           RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
@@ -269,9 +269,9 @@ describe RegistrationChecker do
         permissions = FactoryBot.build(:permissions)
         stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
 
-        user_qualifications = QualificationResultsFaker.new().qualification_results
-        stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id'])).
-          to_return(status: 200, body: user_qualifications.to_json)
+        user_qualifications = QualificationResultsFaker.new.qualification_results
+        stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id']))
+          .to_return(status: 200, body: user_qualifications.to_json)
 
         expect {
           RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
@@ -659,9 +659,9 @@ describe RegistrationChecker do
       permissions = FactoryBot.build(:permissions)
       stub_request(:get, UserApi.permissions_path(update_request['user_id'])).to_return(status: 200, body: permissions.to_json)
 
-      user_qualifications = QualificationResultsFaker.new().qualification_results
-      stub_request(:get, UserApi.competitor_qualifications_path(update_request['user_id'])).
-        to_return(status: 200, body: user_qualifications.to_json)
+      user_qualifications = QualificationResultsFaker.new.qualification_results
+      stub_request(:get, UserApi.competitor_qualifications_path(update_request['user_id']))
+        .to_return(status: 200, body: user_qualifications.to_json)
 
       FactoryBot.create(:registration, user_id: update_request['user_id'])
 
@@ -699,9 +699,9 @@ describe RegistrationChecker do
         permissions = FactoryBot.build(:permissions)
         stub_request(:get, UserApi.permissions_path(update_request['user_id'])).to_return(status: 200, body: permissions.to_json)
 
-        user_qualifications = QualificationResultsFaker.new().qualification_results
-        stub_request(:get, UserApi.competitor_qualifications_path(update_request['user_id'])).
-          to_return(status: 200, body: user_qualifications.to_json)
+        user_qualifications = QualificationResultsFaker.new.qualification_results
+        stub_request(:get, UserApi.competitor_qualifications_path(update_request['user_id']))
+          .to_return(status: 200, body: user_qualifications.to_json)
 
         FactoryBot.create(:registration, user_id: update_request['user_id'])
 
@@ -722,9 +722,9 @@ describe RegistrationChecker do
         permissions = FactoryBot.build(:permissions)
         stub_request(:get, UserApi.permissions_path(update_request['user_id'])).to_return(status: 200, body: permissions.to_json)
 
-        user_qualifications = QualificationResultsFaker.new().qualification_results
-        stub_request(:get, UserApi.competitor_qualifications_path(update_request['user_id'])).
-          to_return(status: 200, body: user_qualifications.to_json)
+        user_qualifications = QualificationResultsFaker.new.qualification_results
+        stub_request(:get, UserApi.competitor_qualifications_path(update_request['user_id']))
+          .to_return(status: 200, body: user_qualifications.to_json)
 
         FactoryBot.create(:registration, user_id: update_request['user_id'])
 

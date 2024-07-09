@@ -227,7 +227,7 @@ class RegistrationChecker
         break
       end
 
-      return false unless competitor_pr.present?
+      return false if competitor_pr.blank?
       return false unless Date.parse(competitor_pr['on_or_before']) <= Date.parse(qualification['whenDate'])
 
       case qualification['type']

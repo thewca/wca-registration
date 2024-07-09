@@ -54,7 +54,7 @@ FactoryBot.define do
     trait :has_qualifications do
       today = Date.today.iso8601
 
-      transient do 
+      transient do
         extra_qualifications { {} }
         standard_qualifications {
           {
