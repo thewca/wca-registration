@@ -223,15 +223,18 @@ class RegistrationChecker
       competitor_qualification_results.each do |result|
         next unless result['eventId'] == event
         next unless result['type'] == result_type
-        competitor_pr = result['best'].to_i
+        competitor_pr = result
         break
       end
 
+      return false unless competitor_pr.present?
+      return false unless Date.parse(competitor_pr['on_or_before']) <= Date.parse(qualification['whenDate'])
+
       case qualification['type']
       when 'anyResult', 'ranking'
-        competitor_pr.present?
+        true
       when 'attemptResult'
-        competitor_pr.present? && competitor_pr < qualification['level']
+        competitor_pr['best'].to_i < qualification['level']
       else
         false
       end

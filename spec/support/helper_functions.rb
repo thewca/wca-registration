@@ -15,7 +15,7 @@ class QualificationResultsFaker
   attr_accessor :qualification_results
 
   def initialize(
-    date = '2024-07-08', 
+    date = Date.today.iso8601, 
     results_inputs = [
       ['222', 'single', '200'],
       ['333', 'single', '900'],
@@ -40,11 +40,4 @@ class QualificationResultsFaker
     }
   end
 end
-
-def qualifications(qualification_args) 
-  qualification_args.map do |q|
-    qualification_data(q[0], q[1], q[2], q[3])
-  end
-end
-
 

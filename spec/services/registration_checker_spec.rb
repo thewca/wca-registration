@@ -295,46 +295,68 @@ describe RegistrationChecker do
     end
 
     context 'fail: qualification enforced' do
+      today = Date.today.iso8601
+      last_year = (Date.today - 365).iso8601
+
       it_behaves_like 'fail: qualification enforced', 'no qualifying result for attemptResult-single', ['666'], {
-        '666' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 10000 },
+        '666' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10000 },
       }
       it_behaves_like 'fail: qualification enforced', 'no qualifying result for attemptResult-average', ['777'], {
-        '777' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 12000 },
+        '777' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 12000 },
       }
       it_behaves_like 'fail: qualification enforced', 'no qualifying result for anyResult-single', ['666'], {
-        '666' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 10000 },
+        '666' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10000 },
       }
       it_behaves_like 'fail: qualification enforced', 'no qualifying result for anyResult-average', ['777'], {
-        '777' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 12000 },
+        '777' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 12000 },
       }
       it_behaves_like 'fail: qualification enforced', 'no qualifying result for ranking-single', ['666'], {
-        '666' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 10000 },
+        '666' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => today, 'level' => 10000 },
       }
       it_behaves_like 'fail: qualification enforced', 'cant register when nil minx for ranking-average', ['777'], {
-        '777' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 10000 },
+        '777' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => today, 'level' => 10000 },
       }
 
       it_behaves_like 'fail: qualification enforced', 'cant register when 333 slower than attemptResult-single', ['333'], {
-        '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 800 },
+        '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 800 },
       }
       it_behaves_like 'fail: qualification enforced', 'cant register when 333 equal to attemptResult-single', ['333'], {
-        '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => '2023-12-28', 'level' => 900 },
+        '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 900 },
       }
       it_behaves_like 'fail: qualification enforced', 'cant register when 555 slower than attemptResult-average', ['555'], {
-        '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 4000 },
+        '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 4000 },
       }
       it_behaves_like 'fail: qualification enforced', 'cant register when 555 equal to attemptResult-average', ['555'], {
-        '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => '2023-12-28', 'level' => 5000 },
+        '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 5000 },
+      }
+
+      it_behaves_like 'fail: qualification enforced', '333 attemptResult-single not achieved by whenDate', ['333'], {
+        '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => last_year, 'level' => 1000 },
+      }
+      it_behaves_like 'fail: qualification enforced', '555 attemptResult-average not achieved by whenDate', ['555'], {
+        '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => last_year, 'level' => 6000 },
+      }
+      it_behaves_like 'fail: qualification enforced', '222 anyResult-single not achieved by whenDate', ['222'], {
+        '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => last_year, 'level' => 0 },
+      }
+      it_behaves_like 'fail: qualification enforced', '555bf anyResult-average not achieved by whenDate', ['555bf'], {
+        '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => last_year, 'level' => 0 },
+      }
+      it_behaves_like 'fail: qualification enforced', 'pyram ranking-single not achieved by whenDate', ['pyram'], {
+        'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => last_year, 'level' => 100 },
+      }
+      it_behaves_like 'fail: qualification enforced', 'minx ranking-average not achieved by whenDate', ['minx'], {
+        'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => last_year, 'level' => 200 },
       }
     end
 
-    context 'succeed: qualification enforced' do
+    context 'succeed: qualification enforced', :focus do
       it_behaves_like 'succeed: qualification enforced', 'can register when 333 faster than attemptResult-single', ['333']
       it_behaves_like 'succeed: qualification enforced', 'can register when 555 faster than attemptResult-average', ['555']
       it_behaves_like 'succeed: qualification enforced', 'can register when 222 single exists for anyResult-single', ['222']
       it_behaves_like 'succeed: qualification enforced', 'can register when 555bf average exists for anyResult-average', ['555bf']
       it_behaves_like 'succeed: qualification enforced', 'can register when pyram single exists for ranking-single', ['pyram']
-      it_behaves_like 'succeed: qualification enforced', 'can register when 555bf average exists for ranking-average', ['minx']
+      it_behaves_like 'succeed: qualification enforced', 'can register when minx average exists for ranking-average', ['minx']
     end
   end
 
