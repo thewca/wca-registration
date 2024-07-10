@@ -8,6 +8,7 @@ describe RegistrationController do
     before do
       @competition = FactoryBot.build(:competition)
       stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.to_json)
+      stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
 
       @registration = FactoryBot.create(:registration)
 
@@ -54,6 +55,9 @@ describe RegistrationController do
   end
 
   describe '#bulk_update' do
+    before do
+      stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
+    end
     # TODO: Consider refactor into separate contexts with one expect() per it-block
     it 'returns a 422 if there are validation errors' do
       registration = FactoryBot.create(:registration)

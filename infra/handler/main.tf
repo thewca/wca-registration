@@ -41,8 +41,8 @@ locals {
       value = var.shared_resources.dynamo_registration_history_table.name
     },
     {
-      name = "QUEUE_URL",
-      value = var.shared_resources.queue.url
+      name = "QUEUE_NAME",
+      value = var.shared_resources.queue.name
     },
     {
       name = "PROMETHEUS_EXPORTER"

@@ -1,0 +1,4 @@
+queues:
+  - <%= ENV['QUEUE_NAME'] %>
+delay: 1
+concurrency: 2
