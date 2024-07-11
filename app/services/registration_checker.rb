@@ -221,15 +221,15 @@ class RegistrationChecker
       competitor_qualification_results = UserApi.qualifications(@requestee_user_id)
       result_type = qualification['resultType']
 
-      competitor_pr = competitor_qualification_results.find do |result|
-        result['eventId'] == event && result['type'] == result_type
-      end
-
+      competitor_pr = competitor_qualification_results.find { |result| result['eventId'] == event && result['type'] == result_type }
       return false if competitor_pr.blank?
+
       return false unless Date.parse(competitor_pr['on_or_before']) <= Date.parse(qualification['whenDate'])
 
       case qualification['type']
       when 'anyResult', 'ranking'
+        # By this point the user definitely has a result. 
+        # Ranking qualifications are enforced when registration closes, so it is effectively an anyResult ranking when registering
         true
       when 'attemptResult'
         competitor_pr['best'].to_i < qualification['level']
