@@ -32,11 +32,9 @@ class RegistrationController < ApplicationController
   end
 
   def create
-    queue_url = ENV['QUEUE_URL'] || $sqs.get_queue_url(queue_name: 'registrations.fifo').queue_url
     event_ids = params.dig('competing', 'event_ids')
     comment = params.dig('competing', 'comment') || ''
     guests = params['guests'] || 0
-    id = SecureRandom.uuid
 
     step_data = {
       created_at: Time.now.utc,
@@ -44,7 +42,7 @@ class RegistrationController < ApplicationController
       user_id: @user_id,
       competition_id: @competition_id,
       lane_name: 'competing',
-      step: 'Event Registration',
+      step: 'EventRegistration',
       step_details: {
         registration_status: 'pending',
         event_ids: event_ids,
@@ -52,13 +50,10 @@ class RegistrationController < ApplicationController
         guests: guests,
       },
     }
+    message_deduplication_id = "#{step_data[:lane_name]}-#{step_data[:step]}-#{step_data[:attendee_id]}"
+    message_group_id = step_data[:competition_id]
 
-    $sqs.send_message({
-                        queue_url: queue_url,
-                        message_body: step_data.to_json,
-                        message_group_id: id,
-                        message_deduplication_id: id,
-                      })
+    RegistrationProcessor.set(message_group_id: message_group_id, message_deduplication_id: message_deduplication_id).perform_later(step_data)
 
     render json: { status: 'accepted', message: 'Started Registration Process' }, status: :accepted
   end
@@ -136,8 +131,7 @@ class RegistrationController < ApplicationController
 
     # Don't send email if we only change the waiting list position
     if waiting_list_position.blank?
-      # commented out until shuryuken PR is merged
-      # EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
+      EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
     {

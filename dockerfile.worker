@@ -1,7 +1,8 @@
 FROM ruby:3.3.0
 EXPOSE 3000
-
-ENV DEBIAN_FRONTEND noninteractive
+ARG BUILD_TAG=local
+ENV DEBIAN_FRONTEND=noninteractive \
+    BUILD_TAG=$BUILD_TAG
 WORKDIR /app
 
 # Add PPA needed to install nodejs.
@@ -28,4 +29,4 @@ ENV RAILS_ENV production
 
 RUN bundle install --without development test # Install production gems for the worker
 
-CMD ["ruby", "-r", "/app/app/worker/queue_poller.rb", "-e" , "QueuePoller.perform"]
+ENTRYPOINT ["/app/bin/entrypoint-worker.sh"]

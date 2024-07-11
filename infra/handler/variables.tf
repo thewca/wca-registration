@@ -59,7 +59,7 @@ variable "shared_resources" {
     }),
     queue: object({
       arn: string,
-      url: string
+      name: string
     }),
     ecs_cluster: object({
       id: string,
