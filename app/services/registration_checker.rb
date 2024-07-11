@@ -93,13 +93,16 @@ class RegistrationChecker
 
     def validate_qualifications!
       return unless @competition_info.enforces_qualifications?
-      event_ids = @request['competing']['event_ids']
-      event_ids.each do |event|
-        qualification = @competition_info.get_qualification_for(event)
-        next if qualification.nil?
+      # Todo: Read the request payload in as an object, and handle cases where expected values aren't found
+      event_ids = @request.dig('competing', 'event_ids')
 
-        raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET) unless competitor_qualifies_for_event?(event, qualification)
+      unqualified_event = event_ids.find do |event|
+        qualification = @competition_info.get_qualification_for(event)
+        next if qualification.nil? 
+        !competitor_qualifies_for_event?(event, qualification)
       end
+
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET) if unqualified_event
     end
 
     def validate_guests!
@@ -218,13 +221,8 @@ class RegistrationChecker
       competitor_qualification_results = UserApi.qualifications(@requestee_user_id)
       result_type = qualification['resultType']
 
-      # TODO: Refactor to be not disgusting
-      competitor_pr = nil
-      competitor_qualification_results.each do |result|
-        next unless result['eventId'] == event
-        next unless result['type'] == result_type
-        competitor_pr = result
-        break
+      competitor_pr = competitor_qualification_results.find do |result|
+        result['eventId'] == event && result['type'] == result_type
       end
 
       return false if competitor_pr.blank?
