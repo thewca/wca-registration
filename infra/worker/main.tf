@@ -13,12 +13,8 @@ locals {
       value = var.region
     },
     {
-      name = "QUEUE_URL",
-      value = var.shared_resources.queue.url
-    },
-    {
-      name = "CODE_ENVIRONMENT"
-      value = "production"
+      name = "QUEUE_NAME",
+      value = var.shared_resources.queue.name
     },
     {
       name = "PROMETHEUS_EXPORTER"

@@ -1,31 +1,19 @@
 # frozen_string_literal: true
 
-require 'aws-sdk-dynamodb'
-require 'dynamoid'
-require 'httparty'
+class RegistrationProcessor < ApplicationJob
+  include Shoryuken::Worker
 
-class RegistrationProcessor
-  def initialize
-    Dynamoid.configure do |config|
-      config.region = EnvConfig.AWS_REGION
-      config.namespace = nil
-      if EnvConfig.CODE_ENVIRONMENT == 'development'
-        config.endpoint = EnvConfig.LOCALSTACK_ENDPOINT
-      else
-        config.credentials = Aws::ECSCredentials.new(retries: 3)
-      end
-    end
-  end
+  queue_as EnvConfig.QUEUE_NAME
 
-  def process_message(message)
-    puts "Working on Message: #{message}"
-    if message['step'] == 'Event Registration'
-      event_registration(message['competition_id'],
-                         message['user_id'],
-                         message['step_details']['event_ids'],
-                         message['step_details']['comment'],
-                         message['step_details']['guests'],
-                         message['created_at'])
+  def perform(message)
+    Rails.logger.debug { "Working on Message: #{message}" }
+    if message[:step] == 'EventRegistration'
+      event_registration(message[:competition_id],
+                         message[:user_id],
+                         message[:step_details][:event_ids],
+                         message[:step_details][:comment],
+                         message[:step_details][:guests],
+                         message[:created_at])
     end
   end
 
@@ -56,9 +44,7 @@ class RegistrationProcessor
       else
         registration.update_attributes(lanes: registration.lanes.append(competing_lane), guests: guests)
       end
-      if EnvConfig.CODE_ENVIRONMENT == 'production'
-        EmailApi.send_creation_email(competition_id, user_id)
-      end
+      EmailApi.send_creation_email(competition_id, user_id)
     end
   # rubocop:enable Metrics/ParameterLists
 end

@@ -63,6 +63,7 @@ describe RegistrationController do
     before do
       @competition = FactoryBot.build(:competition)
       stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+      stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
 
       @registration = FactoryBot.create(:registration)
 
@@ -112,6 +113,7 @@ describe RegistrationController do
     before do
       @competition = FactoryBot.build(:competition, mock_competition: true)
       stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+      stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
     end
 
     # TODO: Consider refactor into separate contexts with one expect() per it-block
