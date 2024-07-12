@@ -196,40 +196,32 @@ describe RegistrationChecker do
   end
 
   describe '#create_registration_allowed!.validate_qualifications!' do
+    before do
+      # Hardcoding the user_id in these stubs because its default value is never overridden in the below tests.
+      # If that assumption changes, these will need to be stubbed at the per-test level
+      stub_json(UserApi.permissions_path('158817'), 200, FactoryBot.build(:permissions))
+      stub_json(UserApi.competitor_qualifications_path('158817'), 200, QualificationResultsFaker.new.qualification_results)
+    end
+
     it 'smoketest - succeeds when all qualifications are met' do
-      # Create a competition with ranking qualification enabled but not enforced
-      @competition = FactoryBot.build(:competition, :has_qualifications)
-      stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
-      @competition_info = CompetitionInfo.new(@competition.except('qualifications'))
+      competition = FactoryBot.build(:competition, :has_qualifications)
+      stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
+      competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
-      registration_request = FactoryBot.build(:registration_request, user_id: 1002, events: ['222', '333', '555', '555bf', '333mbf', '444', 'pyram', 'minx']) # User id returns nil for personal records
-
-      permissions = FactoryBot.build(:permissions)
-      stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
-
-      user_qualifications = QualificationResultsFaker.new.qualification_results
-      stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id']))
-        .to_return(status: 200, body: user_qualifications.to_json)
+      registration_request = FactoryBot.build(:registration_request, events: ['222', '333', '555', '555bf', '333mbf', '444', 'pyram', 'minx'])
 
       expect {
-        RegistrationChecker.create_registration_allowed!(registration_request, @competition_info, registration_request['submitted_by'])
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
       }.not_to raise_error
     end
 
-    RSpec.shared_examples 'succeed: qualification not enforced' do |description, user_id, event_ids|
+    RSpec.shared_examples 'succeed: qualification not enforced' do |description, event_ids|
       it "succeeds given #{description}" do
-        # Create a competition with ranking qualification enabled but not enforced
         competition = FactoryBot.build(:competition, :has_qualifications, :qualifications_not_enforced)
-        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
-        registration_request = FactoryBot.build(:registration_request, user_id: user_id, events: event_ids)
-        permissions = FactoryBot.build(:permissions)
-        stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
-
-        user_qualifications = QualificationResultsFaker.new.qualification_results
-        stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id']))
-          .to_return(status: 200, body: user_qualifications.to_json)
+        registration_request = FactoryBot.build(:registration_request, events: event_ids)
 
         expect {
           RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
@@ -239,18 +231,11 @@ describe RegistrationChecker do
 
     RSpec.shared_examples 'succeed: qualification enforced' do |description, event_ids|
       it "succeeds given given #{description}" do
-        # Create a competition with ranking qualification enabled but not enforced
         competition = FactoryBot.build(:competition, :has_qualifications)
-        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
         registration_request = FactoryBot.build(:registration_request, events: event_ids)
-        permissions = FactoryBot.build(:permissions)
-        stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
-
-        user_qualifications = QualificationResultsFaker.new.qualification_results
-        stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id']))
-          .to_return(status: 200, body: user_qualifications.to_json)
 
         expect {
           RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
@@ -260,18 +245,11 @@ describe RegistrationChecker do
 
     RSpec.shared_examples 'fail: qualification enforced' do |description, event_ids, extra_qualifications|
       it "fails given #{description}" do
-        # Create a competition with ranking qualification enabled but not enforced
         competition = FactoryBot.build(:competition, :has_qualifications, extra_qualifications: extra_qualifications)
-        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
         registration_request = FactoryBot.build(:registration_request, events: event_ids)
-        permissions = FactoryBot.build(:permissions)
-        stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
-
-        user_qualifications = QualificationResultsFaker.new.qualification_results
-        stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id']))
-          .to_return(status: 200, body: user_qualifications.to_json)
 
         expect {
           RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
@@ -283,18 +261,18 @@ describe RegistrationChecker do
     end
 
     context 'succeed: qualification not enforced' do
-      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 333 for attemptResult-single', 1001, ['333']
-      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 555 for attemptResult-average', 1001, ['555']
-      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 222 for anyResult-single', 1001, ['222']
-      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', 1001, ['555bf']
-      it_behaves_like 'succeed: qualification not enforced', 'no error when nil pyram for ranking-single', 1001, ['pyram']
-      it_behaves_like 'succeed: qualification not enforced', 'no error when nil minx for ranking-average', 1001, ['minx']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 333 for attemptResult-single', ['333']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 555 for attemptResult-average', ['555']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 222 for anyResult-single', ['222']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', ['555bf']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil pyram for ranking-single', ['pyram']
+      it_behaves_like 'succeed: qualification not enforced', 'no error when nil minx for ranking-average', ['minx']
 
-      it_behaves_like 'succeed: qualification not enforced', 'no error even though 333 doesnt make quali for attemptResult-single', 1007, ['333']
-      it_behaves_like 'succeed: qualification not enforced', 'no error even though 555 doesnt make quali for attemptResult-average', 1008, ['555']
+      it_behaves_like 'succeed: qualification not enforced', 'no error even though 333 doesnt make quali for attemptResult-single', ['333']
+      it_behaves_like 'succeed: qualification not enforced', 'no error even though 555 doesnt make quali for attemptResult-average', ['555']
     end
 
-    context 'fail: qualification enforced', :tag do
+    context 'fail: qualification enforced' do
       today = Time.zone.today.iso8601
       last_year = (Time.zone.today - 365).iso8601
 
@@ -646,40 +624,37 @@ describe RegistrationChecker do
   end
 
   describe '#update_registration_allowed!.validate_qualifications!' do
+    before do
+      # Hardcoding the user_id in these stubs because its default value is never overridden in the below tests.
+      # If that assumption changes, these will need to be stubbed at the per-test level
+      stub_json(UserApi.permissions_path('158817'), 200, FactoryBot.build(:permissions))
+      stub_json(UserApi.competitor_qualifications_path('158817'), 200, QualificationResultsFaker.new.qualification_results)
+    end
+
     it 'smoketest - succeeds when all qualifications are met' do
       # Create a competition with ranking qualification enabled but not enforced
-      @competition = FactoryBot.build(:competition, :has_qualifications)
-      stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
-      @competition_info = CompetitionInfo.new(@competition.except('qualifications'))
+      competition = FactoryBot.build(:competition, :has_qualifications)
+      stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
+      competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
       update_request = FactoryBot.build(
         :update_request, competing: { 'event_ids' => ['222', '333', '555', '555bf', '333mbf', '444', 'pyram', 'minx'] }
       )
 
-      permissions = FactoryBot.build(:permissions)
-      stub_request(:get, UserApi.permissions_path(update_request['user_id'])).to_return(status: 200, body: permissions.to_json)
-
-      user_qualifications = QualificationResultsFaker.new.qualification_results
-      stub_request(:get, UserApi.competitor_qualifications_path(update_request['user_id']))
-        .to_return(status: 200, body: user_qualifications.to_json)
-
       FactoryBot.create(:registration, user_id: update_request['user_id'])
 
       expect {
-        RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
+        RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
       }.not_to raise_error
     end
 
-    RSpec.shared_examples 'update succeed: qualification not enforced' do |description, user_id, event_ids|
+    RSpec.shared_examples 'update succeed: qualification not enforced' do |description, event_ids|
       it "succeeds given #{description}" do
-        # Create a competition with ranking qualification enabled but not enforced
         competition = FactoryBot.build(:competition, :has_qualifications, :qualifications_not_enforced)
+        stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
-        # Mock the qualification endpoint
-        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
-
-        update_request = FactoryBot.build(:update_request, user_id: user_id, competing: { 'event_ids' => event_ids })
+        update_request = FactoryBot.build(:update_request, competing: { 'event_ids' => event_ids })
         FactoryBot.create(:registration, user_id: update_request['user_id'])
 
         expect {
@@ -690,18 +665,11 @@ describe RegistrationChecker do
 
     RSpec.shared_examples 'update succeed: qualification enforced' do |description, event_ids|
       it "succeeds given given #{description}" do
-        # Create a competition with ranking qualification enabled but not enforced
         competition = FactoryBot.build(:competition, :has_qualifications)
-        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
         update_request = FactoryBot.build(:update_request, competing: { 'event_ids' => event_ids })
-        permissions = FactoryBot.build(:permissions)
-        stub_request(:get, UserApi.permissions_path(update_request['user_id'])).to_return(status: 200, body: permissions.to_json)
-
-        user_qualifications = QualificationResultsFaker.new.qualification_results
-        stub_request(:get, UserApi.competitor_qualifications_path(update_request['user_id']))
-          .to_return(status: 200, body: user_qualifications.to_json)
 
         FactoryBot.create(:registration, user_id: update_request['user_id'])
 
@@ -713,18 +681,11 @@ describe RegistrationChecker do
 
     RSpec.shared_examples 'update fail: qualification enforced' do |description, event_ids, extra_qualifications|
       it "fails given #{description}" do
-        # Create a competition with ranking qualification enabled but not enforced
         competition = FactoryBot.build(:competition, :has_qualifications, extra_qualifications: extra_qualifications)
-        stub_request(:get, CompetitionApi.url("#{competition['id']}/qualifications")).to_return(status: 200, body: competition['qualifications'].to_json)
+        stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
         update_request = FactoryBot.build(:update_request, competing: { 'event_ids' => event_ids })
-        permissions = FactoryBot.build(:permissions)
-        stub_request(:get, UserApi.permissions_path(update_request['user_id'])).to_return(status: 200, body: permissions.to_json)
-
-        user_qualifications = QualificationResultsFaker.new.qualification_results
-        stub_request(:get, UserApi.competitor_qualifications_path(update_request['user_id']))
-          .to_return(status: 200, body: user_qualifications.to_json)
 
         FactoryBot.create(:registration, user_id: update_request['user_id'])
 
@@ -740,15 +701,15 @@ describe RegistrationChecker do
     context 'succeed: qualification not enforced' do
       # The competition in the shared example has the necessary qualifications set up
       # Thus, we don't have to define the qualification for each example, just the event relating to the qualification under test
-      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 333 for attemptResult-single', 1001, ['333']
-      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555 for attemptResult-average', 1001, ['555']
-      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 222 for anyResult-single', 1001, ['222']
-      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', 1001, ['555bf']
-      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', 1001, ['pyram']
-      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', 1001, ['minx']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 333 for attemptResult-single', ['333']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555 for attemptResult-average', ['555']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 222 for anyResult-single', ['222']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', ['555bf']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', ['pyram']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error when nil 555bf for anyResult-average', ['minx']
 
-      it_behaves_like 'update succeed: qualification not enforced', 'no error even though 333 doesnt make quali for attemptResult-single', 1007, ['333']
-      it_behaves_like 'update succeed: qualification not enforced', 'no error even though 555 doesnt make quali for attemptResult-average', 1008, ['555']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error even though 333 doesnt make quali for attemptResult-single', ['333']
+      it_behaves_like 'update succeed: qualification not enforced', 'no error even though 555 doesnt make quali for attemptResult-average', ['555']
     end
 
     context 'fail: qualification enforced' do

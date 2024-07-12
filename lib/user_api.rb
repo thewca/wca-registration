@@ -17,7 +17,7 @@ class UserApi < WcaApi
   end
 
   def self.get_permissions(user_id)
-    JSON.parse(HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.wca_token }).body)
+    HTTParty.get(permissions_path(user_id), headers: { WCA_API_HEADER => self.wca_token })
   end
 
   def self.get_user_info_pii(user_ids)
@@ -25,7 +25,7 @@ class UserApi < WcaApi
   end
 
   def self.qualifications(user_id)
-    JSON.parse(HTTParty.get(UserApi.competitor_qualifications_path(user_id), headers: { WCA_API_HEADER => self.wca_token }).body)
+    HTTParty.get(UserApi.competitor_qualifications_path(user_id), headers: { WCA_API_HEADER => self.wca_token })
   end
 
   def self.can_compete?(user_id, competition_start_date)

@@ -42,10 +42,6 @@ FactoryBot.define do
 
     initialize_with { attributes.stringify_keys }
 
-    transient do
-      mock_competition { false }
-    end
-
     trait :no_guest_limit do
       guest_entry_status { 'free' }
       guests_per_registration_limit { nil }
@@ -92,15 +88,6 @@ FactoryBot.define do
 
     trait :series do
       competition_series_ids { ['CubingZANationalChampionship2023', 'CubingZAWarmup2023'] }
-    end
-
-    # after(:build) do |competition, evaluator|
-    #   binding.pry
-    # end
-
-    # TODO: Create a flag that returns either the raw JSON (for mocking) or a CompetitionInfo object
-    after(:create) do |competition, evaluator|
-      stub_request(:get, CompetitionApi.url(competition['competition_id'])).to_return(status: evalutor.mocked_status_code, body: competition) if evaluator.mock_competition
     end
   end
 end

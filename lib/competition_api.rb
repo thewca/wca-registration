@@ -27,7 +27,7 @@ class CompetitionApi < WcaApi
       case response.code
       when 200
         @status = 200
-        JSON.parse response.body
+        response.parsed_response
       when 404
         Metrics.registration_competition_api_error_counter.increment
         raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
@@ -43,7 +43,7 @@ class CompetitionApi < WcaApi
       response = HTTParty.get(CompetitionApi.url(competition_id))
       case response.code
       when 200
-        JSON.parse response.body
+        response.parsed_response
       when 404
         Metrics.registration_competition_api_error_counter.increment
         raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)

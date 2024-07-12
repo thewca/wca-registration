@@ -5,66 +5,56 @@ require_relative '../support/helper_functions'
 
 describe RegistrationController do
   describe '#create' do
+    before do
+      @registration_request = FactoryBot.build(:registration_request)
+      stub_json(UserApi.permissions_path(@registration_request['user_id']), 200, FactoryBot.build(:permissions))
+    end
+
     it 'successfully creates a registration' do
       @competition = FactoryBot.build(:competition)
-      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
+      stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
 
-      registration_request = FactoryBot.build(:registration_request)
-      permissions = FactoryBot.build(:permissions)
-      stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
-
-      request.headers['Authorization'] = registration_request['jwt_token']
-      post :create, params: registration_request, as: :json
+      request.headers['Authorization'] = @registration_request['jwt_token']
+      post :create, params: @registration_request, as: :json
       sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
 
       expect(response.code).to eq('202')
 
-      created_registration = Registration.find("#{@competition['id']}-#{registration_request['user_id']}")
-      expect(created_registration.event_ids).to eq(registration_request['competing']['event_ids'])
+      created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
+      expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
     end
 
-    it 'registration succeeds when qualifications are met' do
-      @competition = FactoryBot.build(:competition, :has_qualifications)
-      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
-      stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
+    context 'with qualification' do
+      before do
+        @competition = FactoryBot.build(:competition, :has_qualifications)
+        stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+        stub_json(CompetitionApi.url("#{@competition['id']}/qualifications"), 200, @competition['qualifications'])
+      end
 
-      registration_request = FactoryBot.build(:registration_request, user_id: 1002)
-      permissions = FactoryBot.build(:permissions)
-      stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
+      it 'registration succeeds when qualifications are met' do
+        stub_json(UserApi.competitor_qualifications_path(@registration_request['user_id']), 200, QualificationResultsFaker.new.qualification_results)
 
-      user_qualifications = QualificationResultsFaker.new.qualification_results
-      stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id']))
-        .to_return(status: 200, body: user_qualifications.to_json)
+        request.headers['Authorization'] = @registration_request['jwt_token']
+        post :create, params: @registration_request, as: :json
+        sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
 
-      request.headers['Authorization'] = registration_request['jwt_token']
-      post :create, params: registration_request, as: :json
-      sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+        created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
 
-      created_registration = Registration.find("#{@competition['id']}-#{registration_request['user_id']}")
+        expect(response.code).to eq('202')
+        expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
+      end
 
-      expect(response.code).to eq('202')
-      expect(created_registration.event_ids).to eq(registration_request['competing']['event_ids'])
-    end
+      it 'registration fails when qualifications not met' do
+        stub_json(UserApi.competitor_qualifications_path(@registration_request['user_id']), 200, [])
 
-    it 'registration fails when qualifications not met' do
-      @competition = FactoryBot.build(:competition, :has_qualifications)
-      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.except('qualifications').to_json)
-      stub_request(:get, CompetitionApi.url("#{@competition['id']}/qualifications")).to_return(status: 200, body: @competition['qualifications'].to_json)
+        request.headers['Authorization'] = @registration_request['jwt_token']
+        post :create, params: @registration_request, as: :json
+        sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
 
-      registration_request = FactoryBot.build(:registration_request)
-      permissions = FactoryBot.build(:permissions)
-      stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: permissions.to_json)
-
-      stub_request(:get, UserApi.competitor_qualifications_path(registration_request['user_id']))
-        .to_return(status: 200, body: [].to_json)
-
-      request.headers['Authorization'] = registration_request['jwt_token']
-      post :create, params: registration_request, as: :json
-      sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
-
-      expect(response.code).to eq('422')
-      expect(response.body).to eq({ error: -4012 }.to_json)
-      expect { Registration.find("#{@competition['id']}-#{registration_request['user_id']}") }.to raise_error(Dynamoid::Errors::RecordNotFound)
+        expect(response.code).to eq('422')
+        expect(response.body).to eq({ error: -4012 }.to_json)
+        expect { Registration.find("#{@competition['id']}-#{@registration_request['user_id']}") }.to raise_error(Dynamoid::Errors::RecordNotFound)
+      end
     end
   end
 
@@ -72,7 +62,7 @@ describe RegistrationController do
     # NOTE: This code only needs to run once before the assertions, but before(:create) doesnt work because `request` defined then
     before do
       @competition = FactoryBot.build(:competition)
-      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(status: 200, body: @competition.to_json)
+      stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
 
       @registration = FactoryBot.create(:registration)
 
@@ -119,6 +109,11 @@ describe RegistrationController do
   end
 
   describe '#bulk_update' do
+    before do
+      @competition = FactoryBot.build(:competition, mock_competition: true)
+      stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+    end
+
     # TODO: Consider refactor into separate contexts with one expect() per it-block
     it 'returns a 422 if there are validation errors' do
       registration = FactoryBot.create(:registration)
@@ -127,9 +122,6 @@ describe RegistrationController do
       update2 = FactoryBot.build(:update_request, user_id: registration2[:user_id], competing: { 'status' => 'invalid_status' })
       registration3 = FactoryBot.create(:registration)
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id])
-
-      competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -147,19 +139,16 @@ describe RegistrationController do
       registration3 = FactoryBot.create(:registration)
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id])
 
-      competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
-
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
 
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: bulk_update_request, as: :json
 
-      updated_registration = Registration.find("#{competition['id']}-#{registration[:user_id]}")
+      updated_registration = Registration.find("#{@competition['id']}-#{registration[:user_id]}")
       expect(updated_registration.competing_status).to eq('incoming')
 
-      updated_registration = Registration.find("#{competition['id']}-#{registration3[:user_id]}")
+      updated_registration = Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
       expect(updated_registration.competing_status).to eq('incoming')
     end
 
@@ -170,9 +159,6 @@ describe RegistrationController do
       update2 = FactoryBot.build(:update_request, user_id: registration2[:user_id], competing: { 'event_ids' => ['333', '444'] })
       registration3 = FactoryBot.create(:registration)
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'comment' => 'test comment update' })
-
-      competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -195,9 +181,6 @@ describe RegistrationController do
       registration3 = FactoryBot.create(:registration)
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'comment' => 'test comment update' })
 
-      competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
-
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
 
@@ -205,19 +188,16 @@ describe RegistrationController do
       patch :bulk_update, params: bulk_update_request, as: :json
       expect(response.code).to eq('200')
 
-      updated_registration = Registration.find("#{competition['id']}-#{registration[:user_id]}")
+      updated_registration = Registration.find("#{@competition['id']}-#{registration[:user_id]}")
       expect(updated_registration.competing_status).to eq('accepted')
 
-      updated_registration3 = Registration.find("#{competition['id']}-#{registration3[:user_id]}")
+      updated_registration3 = Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
       expect(updated_registration3.competing_comment).to eq('test comment update')
     end
 
     it 'admin submits a bulk update containing 1 update' do
       registration = FactoryBot.create(:registration)
       bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
-
-      competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: bulk_update_request, as: :json
@@ -227,9 +207,6 @@ describe RegistrationController do
     it 'returns 400 if blank json submitted' do
       registration = FactoryBot.create(:registration)
       bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
-
-      competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: {}, as: :json
