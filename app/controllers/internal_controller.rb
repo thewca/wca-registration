@@ -3,7 +3,7 @@
 require 'time'
 
 class InternalController < ApplicationController
-  prepend_before_action :validate_wca_token unless Rails.env.development?
+  prepend_before_action :validate_wca_token unless Rails.env.local?
   skip_before_action :validate_jwt_token
 
   def validate_wca_token
@@ -75,5 +75,11 @@ class InternalController < ApplicationController
     user_id = params.require(:user_id)
     registrations = Registration.where(user_id: user_id).to_a
     render json: registrations
+  end
+
+  def show_registration
+    attendee_id = params.require(:attendee_id)
+    registration = Registration.find_by_id(attendee_id)
+    render json: registration
   end
 end
