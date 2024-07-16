@@ -11,6 +11,7 @@ describe RegistrationController do
         body: FactoryBot.build(:permissions).to_json,
         headers: { 'Content-Type' => 'application/json' },
       )
+      stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
     end
 
     it 'successfully creates a registration' do
