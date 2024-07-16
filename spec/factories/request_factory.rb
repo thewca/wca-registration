@@ -110,7 +110,7 @@ FactoryBot.define do
     can_organize_competitions { { 'scope' => [] } }
     can_administer_competitions { { 'scope' => [] } }
 
-    transient do 
+    transient do
       user_id { nil }
     end
 

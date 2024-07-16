@@ -9,7 +9,7 @@ describe RegistrationController do
       stub_request(:get, UserApi.permissions_path(@registration_request['user_id'])).to_return(
         status: 200,
         body: FactoryBot.build(:permissions).to_json,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: { 'Content-Type' => 'application/json' },
       )
     end
 
@@ -18,7 +18,7 @@ describe RegistrationController do
       stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(
         status: 200,
         body: @competition.except('qualifications').to_json,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: { 'Content-Type' => 'application/json' },
       )
 
       request.headers['Authorization'] = @registration_request['jwt_token']
