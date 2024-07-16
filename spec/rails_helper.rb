@@ -3,7 +3,7 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require_relative '../config/environment'
 require 'factory_bot'
-require_relative 'spec_helper'
+require 'spec_helper'
 require 'rspec/rails'
 
 ENV['RAILS_ENV'] = 'test' # TODO: Figure out why this isn't working? (We have to manually say RAILS_ENV=test when running rspec)

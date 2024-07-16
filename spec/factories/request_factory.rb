@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../rails_helper'
 require 'factory_bot_rails'
 require_relative '../support/helper_functions'
 
