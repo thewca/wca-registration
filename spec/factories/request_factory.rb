@@ -111,19 +111,6 @@ FactoryBot.define do
     can_organize_competitions { { 'scope' => [] } }
     can_administer_competitions { { 'scope' => [] } }
 
-    transient do 
-      user_id { nil }
-    end
-
     initialize_with { attributes.stringify_keys }
-
-    trait :stub do
-      transient do
-        create_stub? { true }
-      end
-    end
-
-    after(:build) do |permissions, evaluator|
-    end
   end
 end

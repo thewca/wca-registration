@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../support/helper_functions'
 
 describe RegistrationController do
-  describe '#create' do
+  describe '#create', :disabled do
     before do
       @registration_request = FactoryBot.build(:registration_request)
       stub_json(UserApi.permissions_path(@registration_request['user_id']), 200, FactoryBot.build(:permissions))

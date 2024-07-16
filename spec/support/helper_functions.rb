@@ -11,11 +11,11 @@ def fetch_jwt_token(user_id)
   "Bearer #{token}"
 end
 
-def stub_json(url, response_code, payload, type=:get)
+def stub_json(url, response_code, payload, type = :get)
   stub_request(type, url).to_return(
     status: response_code,
     body: payload.to_json,
-    headers: { 'Content-Type' => 'application/json' }
+    headers: { 'Content-Type' => 'application/json' },
   )
 end
 

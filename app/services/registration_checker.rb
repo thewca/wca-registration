@@ -93,12 +93,12 @@ class RegistrationChecker
 
     def validate_qualifications!
       return unless @competition_info.enforces_qualifications?
-      # Todo: Read the request payload in as an object, and handle cases where expected values aren't found
+      # TODO: Read the request payload in as an object, and handle cases where expected values aren't found
       event_ids = @request.dig('competing', 'event_ids')
 
       unqualified_event = event_ids.find do |event|
         qualification = @competition_info.get_qualification_for(event)
-        next if qualification.nil? 
+        next if qualification.nil?
         !competitor_qualifies_for_event?(event, qualification)
       end
 
@@ -228,7 +228,7 @@ class RegistrationChecker
 
       case qualification['type']
       when 'anyResult', 'ranking'
-        # By this point the user definitely has a result. 
+        # By this point the user definitely has a result.
         # Ranking qualifications are enforced when registration closes, so it is effectively an anyResult ranking when registering
         true
       when 'attemptResult'
