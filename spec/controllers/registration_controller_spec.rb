@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helper_functions'
+require_relative '../support/qualification_results_faker'
 
 describe RegistrationController do
   describe '#update' do

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'factory_bot_rails'
-require_relative '../support/helper_functions'
 
 FactoryBot.define do
   factory :registration_request, class: Hash do
