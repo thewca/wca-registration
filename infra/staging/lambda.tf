@@ -3,8 +3,9 @@ resource "aws_lambda_function" "registration_status_lambda" {
   function_name    = "${var.name_prefix}-poller-lambda-staging"
   role             = aws_iam_role.lambda_role.arn
   handler          = "registration_status.lambda_handler"
-  runtime          = "ruby3.2"
+  runtime          = "ruby3.3"
   source_code_hash = filebase64sha256("./lambda/registration_status.zip")
+  timeout = 10
   environment {
     variables = {
       QUEUE_URL = aws_sqs_queue.this.url
