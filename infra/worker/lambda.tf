@@ -5,6 +5,7 @@ resource "aws_lambda_function" "registration_status_lambda" {
   handler          = "registration_status.lambda_handler"
   runtime          = "ruby3.2"
   source_code_hash = filebase64sha256("./lambda/registration_status.zip")
+  timeout = 10
   environment {
     variables = {
       QUEUE_URL = var.shared_resources.queue.url
