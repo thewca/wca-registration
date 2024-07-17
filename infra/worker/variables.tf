@@ -10,6 +10,18 @@ variable "name_prefix" {
   default     = "wca-registration-worker"
 }
 
+variable "vault_address" {
+  type = string
+  description = "The Address that vault is running at"
+  default = "http://vault.worldcubeassociation.org:8200"
+}
+
+variable "host" {
+  type        = string
+  description = "The host for generating absolute URLs in the application"
+  default     = "registration.worldcubeassociation.org"
+}
+
 variable "region" {
   type        = string
   description = "The region to operate in"
@@ -74,6 +86,9 @@ variable "shared_resources" {
     api_gateway: object({
       id: string,
       root_resource_id: string
+    }),
+    aws_elasticache_cluster: object({
+      cache_nodes: any
     })
   })
 }
