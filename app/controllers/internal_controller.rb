@@ -79,7 +79,7 @@ class InternalController < ApplicationController
 
   def show_registration
     attendee_id = params.require(:attendee_id)
-    registration = Registration.find_by_id(attendee_id)
+    registration = Registration.find_by(id: attendee_id)
     render json: registration
   end
 end
