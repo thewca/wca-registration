@@ -215,6 +215,22 @@ describe RegistrationChecker do
       }.not_to raise_error
     end
 
+    it 'smoketest - all qualifications unmet' do
+      competition = FactoryBot.build(:competition, :has_hard_qualifications)
+      stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
+      competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+      registration_request = FactoryBot.build(:registration_request, events: ['222', '333', '555', '555bf', '333mbf', '444', 'pyram', 'minx'])
+
+      expect {
+        RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+      }.to raise_error(RegistrationError) do |error|
+        expect(error.error).to eq(ErrorCodes::QUALIFICATION_NOT_MET)
+        expect(error.http_status).to eq(:unprocessable_entity)
+        expect(error.data.sort).to eq(['333', '222', 'pyram', 'minx', '555', '555bf'].sort)
+      end
+    end
+
     RSpec.shared_examples 'succeed: qualification not enforced' do |description, event_ids|
       it "succeeds given #{description}" do
         competition = FactoryBot.build(:competition, :has_qualifications, :qualifications_not_enforced)
@@ -256,6 +272,7 @@ describe RegistrationChecker do
         }.to raise_error(RegistrationError) do |error|
           expect(error.error).to eq(ErrorCodes::QUALIFICATION_NOT_MET)
           expect(error.http_status).to eq(:unprocessable_entity)
+          expect(error.data).to eq(event_ids)
         end
       end
     end
@@ -694,6 +711,7 @@ describe RegistrationChecker do
         }.to raise_error(RegistrationError) do |error|
           expect(error.error).to eq(ErrorCodes::QUALIFICATION_NOT_MET)
           expect(error.http_status).to eq(:unprocessable_entity)
+          expect(error.data).to eq(event_ids)
         end
       end
     end

@@ -96,13 +96,12 @@ class RegistrationChecker
       # TODO: Read the request payload in as an object, and handle cases where expected values aren't found
       event_ids = @request.dig('competing', 'event_ids')
 
-      unqualified_event = event_ids.find do |event|
+      unqualified_events = event_ids.map do |event|
         qualification = @competition_info.get_qualification_for(event)
-        next if qualification.nil?
-        !competitor_qualifies_for_event?(event, qualification)
-      end
+        event if (qualification.present? && !competitor_qualifies_for_event?(event, qualification))
+      end.compact
 
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET) if unqualified_event
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET, unqualified_events) unless unqualified_events.empty?
     end
 
     def validate_guests!
@@ -224,7 +223,14 @@ class RegistrationChecker
       competitor_pr = competitor_qualification_results.find { |result| result['eventId'] == event && result['type'] == result_type }
       return false if competitor_pr.blank?
 
-      return false unless Date.parse(competitor_pr['on_or_before']) <= Date.parse(qualification['whenDate'])
+      begin
+        pr_date = Date.parse(competitor_pr['on_or_before'])
+        qualification_date = Date.parse(qualification['whenDate'])
+      rescue ArgumentError
+        return false
+      end
+
+      return false unless pr_date <= qualification_date
 
       case qualification['type']
       when 'anyResult', 'ranking'

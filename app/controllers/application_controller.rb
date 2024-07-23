@@ -32,9 +32,13 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def render_error(http_status, error)
+  def render_error(http_status, error, data=nil)
     Metrics.registration_validation_errors_counter.increment
-    render json: { error: error }, status: http_status
+    if data.present?
+      render json: { error: error, data: data }, status: http_status
+    else
+      render json: { error: error }, status: http_status
+    end
   end
 
   rescue_from ActionController::ParameterMissing do |e|
