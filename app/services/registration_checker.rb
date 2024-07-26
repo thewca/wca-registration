@@ -51,7 +51,8 @@ class RegistrationChecker
   class << self
     def user_can_create_registration!
       # Only an organizer or the user themselves can create a registration for the user
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_organizer_or_current_user?
+      # raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless can_administer_or_current_user?
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless (@requester_user_id == @requestee_user_id)
 
       # Only organizers can register when registration is closed, and they can only register for themselves - not for other users
       raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || organizer_modifying_own_registration?
@@ -64,7 +65,7 @@ class RegistrationChecker
     end
 
     def user_can_modify_registration!
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_organizer_or_current_user?
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless can_administer_or_current_user?
       raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || @competition_info.is_organizer_or_delegate?(@requester_user_id)
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
@@ -73,11 +74,11 @@ class RegistrationChecker
       @competition_info.is_organizer_or_delegate?(@requester_user_id) && (@requester_user_id == @requestee_user_id)
     end
 
-    def is_organizer_or_current_user?
+    def can_administer_or_current_user?
       # Only an organizer or the user themselves can create a registration for the user
       # One case where organizers need to create registrations for users is if a 3rd-party registration system is being used, and registration data is being
       # passed to the Registration Service from it
-      (@requester_user_id == @requestee_user_id) || @competition_info.is_organizer_or_delegate?(@requester_user_id)
+      (@requester_user_id == @requestee_user_id) || UserApi.can_administer?(@requester_user_id, @competition_info.id)
     end
 
     def validate_create_events!
@@ -158,8 +159,8 @@ class RegistrationChecker
         current_status == 'waiting_list' && new_status == 'accepted' && @registration.competing_waiting_list_position != min_waiting_list_position
 
       # Otherwise, organizers can make any status change they want to
+      return if UserApi.can_administer?(@requester_user_id, @competition_info.id)
 
-      return if @competition_info.is_organizer_or_delegate?(@requester_user_id)
       # A user (ie not an organizer) is only allowed to:
       # 1. Reactivate their registration if they previously cancelled it (ie, change status from 'cancelled' to 'pending')
       # 2. Cancel their registration, assuming they are allowed to cancel
