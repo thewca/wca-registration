@@ -51,8 +51,7 @@ class RegistrationChecker
   class << self
     def user_can_create_registration!
       # Only an organizer or the user themselves can create a registration for the user
-      # raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless can_administer_or_current_user?
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless (@requester_user_id == @requestee_user_id)
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless @requester_user_id == @requestee_user_id
 
       # Only organizers can register when registration is closed, and they can only register for themselves - not for other users
       raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || organizer_modifying_own_registration?

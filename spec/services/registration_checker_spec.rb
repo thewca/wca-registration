@@ -26,10 +26,10 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
     registration = FactoryBot.create(:registration, registration_status: old_status)
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
-    stub_request(:get, UserApi.permissions_path(update_request["submitted_by"])).to_return(
+    stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
       status: 200,
       body: FactoryBot.build(:permissions_response, organized_competitions: [competition_info.competition_id]).to_json,
-      headers: { content_type: 'application/json' }
+      headers: { content_type: 'application/json' },
     )
 
     expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
@@ -40,25 +40,24 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
     registration = FactoryBot.create(:registration, registration_status: old_status)
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, :site_admin, user_id: registration[:user_id], competing: { 'status' => new_status })
-    stub_request(:get, UserApi.permissions_path(update_request["submitted_by"])).to_return(
+    stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
       status: 200,
       body: FactoryBot.build(:permissions_response, :admin).to_json,
-      headers: { content_type: 'application/json' }
+      headers: { content_type: 'application/json' },
     )
 
     expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
       .not_to raise_error
   end
 
-
   it "after edit deadline/reg close, organizer can change 'status' => #{old_status} to: #{new_status}" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
-    stub_request(:get, UserApi.permissions_path(update_request["submitted_by"])).to_return(
+    stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
       status: 200,
       body: FactoryBot.build(:permissions_response, organized_competitions: [competition_info.competition_id]).to_json,
-      headers: { content_type: 'application/json' }
+      headers: { content_type: 'application/json' },
     )
 
     expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
@@ -271,7 +270,7 @@ describe RegistrationChecker do
                                                                                                      headers: { content_type: 'application/json' })
 
         expect {
-          RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) 
+          RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
         }.to raise_error(RegistrationError) do |error|
           expect(error.http_status).to eq(:unauthorized)
           expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
@@ -471,14 +470,14 @@ describe RegistrationChecker do
       stub_request(:get, UserApi.permissions_path(1306)).to_return(
         status: 200,
         body: FactoryBot.build(:permissions_response, organized_competitions: [@competition_info.competition_id]).to_json,
-        headers: { content_type: 'application/json' }
+        headers: { content_type: 'application/json' },
       )
 
       # Stub alternate user permissions
       stub_request(:get, UserApi.permissions_path(188000)).to_return(
         status: 200,
         body: FactoryBot.build(:permissions_response).to_json,
-        headers: { content_type: 'application/json' }
+        headers: { content_type: 'application/json' },
       )
     end
 
@@ -609,10 +608,10 @@ describe RegistrationChecker do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, force_comment_in_registration: true))
         update_request = FactoryBot.build(:update_request, user_id: override_registration[:user_id], competing: { 'status' => 'cancelled' })
 
-        stub_request(:get, UserApi.permissions_path(update_request["submitted_by"])).to_return(
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
           status: 200,
           body: FactoryBot.build(:permissions_response).to_json,
-          headers: { content_type: 'application/json' }
+          headers: { content_type: 'application/json' },
         )
 
         expect { RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by']) }
@@ -669,7 +668,7 @@ describe RegistrationChecker do
           :update_request,
           :organizer_for_user,
           user_id: @registration[:user_id],
-          competing: { 'organizer_comment' => 'this is an admin comment' }
+          competing: { 'organizer_comment' => 'this is an admin comment' },
         )
 
         expect { RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by']) }
@@ -678,7 +677,7 @@ describe RegistrationChecker do
 
       it 'organizer can change organizer_comment' do
         override_registration = FactoryBot.create(:registration, user_id: 188000, organizer_comment: 'old admin comment')
-        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: @registration[:user_id], competing: { 'organizer_comment' => 'new admin comment' })
+        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'organizer_comment' => 'new admin comment' })
 
         expect { RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by']) }
           .not_to raise_error
@@ -798,7 +797,7 @@ describe RegistrationChecker do
         stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
           status: 200,
           body: FactoryBot.build(:permissions_response).to_json,
-          headers: { content_type: 'application/json' }
+          headers: { content_type: 'application/json' },
         )
 
         expect {
@@ -946,7 +945,7 @@ describe RegistrationChecker do
         stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
           status: 200,
           body: FactoryBot.build(:permissions_response).to_json,
-          headers: { content_type: 'application/json' }
+          headers: { content_type: 'application/json' },
         )
 
         expect { RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by']) }

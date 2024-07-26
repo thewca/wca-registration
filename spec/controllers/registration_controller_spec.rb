@@ -13,10 +13,10 @@ describe RegistrationController do
       @registration = FactoryBot.create(:registration)
 
       update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], guests: 2, competing: { 'status' => 'cancelled' })
-      stub_request(:get, UserApi.permissions_path(update_request["submitted_by"])).to_return(
+      stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
         status: 200,
-        body: FactoryBot.build(:permissions_response, organized_competitions: [@competition["id"]]).to_json,
-        headers: { content_type: 'application/json' }
+        body: FactoryBot.build(:permissions_response, organized_competitions: [@competition['id']]).to_json,
+        headers: { content_type: 'application/json' },
       )
 
       request.headers['Authorization'] = update_request['jwt_token']
@@ -68,10 +68,9 @@ describe RegistrationController do
 
       stub_request(:get, UserApi.permissions_path(1306)).to_return(
         status: 200,
-        body: FactoryBot.build(:permissions_response, organized_competitions: [@competition["id"]]).to_json,
-        headers: { content_type: 'application/json' }
+        body: FactoryBot.build(:permissions_response, organized_competitions: [@competition['id']]).to_json,
+        headers: { content_type: 'application/json' },
       )
-
     end
     # TODO: Consider refactor into separate contexts with one expect() per it-block
     it 'returns a 422 if there are validation errors' do
@@ -124,7 +123,6 @@ describe RegistrationController do
       update2 = FactoryBot.build(:update_request, user_id: registration2[:user_id], competing: { 'event_ids' => ['333', '444'] })
       registration3 = FactoryBot.create(:registration)
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'comment' => 'test comment update' })
-
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
