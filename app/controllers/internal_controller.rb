@@ -89,53 +89,47 @@ class InternalController < ApplicationController
     to_update = params[:update] || []
     to_delete = params[:delete] || []
     if to_create.any?
-      puts(to_create.map { |r| { attendee_id: r["attendee_id"], entries: [{ 'changed_attributes' =>
-                                                                { event_ids: r["event_ids"], status: r["competing_status"] },
-                                                              'actor_type' => r["actor_type"],
-                                                              'actor_id' => r["actor_id"],
-                                                              'action' => 'Import',
-                                                              'timestamp' => Time.now }] } }.inspect)
       RegistrationHistory.import(to_create.map do |r|
         {
-          attendee_id: r["attendee_id"],
+          attendee_id: r['attendee_id'],
           entries: [History.new({
-                      'changed_attributes' => {
-                        event_ids: r["event_ids"],
-                        status: r["competing_status"]
-                      },
-                      'actor_type' => r["actor_type"],
-                      'actor_id' => r["actor_id"],
-                      'action' => 'Import',
-                      'timestamp' => Time.now
-                    })]
+                                  'changed_attributes' => {
+                                    event_ids: r['event_ids'],
+                                    status: r['competing_status'],
+                                  },
+                                  'actor_type' => r['actor_type'],
+                                  'actor_id' => r['actor_id'],
+                                  'action' => 'Import',
+                                  'timestamp' => Time.zone.now,
+                                })],
         }
       end)
       Registration.import(to_create.map do |r|
         {
-          attendee_id: r["attendee_id"],
+          attendee_id: r['attendee_id'],
           competition_id: competition_id,
-          user_id: r["user_id"],
-          competing_status: r["competing_status"],
+          user_id: r['user_id'],
+          competing_status: r['competing_status'],
           lanes: [
             LaneFactory.competing_lane(
-              event_ids: r["event_ids"],
-              registration_status: r["competing_status"]
-            )
-          ]
+              event_ids: r['event_ids'],
+              registration_status: r['competing_status'],
+            ),
+          ],
         }
       end)
     end
     to_update.each do |r|
-      registration = Registration.find(r["attendee_id"])
-      registration.update(r["attendee_id"], competing_status: r["competing_status"], lanes: [LaneFactory.competing_lane(event_ids: r["event_ids"], registration_status: r["competing_status"])])
-      registration.history.add_entry({ event_ids: r["event_ids"], status: r["competing_status"] }, r["actor_type"], r["actor_id"], "import")
+      registration = Registration.find(r['attendee_id'])
+      registration.update(r['attendee_id'], competing_status: r['competing_status'], lanes: [LaneFactory.competing_lane(event_ids: r['event_ids'], registration_status: r['competing_status'])])
+      registration.history.add_entry({ event_ids: r['event_ids'], status: r['competing_status'] }, r['actor_type'], r['actor_id'], 'import')
     end
     to_delete.each do |r|
-      Registration.update(r["attendee_id"], competing_status: "cancelled", lanes: [LaneFactory.competing_lane(event_ids: r["event_ids"], registration_status: "cancelled" )])
-      registration.history.add_entry({ event_ids: r["event_ids"], status: "cancelled" }, r["actor_type"], r["actor_id"], "import")
+      Registration.update(r['attendee_id'], competing_status: 'cancelled', lanes: [LaneFactory.competing_lane(event_ids: r['event_ids'], registration_status: 'cancelled')])
+      registration.history.add_entry({ event_ids: r['event_ids'], status: 'cancelled' }, r['actor_type'], r['actor_id'], 'import')
     end
-  render json: { errors: [] }
+    render json: { errors: [] }
   rescue StandardError => e
-    return render json: { errors: [e.to_s] }, status: :unprocessable_entity
+    render json: { errors: [e.to_s] }, status: :unprocessable_entity
   end
 end
