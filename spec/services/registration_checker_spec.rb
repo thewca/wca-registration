@@ -461,7 +461,7 @@ describe RegistrationChecker do
     end
   end
 
-  describe '#update', :tag do
+  describe '#update' do
     before do
       @registration = FactoryBot.create(:registration)
       @competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
@@ -1194,14 +1194,32 @@ describe RegistrationChecker do
 
   describe '#bulk_update' do
     describe '#bulk_update_allowed!' do
+      before do
+        @registration = FactoryBot.create(:registration)
+        @registration2 = FactoryBot.create(:registration)
+        @registration3 = FactoryBot.create(:registration)
+
+        @competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+
+        stub_request(:get, UserApi.permissions_path(1306)).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response, organized_competitions: [@competition_info.competition_id]).to_json,
+          headers: { content_type: 'application/json' },
+        )
+      end
+
       it 'only organizers can submit bulk updates' do
-        registration = FactoryBot.create(:registration)
-        failed_update = FactoryBot.build(:update_request, user_id: registration[:user_id])
-        competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-        bulk_update_request = FactoryBot.build(:bulk_update_request, requests: [failed_update], submitted_by: registration[:user_id])
+        failed_update = FactoryBot.build(:update_request, user_id: @registration[:user_id])
+        bulk_update_request = FactoryBot.build(:bulk_update_request, requests: [failed_update], submitted_by: @registration[:user_id])
+
+        stub_request(:get, UserApi.permissions_path(bulk_update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
 
         expect {
-          RegistrationChecker.bulk_update_allowed!(bulk_update_request, competition_info, bulk_update_request['submitted_by'])
+          RegistrationChecker.bulk_update_allowed!(bulk_update_request, @competition_info, bulk_update_request['submitted_by'])
         }.to raise_error(BulkUpdateError) do |error|
           expect(error.errors).to eq([ErrorCodes::USER_INSUFFICIENT_PERMISSIONS])
           expect(error.http_status).to eq(:unauthorized)
@@ -1209,62 +1227,48 @@ describe RegistrationChecker do
       end
 
       it 'doesnt raise an error if all checks pass - single update' do
-        registration = FactoryBot.create(:registration)
-        competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-        bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
+        bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [@registration[:user_id]])
 
         expect {
-          RegistrationChecker.bulk_update_allowed!(bulk_update_request, competition_info, bulk_update_request['submitted_by'])
+          RegistrationChecker.bulk_update_allowed!(bulk_update_request, @competition_info, bulk_update_request['submitted_by'])
         }.not_to raise_error
       end
 
       it 'doesnt raise an error if all checks pass - 3 updates' do
-        registration = FactoryBot.create(:registration)
-        registration2 = FactoryBot.create(:registration)
-        registration3 = FactoryBot.create(:registration)
-        registrations = [registration[:user_id], registration2[:user_id], registration3[:user_id]]
-        competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+        registrations = [@registration[:user_id], @registration2[:user_id], @registration3[:user_id]]
         bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: registrations)
 
         expect {
-          RegistrationChecker.bulk_update_allowed!(bulk_update_request, competition_info, bulk_update_request['submitted_by'])
+          RegistrationChecker.bulk_update_allowed!(bulk_update_request, @competition_info, bulk_update_request['submitted_by'])
         }.not_to raise_error
       end
 
       it 'returns an array user_ids:error codes - 1 failure' do
-        registration = FactoryBot.create(:registration)
-        failed_update = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'event_ids' => [] })
-        competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+        failed_update = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'event_ids' => [] })
         bulk_update_request = FactoryBot.build(:bulk_update_request, requests: [failed_update])
 
         expect {
-          RegistrationChecker.bulk_update_allowed!(bulk_update_request, competition_info, bulk_update_request['submitted_by'])
+          RegistrationChecker.bulk_update_allowed!(bulk_update_request, @competition_info, bulk_update_request['submitted_by'])
         }.to raise_error(BulkUpdateError) do |error|
-          expect(error.errors).to eq({ registration[:user_id] => ErrorCodes::INVALID_EVENT_SELECTION })
+          expect(error.errors).to eq({ @registration[:user_id] => ErrorCodes::INVALID_EVENT_SELECTION })
           expect(error.http_status).to eq(:unprocessable_entity)
         end
       end
 
       it 'returns an array user_ids:error codes - 2 validation failures' do
-        registration = FactoryBot.create(:registration)
-        registration2 = FactoryBot.create(:registration)
-        registration3 = FactoryBot.create(:registration)
-
-        failed_update = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'event_ids' => [] })
-        normal_update = FactoryBot.build(:update_request, user_id: registration2[:user_id], competing: { 'status' => 'accepted' })
-        failed_update2 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'status' => 'random_status' })
+        failed_update = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'event_ids' => [] })
+        normal_update = FactoryBot.build(:update_request, user_id: @registration2[:user_id], competing: { 'status' => 'accepted' })
+        failed_update2 = FactoryBot.build(:update_request, user_id: @registration3[:user_id], competing: { 'status' => 'random_status' })
         updates = [failed_update, normal_update, failed_update2]
         bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
 
-        competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
         error_json = {
-          registration[:user_id] => ErrorCodes::INVALID_EVENT_SELECTION,
-          registration3[:user_id] => ErrorCodes::INVALID_REQUEST_DATA,
+          @registration[:user_id] => ErrorCodes::INVALID_EVENT_SELECTION,
+          @registration3[:user_id] => ErrorCodes::INVALID_REQUEST_DATA,
         }
 
         expect {
-          RegistrationChecker.bulk_update_allowed!(bulk_update_request, competition_info, bulk_update_request['submitted_by'])
+          RegistrationChecker.bulk_update_allowed!(bulk_update_request, @competition_info, bulk_update_request['submitted_by'])
         }.to raise_error(BulkUpdateError) do |error|
           expect(error.errors).to eq(error_json)
           expect(error.http_status).to eq(:unprocessable_entity)
@@ -1272,19 +1276,16 @@ describe RegistrationChecker do
       end
 
       it 'returns an error if the registration isnt found' do
-        registration = FactoryBot.create(:registration)
-        missing_registration_user_id = (registration[:user_id]-1)
+        missing_registration_user_id = (@registration[:user_id]-1)
         failed_update = FactoryBot.build(:update_request, user_id: missing_registration_user_id)
         bulk_update_request = FactoryBot.build(:bulk_update_request, requests: [failed_update])
-
-        competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
 
         error_json = {
           missing_registration_user_id => ErrorCodes::REGISTRATION_NOT_FOUND,
         }
 
         expect {
-          RegistrationChecker.bulk_update_allowed!(bulk_update_request, competition_info, bulk_update_request['submitted_by'])
+          RegistrationChecker.bulk_update_allowed!(bulk_update_request, @competition_info, bulk_update_request['submitted_by'])
         }.to raise_error(BulkUpdateError) do |error|
           expect(error.errors).to eq(error_json)
           expect(error.http_status).to eq(:unprocessable_entity)
@@ -1292,27 +1293,21 @@ describe RegistrationChecker do
       end
 
       it 'returns errors array - validation failure and reg not found' do
-        registration = FactoryBot.create(:registration)
-        registration2 = FactoryBot.create(:registration)
-        registration3 = FactoryBot.create(:registration)
+        failed_update = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'event_ids' => [] })
+        normal_update = FactoryBot.build(:update_request, user_id: @registration2[:user_id], competing: { 'status' => 'accepted' })
 
-        failed_update = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'event_ids' => [] })
-        normal_update = FactoryBot.build(:update_request, user_id: registration2[:user_id], competing: { 'status' => 'accepted' })
-
-        missing_registration_user_id = (registration3[:user_id].to_i-1)
+        missing_registration_user_id = (@registration3[:user_id].to_i-1)
         failed_update2 = FactoryBot.build(:update_request, user_id: missing_registration_user_id)
         updates = [failed_update, normal_update, failed_update2]
         bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
 
-        competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-
         error_json = {
-          registration[:user_id] => ErrorCodes::INVALID_EVENT_SELECTION,
+          @registration[:user_id] => ErrorCodes::INVALID_EVENT_SELECTION,
           missing_registration_user_id => ErrorCodes::REGISTRATION_NOT_FOUND,
         }
 
         expect {
-          RegistrationChecker.bulk_update_allowed!(bulk_update_request, competition_info, bulk_update_request['submitted_by'])
+          RegistrationChecker.bulk_update_allowed!(bulk_update_request, @competition_info, bulk_update_request['submitted_by'])
         }.to raise_error(BulkUpdateError) do |error|
           expect(error.errors).to eq(error_json)
           expect(error.http_status).to eq(:unprocessable_entity)
