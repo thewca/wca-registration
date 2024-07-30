@@ -34,6 +34,7 @@ AppSecrets = SuperConfig.new do
 
     vault :JWT_SECRET
     vault :SECRET_KEY_BASE
+    vault :NEW_RELIC_LICENSE_KEY
 
   else
     mandatory :JWT_SECRET, :string
