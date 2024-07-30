@@ -3,6 +3,10 @@
 class ApplicationController < ActionController::API
   prepend_before_action :validate_jwt_token
   around_action :performance_profile if Rails.env.development?
+
+  # Manually include new Relic because we don't derive from ActionController::Base
+  include NewRelic::Agent::Instrumentation::ControllerInstrumentation if Rails.env.production?
+
   def validate_jwt_token
     auth_header = request.headers['Authorization']
     if auth_header.blank?
