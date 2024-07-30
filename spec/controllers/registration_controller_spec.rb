@@ -81,9 +81,6 @@ describe RegistrationController do
       registration3 = FactoryBot.create(:registration)
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id])
 
-      # competition = FactoryBot.build(:competition, mock_competition: true)
-      # stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
-
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
 
@@ -99,9 +96,6 @@ describe RegistrationController do
       update2 = FactoryBot.build(:update_request, user_id: registration2[:user_id], competing: { 'status' => 'invalid_status' })
       registration3 = FactoryBot.create(:registration)
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id])
-
-      # competition = FactoryBot.build(:competition, mock_competition: true)
-      # stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
@@ -145,9 +139,6 @@ describe RegistrationController do
       registration3 = FactoryBot.create(:registration)
       update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'comment' => 'test comment update' })
 
-      # competition = FactoryBot.build(:competition, mock_competition: true)
-      # stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
-
       updates = [update, update2, update3]
       bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
 
@@ -166,9 +157,6 @@ describe RegistrationController do
       registration = FactoryBot.create(:registration)
       bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
 
-      # competition = FactoryBot.build(:competition, mock_competition: true)
-      # stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
-
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: bulk_update_request, as: :json
       expect(response.code).to eq('200')
@@ -177,9 +165,6 @@ describe RegistrationController do
     it 'returns 400 if blank json submitted' do
       registration = FactoryBot.create(:registration)
       bulk_update_request = FactoryBot.build(:bulk_update_request, user_ids: [registration[:user_id]])
-
-      # competition = FactoryBot.build(:competition, mock_competition: true)
-      # stub_request(:get, CompetitionApi.comp_api_url(competition['id'])).to_return(status: 200, body: competition.to_json)
 
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: {}, as: :json
