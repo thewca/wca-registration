@@ -67,6 +67,10 @@ FactoryBot.define do
       user_id { 1306 }
     end
 
+    trait :site_admin do
+      submitted_by { 1307 }
+    end
+
     trait :organizer_for_user do
       submitted_by { 1306 }
     end
