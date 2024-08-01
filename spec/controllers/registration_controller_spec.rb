@@ -3,6 +3,36 @@
 require 'rails_helper'
 
 describe RegistrationController do
+  describe '#create', :tag do
+    before do
+      @registration_request = FactoryBot.build(:registration_request)
+      stub_request(:get, UserApi.permissions_path(@registration_request['user_id'])).to_return(
+        status: 200,
+        body: FactoryBot.build(:permissions).to_json,
+        headers: { 'Content-Type' => 'application/json' },
+      )
+      stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
+    end
+
+    it 'successfully creates a registration' do
+      @competition = FactoryBot.build(:competition)
+      stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(
+        status: 200,
+        body: @competition.except('qualifications').to_json,
+        headers: { 'Content-Type' => 'application/json' },
+      )
+
+      request.headers['Authorization'] = @registration_request['jwt_token']
+      post :create, params: @registration_request, as: :json
+      sleep 1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+
+      expect(response.code).to eq('202')
+
+      created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
+      expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
+    end
+  end
+
   describe '#update' do
     # NOTE: This code only needs to run once before the assertions, but before(:create) doesnt work because `request` defined then
     before do
