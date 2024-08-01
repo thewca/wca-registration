@@ -42,7 +42,7 @@ variable "availability_zones" {
 variable "wca_host" {
   type        = string
   description = "The host for generating absolute URLs in the application"
-  default     = "worldcubeassociation.org"
+  default     = "https://www.worldcubeassociation.org"
 }
 
 variable "shared_resources" {
