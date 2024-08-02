@@ -37,7 +37,7 @@ class RegistrationChecker
 
   def self.bulk_update_allowed!(bulk_update_request, competition_info, requesting_user)
     raise BulkUpdateError.new(:unauthorized, [ErrorCodes::USER_INSUFFICIENT_PERMISSIONS]) unless
-      competition_info.is_organizer_or_delegate?(requesting_user)
+      UserApi.can_administer?(requesting_user, competition_info.id)
 
     errors = {}
     bulk_update_request['requests'].each do |update_request|
