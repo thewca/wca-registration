@@ -1206,9 +1206,15 @@ describe RegistrationChecker do
           body: FactoryBot.build(:permissions_response, organized_competitions: [@competition_info.competition_id]).to_json,
           headers: { content_type: 'application/json' },
         )
+
+        stub_request(:get, UserApi.permissions_path(1400)).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response, :admin).to_json,
+          headers: { content_type: 'application/json' },
+        )
       end
 
-      it 'only organizers can submit bulk updates' do
+      it 'users cant submit bulk updates' do
         failed_update = FactoryBot.build(:update_request, user_id: @registration[:user_id])
         bulk_update_request = FactoryBot.build(:bulk_update_request, requests: [failed_update], submitted_by: @registration[:user_id])
 

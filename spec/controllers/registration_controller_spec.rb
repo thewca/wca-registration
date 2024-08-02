@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe RegistrationController do
-  describe '#create', :tag do
+  describe '#create' do
     before do
       @registration_request = FactoryBot.build(:registration_request)
       stub_request(:get, UserApi.permissions_path(@registration_request['user_id'])).to_return(
@@ -96,9 +96,9 @@ describe RegistrationController do
       @competition = FactoryBot.build(:competition, mock_competition: true)
       stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.to_json)
 
-      stub_request(:get, UserApi.permissions_path(1306)).to_return(
+      stub_request(:get, UserApi.permissions_path(1400)).to_return(
         status: 200,
-        body: FactoryBot.build(:permissions_response, organized_competitions: [@competition['id']]).to_json,
+        body: FactoryBot.build(:permissions_response, :admin).to_json,
         headers: { content_type: 'application/json' },
       )
     end
