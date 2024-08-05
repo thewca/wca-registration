@@ -4,6 +4,36 @@ require 'rails_helper'
 require_relative '../support/qualification_results_faker'
 
 describe RegistrationController do
+  describe '#create' do
+    before do
+      @registration_request = FactoryBot.build(:registration_request)
+      stub_request(:get, UserApi.permissions_path(@registration_request['user_id'])).to_return(
+        status: 200,
+        body: FactoryBot.build(:permissions).to_json,
+        headers: { 'Content-Type' => 'application/json' },
+      )
+      stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
+    end
+
+    it 'successfully creates a registration' do
+      @competition = FactoryBot.build(:competition)
+      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(
+        status: 200,
+        body: @competition.except('qualifications').to_json,
+        headers: { 'Content-Type' => 'application/json' },
+      )
+
+      request.headers['Authorization'] = @registration_request['jwt_token']
+      post :create, params: @registration_request, as: :json
+      sleep 1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+
+      expect(response.code).to eq('202')
+
+      created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
+      expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
+    end
+  end
+
   describe '#update' do
     # NOTE: This code only needs to run once before the assertions, but before(:create) doesnt work because `request` defined then
     before do
@@ -14,6 +44,11 @@ describe RegistrationController do
       @registration = FactoryBot.create(:registration)
 
       update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], guests: 2, competing: { 'status' => 'cancelled' })
+      stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+        status: 200,
+        body: FactoryBot.build(:permissions_response, organized_competitions: [@competition['id']]).to_json,
+        headers: { content_type: 'application/json' },
+      )
 
       request.headers['Authorization'] = update_request['jwt_token']
       patch :update, params: update_request, as: :json
@@ -60,6 +95,12 @@ describe RegistrationController do
       @competition = FactoryBot.build(:competition, mock_competition: true)
       stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
       stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
+
+      stub_request(:get, UserApi.permissions_path(1400)).to_return(
+        status: 200,
+        body: FactoryBot.build(:permissions_response, :admin).to_json,
+        headers: { content_type: 'application/json' },
+      )
     end
 
     # TODO: Consider refactor into separate contexts with one expect() per it-block

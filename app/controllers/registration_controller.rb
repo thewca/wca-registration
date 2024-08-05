@@ -129,8 +129,8 @@ class RegistrationController < ApplicationController
       Registration.increment_competitors_count(@competition_id)
     end
 
-    # Don't send email if we only change the waiting list position
-    if waiting_list_position.blank?
+    # Only send emails when we update the competing status
+    if status.present?
       EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 

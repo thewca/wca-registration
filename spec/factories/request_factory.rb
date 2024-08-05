@@ -66,6 +66,10 @@ FactoryBot.define do
       user_id { 1306 }
     end
 
+    trait :site_admin do
+      submitted_by { 1307 }
+    end
+
     trait :organizer_for_user do
       submitted_by { 1306 }
     end
@@ -90,7 +94,7 @@ FactoryBot.define do
       user_ids { [] }
     end
 
-    submitted_by { 1306 }
+    submitted_by { 1400 }
     competition_id { 'CubingZANationalChampionship2023' }
     jwt_token { fetch_jwt_token(submitted_by) }
     requests do
@@ -108,6 +112,10 @@ FactoryBot.define do
     can_attend_competitions { { 'scope' => '*' } }
     can_organize_competitions { { 'scope' => [] } }
     can_administer_competitions { { 'scope' => [] } }
+
+    transient do
+      user_id { nil }
+    end
 
     initialize_with { attributes.stringify_keys }
   end
