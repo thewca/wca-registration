@@ -267,6 +267,8 @@ describe RegistrationChecker do
         registration_request = FactoryBot.build(:registration_request, :organizer)
         competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :not_open_yet, competitor_limit: 10))
         FactoryBot.create_list(:registration, 1, registration_status: 'accepted')
+        stub_request(:get, UserApi.permissions_path(registration_request['submitted_by'])).to_return(status: 200, body: FactoryBot.build(:permissions_response, organized_competitions: [competition_info.competition_id]).to_json,
+                                                                                                     headers: { content_type: 'application/json' })
 
         expect {
           RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
@@ -277,6 +279,8 @@ describe RegistrationChecker do
         registration_request = FactoryBot.build(:registration_request, :organizer)
         competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :not_open_yet, competitor_limit: 10))
         FactoryBot.create_list(:registration, 2, registration_status: 'accepted')
+        stub_request(:get, UserApi.permissions_path(registration_request['submitted_by'])).to_return(status: 200, body: FactoryBot.build(:permissions_response, organized_competitions: [competition_info.competition_id]).to_json,
+                                                                                                     headers: { content_type: 'application/json' })
 
         expect {
           RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
@@ -289,6 +293,8 @@ describe RegistrationChecker do
       it 'organizers cant register after registration closes' do
         registration_request = FactoryBot.build(:registration_request, :organizer)
         competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
+        stub_request(:get, UserApi.permissions_path(registration_request['submitted_by'])).to_return(status: 200, body: FactoryBot.build(:permissions_response, organized_competitions: [competition_info.competition_id]).to_json,
+                                                                                                     headers: { content_type: 'application/json' })
 
         expect {
           RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
