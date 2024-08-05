@@ -12,7 +12,7 @@ FactoryBot.define do
     registration_open { (DateTime.now-2) }
     registration_close { (DateTime.now+10) }
     announced_at { (DateTime.now-3) }
-    start_date { (DateTime.now+15).iso8601 } 
+    start_date { (DateTime.now+15).iso8601 }
     end_date { (DateTime.now+16) }
     competitor_limit { 120 }
     cancelled_at { nil }

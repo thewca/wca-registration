@@ -262,7 +262,6 @@ describe RegistrationChecker do
           .not_to raise_error
       end
 
-
       it 'organizers can take up the last pre-registration slot' do
         registration_request = FactoryBot.build(:registration_request, :organizer)
         competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :not_open_yet, competitor_limit: 10))
