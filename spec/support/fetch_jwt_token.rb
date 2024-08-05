@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'factory_bot_rails'
-
 def fetch_jwt_token(user_id)
   iat = Time.now.to_i
   jti_raw = [JwtOptions.secret, iat].join(':').to_s

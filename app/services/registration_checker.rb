@@ -11,6 +11,7 @@ class RegistrationChecker
 
     user_can_create_registration!
     validate_create_events!
+    validate_qualifications!
     validate_guests!
     validate_comment!
   end
@@ -30,6 +31,7 @@ class RegistrationChecker
     validate_waiting_list_position!
     validate_update_status!
     validate_update_events!
+    validate_qualifications!
   rescue Dynamoid::Errors::RecordNotFound
     # We capture and convert the error so that it can be included in the error array of a bulk update request
     raise RegistrationError.new(:not_found, ErrorCodes::REGISTRATION_NOT_FOUND)
@@ -87,6 +89,19 @@ class RegistrationChecker
 
       event_limit = @competition_info.event_limit
       raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_EVENT_SELECTION) if event_limit.present? && event_ids.count > event_limit
+    end
+
+    def validate_qualifications!
+      return unless @competition_info.enforces_qualifications?
+      # TODO: Read the request payload in as an object, and handle cases where expected values aren't found
+      event_ids = @request.dig('competing', 'event_ids')
+
+      unqualified_events = event_ids.map do |event|
+        qualification = @competition_info.get_qualification_for(event)
+        event if qualification.present? && !competitor_qualifies_for_event?(event, qualification)
+      end.compact
+
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET, unqualified_events) unless unqualified_events.empty?
     end
 
     def validate_guests!
@@ -199,6 +214,34 @@ class RegistrationChecker
         next
       end
       false
+    end
+
+    def competitor_qualifies_for_event?(event, qualification)
+      competitor_qualification_results = UserApi.qualifications(@requestee_user_id)
+      result_type = qualification['resultType']
+
+      competitor_pr = competitor_qualification_results.find { |result| result['eventId'] == event && result['type'] == result_type }
+      return false if competitor_pr.blank?
+
+      begin
+        pr_date = Date.parse(competitor_pr['on_or_before'])
+        qualification_date = Date.parse(qualification['whenDate'])
+      rescue ArgumentError
+        return false
+      end
+
+      return false unless pr_date <= qualification_date
+
+      case qualification['type']
+      when 'anyResult', 'ranking'
+        # By this point the user definitely has a result.
+        # Ranking qualifications are enforced when registration closes, so it is effectively an anyResult ranking when registering
+        true
+      when 'attemptResult'
+        competitor_pr['best'].to_i < qualification['level']
+      else
+        false
+      end
     end
   end
 end
