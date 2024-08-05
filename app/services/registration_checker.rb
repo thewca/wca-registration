@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 COMMENT_CHARACTER_LIMIT = 240
+PREREGISTRATIONS_FRACTION_ALLOWED = 0.2
 
 class RegistrationChecker
   def self.create_registration_allowed!(registration_request, competition_info, requesting_user)
@@ -54,7 +55,7 @@ class RegistrationChecker
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless @requester_user_id == @requestee_user_id
 
       # Only organizers can register when registration is closed, and they can only register for themselves - not for other users
-      raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || organizer_modifying_own_registration?
+      raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || user_may_preregister?
 
       can_compete = UserApi.can_compete?(@requestee_user_id, @competition_info.start_date)
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
@@ -69,8 +70,20 @@ class RegistrationChecker
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
 
-    def organizer_modifying_own_registration?
-      @competition_info.is_organizer_or_delegate?(@requester_user_id) && (@requester_user_id == @requestee_user_id)
+    def user_may_preregister?
+      # Can only preregister if registration hasn't closed (ie, if registration is not yet open)
+      return false unless @competition_info.registration_not_yet_opened?
+
+      # User must be a listed organizer/delegate to preregister
+      return false unless @competition_info.is_organizer_or_delegate?(@requester_user_id)
+
+      # Organizer/delegate cannot preregister someone else
+      return false unless @requester_user_id == @requestee_user_id
+
+      # Can only preregister if preregisration limit is not reached
+      preregistrations_allowed = (@competition_info.competitor_limit*PREREGISTRATIONS_FRACTION_ALLOWED).to_i
+      competitor_count = Registration.where(competition_id: @competition_info.competition_id).count
+      competitor_count < preregistrations_allowed
     end
 
     def can_administer_or_current_user?

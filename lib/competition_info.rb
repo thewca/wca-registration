@@ -81,4 +81,8 @@ class CompetitionInfo
   def other_series_ids
     @competition_json['competition_series_ids']&.reject { |id| id == competition_id }
   end
+
+  def registration_not_yet_opened?
+    DateTime.now < @competition_json['registration_open']
+  end
 end
