@@ -91,8 +91,6 @@ FactoryBot.define do
       allow_registration_without_qualification { false }
     end
 
-
-
     trait :qualifications_not_enforced do
       allow_registration_without_qualification { true }
     end

@@ -98,7 +98,7 @@ class RegistrationChecker
 
       unqualified_events = event_ids.map do |event|
         qualification = @competition_info.get_qualification_for(event)
-        event if (qualification.present? && !competitor_qualifies_for_event?(event, qualification))
+        event if qualification.present? && !competitor_qualifies_for_event?(event, qualification)
       end.compact
 
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET, unqualified_events) unless unqualified_events.empty?
