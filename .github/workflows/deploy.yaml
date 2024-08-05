@@ -19,7 +19,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
       - name: Build and push handler
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -30,7 +30,7 @@ jobs:
           build-args: |
             BUILD_TAG=${{ github.sha }}
       - name: Build and push worker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -38,13 +38,8 @@ jobs:
           tags: ${{ steps.login-ecr.outputs.registry }}/wca-registration-worker:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_TAG=${{ github.sha }}
       - name: Deploy worker
         run: |
           aws ecs update-service --cluster wca-registration --service wca-registration-worker --force-new-deployment
-      - name: Deploy Frontend
-        run: |
-          cd ./Frontend
-          npm install
-          npm run build:prod
-          aws s3 sync dist s3://assets.registration.worldcubeassociation.org/dist
-          aws cloudfront create-invalidation --distribution-id E322K044MBR5FG --paths "/dist/*" --output text

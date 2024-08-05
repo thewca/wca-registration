@@ -10,8 +10,8 @@ class RegistrationHistory
 
   field :entries, :array, of: History
 
-  def add_entry(changed_attributes, actor_user_id, action)
-    entry = History.new({ 'changed_attributes' => changed_attributes, 'actor_user_id' => actor_user_id, 'action' => action })
+  def add_entry(changed_attributes, actor_type, actor_id, action)
+    entry = History.new({ 'changed_attributes' => changed_attributes, 'actor_type' => actor_type, 'actor_id' => actor_id, 'action' => action })
     if entries.empty?
       update_attributes(entries: [entry])
     else

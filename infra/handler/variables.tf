@@ -43,7 +43,7 @@ variable "host" {
 variable "wca_host" {
   type        = string
   description = "The host for generating URLs to the monolith"
-  default     = "https://worldcubeassociation.org"
+  default     = "https://www.worldcubeassociation.org"
 }
 
 variable "shared_resources" {
@@ -59,7 +59,7 @@ variable "shared_resources" {
     }),
     queue: object({
       arn: string,
-      url: string
+      name: string
     }),
     ecs_cluster: object({
       id: string,

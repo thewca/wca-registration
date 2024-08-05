@@ -21,7 +21,7 @@ class RegistrationChecker
     @competition_info = competition_info
     @requestee_user_id = @request['user_id']
     @requester_user_id = requesting_user
-    @registration = Registration.find("#{update_request['competition_id']}-#{update_request['user_id']}")
+    @registration = Registration.find("#{competition_info.id}-#{update_request['user_id']}")
 
     user_can_modify_registration!
     validate_guests!
@@ -37,8 +37,8 @@ class RegistrationChecker
   end
 
   def self.bulk_update_allowed!(bulk_update_request, competition_info, requesting_user)
-    raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless
-      competition_info.is_organizer_or_delegate?(requesting_user)
+    raise BulkUpdateError.new(:unauthorized, [ErrorCodes::USER_INSUFFICIENT_PERMISSIONS]) unless
+      UserApi.can_administer?(requesting_user, competition_info.id)
 
     errors = {}
     bulk_update_request['requests'].each do |update_request|
@@ -52,12 +52,12 @@ class RegistrationChecker
   class << self
     def user_can_create_registration!
       # Only an organizer or the user themselves can create a registration for the user
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_organizer_or_current_user?
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless @requester_user_id == @requestee_user_id
 
       # Only organizers can register when registration is closed, and they can only register for themselves - not for other users
       raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || user_may_preregister?
 
-      can_compete = UserApi.can_compete?(@requestee_user_id)
+      can_compete = UserApi.can_compete?(@requestee_user_id, @competition_info.start_date)
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
 
       # Users cannot sign up for multiple competitions in a series
@@ -65,7 +65,7 @@ class RegistrationChecker
     end
 
     def user_can_modify_registration!
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless is_organizer_or_current_user?
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless can_administer_or_current_user?
       raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || @competition_info.is_organizer_or_delegate?(@requester_user_id)
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
@@ -86,11 +86,11 @@ class RegistrationChecker
       competitor_count < preregistrations_allowed
     end
 
-    def is_organizer_or_current_user?
+    def can_administer_or_current_user?
       # Only an organizer or the user themselves can create a registration for the user
       # One case where organizers need to create registrations for users is if a 3rd-party registration system is being used, and registration data is being
       # passed to the Registration Service from it
-      (@requester_user_id == @requestee_user_id) || @competition_info.is_organizer_or_delegate?(@requester_user_id)
+      (@requester_user_id == @requestee_user_id) || UserApi.can_administer?(@requester_user_id, @competition_info.id)
     end
 
     def validate_create_events!
@@ -171,8 +171,8 @@ class RegistrationChecker
         current_status == 'waiting_list' && new_status == 'accepted' && @registration.competing_waiting_list_position != min_waiting_list_position
 
       # Otherwise, organizers can make any status change they want to
+      return if UserApi.can_administer?(@requester_user_id, @competition_info.id)
 
-      return if @competition_info.is_organizer_or_delegate?(@requester_user_id)
       # A user (ie not an organizer) is only allowed to:
       # 1. Reactivate their registration if they previously cancelled it (ie, change status from 'cancelled' to 'pending')
       # 2. Cancel their registration, assuming they are allowed to cancel

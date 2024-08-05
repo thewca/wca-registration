@@ -5,8 +5,9 @@ class History
 
   def initialize(args)
     @changed_attributes = args['changed_attributes'] || {}
-    @actor_user_id = args['actor_user_id'] || ''
-    @timestamp = args['timestamp'] || Time.now
+    @actor_type = args['actor_type'] || ''
+    @actor_id = args['actor_id'] || ''
+    @timestamp = args['timestamp'] || Time.now.utc
     @action = args['action'] || 'unknown'
   end
 

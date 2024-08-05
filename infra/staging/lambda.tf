@@ -3,8 +3,9 @@ resource "aws_lambda_function" "registration_status_lambda" {
   function_name    = "${var.name_prefix}-poller-lambda-staging"
   role             = aws_iam_role.lambda_role.arn
   handler          = "registration_status.lambda_handler"
-  runtime          = "ruby3.2"
+  runtime          = "ruby3.3"
   source_code_hash = filebase64sha256("./lambda/registration_status.zip")
+  timeout = 10
   environment {
     variables = {
       QUEUE_URL = aws_sqs_queue.this.url
@@ -108,6 +109,7 @@ resource "aws_api_gateway_method_response" "staging_method_response" {
 
   response_parameters = {
     "method.response.header.Content-Type" = true
+    "method.response.header.Access-Control-Allow-Origin" = false
   }
 }
 
@@ -122,6 +124,9 @@ resource "aws_api_gateway_integration_response" "registration_status_integration
       status = "Registration Status"
       queue_count = "Queue Count"
     })
+  }
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'*'"
   }
   depends_on = [aws_api_gateway_resource.prod, aws_api_gateway_method.poll_registration_status_method, aws_api_gateway_method_response.staging_method_response, aws_api_gateway_integration.poll_registration_integration]
 }

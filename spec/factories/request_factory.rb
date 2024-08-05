@@ -39,6 +39,10 @@ FactoryBot.define do
       user_id { 209943 }
     end
 
+    trait :unbanned_soon do
+      user_id { 209944 }
+    end
+
     trait :incomplete do
       user_id { 999999 }
     end
@@ -61,6 +65,10 @@ FactoryBot.define do
 
     trait :organizer_as_user do
       user_id { 1306 }
+    end
+
+    trait :site_admin do
+      submitted_by { 1307 }
     end
 
     trait :organizer_for_user do
@@ -87,12 +95,27 @@ FactoryBot.define do
       user_ids { [] }
     end
 
-    submitted_by { 1306 }
+    submitted_by { 1400 }
+    competition_id { 'CubingZANationalChampionship2023' }
     jwt_token { fetch_jwt_token(submitted_by) }
     requests do
       user_ids.map do |user_id|
         FactoryBot.build(:update_request, user_id: user_id, competing: { 'status' => 'cancelled' })
       end
+    end
+
+    initialize_with { attributes.stringify_keys }
+  end
+end
+
+FactoryBot.define do
+  factory :permissions, class: Hash do
+    can_attend_competitions { { 'scope' => '*' } }
+    can_organize_competitions { { 'scope' => [] } }
+    can_administer_competitions { { 'scope' => [] } }
+
+    transient do
+      user_id { nil }
     end
 
     initialize_with { attributes.stringify_keys }

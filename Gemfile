@@ -21,6 +21,8 @@ gem 'jbuilder'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors'
 
+gem 'money-rails'
+
 # much better gem for http requests than the native ruby one
 gem 'httparty'
 
@@ -42,6 +44,9 @@ gem 'dynamoid', '3.8.0'
 
 # SQS for adding data into a queue
 gem 'aws-sdk-sqs'
+
+# SQS Job Management
+gem 'shoryuken'
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 gem 'kredis'
@@ -79,6 +84,7 @@ group :development, :test do
   gem 'webmock', require: false
 
   gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
 
   # Use factories instead of fixtures
   gem 'factory_bot_rails'
@@ -92,4 +98,8 @@ group :development do
   # Better Errors replaces the standard Rails error page with a much better and more useful error page.
   gem 'better_errors'
   gem 'binding_of_caller'
+end
+
+group :production do
+  gem 'newrelic_rpm'
 end

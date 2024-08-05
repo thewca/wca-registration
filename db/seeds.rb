@@ -2,6 +2,8 @@
 
 # Failsafe so this is never run in production (the task doesn't have permissions to create tables anyway)
 unless Rails.env.production?
+  dynamodb = Aws::DynamoDB::Client.new(endpoint: EnvConfig.LOCALSTACK_ENDPOINT)
+  sqs = Aws::SQS::Client.new(endpoint: EnvConfig.LOCALSTACK_ENDPOINT)
   # Create the DynamoDB Tables
   table_name = EnvConfig.DYNAMO_REGISTRATIONS_TABLE
   key_schema = [
@@ -45,33 +47,22 @@ unless Rails.env.production?
     },
   ]
   begin
-    $dynamodb.create_table({
-                             table_name: table_name,
-                             key_schema: key_schema,
-                             attribute_definitions: attribute_definitions,
-                             provisioned_throughput: provisioned_throughput,
-                             global_secondary_indexes: global_secondary_indexes,
-                           })
-    # Add some registrations for each comp for testing
-    comps = %w[KoelnerKubing2023 LowLimit2023 FMCFrance2023 RheinNeckarAutumn2023 HessenOpen2023 ManchesterSpring2024 SeriesComp1 SeriesComp2 PickeringFavouritesAutumn2023 EventRegLimit]
-    comps.each_with_index do |id, i|
-      competition = Mocks.mock_competition(id)
-      (9001..9005).each do |user_id|
-        Registration.create(attendee_id: "#{id}-#{user_id}", competition_id: id, user_id: user_id, guests: rand(1..10),
-                            lanes: [LaneFactory.competing_lane(event_ids: competition['event_ids'].sample(rand(1..3)), comment: "Seed Registration #{user_id}")])
-        RegistrationHistory.create(attendee_id: "#{id}-#{user_id}", entries: [History.new({ 'changed_attributes' => {}, 'actor_user_id' => user_id, 'action' => 'seed registration' })])
-      end
-    end
+    dynamodb.create_table({
+                            table_name: table_name,
+                            key_schema: key_schema,
+                            attribute_definitions: attribute_definitions,
+                            provisioned_throughput: provisioned_throughput,
+                            global_secondary_indexes: global_secondary_indexes,
+                          })
   rescue Aws::DynamoDB::Errors::ResourceInUseException
-    puts 'Database Already exists'
+    Rails.logger.debug 'Database Already exists'
   end
 
   # Create SQS Queue
-  queue_name = 'registrations.fifo'
-  $sqs.create_queue({
-                      queue_name: queue_name,
-                      attributes: {
-                        FifoQueue: 'true',
-                      },
-                    })
+  sqs.create_queue({
+                     queue_name: EnvConfig.QUEUE_NAME,
+                     attributes: {
+                       FifoQueue: 'true',
+                     },
+                   })
 end

@@ -21,7 +21,7 @@ SuperConfig::Base.class_eval do
       puts "Received exception #{e} from Vault - attempt #{attempt}" if e.present?
 
       secret = Vault.logical.read("kv/data/#{EnvConfig.VAULT_APPLICATION}/#{secret_name}")
-      raise "Tried to read #{secret_name}, but doesn't exist" unless secret.present?
+      raise "Tried to read #{secret_name}, but doesn't exist" if secret.blank?
 
       secret.data[:data]
     end
@@ -34,6 +34,7 @@ AppSecrets = SuperConfig.new do
 
     vault :JWT_SECRET
     vault :SECRET_KEY_BASE
+    vault :NEW_RELIC_LICENSE_KEY
 
   else
     mandatory :JWT_SECRET, :string

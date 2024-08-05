@@ -97,6 +97,17 @@ class Registration
     payment_lane&.lane_state
   end
 
+  def payment_amount
+    payment_lane&.lane_details&.[]('amount_lowest_denominator')
+  end
+
+  def payment_amount_human_readable
+    payment_details = payment_lane&.lane_details
+    unless payment_details.nil?
+      MoneyFormat.format_human_readable(payment_details['amount_lowest_denominator'], payment_details['currency_code'])
+    end
+  end
+
   def payment_date
     payment_lane&.lane_details&.[]('last_updated')
   end
@@ -146,11 +157,7 @@ class Registration
       lane
     end
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
-    updated_guests = if update_params[:guests].present?
-                       update_params[:guests]
-                     else
-                       guests
-                     end
+    updated_guests = (update_params[:guests].presence || guests)
     updated_values = update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests)
     if has_waiting_list_changed
       # Update waiting list caches
@@ -161,29 +168,19 @@ class Registration
     updated_values
   end
 
-  def init_payment_lane(amount, currency_code, id)
-    payment_lane = LaneFactory.payment_lane(amount, currency_code, id)
+  def init_payment_lane(amount, currency_code, id, donation)
+    payment_lane = LaneFactory.payment_lane(amount, currency_code, id, donation)
     update_attributes(lanes: lanes.append(payment_lane))
   end
 
   def update_payment_lane(id, iso_amount, currency_iso, status)
     updated_lanes = lanes.map do |lane|
       if lane.lane_name == 'payment'
-        old_details = lane.lane_details
-        # TODO: Should we only add payments to the payment_history
-        # if there is a new payment_id?
-        lane.lane_details['payment_history'].append({
-                                                      status: lane.lane_state,
-                                                      payment_id: old_details['payment_id'],
-                                                      currency_code: old_details['currency_code'],
-                                                      amount_lowest_denominator: old_details['amount_lowest_denominator'],
-                                                      last_updated: old_details['last_updated'],
-                                                    })
         lane.lane_state = status
         lane.lane_details['payment_id'] = id
         lane.lane_details['amount_lowest_denominator'] = iso_amount
         lane.lane_details['currency_code'] = currency_iso
-        lane.lane_details['last_updated'] = Time.now
+        lane.lane_details['last_updated'] = Time.now.utc
       end
       lane
     end
@@ -227,7 +224,7 @@ class Registration
     end
 
     def waiting_list_position_changed?(update_params)
-      return false unless update_params[:waiting_list_position].present?
+      return false if update_params[:waiting_list_position].blank?
       update_params[:waiting_list_position] != competing_waiting_list_position
     end
 

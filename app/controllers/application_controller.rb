@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
-require_relative '../helpers/error_codes'
 class ApplicationController < ActionController::API
-  prepend_before_action :validate_token
-  around_action :performance_profile if Rails.env == 'development'
-  def validate_token
+  prepend_before_action :validate_jwt_token
+  around_action :performance_profile if Rails.env.development?
+
+  # Manually include new Relic because we don't derive from ActionController::Base
+  include NewRelic::Agent::Instrumentation::ControllerInstrumentation if Rails.env.production?
+
+  def validate_jwt_token
     auth_header = request.headers['Authorization']
-    unless auth_header.present?
+    if auth_header.blank?
       return render json: { error: ErrorCodes::MISSING_AUTHENTICATION }, status: :unauthorized
     end
     token = request.headers['Authorization'].split[1]
