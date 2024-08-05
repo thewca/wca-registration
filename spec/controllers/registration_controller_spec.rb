@@ -32,6 +32,39 @@ describe RegistrationController do
       created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
       expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
     end
+
+    context 'with qualification' do
+      before do
+        @competition = FactoryBot.build(:competition, :has_qualifications)
+        stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+        stub_json(CompetitionApi.url("#{@competition['id']}/qualifications"), 200, @competition['qualifications'])
+      end
+
+      it 'registration succeeds when qualifications are met' do
+        stub_json(UserApi.competitor_qualifications_path(@registration_request['user_id']), 200, QualificationResultsFaker.new.qualification_results)
+
+        request.headers['Authorization'] = @registration_request['jwt_token']
+        post :create, params: @registration_request, as: :json
+        sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+
+        created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
+
+        expect(response.code).to eq('202')
+        expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
+      end
+
+      it 'registration fails when qualifications not met' do
+        stub_json(UserApi.competitor_qualifications_path(@registration_request['user_id']), 200, [])
+
+        request.headers['Authorization'] = @registration_request['jwt_token']
+        post :create, params: @registration_request, as: :json
+        sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+
+        expect(response.code).to eq('422')
+        expect(response.body).to eq({ error: -4012 }.to_json)
+        expect { Registration.find("#{@competition['id']}-#{@registration_request['user_id']}") }.to raise_error(Dynamoid::Errors::RecordNotFound)
+      end
+    end
   end
 
   describe '#update' do
