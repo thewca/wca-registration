@@ -312,7 +312,6 @@ class RegistrationController < ApplicationController
               registered_on: x['created_at'],
               comment: x.competing_comment,
               admin_comment: x.admin_comment,
-              waiting_list_position: x.competing_waiting_list_position,
             },
             payment: {
               payment_status: x.payment_status,
@@ -334,7 +333,6 @@ class RegistrationController < ApplicationController
           registered_on: registration['created_at'],
           comment: registration.competing_comment,
           admin_comment: registration.admin_comment,
-          waiting_list_position: registration.competing_waiting_list_position,
         },
         payment: {
           payment_status: registration.payment_status,

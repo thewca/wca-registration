@@ -153,9 +153,9 @@ class RegistrationChecker
         new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
 
       # Organizers cant accept someone from the waiting list who isn't in the leading position
-      min_waiting_list_position = @registration.competing_lane.get_waiting_list_boundaries(@registration.competition_id)['waiting_list_position_min']
+      waiting_list_head = WaitingList.find(@competition_info.id).entries[0]
       raise RegistrationError.new(:forbidden, ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER) if
-        current_status == 'waiting_list' && new_status == 'accepted' && @registration.competing_waiting_list_position != min_waiting_list_position
+        current_status == 'waiting_list' && new_status == 'accepted' && @requestee_user_id != waiting_list_head
 
       # Otherwise, organizers can make any status change they want to
       return if UserApi.can_administer?(@requester_user_id, @competition_info.id)

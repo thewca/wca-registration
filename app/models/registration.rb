@@ -77,10 +77,6 @@ class Registration
     competing_lane&.lane_details&.[]('event_details')
   end
 
-  def competing_waiting_list_position
-    competing_lane&.lane_details&.[]('waiting_list_position')
-  end
-
   def competing_comment
     competing_lane&.lane_details&.[]('comment')
   end
@@ -114,16 +110,6 @@ class Registration
 
   def payment_history
     payment_lane&.lane_details&.[]('payment_history')
-  end
-
-  def update_competing_waiting_list_position(new_position)
-    updated_lanes = lanes.map do |lane|
-      if lane.lane_name == 'competing'
-        lane.lane_details['waiting_list_position'] = new_position
-      end
-      lane
-    end
-    update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: guests)
   end
 
   def update_competing_lane!(update_params)
@@ -186,8 +172,8 @@ class Registration
     waiting_list.add_competitor(self.user_id) if update_params[:status] == 'waiting_list'
     waiting_list.remove_competitor(self.user_id) if update_params[:status] == 'accepted'
     waiting_list.remove_competitor(self.user_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
-    waiting_list.move_competitor(update_params[:waiting_list_position].to_i, competing_waiting_list_position) if
-      update_params[:waiting_list_position].present? && update_params[:waiting_list_position] != competing_waiting_list_position
+    waiting_list.move_competitor(self.user_id, update_params[:waiting_list_position].to_i) if
+      update_params[:waiting_list_position].present?
   end
 
   # Fields
@@ -218,8 +204,7 @@ class Registration
     end
 
     def waiting_list_position_changed?(update_params)
-      return false if update_params[:waiting_list_position].blank?
-      update_params[:waiting_list_position] != competing_waiting_list_position
+      update_params[:waiting_list_position].present?
     end
 
     def waiting_list_status_changed?(update_params)
