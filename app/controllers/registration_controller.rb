@@ -191,10 +191,10 @@ class RegistrationController < ApplicationController
   def list_waiting
     competition_id = list_params
 
-    waiting = Registration.get_registrations_by_status(competition_id, 'waiting_list').map do |registration|
+    waiting = WaitingList.find(competition_id).entries.each_with_index do | user_id, index |
       {
-        user_id: registration[:user_id],
-        waiting_list_position: registration.competing_waiting_list_position || 0,
+        user_id: user_id,
+        waiting_list_position: index,
       }
     end
     render json: waiting

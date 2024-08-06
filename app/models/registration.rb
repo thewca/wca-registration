@@ -158,14 +158,7 @@ class Registration
     end
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
     updated_guests = (update_params[:guests].presence || guests)
-    updated_values = update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests)
-    if has_waiting_list_changed
-      # Update waiting list caches
-      Rails.cache.delete("#{competition_id}-waiting_list_registrations")
-      Rails.cache.delete("#{competition_id}-waiting_list_boundaries")
-      competing_lane.get_waiting_list_boundaries(competition_id)
-    end
-    updated_values
+    update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests)
   end
 
   def init_payment_lane(amount, currency_code, id, donation)
@@ -187,12 +180,13 @@ class Registration
     update_attributes!(lanes: updated_lanes)
   end
 
-  def update_waiting_list(lane, update_params)
+  def update_waiting_list(update_params)
     update_params[:waiting_list_position]&.to_i
-    lane.add_to_waiting_list(competition_id) if update_params[:status] == 'waiting_list'
-    lane.accept_from_waiting_list if update_params[:status] == 'accepted'
-    lane.remove_from_waiting_list(competition_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
-    lane.move_within_waiting_list(competition_id, update_params[:waiting_list_position].to_i) if
+    waiting_list = WaitingList.find(update_params[:competition_id])
+    waiting_list.add_competitor(self.user_id) if update_params[:status] == 'waiting_list'
+    waiting_list.remove_competitor(self.user_id) if update_params[:status] == 'accepted'
+    waiting_list.remove_competitor(self.user_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
+    waiting_list.move_competitor(update_params[:waiting_list_position].to_i, competing_waiting_list_position) if
       update_params[:waiting_list_position].present? && update_params[:waiting_list_position] != competing_waiting_list_position
   end
 
