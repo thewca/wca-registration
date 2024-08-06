@@ -191,7 +191,7 @@ class RegistrationController < ApplicationController
   def list_waiting
     competition_id = list_params
 
-    waiting = WaitingList.find(competition_id).entries.each_with_index do | user_id, index |
+    waiting = WaitingList.find(competition_id).entries.each_with_index do |user_id, index|
       {
         user_id: user_id,
         waiting_list_position: index,

@@ -47,7 +47,4 @@ class Lane
       end
     end
   end
-
-  private
-
 end
