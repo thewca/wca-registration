@@ -149,7 +149,12 @@ class RegistrationChecker
         new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
 
       # Organizers cant accept someone from the waiting list who isn't in the leading position
-      waiting_list_head = WaitingList.find(@competition_info.id).entries[0]
+      waiting_list = begin
+        WaitingList.find(@competition_info.id)
+      rescue Dynamoid::Errors::RecordNotFound
+        WaitingList.create(id: @competition_info.id, entries: [])
+      end
+      waiting_list_head = waiting_list.entries.empty? ? nil : waiting_list.entries[0]
       raise RegistrationError.new(:forbidden, ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER) if
         current_status == 'waiting_list' && new_status == 'accepted' && @requestee_user_id != waiting_list_head
 
