@@ -47,6 +47,10 @@ describe Registration do
   describe '#update_competing_lane!.waiting_list' do
     # TODO: Needs more logic to test whether the logic paths for update_waiting_list (status are same, not change in waiting list position, etc)
 
+    before do
+      FactoryBot.create(:waiting_list)
+    end
+
     describe '#waiting_list.add_to_waiting_list' do
       it 'first competitor in the waiting list gets set to position 1' do
         registration = FactoryBot.create(:registration, registration_status: 'pending')

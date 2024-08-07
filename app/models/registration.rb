@@ -99,7 +99,7 @@ class Registration
 
   def competing_waiting_list_position
     return nil if competing_status != 'waiting_list'
-    WaitingList.find(competition_id).entries.find_index(user_id)
+    WaitingList.find(competition_id).entries.find_index(user_id) + 1
   end
 
   def payment_amount_human_readable

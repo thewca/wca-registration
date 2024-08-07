@@ -22,6 +22,7 @@ class WaitingList
 
   def move_competitor(competitor_id, new_index)
     old_index = entries.find_index(competitor_id)
+    puts(entries.inspect)
     update_attributes!(entries: entries.insert(old_index, entries.delete_at(new_index)))
   end
 end
