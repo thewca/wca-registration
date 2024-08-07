@@ -216,7 +216,8 @@ class RegistrationController < ApplicationController
 
   def list_admin
     registrations = get_registrations(@competition_id)
-    render json: add_pii(registrations)
+    registrations_with_pii = add_pii(registrations)
+    render json: add_waiting_list(registrations_with_pii)
   rescue Dynamoid::Errors::Error => e
     Rails.logger.debug e
     # Is there a reason we aren't using an error code here?
@@ -292,6 +293,14 @@ class RegistrationController < ApplicationController
       registrations.map do |r|
         user = pii.find { |u| u['id'] == r[:user_id] }
         r.merge(email: user['email'], dob: user['dob'])
+      end
+    end
+
+    def add_waiting_list(competition_id, registrations)
+      list = WaitingList.find(competition_id).entries
+      registrations.map do |r|
+        waiting_list_position = list.find_index(r[:user_id])
+        r.merge(waiting_list_position: waiting_list_position)
       end
     end
 
