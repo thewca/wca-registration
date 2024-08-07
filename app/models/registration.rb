@@ -175,7 +175,6 @@ class Registration
   # There are no validations to run anyway
   # rubocop:disable Rails/SkipsModelValidations
   def update_waiting_list(update_params)
-    update_params[:waiting_list_position]&.to_i
     waiting_list = WaitingList.upsert(update_params[:competition_id], { entries: [] }, { unless_exists: [:id] })
     waiting_list.add_competitor(self.user_id) if update_params[:status] == 'waiting_list'
     waiting_list.remove_competitor(self.user_id) if update_params[:status] == 'accepted'
