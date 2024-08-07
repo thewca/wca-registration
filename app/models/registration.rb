@@ -97,6 +97,11 @@ class Registration
     payment_lane&.lane_details&.[]('amount_lowest_denominator')
   end
 
+  def competing_waiting_list_position
+    return nil if competing_status != 'waiting_list'
+    WaitingList.find(competition_id).entries.find_index(user_id)
+  end
+
   def payment_amount_human_readable
     payment_details = payment_lane&.lane_details
     unless payment_details.nil?
@@ -120,7 +125,7 @@ class Registration
 
         # Update status for lane and events
         if has_waiting_list_changed
-          update_waiting_list(lane, update_params)
+          update_waiting_list(update_params)
         end
 
         if update_params[:status].present?

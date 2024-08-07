@@ -217,7 +217,7 @@ class RegistrationController < ApplicationController
   def list_admin
     registrations = get_registrations(@competition_id)
     registrations_with_pii = add_pii(registrations)
-    render json: add_waiting_list(registrations_with_pii)
+    render json: add_waiting_list(@competition_id, registrations_with_pii)
   rescue Dynamoid::Errors::Error => e
     Rails.logger.debug e
     # Is there a reason we aren't using an error code here?
@@ -342,6 +342,7 @@ class RegistrationController < ApplicationController
           registered_on: registration['created_at'],
           comment: registration.competing_comment,
           admin_comment: registration.admin_comment,
+          waiting_list_position: registration.competing_waiting_list_position,
         },
         payment: {
           payment_status: registration.payment_status,

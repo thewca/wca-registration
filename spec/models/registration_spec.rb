@@ -47,36 +47,6 @@ describe Registration do
   describe '#update_competing_lane!.waiting_list' do
     # TODO: Needs more logic to test whether the logic paths for update_waiting_list (status are same, not change in waiting list position, etc)
 
-    describe '#waiting_list.get_waiting_list_boundaries' do
-      it 'both are nil when there are no other registrations' do
-        registration = FactoryBot.create(:registration, registration_status: 'pending')
-
-        boundaries = registration.competing_lane.get_waiting_list_boundaries(registration.competition_id)
-        expect(boundaries['waiting_list_position_min']).to eq(nil)
-        expect(boundaries['waiting_list_position_max']).to eq(nil)
-      end
-
-      it 'both are 1 when there is only one registrations' do
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-
-        boundaries = registration.competing_lane.get_waiting_list_boundaries(registration.competition_id)
-        expect(boundaries['waiting_list_position_min']).to eq(1)
-        expect(boundaries['waiting_list_position_max']).to eq(1)
-      end
-
-      it 'equal to lowest and highest position when there are multiple registrations' do
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
-
-        boundaries = registration.competing_lane.get_waiting_list_boundaries(registration.competition_id)
-        expect(boundaries['waiting_list_position_min']).to eq(1)
-        expect(boundaries['waiting_list_position_max']).to eq(5)
-      end
-    end
-
     describe '#waiting_list.add_to_waiting_list' do
       it 'first competitor in the waiting list gets set to position 1' do
         registration = FactoryBot.create(:registration, registration_status: 'pending')
