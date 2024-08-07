@@ -131,13 +131,9 @@ class RegistrationChecker
       converted_position = Integer(waiting_list_position, exception: false)
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) unless converted_position.is_a? Integer
 
-      boundaries = @registration.competing_lane.get_waiting_list_boundaries(@competition_info.competition_id)
-      if boundaries['waiting_list_position_min'].nil? && boundaries['waiting_list_position_max'].nil?
-        raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position != 1
-      else
-        raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if
-          converted_position < boundaries['waiting_list_position_min'] || converted_position > boundaries['waiting_list_position_max']
-      end
+      waiting_list = WaitingList.find(@competition_info.id).entries
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if waiting_list.empty? && converted_position != 1
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position > waiting_list.length
     end
 
     def contains_organizer_fields?
