@@ -173,7 +173,6 @@ class Registration
 
   # Dynamoid doesn't have a find_or_create_by so we need to use upsert
   # There are no validations to run anyway
-  # rubocop:disable Rails/SkipsModelValidations
   def update_waiting_list(update_params)
     waiting_list = WaitingList.find(competition_id)
     waiting_list.add_competitor(self.user_id) if update_params[:status] == 'waiting_list'
@@ -182,8 +181,6 @@ class Registration
     waiting_list.move_competitor(self.user_id, update_params[:waiting_list_position].to_i) if
       update_params[:waiting_list_position].present?
   end
-  # rubocop:enable Rails/SkipsModelValidations
-
   # Fields
   field :user_id, :integer
   field :guests, :integer
