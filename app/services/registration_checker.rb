@@ -131,13 +131,9 @@ class RegistrationChecker
       converted_position = Integer(waiting_list_position, exception: false)
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) unless converted_position.is_a? Integer
 
-      boundaries = @registration.competing_lane.get_waiting_list_boundaries(@competition_info.competition_id)
-      if boundaries['waiting_list_position_min'].nil? && boundaries['waiting_list_position_max'].nil?
-        raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position != 1
-      else
-        raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if
-          converted_position < boundaries['waiting_list_position_min'] || converted_position > boundaries['waiting_list_position_max']
-      end
+      waiting_list = WaitingList.find(@competition_info.id).entries
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if waiting_list.empty? && converted_position != 1
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position > waiting_list.length
     end
 
     def contains_organizer_fields?
@@ -153,9 +149,14 @@ class RegistrationChecker
         new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
 
       # Organizers cant accept someone from the waiting list who isn't in the leading position
-      min_waiting_list_position = @registration.competing_lane.get_waiting_list_boundaries(@registration.competition_id)['waiting_list_position_min']
+      waiting_list = begin
+        WaitingList.find(@competition_info.id)
+      rescue Dynamoid::Errors::RecordNotFound
+        WaitingList.create(id: @competition_info.id, entries: [])
+      end
+      waiting_list_head = waiting_list.entries.empty? ? nil : waiting_list.entries[0]
       raise RegistrationError.new(:forbidden, ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER) if
-        current_status == 'waiting_list' && new_status == 'accepted' && @registration.competing_waiting_list_position != min_waiting_list_position
+        current_status == 'waiting_list' && new_status == 'accepted' && @requestee_user_id != waiting_list_head
 
       # Otherwise, organizers can make any status change they want to
       return if UserApi.can_administer?(@requester_user_id, @competition_info.id)
