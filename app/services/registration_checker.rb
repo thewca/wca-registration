@@ -134,6 +134,7 @@ class RegistrationChecker
       waiting_list = WaitingList.find(@competition_info.id).entries
       raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if waiting_list.empty? && converted_position != 1
       raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position > waiting_list.length
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position < 1
     end
 
     def contains_organizer_fields?
@@ -154,9 +155,9 @@ class RegistrationChecker
       rescue Dynamoid::Errors::RecordNotFound
         WaitingList.create(id: @competition_info.id, entries: [])
       end
-      waiting_list_head = waiting_list.entries.empty? ? nil : waiting_list.entries[0]
+
       raise RegistrationError.new(:forbidden, ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER) if
-        current_status == 'waiting_list' && new_status == 'accepted' && @requestee_user_id != waiting_list_head
+        current_status == 'waiting_list' && new_status == 'accepted' && @registration.waiting_list_position != 1
 
       # Otherwise, organizers can make any status change they want to
       return if UserApi.can_administer?(@requester_user_id, @competition_info.id)

@@ -8,6 +8,9 @@ require 'rails_helper'
 RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
   it "user cant change 'status' => #{old_status} to: #{new_status}" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
+    if old_status == 'waiting_list'
+      waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id])
+    end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => new_status })
     stub_request(:get, UserApi.permissions_path(registration[:user_id])).to_return(status: 200, body: FactoryBot.build(:permissions_response).to_json, headers: { content_type: 'application/json' })
@@ -24,6 +27,9 @@ end
 RSpec.shared_examples 'valid organizer status updates' do |old_status, new_status|
   it "organizer can change 'status' => #{old_status} to: #{new_status} before close" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
+    if old_status == 'waiting_list'
+      waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id])
+    end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
     stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
@@ -38,6 +44,9 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
 
   it "site admin can change 'status' => #{old_status} to: #{new_status} before close" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
+    if old_status == 'waiting_list'
+      waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id])
+    end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, :site_admin, user_id: registration[:user_id], competing: { 'status' => new_status })
     stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
@@ -52,6 +61,9 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
 
   it "after edit deadline/reg close, organizer can change 'status' => #{old_status} to: #{new_status}" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
+    if old_status == 'waiting_list'
+      waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id])
+    end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
     stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
@@ -870,7 +882,7 @@ describe RegistrationChecker do
 
       it 'organizer can accept registrations up to the limit' do
         FactoryBot.create_list(:registration, 2, registration_status: 'accepted')
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
+        registration = FactoryBot.create(:registration, registration_status: 'pending')
         competition_info = CompetitionInfo.new(FactoryBot.build(:competition, competitor_limit: 3))
         update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
 
@@ -1113,6 +1125,10 @@ describe RegistrationChecker do
     end
 
     describe '#update_registration_allowed!.validate_waiting_list_position!' do
+      before do
+        @waiting_list = FactoryBot.create(:waiting_list)
+      end
+
       it 'must be an integer, not string' do
         update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: @registration[:user_id], competing: { 'waiting_list_position' => 'b' })
 
@@ -1125,6 +1141,7 @@ describe RegistrationChecker do
       end
 
       it 'can be an integer given as a string' do
+        @waiting_list.add(@registration.user_id)
         update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: @registration[:user_id], competing: { 'waiting_list_position' => '1' })
 
         expect {
@@ -1143,9 +1160,10 @@ describe RegistrationChecker do
         end
       end
 
-      it 'organizer cant accept anyone except the min position on the waiting list' do
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => '1')
-        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list', 'waiting_list_position' => '2')
+      it 'organizer cant accept anyone except the min position on the waiting list', :tag2 do
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
+        @waiting_list.add(override_registration.user_id)
         update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'status' => 'accepted' })
 
         expect {
@@ -1156,14 +1174,15 @@ describe RegistrationChecker do
         end
       end
 
-      it 'cannot move to less than current min position' do
-        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
+      it 'cannot move to less than position 1', :tag2 do
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
+        @waiting_list.add(override_registration.user_id)
 
-        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'waiting_list_position' => '10' })
+        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'waiting_list_position' => '0' })
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
@@ -1173,14 +1192,14 @@ describe RegistrationChecker do
         end
       end
 
-      it 'cannot move to greater than current max position' do
-        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list', 'waiting_list_position' => 6)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
+      it 'cannot move to greater than the number of items in the waiting list' do
+        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
 
-        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'waiting_list_position' => '1' })
+        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'waiting_list_position' => '10' })
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])

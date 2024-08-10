@@ -90,7 +90,7 @@ describe Registration do
 
     describe '#waiting_list.remove' do
       it 'change from waiting_list to cancelled' do
-        @reg1.update_competing_lane!({ status: 'accepted' })
+        @reg1.update_competing_lane!({ status: 'cancelled' })
         @waiting_list.reload
 
         expect(@reg1.competing_status).to eq('cancelled')
@@ -111,14 +111,23 @@ describe Registration do
     end
 
     describe '#waiting_list.move' do
-      it 'changing to waiting_list has no effect'
+      it 'changing to waiting_list has no effect' do
         @reg1.update_competing_lane!({ status: 'waiting_list' })
         @waiting_list.reload
 
-        expect(@reg1.competing_status).to eq('pending')
-        expect(@reg1.waiting_list_position).to eq(nil)
+        expect(@reg1.competing_status).to eq('waiting_list')
+        expect(@reg1.waiting_list_position).to eq(1)
+        expect(@reg2.waiting_list_position).to eq(2)
+        expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(true)
+      end
+
+      it 'can reorder waiting list items' do
+        @reg2.update_competing_lane!({ status: 'waiting_list', waiting_list_position: 1 })
+
+        expect(@reg1.competing_status).to eq('waiting_list')
+        expect(@reg1.waiting_list_position).to eq(2)
         expect(@reg2.waiting_list_position).to eq(1)
-        expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(false)
+        expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(true)
       end
     end
   end
