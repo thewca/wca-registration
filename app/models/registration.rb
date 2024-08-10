@@ -174,7 +174,7 @@ class Registration
   # Dynamoid doesn't have a find_or_create_by so we need to use upsert
   # There are no validations to run anyway
   def update_waiting_list(update_params)
-    raise ArgumentError, 'Can only accept waiting list leader' if waiting_list_position != 1 && update_params[:status] == 'accepted'
+    raise ArgumentError.new('Can only accept waiting list leader') if waiting_list_position != 1 && update_params[:status] == 'accepted'
 
     waiting_list = WaitingList.find(competition_id)
     waiting_list.add(self.user_id) if update_params[:status] == 'waiting_list'

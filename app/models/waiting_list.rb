@@ -21,7 +21,7 @@ class WaitingList
   end
 
   def move_to_position(user_id, new_position)
-    raise ArgumentError, 'Target position out of waiting list range' if new_position > entries.length || new_position < 1
+    raise ArgumentError.new('Target position out of waiting list range') if new_position > entries.length || new_position < 1
 
     old_index = entries.find_index(user_id)
     return if old_index == new_position-1

@@ -150,7 +150,7 @@ class RegistrationChecker
         new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
 
       # Organizers cant accept someone from the waiting list who isn't in the leading position
-      waiting_list = begin
+      begin
         WaitingList.find(@competition_info.id)
       rescue Dynamoid::Errors::RecordNotFound
         WaitingList.create(id: @competition_info.id, entries: [])

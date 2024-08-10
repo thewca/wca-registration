@@ -9,7 +9,7 @@ RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
   it "user cant change 'status' => #{old_status} to: #{new_status}" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
     if old_status == 'waiting_list'
-      waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id])
+      FactoryBot.create(:waiting_list, entries: [registration.user_id])
     end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => new_status })
@@ -28,7 +28,7 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
   it "organizer can change 'status' => #{old_status} to: #{new_status} before close" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
     if old_status == 'waiting_list'
-      waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id])
+      FactoryBot.create(:waiting_list, entries: [registration.user_id])
     end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
@@ -45,7 +45,7 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
   it "site admin can change 'status' => #{old_status} to: #{new_status} before close" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
     if old_status == 'waiting_list'
-      waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id])
+      FactoryBot.create(:waiting_list, entries: [registration.user_id])
     end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, :site_admin, user_id: registration[:user_id], competing: { 'status' => new_status })
@@ -62,7 +62,7 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
   it "after edit deadline/reg close, organizer can change 'status' => #{old_status} to: #{new_status}" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
     if old_status == 'waiting_list'
-      waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id])
+      FactoryBot.create(:waiting_list, entries: [registration.user_id])
     end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })

@@ -4,7 +4,7 @@ require 'factory_bot_rails'
 
 FactoryBot.define do
   factory :waiting_list do
-    transient do 
+    transient do
       populate { nil }
     end
 
