@@ -8,21 +8,26 @@ class WaitingList
 
   field :entries, :array, of: :integer
 
-  def remove_competitor(competitor_id)
-    update_attributes!(entries: entries - [competitor_id])
+  def remove(user_id)
+    update_attributes!(entries: entries - [user_id])
   end
 
-  def add_competitor(competitor_id)
+  def add(user_id)
     if entries.nil?
-      update_attributes!(entries: [competitor_id])
+      update_attributes!(entries: [user_id])
     else
-      update_attributes!(entries: entries + [competitor_id])
+      update_attributes!(entries: entries + [user_id])
     end
   end
 
-  def move_competitor(competitor_id, new_index)
-    old_index = entries.find_index(competitor_id)
+  def move_to_position(user_id, new_position)
+    raise ArgumentError, 'Target position out of waiting list range' if new_position > entries.length || new_position < 1
+
+    old_index = entries.find_index(user_id)
+    return if old_index == new_position-1
+
     Rails.logger.debug(entries.inspect)
-    update_attributes!(entries: entries.insert(old_index, entries.delete_at(new_index)))
+
+    update_attributes!(entries: entries.insert(new_position-1, entries.delete_at(old_index)))
   end
 end

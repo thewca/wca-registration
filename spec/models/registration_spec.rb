@@ -38,9 +38,26 @@ describe Registration do
     end
 
     it 'accepted given waiting_list, it sets competing_status' do
+      FactoryBot.create(:waiting_list)
       registration = FactoryBot.create(:registration, registration_status: 'accepted')
       registration.update_competing_lane!({ status: 'waiting_list' })
       expect(registration.competing_status).to eq('waiting_list')
+    end
+  end
+
+  describe '#competing_waiting_list_position' do
+    it '1st competitor is at position 1' do
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
+      FactoryBot.create(:waiting_list, entries: [registration.user_id])
+      expect(registration.waiting_list_position).to eq(1)
+    end
+
+    it '5th competitor is at position 5' do
+      waiting_list = FactoryBot.create(:waiting_list, populate: 4)
+      registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
+      waiting_list.add(registration.user_id)
+
+      expect(registration.waiting_list_position).to eq(5)
     end
   end
 
@@ -48,159 +65,60 @@ describe Registration do
     # TODO: Needs more logic to test whether the logic paths for update_waiting_list (status are same, not change in waiting list position, etc)
 
     before do
-      FactoryBot.create(:waiting_list)
+      @reg1 = FactoryBot.create(:registration, :waiting_list)
+      @reg2 = FactoryBot.create(:registration, :waiting_list)
+      @waiting_list = FactoryBot.create(:waiting_list, entries: [@reg1.user_id, @reg2.user_id])
     end
 
-    describe '#waiting_list.add_to_waiting_list' do
-      it 'first competitor in the waiting list gets set to position 1' do
-        registration = FactoryBot.create(:registration, registration_status: 'pending')
-        registration.update_competing_lane!({ status: 'waiting_list' })
-        expect(registration.competing_waiting_list_position).to eq(1)
+    describe '#waiting_list.accept' do
+      it 'accept waiting list leader' do
+        @reg1.update_competing_lane!({ status: 'accepted' })
+        @waiting_list.reload
+
+        expect(@reg1.competing_status).to eq('accepted')
+        expect(@reg1.waiting_list_position).to eq(nil)
+        expect(@reg2.waiting_list_position).to eq(1)
+        expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(false)
       end
 
-      it 'second competitor gets set to position 2' do
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        registration = FactoryBot.create(:registration, registration_status: 'pending')
-        registration.update_competing_lane!({ status: 'waiting_list' })
-        expect(registration.competing_waiting_list_position).to eq(2)
-      end
-    end
-
-    describe '#waiting_list.move_within_waiting_list' do
-      it 'gets moved to the correct position' do
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-        registration_4 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
-
-        registration_4.update_competing_lane!({ waiting_list_position: '2' })
-        registration_4.reload
-
-        expect(registration_4.competing_waiting_list_position).to eq(2)
-      end
-
-      it 'when moved forward on the list, everything between its new and old position gets moved back' do
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        registration_2 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        registration_3 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-        registration_4 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
-
-        registration_4.update_competing_lane!({ waiting_list_position: '2' })
-        registration_4.reload
-
-        registration_2.reload
-        registration_3.reload
-
-        expect(registration_2.competing_waiting_list_position).to eq(3)
-        expect(registration_3.competing_waiting_list_position).to eq(4)
-      end
-
-      it 'when moved forward, nothing outside the affected range changes' do
-        registration_1 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-        registration_4 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
-        registration_5 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
-
-        registration_4.update_competing_lane!({ waiting_list_position: 2 })
-        registration_4.reload
-
-        registration_1.reload
-        registration_5.reload
-
-        expect(registration_1.competing_waiting_list_position).to eq(1)
-        expect(registration_5.competing_waiting_list_position).to eq(5)
-      end
-
-      it 'if moved backward, everything, everything between new and old position gets moved forward' do
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        registration_2 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
-
-        registration_2.update_competing_lane!({ waiting_list_position: 4 })
-        registration_2.reload
-
-        expect(registration_2.competing_waiting_list_position).to eq(4)
-      end
-
-      it 'if moved backward, everything in front of its old position doesnt change' do
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        registration_2 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        registration_3 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-        registration_4 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
-
-        registration_2.update_competing_lane!({ waiting_list_position: 4 })
-        registration_2.reload
-
-        registration_3.reload
-        registration_4.reload
-
-        expect(registration_3.competing_waiting_list_position).to eq(2)
-        expect(registration_4.competing_waiting_list_position).to eq(3)
+      it 'cant accept if not in leading position of waiting list' do
+        expect {
+          @reg2.update_competing_lane!({ status: 'accepted' })
+        }.to raise_error(ArgumentError, 'Can only accept waiting list leader')
       end
     end
 
-    describe '#waiting_list.accept_from_waiting_list' do
-      it 'when accepted, waiting_list_position gets set to nil' do
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        registration.update_competing_lane!({ status: 'accepted' })
-        expect(registration.competing_waiting_list_position).to eq(nil)
-      end
-
-      it 'if waiting list is empty, new min/max should be nil' do
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        registration.update_competing_lane!({ status: 'accepted' })
-        waiting_list_boundaries = registration.competing_lane.get_waiting_list_boundaries(registration.competition_id)
-        expect(waiting_list_boundaries['waiting_list_position_min']).to eq(nil)
-        expect(waiting_list_boundaries['waiting_list_position_max']).to eq(nil)
-      end
-
-      it 'if waiting list isnt empty, new min should be one greater than the accepted registrations old waiting list position' do
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        registration.update_competing_lane!({ status: 'accepted' })
-        waiting_list_boundaries = registration.competing_lane.get_waiting_list_boundaries(registration.competition_id)
-        expect(waiting_list_boundaries['waiting_list_position_min']).to eq(2)
-        expect(waiting_list_boundaries['waiting_list_position_max']).to eq(2)
-      end
-    end
-
-    describe '#waiting_list.remove_from_waiting_list' do
+    describe '#waiting_list.remove' do
       it 'change from waiting_list to cancelled' do
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        registration.update_competing_lane!({ status: 'cancelled' })
-        expect(registration.competing_status).to eq('cancelled')
+        @reg1.update_competing_lane!({ status: 'accepted' })
+        @waiting_list.reload
+
+        expect(@reg1.competing_status).to eq('cancelled')
+        expect(@reg1.waiting_list_position).to eq(nil)
+        expect(@reg2.waiting_list_position).to eq(1)
+        expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(false)
       end
 
       it 'change from waiting_list to pending' do
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        registration.update_competing_lane!({ status: 'pending' })
-        expect(registration.competing_status).to eq('pending')
+        @reg1.update_competing_lane!({ status: 'pending' })
+        @waiting_list.reload
+
+        expect(@reg1.competing_status).to eq('pending')
+        expect(@reg1.waiting_list_position).to eq(nil)
+        expect(@reg2.waiting_list_position).to eq(1)
+        expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(false)
       end
+    end
 
-      it 'removing from waiting list changes waiting_list_position to nil' do
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        registration.update_competing_lane!({ status: 'pending' })
-        expect(registration.competing_waiting_list_position).to eq(nil)
-      end
+    describe '#waiting_list.move' do
+      it 'changing to waiting_list has no effect'
+        @reg1.update_competing_lane!({ status: 'waiting_list' })
+        @waiting_list.reload
 
-      it 'all registrations behind removed registration decrement their waiting_list_position' do
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        registration_2 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        registration_3 = FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-
-        registration.update_competing_lane!({ status: 'pending' })
-
-        registration_2.reload
-        registration_3.reload
-
-        expect(registration_2.competing_waiting_list_position).to eq(1)
-        expect(registration_3.competing_waiting_list_position).to eq(2)
+        expect(@reg1.competing_status).to eq('pending')
+        expect(@reg1.waiting_list_position).to eq(nil)
+        expect(@reg2.waiting_list_position).to eq(1)
+        expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(false)
       end
     end
   end

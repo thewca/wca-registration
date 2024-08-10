@@ -97,7 +97,7 @@ class Registration
     payment_lane&.lane_details&.[]('amount_lowest_denominator')
   end
 
-  def competing_waiting_list_position
+  def waiting_list_position
     return nil if competing_status != 'waiting_list'
     WaitingList.find(competition_id).entries.find_index(user_id) + 1
   end
@@ -174,11 +174,13 @@ class Registration
   # Dynamoid doesn't have a find_or_create_by so we need to use upsert
   # There are no validations to run anyway
   def update_waiting_list(update_params)
+    raise ArgumentError, 'Can only accept waiting list leader' if waiting_list_position != 1 && update_params[:status] == 'accepted'
+
     waiting_list = WaitingList.find(competition_id)
-    waiting_list.add_competitor(self.user_id) if update_params[:status] == 'waiting_list'
-    waiting_list.remove_competitor(self.user_id) if update_params[:status] == 'accepted'
-    waiting_list.remove_competitor(self.user_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
-    waiting_list.move_competitor(self.user_id, update_params[:waiting_list_position].to_i) if
+    waiting_list.add(self.user_id) if update_params[:status] == 'waiting_list'
+    waiting_list.remove(self.user_id) if update_params[:status] == 'accepted'
+    waiting_list.remove(self.user_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
+    waiting_list.move_to_position(self.user_id, update_params[:waiting_list_position].to_i) if
       update_params[:waiting_list_position].present?
   end
   # Fields
