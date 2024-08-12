@@ -30,6 +30,10 @@ FactoryBot.define do
     registration_status { 'waiting_list' }
   end
 
+  trait :accepted do
+    registration_status { 'accepted' }
+  end
+
   trait :admin do
     user_id { 15073 }
   end

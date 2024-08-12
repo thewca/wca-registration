@@ -188,24 +188,6 @@ class RegistrationController < ApplicationController
            status: :internal_server_error
   end
 
-  def list_waiting
-    competition_id = list_params
-
-    waiting = WaitingList.find(competition_id).entries.each_with_index do |user_id, index|
-      {
-        user_id: user_id,
-        waiting_list_position: index,
-      }
-    end
-    render json: waiting
-  rescue Dynamoid::Errors::Error => e
-    # Render an error response
-    Rails.logger.debug e
-    Metrics.registration_dynamodb_errors_counter.increment
-    render json: { error: "Error getting registrations #{e}" },
-           status: :internal_server_error
-  end
-
   # To list Registrations in the admin view you need to be able to administer the competition
   def validate_list_admin
     @competition_id = list_params
@@ -220,7 +202,6 @@ class RegistrationController < ApplicationController
     render json: add_waiting_list(@competition_id, registrations_with_pii)
   rescue Dynamoid::Errors::Error => e
     Rails.logger.debug e
-    # Is there a reason we aren't using an error code here?
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
@@ -299,9 +280,12 @@ class RegistrationController < ApplicationController
     def add_waiting_list(competition_id, registrations)
       list = WaitingList.find(competition_id).entries
       registrations.map do |r|
-        waiting_list_position = list.find_index(r[:user_id])
-        r.merge(waiting_list_position: waiting_list_position)
+        waiting_list_index = list.find_index(r[:user_id])
+        r[:competing].merge!(waiting_list_position: waiting_list_index + 1) if waiting_list_index.present?
+        r
       end
+    rescue Dynamoid::Errors::RecordNotFound
+      registrations
     end
 
     def get_registrations(competition_id, only_attending: false)

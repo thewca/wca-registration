@@ -264,4 +264,72 @@ describe RegistrationController do
       expect(response.code).to eq('400')
     end
   end
+
+  describe '#list_admin', :tag do
+    before do
+      @competition = FactoryBot.build(:competition)
+      stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+
+      @requesting_user_id = 1400
+      stub_request(:get, UserApi.permissions_path(@requesting_user_id)).to_return(
+        status: 200,
+        body: FactoryBot.build(:permissions_response, organized_competitions: [@competition['id']]).to_json,
+        headers: { 'Content-Type' => 'application/json' },
+      )
+    end
+
+    it 'returns single registration' do
+      registration = FactoryBot.create(:registration)
+      stub_pii([registration[:user_id]])
+
+      request.headers['Authorization'] = fetch_jwt_token(@requesting_user_id) 
+      get :list_admin, params: { competition_id: @competition['id'] }
+
+      expect(response.code).to eq('200')
+
+      body = response.parsed_body
+      expect(body.count).to eq(1)
+      expect(body.first['user_id']).to eq(registration[:user_id])
+      expect(body.first.dig('competing', 'registration_status')).to eq(registration.competing_status)
+      expect(body.first.dig('competing', 'waiting_list_position')).to eq(nil)
+    end
+
+    it 'returns multiple registrations' do
+
+      reg = FactoryBot.create(:registration, :accepted)
+      reg2 = FactoryBot.create(:registration, :accepted)
+      reg3 = FactoryBot.create(:registration, :accepted)
+
+      reg4 = FactoryBot.create(:registration, :waiting_list)
+      reg5 = FactoryBot.create(:registration, :waiting_list)
+      reg6 = FactoryBot.create(:registration, :waiting_list)
+
+      waiting_list = FactoryBot.create(:waiting_list, entries: [reg4[:user_id], reg5[:user_id], reg6[:user_id]])
+
+      user_ids = [reg[:user_id], reg2[:user_id], reg3[:user_id], reg4[:user_id], reg5[:user_id], reg6[:user_id]]
+      stub_pii(user_ids)
+
+      request.headers['Authorization'] = fetch_jwt_token(@requesting_user_id) 
+      get :list_admin, params: { competition_id: @competition['id'] }
+
+      expect(response.code).to eq('200')
+
+      body = response.parsed_body
+      expect(body.count).to eq(6)
+
+      body.each do |data|
+        expect(user_ids.include?(data['user_id'])).to eq(true)
+        if data['user_id'] == reg[:user_id] || data['user_id'] == reg2[:user_id] ||data['user_id'] == reg3[:user_id] 
+          expect(data.dig('competing', 'registration_status')).to eq('accepted')
+          expect(data.dig('competing', 'waiting_list_position')).to eq(nil)
+        elsif data['user_id'] == reg4[:user_id]
+          expect(data.dig('competing', 'waiting_list_position')).to eq(1)
+        elsif data['user_id'] == reg5[:user_id]
+          expect(data.dig('competing', 'waiting_list_position')).to eq(2)
+        elsif data['user_id'] == reg6[:user_id]
+          expect(data.dig('competing', 'waiting_list_position')).to eq(3)
+        end
+      end
+    end
+  end
 end
