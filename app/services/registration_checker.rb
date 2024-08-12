@@ -48,7 +48,7 @@ class RegistrationChecker
       errors[update_request['user_id']] = e.error
     end
 
-    raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors.empty?  || sequential_waiting_list_updates?(bulk_update_request, errors)
+    raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors.empty? || sequential_waiting_list_updates?(bulk_update_request, errors)
   end
 
   class << self
@@ -209,7 +209,7 @@ class RegistrationChecker
     def sequential_waiting_list_updates?(bulk_update_request, errors)
       return false unless errors.values.uniq == [-4011]
 
-      accepted_users =  bulk_update_request['requests'].map { |r| r['user_id'] if r['competing']['status'] == 'accepted' }
+      accepted_users = bulk_update_request['requests'].map { |r| r['user_id'] if r['competing']['status'] == 'accepted' }
       waiting_list_users = WaitingList.find(@competition_info.id).entries.take(accepted_users.count)
       return false unless accepted_users == waiting_list_users
       true

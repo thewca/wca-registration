@@ -113,7 +113,6 @@ describe RegistrationController do
         @update3 = FactoryBot.build(:update_request, user_id: @registration3[:user_id], competing: { 'status' => 'accepted' })
 
         @waiting_list = FactoryBot.create(:waiting_list, entries: [@registration.user_id, @registration2.user_id, @registration3.user_id])
-
       end
 
       it 'accepts competitors from the waiting list in the order they appear' do
@@ -122,7 +121,7 @@ describe RegistrationController do
 
         request.headers['Authorization'] = bulk_update_request['jwt_token']
         patch :bulk_update, params: bulk_update_request, as: :json
-        
+
         expect(response.code).to eq('200')
 
         @updated_registration = Registration.find("#{@competition['id']}-#{@registration[:user_id]}")
@@ -143,7 +142,7 @@ describe RegistrationController do
         patch :bulk_update, params: bulk_update_request, as: :json
 
         expect(response.code).to eq('422')
-        expect(JSON.parse(response.body)['error'].values).to eq([-4011, -4011])
+        expect(response.parsed_body['error'].values).to eq([-4011, -4011])
       end
     end
 
