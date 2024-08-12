@@ -9,7 +9,7 @@ def stub_json(url, response_code, payload, type = :get)
 end
 
 def stub_pii(user_ids)
-  user_pii = user_ids.map do |user_id| 
+  user_pii = user_ids.map do |user_id|
     {
       id: user_id,
       email: "#{user_id}@example.com",

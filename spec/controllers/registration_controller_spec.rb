@@ -282,7 +282,7 @@ describe RegistrationController do
       registration = FactoryBot.create(:registration)
       stub_pii([registration[:user_id]])
 
-      request.headers['Authorization'] = fetch_jwt_token(@requesting_user_id) 
+      request.headers['Authorization'] = fetch_jwt_token(@requesting_user_id)
       get :list_admin, params: { competition_id: @competition['id'] }
 
       expect(response.code).to eq('200')
@@ -295,7 +295,6 @@ describe RegistrationController do
     end
 
     it 'returns multiple registrations' do
-
       reg = FactoryBot.create(:registration, :accepted)
       reg2 = FactoryBot.create(:registration, :accepted)
       reg3 = FactoryBot.create(:registration, :accepted)
@@ -304,12 +303,12 @@ describe RegistrationController do
       reg5 = FactoryBot.create(:registration, :waiting_list)
       reg6 = FactoryBot.create(:registration, :waiting_list)
 
-      waiting_list = FactoryBot.create(:waiting_list, entries: [reg4[:user_id], reg5[:user_id], reg6[:user_id]])
+      FactoryBot.create(:waiting_list, entries: [reg4[:user_id], reg5[:user_id], reg6[:user_id]])
 
       user_ids = [reg[:user_id], reg2[:user_id], reg3[:user_id], reg4[:user_id], reg5[:user_id], reg6[:user_id]]
       stub_pii(user_ids)
 
-      request.headers['Authorization'] = fetch_jwt_token(@requesting_user_id) 
+      request.headers['Authorization'] = fetch_jwt_token(@requesting_user_id)
       get :list_admin, params: { competition_id: @competition['id'] }
 
       expect(response.code).to eq('200')
@@ -319,7 +318,7 @@ describe RegistrationController do
 
       body.each do |data|
         expect(user_ids.include?(data['user_id'])).to eq(true)
-        if data['user_id'] == reg[:user_id] || data['user_id'] == reg2[:user_id] ||data['user_id'] == reg3[:user_id] 
+        if data['user_id'] == reg[:user_id] || data['user_id'] == reg2[:user_id] ||data['user_id'] == reg3[:user_id]
           expect(data.dig('competing', 'registration_status')).to eq('accepted')
           expect(data.dig('competing', 'waiting_list_position')).to eq(nil)
         elsif data['user_id'] == reg4[:user_id]
