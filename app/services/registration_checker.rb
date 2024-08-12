@@ -50,7 +50,7 @@ class RegistrationChecker
       errors[update_request['user_id']] = e.error
     end
 
-    raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors.empty? || sequential_waiting_list_updates?(bulk_update_request, errors)
+    raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors.empty?
   end
 
   class << self

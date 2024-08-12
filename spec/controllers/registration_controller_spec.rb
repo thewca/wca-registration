@@ -155,11 +155,11 @@ describe RegistrationController do
 
         expect(response.code).to eq('200')
 
-        updated_registration = Registration.find("#{competition['id']}-#{registration[:user_id]}")
+        updated_registration = Registration.find("#{@competition['id']}-#{registration[:user_id]}")
         expect(updated_registration.competing_status).to eq('accepted')
-        updated_registration2 = Registration.find("#{competition['id']}-#{registration2[:user_id]}")
+        updated_registration2 = Registration.find("#{@competition['id']}-#{registration2[:user_id]}")
         expect(updated_registration2.competing_status).to eq('accepted')
-        updated_registration3 = Registration.find("#{competition['id']}-#{registration3[:user_id]}")
+        updated_registration3 = Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
         expect(updated_registration3.competing_status).to eq('accepted')
 
         expect(waiting_list.reload.entries.empty?).to eq(true)
