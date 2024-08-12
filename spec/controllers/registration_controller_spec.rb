@@ -137,19 +137,17 @@ describe RegistrationController do
     end
 
     describe 'waiting list bulk updates' do
-      before do
-        @registration = FactoryBot.create(:registration, :waiting_list)
-        @update = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'status' => 'accepted' })
-        @registration2 = FactoryBot.create(:registration, :waiting_list)
-        @update2 = FactoryBot.build(:update_request, user_id: @registration2[:user_id], competing: { 'status' => 'accepted' })
-        @registration3 = FactoryBot.create(:registration, :waiting_list)
-        @update3 = FactoryBot.build(:update_request, user_id: @registration3[:user_id], competing: { 'status' => 'accepted' })
+      it 'accepts competitors from the waiting list' do
+        registration = FactoryBot.create(:registration, :waiting_list)
+        update = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
+        registration2 = FactoryBot.create(:registration, :waiting_list)
+        update2 = FactoryBot.build(:update_request, user_id: registration2[:user_id], competing: { 'status' => 'accepted' })
+        registration3 = FactoryBot.create(:registration, :waiting_list)
+        update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'status' => 'accepted' })
 
-        @waiting_list = FactoryBot.create(:waiting_list, entries: [@registration.user_id, @registration2.user_id, @registration3.user_id])
-      end
+        waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id, registration2.user_id, registration3.user_id])
 
-      it 'accepts competitors from the waiting list in the order they appear' do
-        updates = [@update, @update2, @update3]
+        updates = [update, update2, update3]
         bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
 
         request.headers['Authorization'] = bulk_update_request['jwt_token']
@@ -157,25 +155,14 @@ describe RegistrationController do
 
         expect(response.code).to eq('200')
 
-        @updated_registration = Registration.find("#{@competition['id']}-#{@registration[:user_id]}")
-        expect(@updated_registration.competing_status).to eq('accepted')
-        @updated_registration2 = Registration.find("#{@competition['id']}-#{@registration2[:user_id]}")
-        expect(@updated_registration2.competing_status).to eq('accepted')
-        @updated_registration3 = Registration.find("#{@competition['id']}-#{@registration3[:user_id]}")
-        expect(@updated_registration3.competing_status).to eq('accepted')
+        updated_registration = Registration.find("#{competition['id']}-#{registration[:user_id]}")
+        expect(updated_registration.competing_status).to eq('accepted')
+        updated_registration2 = Registration.find("#{competition['id']}-#{registration2[:user_id]}")
+        expect(updated_registration2.competing_status).to eq('accepted')
+        updated_registration3 = Registration.find("#{competition['id']}-#{registration3[:user_id]}")
+        expect(updated_registration3.competing_status).to eq('accepted')
 
-        expect(@waiting_list.reload.entries.empty?).to eq(true)
-      end
-
-      it 'cant accept competitors from waiting list without accepting leader', :tag do
-        updates = [@update2, @update3]
-        bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
-
-        request.headers['Authorization'] = bulk_update_request['jwt_token']
-        patch :bulk_update, params: bulk_update_request, as: :json
-
-        expect(response.code).to eq('422')
-        expect(response.parsed_body['error'].values).to eq([-4011, -4011])
+        expect(waiting_list.reload.entries.empty?).to eq(true)
       end
     end
 

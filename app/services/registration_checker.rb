@@ -174,9 +174,6 @@ class RegistrationChecker
         WaitingList.create(id: @competition_info.id, entries: [])
       end
 
-      raise RegistrationError.new(:forbidden, ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER) if
-        current_status == 'waiting_list' && new_status == 'accepted' && @registration.waiting_list_position != 1
-
       # Otherwise, organizers can make any status change they want to
       return if UserApi.can_administer?(@requester_user_id, @competition_info.id)
 
