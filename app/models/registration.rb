@@ -171,8 +171,6 @@ class Registration
     update_attributes!(lanes: updated_lanes)
   end
 
-  # Dynamoid doesn't have a find_or_create_by so we need to use upsert
-  # There are no validations to run anyway
   def update_waiting_list(update_params)
     raise ArgumentError.new('Can only accept waiting list leader') if waiting_list_position != 1 && update_params[:status] == 'accepted'
 
