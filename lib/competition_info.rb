@@ -6,6 +6,7 @@ class CompetitionInfo
   def initialize(competition_json)
     @competition_json = competition_json
     @competition_id = competition_json['id']
+    @qualifications = fetch_qualifications
   end
 
   def start_date
@@ -80,5 +81,18 @@ class CompetitionInfo
 
   def other_series_ids
     @competition_json['competition_series_ids']&.reject { |id| id == competition_id }
+  end
+
+  private def fetch_qualifications
+    return nil unless enforces_qualifications?
+    @qualifications = CompetitionApi.fetch_qualifications(@competition_id)
+  end
+
+  def enforces_qualifications?
+    @competition_json['qualification_results'] && !@competition_json['allow_registration_without_qualification']
+  end
+
+  def get_qualification_for(event)
+    @qualifications[event]
   end
 end

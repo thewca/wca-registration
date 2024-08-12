@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/qualification_results_faker'
 
 describe RegistrationController do
   describe '#create' do
@@ -16,7 +17,7 @@ describe RegistrationController do
 
     it 'successfully creates a registration' do
       @competition = FactoryBot.build(:competition)
-      stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(
+      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(
         status: 200,
         body: @competition.except('qualifications').to_json,
         headers: { 'Content-Type' => 'application/json' },
@@ -31,13 +32,46 @@ describe RegistrationController do
       created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
       expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
     end
+
+    context 'with qualification' do
+      before do
+        @competition = FactoryBot.build(:competition, :has_qualifications)
+        stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+        stub_json(CompetitionApi.url("#{@competition['id']}/qualifications"), 200, @competition['qualifications'])
+      end
+
+      it 'registration succeeds when qualifications are met' do
+        stub_json(UserApi.competitor_qualifications_path(@registration_request['user_id']), 200, QualificationResultsFaker.new.qualification_results)
+
+        request.headers['Authorization'] = @registration_request['jwt_token']
+        post :create, params: @registration_request, as: :json
+        sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+
+        created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
+
+        expect(response.code).to eq('202')
+        expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
+      end
+
+      it 'registration fails when qualifications not met' do
+        stub_json(UserApi.competitor_qualifications_path(@registration_request['user_id']), 200, [])
+
+        request.headers['Authorization'] = @registration_request['jwt_token']
+        post :create, params: @registration_request, as: :json
+        sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+
+        expect(response.code).to eq('422')
+        expect(response.body).to eq({ error: -4012 }.to_json)
+        expect { Registration.find("#{@competition['id']}-#{@registration_request['user_id']}") }.to raise_error(Dynamoid::Errors::RecordNotFound)
+      end
+    end
   end
 
   describe '#update' do
     # NOTE: This code only needs to run once before the assertions, but before(:create) doesnt work because `request` defined then
     before do
       @competition = FactoryBot.build(:competition)
-      stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.to_json)
+      stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
       stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
 
       @registration = FactoryBot.create(:registration)
@@ -91,10 +125,9 @@ describe RegistrationController do
 
   describe '#bulk_update' do
     before do
-      stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
-
       @competition = FactoryBot.build(:competition, mock_competition: true)
-      stub_request(:get, CompetitionApi.comp_api_url(@competition['id'])).to_return(status: 200, body: @competition.to_json)
+      stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+      stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
 
       stub_request(:get, UserApi.permissions_path(1400)).to_return(
         status: 200,

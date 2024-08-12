@@ -25,6 +25,9 @@ FactoryBot.define do
     latitude_degrees { -26.21117 }
     longitude_degrees { 28.06449 }
     country_iso2 { 'ZA' }
+    qualifications { nil }
+    qualification_results { false }
+    allow_registration_without_qualification { false }
     guest_entry_status { 'restricted' }
     guests_per_registration_limit { 2 }
     event_change_deadline_date { 1.week.from_now.iso8601 }
@@ -39,13 +42,57 @@ FactoryBot.define do
 
     initialize_with { attributes.stringify_keys }
 
-    transient do
-      mock_competition { false }
-    end
-
     trait :no_guest_limit do
       guest_entry_status { 'free' }
       guests_per_registration_limit { nil }
+    end
+
+    trait :has_qualifications do
+      today = Time.zone.today.iso8601
+
+      transient do
+        extra_qualifications { {} }
+        standard_qualifications {
+          {
+            '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 1000 },
+            '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 6000 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => today, 'level' => 100 },
+            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => today, 'level' => 200 },
+            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 0 },
+            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 0 },
+          }
+        }
+      end
+
+      qualifications { standard_qualifications.merge(extra_qualifications) }
+      qualification_results { true }
+      allow_registration_without_qualification { false }
+    end
+
+    trait :has_hard_qualifications do
+      today = Time.zone.today.iso8601
+
+      transient do
+        extra_qualifications { {} }
+        standard_qualifications {
+          {
+            '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10 },
+            '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 60 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.zone.today-1).iso8601, 'level' => 10 },
+            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => (Time.zone.today-1).iso8601, 'level' => 20 },
+            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => (Time.zone.today-1).iso8601, 'level' => 0 },
+            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => (Time.zone.today-1).iso8601, 'level' => 0 },
+          }
+        }
+      end
+
+      qualifications { standard_qualifications.merge(extra_qualifications) }
+      qualification_results { true }
+      allow_registration_without_qualification { false }
+    end
+
+    trait :qualifications_not_enforced do
+      allow_registration_without_qualification { true }
     end
 
     trait :closed do
@@ -63,11 +110,6 @@ FactoryBot.define do
 
     trait :series do
       competition_series_ids { ['CubingZANationalChampionship2023', 'CubingZAWarmup2023'] }
-    end
-
-    # TODO: Create a flag that returns either the raw JSON (for mocking) or a CompetitionInfo object
-    after(:create) do |competition, evaluator|
-      stub_request(:get, comp_api_url(competition['competition_id'])).to_return(status: evalutor.mocked_status_code, body: competition) if evaluator.mock_competition
     end
   end
 end
