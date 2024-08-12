@@ -36,6 +36,8 @@ class RegistrationChecker
   end
 
   def self.bulk_update_allowed!(bulk_update_request, competition_info, requesting_user)
+    @competition_info = competition_info
+
     raise BulkUpdateError.new(:unauthorized, [ErrorCodes::USER_INSUFFICIENT_PERMISSIONS]) unless
       UserApi.can_administer?(requesting_user, competition_info.id)
 
@@ -45,7 +47,8 @@ class RegistrationChecker
     rescue RegistrationError => e
       errors[update_request['user_id']] = e.error
     end
-    raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors == {}
+
+    raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors.empty?  || sequential_waiting_list_updates?(bulk_update_request, errors)
   end
 
   class << self
@@ -201,6 +204,15 @@ class RegistrationChecker
         next
       end
       false
+    end
+
+    def sequential_waiting_list_updates?(bulk_update_request, errors)
+      return false unless errors.values.uniq == [-4011]
+
+      accepted_users =  bulk_update_request['requests'].map { |r| r['user_id'] if r['competing']['status'] == 'accepted' }
+      waiting_list_users = WaitingList.find(@competition_info.id).entries.take(accepted_users.count)
+      return false unless accepted_users == waiting_list_users
+      true
     end
   end
 end
