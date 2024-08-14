@@ -5,7 +5,7 @@ require 'factory_bot_rails'
 FactoryBot.define do
   factory :competition, class: Hash do
     events { ['333', '222', '444', '555', '666', '777', '333bf', '333oh', 'clock', 'minx', 'pyram', 'skewb', 'sq1', '444bf', '555bf', '333mbf'] }
-    registration_opened? { true }
+    registration_currently_open? { true }
     id { 'CubingZANationalChampionship2023' }
     name { 'CubingZA National Championship 2023' }
     event_ids { events }
@@ -96,7 +96,7 @@ FactoryBot.define do
     end
 
     trait :closed do
-      registration_opened? { false }
+      registration_currently_open? { false }
       event_change_deadline_date { '2022-06-14T00:00:00.000Z' }
     end
 

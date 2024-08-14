@@ -40,7 +40,7 @@ class CompetitionInfo
   end
 
   def registration_open?
-    @competition_json['registration_opened?']
+    @competition_json['registration_currently_open?']
   end
 
   def using_wca_payment?
