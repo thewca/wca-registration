@@ -217,7 +217,7 @@ class RegistrationChecker
     end
 
     def competitor_qualifies_for_event?(event, qualification)
-      competitor_qualification_results = UserApi.qualifications(@requestee_user_id)
+      competitor_qualification_results = UserApi.qualifications(@requestee_user_id, qualification['whenDate'])
       result_type = qualification['resultType']
 
       competitor_pr = competitor_qualification_results.find { |result| result['eventId'] == event && result['type'] == result_type }

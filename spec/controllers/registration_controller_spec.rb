@@ -61,7 +61,7 @@ describe RegistrationController do
         sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
 
         expect(response.code).to eq('422')
-        expect(response.body).to eq({ error: -4012 }.to_json)
+        expect(response.body).to eq({ error: -4012, data: ['333'] }.to_json)
         expect { Registration.find("#{@competition['id']}-#{@registration_request['user_id']}") }.to raise_error(Dynamoid::Errors::RecordNotFound)
       end
     end

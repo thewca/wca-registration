@@ -221,7 +221,19 @@ describe RegistrationChecker do
         # Hardcoding the user_id in these stubs because its default value is never overridden in the below tests.
         # If that assumption changes, these will need to be stubbed at the per-test level
         stub_json(UserApi.permissions_path('158817'), 200, FactoryBot.build(:permissions))
-        stub_json(UserApi.competitor_qualifications_path('158817'), 200, QualificationResultsFaker.new.qualification_results)
+
+        url_regex = %r{#{Regexp.escape(EnvConfig.WCA_HOST)}/api/v0/results/\d+/qualification_data(\?date=\d{4}-\d{2}-\d{2})?}
+        stub_request(:get, url_regex).to_return do |request|
+          uri = URI(request.uri)
+          params = URI.decode_www_form(uri.query || '').to_h
+          date = params['date']
+
+          if date
+            { status: 200, body: QualificationResultsFaker.new(date).qualification_results.to_json, headers: { 'Content-Type' => 'application/json' } }
+          else
+            { status: 200, body: QualificationResultsFaker.new.qualification_results.to_json, headers: { 'Content-Type' => 'application/json' } }
+          end
+        end
       end
 
       it 'smoketest - succeeds when all qualifications are met' do
