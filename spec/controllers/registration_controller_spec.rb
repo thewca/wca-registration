@@ -41,7 +41,7 @@ describe RegistrationController do
       end
 
       it 'registration succeeds when qualifications are met' do
-        stub_json(UserApi.competitor_qualifications_path(@registration_request['user_id']), 200, QualificationResultsFaker.new.qualification_results)
+        stub_qualifications
 
         request.headers['Authorization'] = @registration_request['jwt_token']
         post :create, params: @registration_request, as: :json
@@ -54,7 +54,7 @@ describe RegistrationController do
       end
 
       it 'registration fails when qualifications not met' do
-        stub_json(UserApi.competitor_qualifications_path(@registration_request['user_id']), 200, [])
+        stub_qualifications([])
 
         request.headers['Authorization'] = @registration_request['jwt_token']
         post :create, params: @registration_request, as: :json
