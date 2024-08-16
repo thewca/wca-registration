@@ -316,6 +316,7 @@ class RegistrationController < ApplicationController
             },
             payment: {
               payment_status: x.payment_status,
+              payment_amount_human_readable: x.payment_amount_human_readable,
               updated_at: x.payment_date,
             },
             guests: x.guests }
