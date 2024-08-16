@@ -1,49 +1,22 @@
-name: Deployment to Staging
-
+name: Deploy Main to Staging
 on:
-  issue_comment:
-    types:
-      - created
-
+  workflow_dispatch:
 jobs:
-  deploy:
+  main:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Trigger deployment on comment
-        id: trigger-deployment
-        uses: shanegenschaw/pull-request-comment-trigger@v2.1.0
-        with:
-          trigger: '@thewca-bot deploy staging'
-          reaction: rocket
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get ref from pr
-        id: comment-branch
-        uses: xt0rted/pull-request-comment-branch@v2
-        if: steps.trigger-deployment.outputs.triggered == 'true'
-      - name: Checkout `main` branch
-        uses: actions/checkout@v4
-      - name: Checkout PR branch
-        run: gh pr checkout $PR_NUMBER
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.issue.number }}
-        if: steps.trigger-deployment.outputs.triggered == 'true'
+      - uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        if: steps.trigger-deployment.outputs.triggered == 'true'
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.CI_CD_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.CI_CD_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-        if: steps.trigger-deployment.outputs.triggered == 'true'
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-        if: steps.trigger-deployment.outputs.triggered == 'true'
       - name: Build and push handler Image
         if: steps.trigger-deployment.outputs.triggered == 'true'
         uses: docker/build-push-action@v6
