@@ -18,7 +18,6 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
       - name: Build and push handler Image
-        if: steps.trigger-deployment.outputs.triggered == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -31,7 +30,6 @@ jobs:
           build-args: |
             BUILD_TAG=${{ github.sha }}
       - name: Build and push worker Image
-        if: steps.trigger-deployment.outputs.triggered == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -43,8 +41,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             BUILD_TAG=${{ github.sha }}
-      - name: Deploy if triggered
-        if: steps.trigger-deployment.outputs.triggered == 'true'
+      - name: Deploy
         env:
           CLUSTER_NAME: wca-registration-staging
         run: |
