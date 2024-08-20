@@ -12,8 +12,12 @@ class UserApi < WcaApi
     "#{EnvConfig.WCA_HOST}/api/internal/v1/users/competitor-info"
   end
 
-  def self.competitor_qualifications_path(user_id)
-    "#{EnvConfig.WCA_HOST}/api/v0/results/#{user_id}/qualification_data"
+  def self.competitor_qualifications_path(user_id, date = nil)
+    if date.present?
+      "#{EnvConfig.WCA_HOST}/api/v0/results/#{user_id}/qualification_data?date=#{date}"
+    else
+      "#{EnvConfig.WCA_HOST}/api/v0/results/#{user_id}/qualification_data"
+    end
   end
 
   def self.get_permissions(user_id)
@@ -24,8 +28,8 @@ class UserApi < WcaApi
     HTTParty.post(UserApi.competitor_info_path, headers: { WCA_API_HEADER => self.wca_token }, body: { ids: user_ids.to_a })
   end
 
-  def self.qualifications(user_id)
-    HTTParty.get(UserApi.competitor_qualifications_path(user_id), headers: { WCA_API_HEADER => self.wca_token })
+  def self.qualifications(user_id, date = nil)
+    HTTParty.get(UserApi.competitor_qualifications_path(user_id, date), headers: { WCA_API_HEADER => self.wca_token })
   end
 
   def self.can_compete?(user_id, competition_start_date)

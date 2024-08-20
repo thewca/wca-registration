@@ -63,7 +63,7 @@ class RegistrationController < ApplicationController
     @user_id = registration_params[:user_id]
     RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find(@competition_id), @current_user)
   rescue RegistrationError => e
-    render_error(e.http_status, e.error)
+    render_error(e.http_status, e.error, e.data)
   end
 
   def update
@@ -81,7 +81,7 @@ class RegistrationController < ApplicationController
 
     RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
   rescue RegistrationError => e
-    render_error(e.http_status, e.error)
+    render_error(e.http_status, e.error, e.data)
   end
 
   # You can either view your own registration or one for a competition you administer
