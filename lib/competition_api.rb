@@ -23,7 +23,7 @@ class CompetitionApi < WcaApi
 
   def self.fetch_qualifications(competition_id)
     Rails.cache.fetch("#{competition_id}/qualifications", expires_in: 5.minutes) do
-      response = HTTParty.get("#{url(competition_id)}/qualifications")
+      response = HTTParty.get("#{url(competition_id)}/qualifications", headers: { WCA_API_HEADER => self.wca_token })
       case response.code
       when 200
         @status = 200
@@ -40,7 +40,7 @@ class CompetitionApi < WcaApi
 
   private_class_method def self.fetch_competition(competition_id)
     Rails.cache.fetch(competition_id, expires_in: 5.minutes) do
-      response = HTTParty.get(CompetitionApi.url(competition_id))
+      response = HTTParty.get(CompetitionApi.url(competition_id), headers: { WCA_API_HEADER => self.wca_token })
       case response.code
       when 200
         response.parsed_response
