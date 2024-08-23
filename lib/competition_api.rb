@@ -13,7 +13,7 @@ class CompetitionApi < WcaApi
   end
 
   def self.url(competition_id)
-    "#{EnvConfig.WCA_HOST}/api/v0/competitions/#{competition_id}"
+    "#{EnvConfig.WCA_HOST}/api/internal/v1/competitions/#{competition_id}"
   end
 
   def self.find!(competition_id)
