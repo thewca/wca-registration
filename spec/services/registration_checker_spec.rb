@@ -1442,7 +1442,6 @@ describe RegistrationChecker do
             RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
           }.not_to raise_error
         end
-
       end
 
       RSpec.shared_examples 'update fail: qualification enforced' do |description, event_ids, extra_qualifications|
