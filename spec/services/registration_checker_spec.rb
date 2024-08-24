@@ -285,6 +285,20 @@ describe RegistrationChecker do
             RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
           }.not_to raise_error
         end
+
+        it "succeeds given future qualification and #{description}" do
+          stub_qualifications
+
+          competition = FactoryBot.build(:competition, :has_future_qualifications)
+          stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
+          competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+          registration_request = FactoryBot.build(:registration_request, events: event_ids)
+
+          expect {
+            RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+          }.not_to raise_error
+        end
       end
 
       RSpec.shared_examples 'fail: qualification enforced' do |description, event_ids, extra_qualifications|
@@ -1401,7 +1415,7 @@ describe RegistrationChecker do
       end
 
       RSpec.shared_examples 'update succeed: qualification enforced' do |description, event_ids|
-        it "succeeds given given #{description}" do
+        it "succeeds given #{description}" do
           competition = FactoryBot.build(:competition, :has_qualifications)
           stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
           competition_info = CompetitionInfo.new(competition.except('qualifications'))
@@ -1414,6 +1428,21 @@ describe RegistrationChecker do
             RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
           }.not_to raise_error
         end
+
+        it "succeeds given future qualification and #{description}" do
+          competition = FactoryBot.build(:competition, :has_future_qualifications)
+          stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
+          competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+          update_request = FactoryBot.build(:update_request, competing: { 'event_ids' => event_ids })
+
+          FactoryBot.create(:registration, user_id: update_request['user_id'])
+
+          expect {
+            RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+          }.not_to raise_error
+        end
+
       end
 
       RSpec.shared_examples 'update fail: qualification enforced' do |description, event_ids, extra_qualifications|

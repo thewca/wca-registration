@@ -16,7 +16,9 @@ def stub_qualifications(payload = nil, qualification_data_date = nil)
     date = params['date']
     payload_date = qualification_data_date || date
 
-    if !payload.nil? # Present doesnt work because [].present? == false
+    if Date.parse(date) > Time.zone.today
+      { status: 200, body: {"error":"You cannot request qualification data for a future date."}.to_json, headers: { 'Content-Type' => 'application/json' } }
+    elsif !payload.nil? # Present doesnt work because [].present? == false
       { status: 200, body: payload.to_json, headers: { 'Content-Type' => 'application/json' } }
     elsif payload_date.present?
       { status: 200, body: QualificationResultsFaker.new(payload_date).qualification_results.to_json, headers: { 'Content-Type' => 'application/json' } }

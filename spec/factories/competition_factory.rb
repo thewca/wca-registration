@@ -69,6 +69,28 @@ FactoryBot.define do
       allow_registration_without_qualification { false }
     end
 
+    trait :has_future_qualifications do
+      tomorrow = (Time.zone.today+1).iso8601
+
+      transient do
+        extra_qualifications { {} }
+        standard_qualifications {
+          {
+            '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => tomorrow, 'level' => 1000 },
+            '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => tomorrow, 'level' => 6000 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => tomorrow, 'level' => 100 },
+            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => tomorrow, 'level' => 200 },
+            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => tomorrow, 'level' => 0 },
+            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => tomorrow, 'level' => 0 },
+          }
+        }
+      end
+
+      qualifications { standard_qualifications.merge(extra_qualifications) }
+      qualification_results { true }
+      allow_registration_without_qualification { false }
+    end
+
     trait :has_hard_qualifications do
       today = Time.zone.today.iso8601
 
