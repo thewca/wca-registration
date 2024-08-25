@@ -22,7 +22,7 @@ class RegistrationController < ApplicationController
   rescue Dynamoid::Errors::RecordNotFound
     render json: {}, status: :not_found
   rescue RegistrationError => e
-    render_error(e.http_status, e.error)
+    render_error(e.http_status, e.error, e.data)
   end
 
   def count
@@ -223,6 +223,8 @@ class RegistrationController < ApplicationController
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
+  rescue RegistrationError => e
+    render_error(e.http_status, e.error, e.data)
   end
 
   def import

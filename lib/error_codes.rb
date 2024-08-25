@@ -6,9 +6,10 @@ module ErrorCodes
   EXPIRED_TOKEN = -2
   MISSING_AUTHENTICATION = -3
 
-  # Competition Errors
+  # API Errors
   COMPETITION_NOT_FOUND = -1000
   COMPETITION_API_5XX = -1001
+  MONOLITH_API_ERROR = -1002
 
   # User Errors
   USER_CANNOT_COMPETE = -2001
