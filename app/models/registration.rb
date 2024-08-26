@@ -8,8 +8,8 @@ class Registration
   # We autoscale dynamodb
   table name: EnvConfig.DYNAMO_REGISTRATIONS_TABLE, capacity_mode: nil, key: :attendee_id
 
-  REGISTRATION_STATES = %w[pending waiting_list accepted cancelled].freeze
-  ADMIN_ONLY_STATES = %w[pending waiting_list accepted].freeze # Only admins are allowed to change registration state to one of these states
+  REGISTRATION_STATES = %w[pending waiting_list accepted cancelled rejected].freeze
+  ADMIN_ONLY_STATES = %w[pending waiting_list accepted rejected].freeze # Only admins are allowed to change registration state to one of these states
 
   # Pre-validations
   before_validation :set_competing_status
