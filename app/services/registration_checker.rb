@@ -61,6 +61,9 @@ class RegistrationChecker
       can_compete = UserApi.can_compete?(@requestee_user_id, @competition_info.start_date)
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
 
+      # Cant create a registration if one already exists
+      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_FOR_COMPETITION) if registration_already_exists?
+
       # Users cannot sign up for multiple competitions in a series
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
     end
@@ -69,6 +72,12 @@ class RegistrationChecker
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless can_administer_or_current_user?
       raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || @competition_info.is_organizer_or_delegate?(@requester_user_id)
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
+    end
+
+    def registration_already_exists?
+      Registration.find("#{@competition_info.id}-#{@requestee_user_id}").exists?
+    rescue Dynamoid::Errors::RecordNotFound
+      false
     end
 
     def organizer_modifying_own_registration?
