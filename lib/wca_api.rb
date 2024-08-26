@@ -24,7 +24,7 @@ class WcaApi
 
   def self.get_request(url)
     response = HTTParty.get(url, headers: { WCA_API_HEADER => self.wca_token })
-    if response.code == 200
+    if response.success?
       response
     else
       Metrics.registration_competition_api_error_counter.increment
@@ -34,7 +34,7 @@ class WcaApi
 
   def self.post_request(url, body)
     response = HTTParty.post(url, headers: { WCA_API_HEADER => self.wca_token }, body: body)
-    if response.code == 200
+    if response.success?
       response
     else
       Metrics.registration_competition_api_error_counter.increment

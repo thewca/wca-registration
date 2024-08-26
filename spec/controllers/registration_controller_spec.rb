@@ -294,7 +294,7 @@ describe RegistrationController do
           headers: { 'Content-Type' => 'application/json' },
         )
 
-        registration = FactoryBot.create(:registration, registration_status: 'pending')
+        FactoryBot.create(:registration, registration_status: 'pending')
 
         stub_request(:post, UserApi.competitor_info_path).to_return(status: 502)
 

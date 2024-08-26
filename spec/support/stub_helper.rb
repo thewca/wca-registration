@@ -30,11 +30,6 @@ def stub_qualification_error
   url_regex = %r{#{Regexp.escape(EnvConfig.WCA_HOST)}/api/v0/results/\d+/qualification_data(\?date=\d{4}-\d{2}-\d{2})?}
 
   stub_request(:get, url_regex).to_return do |request|
-    uri = URI(request.uri)
-    params = URI.decode_www_form(uri.query || '').to_h
-    date = params['date']
-    payload_date = qualification_data_date || date
-
     { status: 502 }
   end
 end
