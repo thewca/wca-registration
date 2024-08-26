@@ -272,8 +272,8 @@ describe RegistrationController do
         stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
         stub_json(CompetitionApi.url("#{@competition['id']}/qualifications"), 200, @competition['qualifications'])
 
-        stub_request(:get, %r{#{Regexp.escape(EnvConfig.WCA_HOST)}/api/v0/results/\d+/qualification_data(\?date=\d{4}-\d{2}-\d{2})?}).
-          to_return(status: 502)
+        stub_request(:get, %r{#{Regexp.escape(EnvConfig.WCA_HOST)}/api/v0/results/\d+/qualification_data(\?date=\d{4}-\d{2}-\d{2})?})
+          .to_return(status: 502)
 
         stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
 
@@ -282,7 +282,7 @@ describe RegistrationController do
 
         expect(response.code).to eq('503')
       end
-      
+
       it 'UserApi::get_user_info_pii' do
         @competition = FactoryBot.build(:competition)
         stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
@@ -304,6 +304,5 @@ describe RegistrationController do
         expect(response.code).to eq('503')
       end
     end
-
   end
 end
