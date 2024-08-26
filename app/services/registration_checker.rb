@@ -75,7 +75,7 @@ class RegistrationChecker
     end
 
     def registration_already_exists?
-      Registration.find("#{@competition_info.id}-#{@requestee_user_id}").exists?
+      Registration.find("#{@competition_info.id}-#{@requestee_user_id}").present?
     rescue Dynamoid::Errors::RecordNotFound
       false
     end
