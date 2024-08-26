@@ -130,7 +130,7 @@ class RegistrationController < ApplicationController
     end
 
     # Only send emails when we update the competing status
-    if status.present?
+    if status.present? && old_status != status
       EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
