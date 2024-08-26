@@ -410,7 +410,6 @@ describe RegistrationChecker do
         expect { RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by']) }
           .not_to raise_error
       end
-    end
 
       it 'users can only register for themselves' do
         registration_request = FactoryBot.build(:registration_request, :impersonation)
@@ -1113,7 +1112,6 @@ describe RegistrationChecker do
       ].each do |params|
         it_behaves_like 'invalid user status updates', params[:old_status], params[:new_status]
       end
-
 
       [
         { old_status: 'rejected', new_status: 'cancelled' },
