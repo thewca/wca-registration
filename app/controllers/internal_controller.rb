@@ -73,7 +73,9 @@ class InternalController < ApplicationController
 
   def registrations_for_user
     user_id = params.require(:user_id)
-    registrations = Registration.where(user_id: user_id).to_a
+    registrations = Rails.cache.fetch("#{user_id}-registrations-by-user") do
+      Registration.where(user_id: user_id).to_a
+    end
     render json: registrations
   end
 
