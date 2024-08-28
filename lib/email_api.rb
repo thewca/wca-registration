@@ -15,8 +15,7 @@ class EmailApi < WcaApi
         user_id: user_id,
         registration_status: status,
         registration_action: 'update',
-        current_user: current_user,
-      }.to_json,
+        current_user: current_user }.to_json,
     )
   end
 
