@@ -21,7 +21,7 @@ describe CompetitionInfo do
 
       it 'false when closed' do
         # Instantiate a CompetitionInfo object with the sample data
-        competition_json = FactoryBot.build(:competition, registration_opened?: false)
+        competition_json = FactoryBot.build(:competition, registration_currently_open?: false)
         competition_info = CompetitionInfo.new(competition_json)
 
         # Call the method being tested

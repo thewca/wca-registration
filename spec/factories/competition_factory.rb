@@ -5,7 +5,7 @@ require 'factory_bot_rails'
 FactoryBot.define do
   factory :competition, class: Hash do
     events { ['333', '222', '444', '555', '666', '777', '333bf', '333oh', 'clock', 'minx', 'pyram', 'skewb', 'sq1', '444bf', '555bf', '333mbf'] }
-    registration_opened? { true }
+    registration_currently_open? { true }
     id { 'CubingZANationalChampionship2023' }
     name { 'CubingZA National Championship 2023' }
     event_ids { events }
@@ -56,7 +56,7 @@ FactoryBot.define do
           {
             '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 1000 },
             '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 6000 },
-            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => today, 'level' => 100 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.zone.today-2).iso8601, 'level' => 100 },
             'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => today, 'level' => 200 },
             '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 0 },
             '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 0 },
@@ -78,10 +78,10 @@ FactoryBot.define do
           {
             '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10 },
             '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 60 },
-            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.zone.today-1).iso8601, 'level' => 10 },
-            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => (Time.zone.today-1).iso8601, 'level' => 20 },
-            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => (Time.zone.today-1).iso8601, 'level' => 0 },
-            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => (Time.zone.today-1).iso8601, 'level' => 0 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.zone.today-3).iso8601, 'level' => 10 },
+            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => (Time.zone.today-3).iso8601, 'level' => 20 },
+            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => (Time.zone.today-3).iso8601, 'level' => 0 },
+            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => (Time.zone.today-3).iso8601, 'level' => 0 },
           }
         }
       end
@@ -96,7 +96,7 @@ FactoryBot.define do
     end
 
     trait :closed do
-      registration_opened? { false }
+      registration_currently_open? { false }
       event_change_deadline_date { '2022-06-14T00:00:00.000Z' }
     end
 

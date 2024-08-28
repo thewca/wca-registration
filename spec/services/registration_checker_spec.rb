@@ -233,10 +233,11 @@ describe RegistrationChecker do
         # Hardcoding the user_id in these stubs because its default value is never overridden in the below tests.
         # If that assumption changes, these will need to be stubbed at the per-test level
         stub_json(UserApi.permissions_path('158817'), 200, FactoryBot.build(:permissions))
-        stub_json(UserApi.competitor_qualifications_path('158817'), 200, QualificationResultsFaker.new.qualification_results)
       end
 
       it 'smoketest - succeeds when all qualifications are met' do
+        stub_qualifications
+
         competition = FactoryBot.build(:competition, :has_qualifications)
         stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
@@ -249,6 +250,8 @@ describe RegistrationChecker do
       end
 
       it 'smoketest - all qualifications unmet' do
+        stub_qualifications(nil, (Time.zone.today-1).iso8601)
+
         competition = FactoryBot.build(:competition, :has_hard_qualifications)
         stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
         competition_info = CompetitionInfo.new(competition.except('qualifications'))
@@ -266,6 +269,8 @@ describe RegistrationChecker do
 
       RSpec.shared_examples 'succeed: qualification not enforced' do |description, event_ids|
         it "succeeds given #{description}" do
+          stub_qualifications
+
           competition = FactoryBot.build(:competition, :has_qualifications, :qualifications_not_enforced)
           stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
           competition_info = CompetitionInfo.new(competition.except('qualifications'))
@@ -280,6 +285,8 @@ describe RegistrationChecker do
 
       RSpec.shared_examples 'succeed: qualification enforced' do |description, event_ids|
         it "succeeds given given #{description}" do
+          stub_qualifications
+
           competition = FactoryBot.build(:competition, :has_qualifications)
           stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
           competition_info = CompetitionInfo.new(competition.except('qualifications'))
@@ -294,6 +301,8 @@ describe RegistrationChecker do
 
       RSpec.shared_examples 'fail: qualification enforced' do |description, event_ids, extra_qualifications|
         it "fails given #{description}" do
+          stub_qualifications(nil, (Time.zone.today-1).iso8601)
+
           competition = FactoryBot.build(:competition, :has_qualifications, extra_qualifications: extra_qualifications)
           stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
           competition_info = CompetitionInfo.new(competition.except('qualifications'))
@@ -1361,7 +1370,7 @@ describe RegistrationChecker do
         # Hardcoding the user_id in these stubs because its default value is never overridden in the below tests.
         # If that assumption changes, these will need to be stubbed at the per-test level
         stub_json(UserApi.permissions_path('158817'), 200, FactoryBot.build(:permissions))
-        stub_json(UserApi.competitor_qualifications_path('158817'), 200, QualificationResultsFaker.new.qualification_results)
+        stub_qualifications
       end
 
       it 'smoketest - succeeds when all qualifications are met' do
