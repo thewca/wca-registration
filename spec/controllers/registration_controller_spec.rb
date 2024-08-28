@@ -6,6 +6,9 @@ require_relative '../support/qualification_results_faker'
 describe RegistrationController do
   describe '#create' do
     before do
+      @competition = FactoryBot.build(:competition )
+      stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+
       @registration_request = FactoryBot.build(:registration_request)
       stub_request(:get, UserApi.permissions_path(@registration_request['user_id'])).to_return(
         status: 200,
@@ -16,13 +19,6 @@ describe RegistrationController do
     end
 
     it 'successfully creates a registration' do
-      @competition = FactoryBot.build(:competition)
-      stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(
-        status: 200,
-        body: @competition.except('qualifications').to_json,
-        headers: { 'Content-Type' => 'application/json' },
-      )
-
       request.headers['Authorization'] = @registration_request['jwt_token']
       post :create, params: @registration_request, as: :json
       sleep 1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
@@ -31,6 +27,22 @@ describe RegistrationController do
 
       created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
       expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
+    end
+
+    it 'user cant create a duplicate registration', :tag do
+      registration = FactoryBot.create(:registration)
+
+      registration_request = FactoryBot.build(:registration_request, user_id: registration.user_id, events: ['555', '666', '777'])
+      stub_request(:get, UserApi.permissions_path(registration_request['user_id'])).to_return(status: 200, body: FactoryBot.build(:permissions_response).to_json, headers: { content_type: 'application/json' })
+
+      request.headers['Authorization'] = registration_request['jwt_token']
+      post :create, params: registration_request, as: :json
+      sleep 1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
+
+      expect(response.code).to eq('202')
+      
+      reg = Registration.find(registration.attendee_id)
+      expect(reg.event_ids).to eq(registration.reload.event_ids)
     end
 
     context 'with qualification' do
