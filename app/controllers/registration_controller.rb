@@ -61,7 +61,7 @@ class RegistrationController < ApplicationController
   def validate_create_request
     @competition_id = registration_params[:competition_id]
     @user_id = registration_params[:user_id]
-    RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find!(@competition_id), @current_user)
+    RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find(@competition_id), @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error, e.data)
   end
@@ -79,7 +79,7 @@ class RegistrationController < ApplicationController
     @user_id = params[:user_id]
     @competition_id = params[:competition_id]
 
-    RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
+    RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find(@competition_id), @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error, e.data)
   end
@@ -102,7 +102,7 @@ class RegistrationController < ApplicationController
 
   def validate_bulk_update_request
     @competition_id = params.require('competition_id')
-    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
+    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find(@competition_id), @current_user)
   rescue BulkUpdateError => e
     render_error(e.http_status, e.errors)
   rescue NoMethodError
@@ -158,7 +158,7 @@ class RegistrationController < ApplicationController
 
   def validate_payment_ticket_request
     competition_id = params[:competition_id]
-    @competition = CompetitionApi.find!(competition_id)
+    @competition = CompetitionApi.find(competition_id)
     render_error(:forbidden, ErrorCodes::PAYMENT_NOT_ENABLED) unless @competition.using_wca_payment?
 
     @registration = Registration.find("#{competition_id}-#{@current_user}")

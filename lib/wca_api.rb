@@ -23,17 +23,19 @@ class WcaApi
   end
 
   def self.get_request(url)
-    response = HTTParty.get(url, headers: { WCA_API_HEADER => self.wca_token })
-    if response.success?
-      response
-    else
-      Metrics.registration_competition_api_error_counter.increment
-      raise RegistrationError.new(:service_unavailable, ErrorCodes::MONOLITH_API_ERROR, { http_code: response.code, body: response.parsed_response })
+    Rails.cache.fetch(url, expires_in: 5.minutes) do
+      response = HTTParty.get(url, headers: { WCA_API_HEADER => self.wca_token })
+
+      if response.success?
+        response
+      else
+        raise RegistrationError.new(:service_unavailable, ErrorCodes::MONOLITH_API_ERROR, { http_code: response.code, body: response.parsed_response })
+      end
     end
   end
 
   def self.post_request(url, body)
-    response = HTTParty.post(url, headers: { WCA_API_HEADER => self.wca_token }, body: body)
+    response = HTTParty.post(url, headers: { WCA_API_HEADER => self.wca_token, 'Content-Type' => 'application/json' }, body: body)
     if response.success?
       response
     else
