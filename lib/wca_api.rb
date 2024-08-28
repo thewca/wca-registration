@@ -29,7 +29,11 @@ class WcaApi
       if response.success?
         response
       else
-        raise RegistrationError.new(:service_unavailable, ErrorCodes::MONOLITH_API_ERROR, { http_code: response.code, body: response.parsed_response })
+        raise RegistrationError.new(
+          :service_unavailable,
+          ErrorCodes::MONOLITH_API_ERROR,
+          { url: "GET: #{url}", http_code: response.code, body: response.parsed_response },
+        )
       end
     end
   end
@@ -39,8 +43,11 @@ class WcaApi
     if response.success?
       response
     else
-      Metrics.registration_competition_api_error_counter.increment
-      raise RegistrationError.new(:service_unavailable, ErrorCodes::MONOLITH_API_ERROR, { http_code: response.code, body: response.parsed_response })
+      raise RegistrationError.new(
+        :service_unavailable,
+        ErrorCodes::MONOLITH_API_ERROR,
+        { url: "POST: #{url}, http_code: response.code, body: response.parsed_response },
+      )
     end
   end
 end
