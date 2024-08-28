@@ -6,7 +6,7 @@ require_relative '../support/qualification_results_faker'
 describe RegistrationController do
   describe '#create' do
     before do
-      @competition = FactoryBot.build(:competition )
+      @competition = FactoryBot.build(:competition)
       stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
 
       @registration_request = FactoryBot.build(:registration_request)
@@ -40,7 +40,7 @@ describe RegistrationController do
       sleep 1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
 
       expect(response.code).to eq('202')
-      
+
       reg = Registration.find(registration.attendee_id)
       expect(reg.event_ids).to eq(registration.reload.event_ids)
     end
