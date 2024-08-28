@@ -26,8 +26,6 @@ class WaitingList
     old_index = entries.find_index(user_id)
     return if old_index == new_position-1
 
-    Rails.logger.debug(entries.inspect)
-
     update_attributes!(entries: entries.insert(new_position-1, entries.delete_at(old_index)))
   end
 end
