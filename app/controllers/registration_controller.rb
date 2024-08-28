@@ -181,7 +181,10 @@ class RegistrationController < ApplicationController
   end
 
   def mine
-    my_registrations = Registration.where(user_id: @current_user).map { |x| { competition_id: x.competition_id, status: x.competing_status } }
+    registrations = Rails.cache.fetch("#{@current_user}-registrations-by-user") do
+      Registration.where(user_id: @current_user).to_a
+    end
+    my_registrations = registrations.map { |x| { competition_id: x.competition_id, status: x.competing_status } }
     render json: my_registrations
   rescue Dynamoid::Errors::Error => e
     # Render an error response
