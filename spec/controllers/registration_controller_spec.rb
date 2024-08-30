@@ -257,7 +257,7 @@ describe RegistrationController do
         request.headers['Authorization'] = @registration_request['jwt_token']
         post :create, params: @registration_request, as: :json
 
-        expect(response.code).to eq('503')
+        expect(response.code).to eq('500')
       end
 
       it 'UserApi::qualifications' do
@@ -280,7 +280,7 @@ describe RegistrationController do
         request.headers['Authorization'] = @registration_request['jwt_token']
         post :create, params: @registration_request, as: :json
 
-        expect(response.code).to eq('503')
+        expect(response.code).to eq('500')
       end
 
       it 'UserApi::get_user_info_pii' do
@@ -301,7 +301,7 @@ describe RegistrationController do
         request.headers['Authorization'] = fetch_jwt_token(@requesting_user_id)
         get :list_admin, params: { competition_id: @competition['id'] }
 
-        expect(response.code).to eq('503')
+        expect(response.code).to eq('500')
       end
     end
   end
