@@ -30,7 +30,7 @@ class WcaApi
         response
       else
         raise RegistrationError.new(
-          :service_unavailable,
+          500,
           ErrorCodes::MONOLITH_API_ERROR,
           { url: "GET: #{url}", http_code: response.code, body: response.parsed_response },
         )
@@ -44,9 +44,9 @@ class WcaApi
       response
     else
       raise RegistrationError.new(
-        :service_unavailable,
+        500,
         ErrorCodes::MONOLITH_API_ERROR,
-        { url: "POST: #{url}, http_code: response.code, body: response.parsed_response },
+        { url: "POST: #{url}", http_code: response.code, body: response.parsed_response },
       )
     end
   end
