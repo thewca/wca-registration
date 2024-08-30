@@ -42,10 +42,6 @@ module "handler" {
   depends_on = [module.shared_resources]
 }
 
-module "frontend" {
-  source = "./frontend"
-}
-
 module "staging" {
   source = "./staging"
   api_gateway = module.shared_resources.api_gateway

@@ -1,8 +1,6 @@
 resource "aws_dynamodb_table" "registrations" {
   name           = "registrations-staging"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 5
-  write_capacity = 5
+  billing_mode   = "PAY_PER_REQUEST"
   hash_key = "attendee_id"
 
   attribute {
@@ -27,16 +25,12 @@ resource "aws_dynamodb_table" "registrations" {
     hash_key        = "competition_id"
     name            = "registrations-staging_index_competition_id"
     projection_type = "ALL"
-    write_capacity = 5
-    read_capacity = 5
   }
 
   global_secondary_index {
     hash_key        = "user_id"
     name            = "registrations-staging_index_user_id"
     projection_type = "ALL"
-    write_capacity = 5
-    read_capacity = 5
   }
 
   lifecycle {
