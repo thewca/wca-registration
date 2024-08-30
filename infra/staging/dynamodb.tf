@@ -63,3 +63,18 @@ resource "aws_dynamodb_table" "registration_history" {
     Env = "staging"
   }
 }
+
+resource "aws_dynamodb_table" "waiting_list" {
+  name           = "waiting_list-staging"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key = "id"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+
+  tags = {
+    Env = "staging"
+  }
+}
