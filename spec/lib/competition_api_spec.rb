@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe CompetitionApi, :tag do
+describe CompetitionApi do
   it 'raises RegistrationError when 404 is returned' do
     stub_request(:get, CompetitionApi.url('test')).to_return(status: 404)
 
