@@ -24,5 +24,4 @@ describe CompetitionApi, :tag do
       expect(error.error).to eq(ErrorCodes::MONOLITH_API_ERROR)
     end
   end
-
 end

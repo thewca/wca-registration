@@ -17,7 +17,7 @@ class CompetitionApi < WcaApi
   def self.fetch_qualifications(competition_id)
     self.get_request("#{url(competition_id)}/qualifications")
   rescue RegistrationError => e
-    if (e.data[:http_code] == 404)
+    if e.data[:http_code] == 404
       raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
     else
       raise e
@@ -27,7 +27,7 @@ class CompetitionApi < WcaApi
   private_class_method def self.fetch_competition(competition_id)
     self.get_request(url(competition_id))
   rescue RegistrationError => e
-    if (e.data[:http_code] == 404)
+    if e.data[:http_code] == 404
       raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
     else
       raise e
