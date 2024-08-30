@@ -15,6 +15,9 @@ class RegistrationProcessor < ApplicationJob
                          message[:step_details][:guests],
                          message[:created_at])
     end
+
+    # Invalidate Cache
+    Rails.cache.delete("#{message[:user_id]}-registrations-by-user")
   end
 
   private
