@@ -32,7 +32,7 @@ RSpec.shared_examples 'user cant update rejected registration' do |old_status, n
       RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
     }.to raise_error(RegistrationError) do |error|
       expect(error.http_status).to eq(:unauthorized)
-      expect(error.error).to eq(ErrorCodes::REGISTATION_IS_REJECTED)
+      expect(error.error).to eq(ErrorCodes::REGISTRATION_IS_REJECTED)
     end
   end
 end
