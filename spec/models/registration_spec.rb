@@ -18,29 +18,23 @@ describe Registration do
     end
   end
 
-  describe '#update_competing_lane!' do
-    it 'given accepted status, it changes the users status to accepted' do
-      registration = FactoryBot.create(:registration, registration_status: 'pending')
-      registration.update_competing_lane!({ status: 'accepted' })
-      expect(registration.competing_status).to eq('accepted')
+  describe '#update_competing_lane!', :tag do
+
+    RSpec.shared_examples 'competing_status updates' do |old_status, new_status|
+      it "given #{new_status}, #{old_status} updates as expected" do
+        registration = FactoryBot.create(:registration, registration_status: old_status)
+        registration.update_competing_lane!({ status: new_status })
+        expect(registration.competing_status).to eq(new_status)
+      end
     end
 
-    it 'accepted given cancelled, it sets competing_status accordingly' do
-      registration = FactoryBot.create(:registration, registration_status: 'accepted')
-      registration.update_competing_lane!({ status: 'cancelled' })
-      expect(registration.competing_status).to eq('cancelled')
-    end
-
-    it 'accepted given pending, it sets competing_status accordingly' do
-      registration = FactoryBot.create(:registration, registration_status: 'accepted')
-      registration.update_competing_lane!({ status: 'pending' })
-      expect(registration.competing_status).to eq('pending')
-    end
-
-    it 'accepted given waiting_list, it sets competing_status' do
-      registration = FactoryBot.create(:registration, registration_status: 'accepted')
-      registration.update_competing_lane!({ status: 'waiting_list' })
-      expect(registration.competing_status).to eq('waiting_list')
+    [
+      { old_status: 'pending', new_status: 'accepted' },
+      { old_status: 'accepted', new_status: 'cancelled' },
+      { old_status: 'accepted', new_status: 'pending' },
+      { old_status: 'accepted', new_status: 'waiting_list' },
+    ].each do |params|
+        it_behaves_like 'competing_status updates', params[:old_status], params[:new_status]
     end
   end
 
