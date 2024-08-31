@@ -19,7 +19,6 @@ describe Registration do
   end
 
   describe '#update_competing_lane!', :tag do
-
     RSpec.shared_examples 'competing_status updates' do |old_status, new_status|
       it "given #{new_status}, #{old_status} updates as expected" do
         registration = FactoryBot.create(:registration, registration_status: old_status)
