@@ -33,7 +33,7 @@ describe Registration do
       { old_status: 'accepted', new_status: 'pending' },
       { old_status: 'accepted', new_status: 'waiting_list' },
     ].each do |params|
-        it_behaves_like 'competing_status updates', params[:old_status], params[:new_status]
+      it_behaves_like 'competing_status updates', params[:old_status], params[:new_status]
     end
   end
 
