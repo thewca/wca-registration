@@ -235,4 +235,74 @@ describe RegistrationController do
       expect(response.code).to eq('400')
     end
   end
+
+  describe '#API errors' do
+    describe 'raise Registration error when monolith API fails:' do
+      it 'UserApi::get_permissions' do
+        @registration_request = FactoryBot.build(:registration_request)
+        stub_request(:get, UserApi.permissions_path(@registration_request['user_id'])).to_return(
+          status: 502,
+          headers: { 'Content-Type' => 'application/json' },
+        )
+
+        @competition = FactoryBot.build(:competition)
+        stub_request(:get, CompetitionApi.url(@competition['id'])).to_return(
+          status: 200,
+          body: @competition.except('qualifications').to_json,
+          headers: { 'Content-Type' => 'application/json' },
+        )
+
+        stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
+
+        request.headers['Authorization'] = @registration_request['jwt_token']
+        post :create, params: @registration_request, as: :json
+
+        expect(response.code).to eq('500')
+      end
+
+      it 'UserApi::qualifications' do
+        @registration_request = FactoryBot.build(:registration_request)
+        stub_request(:get, UserApi.permissions_path(@registration_request['user_id'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions).to_json,
+          headers: { 'Content-Type' => 'application/json' },
+        )
+
+        @competition = FactoryBot.build(:competition, :has_qualifications)
+        stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+        stub_json(CompetitionApi.url("#{@competition['id']}/qualifications"), 200, @competition['qualifications'])
+
+        stub_request(:get, %r{#{Regexp.escape(EnvConfig.WCA_HOST)}/api/v0/results/\d+/qualification_data(\?date=\d{4}-\d{2}-\d{2})?})
+          .to_return(status: 502)
+
+        stub_request(:post, EmailApi.registration_email_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
+
+        request.headers['Authorization'] = @registration_request['jwt_token']
+        post :create, params: @registration_request, as: :json
+
+        expect(response.code).to eq('500')
+      end
+
+      it 'UserApi::get_user_info_pii' do
+        @competition = FactoryBot.build(:competition)
+        stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+
+        @requesting_user_id = 1400
+        stub_request(:get, UserApi.permissions_path(@requesting_user_id)).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response, organized_competitions: [@competition['id']]).to_json,
+          headers: { 'Content-Type' => 'application/json' },
+        )
+
+        FactoryBot.create(:registration, registration_status: 'pending')
+
+        stub_request(:post, UserApi.competitor_info_path).to_return(status: 502)
+
+        request.headers['Authorization'] = fetch_jwt_token(@requesting_user_id)
+        get :list_admin, params: { competition_id: @competition['id'] }
+
+        expect(response.code).to eq('500')
+      end
+    end
+  end
 end

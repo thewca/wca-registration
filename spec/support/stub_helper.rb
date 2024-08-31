@@ -25,3 +25,11 @@ def stub_qualifications(payload = nil, qualification_data_date = nil)
     end
   end
 end
+
+def stub_qualification_error
+  url_regex = %r{#{Regexp.escape(EnvConfig.WCA_HOST)}/api/v0/results/\d+/qualification_data(\?date=\d{4}-\d{2}-\d{2})?}
+
+  stub_request(:get, url_regex).to_return do |request|
+    { status: 502 }
+  end
+end

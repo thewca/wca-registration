@@ -22,7 +22,7 @@ class RegistrationController < ApplicationController
   rescue Dynamoid::Errors::RecordNotFound
     render json: {}, status: :not_found
   rescue RegistrationError => e
-    render_error(e.http_status, e.error)
+    render_error(e.http_status, e.error, e.data)
   end
 
   def count
@@ -79,7 +79,7 @@ class RegistrationController < ApplicationController
     @user_id = params[:user_id]
     @competition_id = params[:competition_id]
 
-    RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
+    RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find(@competition_id), @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error, e.data)
   end
@@ -102,7 +102,7 @@ class RegistrationController < ApplicationController
 
   def validate_bulk_update_request
     @competition_id = params.require('competition_id')
-    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
+    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find(@competition_id), @current_user)
   rescue BulkUpdateError => e
     render_error(e.http_status, e.errors)
   rescue NoMethodError
@@ -161,7 +161,7 @@ class RegistrationController < ApplicationController
 
   def validate_payment_ticket_request
     competition_id = params[:competition_id]
-    @competition = CompetitionApi.find!(competition_id)
+    @competition = CompetitionApi.find(competition_id)
     render_error(:forbidden, ErrorCodes::PAYMENT_NOT_ENABLED) unless @competition.using_wca_payment?
 
     @registration = Registration.find("#{competition_id}-#{@current_user}")
@@ -229,6 +229,8 @@ class RegistrationController < ApplicationController
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
+  rescue RegistrationError => e
+    render_error(e.http_status, e.error, e.data)
   end
 
   def import
