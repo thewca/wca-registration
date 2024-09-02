@@ -47,6 +47,7 @@ class RegistrationChecker
     bulk_update_request['requests'].each do |update_request|
       update_registration_allowed!(update_request, competition_info, requesting_user)
     rescue RegistrationError => e
+      Rails.logger.debug "Bulk update was rejected with error #{e.error} at #{e.backtrace[0]}"
       errors[update_request['user_id']] = e.error
     end
 
