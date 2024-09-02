@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 describe Registration do
+  before do
+    @waiting_list = FactoryBot.create(:waiting_list)
+  end
+
   describe 'validations#competing_status_consistency' do
     it 'passes if competing_status and competing lane status match' do
       registration = FactoryBot.build(:registration, registration_status: 'accepted')
@@ -21,26 +25,26 @@ describe Registration do
   describe '#update_competing_lane!' do
     it 'given accepted status, it changes the users status to accepted' do
       registration = FactoryBot.create(:registration, registration_status: 'pending')
-      registration.update_competing_lane!({ status: 'accepted' })
+      registration.update_competing_lane!({ status: 'accepted' }, @waiting_list)
       expect(registration.competing_status).to eq('accepted')
     end
 
     it 'accepted given cancelled, it sets competing_status accordingly' do
       registration = FactoryBot.create(:registration, registration_status: 'accepted')
-      registration.update_competing_lane!({ status: 'cancelled' })
+      registration.update_competing_lane!({ status: 'cancelled' }, @waiting_list)
       expect(registration.competing_status).to eq('cancelled')
     end
 
     it 'accepted given pending, it sets competing_status accordingly' do
       registration = FactoryBot.create(:registration, registration_status: 'accepted')
-      registration.update_competing_lane!({ status: 'pending' })
+      registration.update_competing_lane!({ status: 'pending' }, @waiting_list)
       expect(registration.competing_status).to eq('pending')
     end
 
     it 'accepted given waiting_list, it sets competing_status' do
       FactoryBot.create(:waiting_list)
       registration = FactoryBot.create(:registration, registration_status: 'accepted')
-      registration.update_competing_lane!({ status: 'waiting_list' })
+      registration.update_competing_lane!({ status: 'waiting_list' }, @waiting_list)
       expect(registration.competing_status).to eq('waiting_list')
     end
   end
@@ -72,7 +76,7 @@ describe Registration do
 
     describe '#waiting_list.accept' do
       it 'accept waiting list leader' do
-        @reg1.update_competing_lane!({ status: 'accepted' })
+        @reg1.update_competing_lane!({ status: 'accepted' }, @waiting_list)
         @waiting_list.reload
 
         expect(@reg1.competing_status).to eq('accepted')
@@ -83,14 +87,14 @@ describe Registration do
 
       it 'cant accept if not in leading position of waiting list' do
         expect {
-          @reg2.update_competing_lane!({ status: 'accepted' })
+          @reg2.update_competing_lane!({ status: 'accepted' }, @waiting_list)
         }.to raise_error(ArgumentError, 'Can only accept waiting list leader')
       end
     end
 
     describe '#waiting_list.remove' do
       it 'change from waiting_list to cancelled' do
-        @reg1.update_competing_lane!({ status: 'cancelled' })
+        @reg1.update_competing_lane!({ status: 'cancelled' }, @waiting_list)
         @waiting_list.reload
 
         expect(@reg1.competing_status).to eq('cancelled')
@@ -100,7 +104,7 @@ describe Registration do
       end
 
       it 'change from waiting_list to pending' do
-        @reg1.update_competing_lane!({ status: 'pending' })
+        @reg1.update_competing_lane!({ status: 'pending' }, @waiting_list)
         @waiting_list.reload
 
         expect(@reg1.competing_status).to eq('pending')
@@ -112,7 +116,7 @@ describe Registration do
 
     describe '#waiting_list.move' do
       it 'changing to waiting_list has no effect' do
-        @reg1.update_competing_lane!({ status: 'waiting_list' })
+        @reg1.update_competing_lane!({ status: 'waiting_list' }, @waiting_list)
         @waiting_list.reload
 
         expect(@reg1.competing_status).to eq('waiting_list')
@@ -122,7 +126,7 @@ describe Registration do
       end
 
       it 'can reorder waiting list items' do
-        @reg2.update_competing_lane!({ status: 'waiting_list', waiting_list_position: 1 })
+        @reg2.update_competing_lane!({ status: 'waiting_list', waiting_list_position: 1 }, @waiting_list)
 
         expect(@reg1.competing_status).to eq('waiting_list')
         expect(@reg1.waiting_list_position).to eq(2)

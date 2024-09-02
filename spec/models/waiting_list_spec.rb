@@ -10,14 +10,14 @@ describe WaitingList do
 
     it 'first competitor in the waiting list gets set to position 1' do
       registration = FactoryBot.create(:registration, registration_status: 'pending')
-      registration.update_competing_lane!({ status: 'waiting_list' })
+      registration.update_competing_lane!({ status: 'waiting_list' }, @waiting_list)
       expect(registration.waiting_list_position).to eq(1)
     end
 
     it 'second competitor gets set to position 2' do
       @waiting_list.add(FactoryBot.create(:registration, :waiting_list).user_id)
       registration = FactoryBot.create(:registration, registration_status: 'pending')
-      registration.update_competing_lane!({ status: 'waiting_list' })
+      registration.update_competing_lane!({ status: 'waiting_list' }, @waiting_list)
       expect(registration.waiting_list_position).to eq(2)
     end
   end

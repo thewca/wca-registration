@@ -101,7 +101,7 @@ describe CompetitionInfo do
 
       it 'PASSING returns competition payment info' do
         # Instantiate a CompetitionInfo object with the sample data
-        competition_info = FactoryBot.build(:competition, base_entry_fee_lowest_denomination: 1500, currency_code: 'EUR')
+        competition_info = CompetitionInfo.new(FactoryBot.build(:competition, base_entry_fee_lowest_denomination: 1500, currency_code: 'EUR'))
 
         # Call the method being tested
         result = competition_info.payment_info
