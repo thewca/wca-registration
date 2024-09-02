@@ -79,8 +79,9 @@ class RegistrationController < ApplicationController
   def validate_update_request
     @user_id = params[:user_id]
     @competition_id = params[:competition_id]
+    @competition_info = CompetitionApi.find!(@competition_id)
 
-    RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
+    RegistrationChecker.update_registration_allowed!(params, @competition_info, @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error, e.data)
   end
@@ -103,7 +104,8 @@ class RegistrationController < ApplicationController
 
   def validate_bulk_update_request
     @competition_id = params.require('competition_id')
-    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
+    @competition_info = CompetitionApi.find!(@competition_id)
+    RegistrationChecker.bulk_update_allowed!(params, @competition_info, @current_user)
   rescue BulkUpdateError => e
     render_error(e.http_status, e.errors)
   rescue NoMethodError
@@ -122,7 +124,8 @@ class RegistrationController < ApplicationController
 
     registration = Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
-    updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position })
+    waiting_list = @competition_info.waiting_list
+    updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position }, waiting_list)
     registration.history.add_entry(update_changes(update_request), 'user', @current_user, action_type(update_request))
     if old_status == 'accepted' && status != 'accepted'
       Registration.decrement_competitors_count(@competition_id)

@@ -117,7 +117,7 @@ class Registration
     payment_lane&.lane_details&.[]('payment_history')
   end
 
-  def update_competing_lane!(update_params)
+  def update_competing_lane!(update_params, waiting_list)
     has_waiting_list_changed = waiting_list_changed?(update_params)
 
     updated_lanes = lanes.map do |lane|
@@ -125,7 +125,7 @@ class Registration
 
         # Update status for lane and events
         if has_waiting_list_changed
-          update_waiting_list(update_params)
+          update_waiting_list(update_params, waiting_list)
         end
 
         if update_params[:status].present?
@@ -171,8 +171,7 @@ class Registration
     update_attributes!(lanes: updated_lanes)
   end
 
-  def update_waiting_list(update_params)
-    waiting_list = WaitingList.find_or_create!(competition_id)
+  def update_waiting_list(update_params, waiting_list)
     raise ArgumentError.new('Can only accept waiting list leader') if update_params[:status] == 'accepted' && waiting_list_position(waiting_list) != 1
 
     waiting_list.add(self.user_id) if update_params[:status] == 'waiting_list'

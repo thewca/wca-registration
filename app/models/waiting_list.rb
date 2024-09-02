@@ -30,7 +30,6 @@ class WaitingList
   end
 
   def self.find_or_create!(id)
-    puts("called find from #{caller[0..2]}")
     WaitingList.find(id)
   rescue Dynamoid::Errors::RecordNotFound
     WaitingList.create(id: id, entries: [])
