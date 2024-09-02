@@ -56,7 +56,7 @@ describe Registration do
     end
 
     it '5th competitor is at position 5' do
-      waiting_list = FactoryBot.create(:waiting_list, id: "AnotherComp2024", populate: 4)
+      waiting_list = FactoryBot.create(:waiting_list, id: 'AnotherComp2024', populate: 4)
       registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
       waiting_list.add(registration.user_id)
 

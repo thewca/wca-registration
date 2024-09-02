@@ -873,7 +873,7 @@ describe RegistrationChecker do
           status: 200,
           body: FactoryBot.build(:permissions_response).to_json,
           headers: { content_type: 'application/json' },
-          )
+        )
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
         }.to raise_error(RegistrationError) do |error|
