@@ -5,28 +5,6 @@ require 'rails_helper'
 # TODO: Add a test where one comp has a lot of competitors and another doesnt but you can still accept, to ensure that we're checking the reg count
 # for the COMPETITION, not all registrations
 
-USER_ALLOWED_STATUS_UPDATES = [
-  { initial_status: 'pending', new_status: 'cancelled' },
-  { initial_status: 'waiting_list', new_status: 'cancelled' },
-  { initial_status: 'accepted', new_status: 'cancelled' },
-  { initial_status: 'cancelled', new_status: 'pending' },
-  { initial_status: 'cancelled', new_status: 'cancelled' },
-].freeze
-
-USER_FORBIDDEN_STATUS_UPDATES = [
-  { initial_status: 'pending', new_status: 'accepted' },
-  { initial_status: 'pending', new_status: 'waiting_list' },
-  { initial_status: 'pending', new_status: 'pending' },
-  { initial_status: 'waiting_list', new_status: 'pending' },
-  { initial_status: 'waiting_list', new_status: 'waiting_list' },
-  { initial_status: 'waiting_list', new_status: 'accepted' },
-  { initial_status: 'accepted', new_status: 'pending' },
-  { initial_status: 'accepted', new_status: 'waiting_list' },
-  { initial_status: 'accepted', new_status: 'accepted' },
-  { initial_status: 'cancelled', new_status: 'accepted' },
-  { initial_status: 'cancelled', new_status: 'waiting_list' },
-].freeze
-
 RSpec.shared_examples 'valid organizer status updates' do |old_status, new_status|
   it "organizer can change 'status' => #{old_status} to: #{new_status} before close" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
@@ -1006,8 +984,30 @@ describe RegistrationChecker do
 
     describe '#update_registration_allowed!.validate_update_status!' do
       describe 'user status combinations' do
+        user_allowed_status_updates = [
+          { initial_status: 'pending', new_status: 'cancelled' },
+          { initial_status: 'waiting_list', new_status: 'cancelled' },
+          { initial_status: 'accepted', new_status: 'cancelled' },
+          { initial_status: 'cancelled', new_status: 'pending' },
+          { initial_status: 'cancelled', new_status: 'cancelled' },
+        ]
+
+        user_forbidden_status_updates = [
+          { initial_status: 'pending', new_status: 'accepted' },
+          { initial_status: 'pending', new_status: 'waiting_list' },
+          { initial_status: 'pending', new_status: 'pending' },
+          { initial_status: 'waiting_list', new_status: 'pending' },
+          { initial_status: 'waiting_list', new_status: 'waiting_list' },
+          { initial_status: 'waiting_list', new_status: 'accepted' },
+          { initial_status: 'accepted', new_status: 'pending' },
+          { initial_status: 'accepted', new_status: 'waiting_list' },
+          { initial_status: 'accepted', new_status: 'accepted' },
+          { initial_status: 'cancelled', new_status: 'accepted' },
+          { initial_status: 'cancelled', new_status: 'waiting_list' },
+        ]
+
         it 'tests cover all possible user status update combinations' do
-          combined_updates = (USER_ALLOWED_STATUS_UPDATES << USER_FORBIDDEN_STATUS_UPDATES).flatten
+          combined_updates = (user_allowed_status_updates << user_forbidden_status_updates).flatten
           expect(combined_updates).to match_array(REGISTRATION_TRANSITIONS)
         end
 
@@ -1030,7 +1030,7 @@ describe RegistrationChecker do
           end
         end
 
-        USER_FORBIDDEN_STATUS_UPDATES.each do |params|
+        user_forbidden_status_updates.each do |params|
           it_behaves_like 'forbidden user status updates', params[:initial_status], params[:new_status]
         end
 
@@ -1044,7 +1044,7 @@ describe RegistrationChecker do
           end
         end
 
-        USER_ALLOWED_STATUS_UPDATES.each do |params|
+        user_allowed_status_updates.each do |params|
           it_behaves_like 'allowed user status updates', params[:initial_status], params[:new_status]
         end
       end

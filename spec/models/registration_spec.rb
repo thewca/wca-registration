@@ -2,25 +2,6 @@
 
 require 'rails_helper'
 
-ALLOWED_COMPETING_STATUS_UPDATES = [
-  { initial_status: 'pending', new_status: 'accepted' },
-  { initial_status: 'pending', new_status: 'cancelled' },
-  { initial_status: 'pending', new_status: 'waiting_list' },
-  { initial_status: 'pending', new_status: 'pending' },
-  { initial_status: 'accepted', new_status: 'cancelled' },
-  { initial_status: 'accepted', new_status: 'pending' },
-  { initial_status: 'accepted', new_status: 'waiting_list' },
-  { initial_status: 'accepted', new_status: 'accepted' },
-  { initial_status: 'waiting_list', new_status: 'cancelled' },
-  { initial_status: 'waiting_list', new_status: 'pending' },
-  { initial_status: 'waiting_list', new_status: 'waiting_list' },
-  { initial_status: 'waiting_list', new_status: 'accepted' },
-  { initial_status: 'cancelled', new_status: 'cancelled' },
-  { initial_status: 'cancelled', new_status: 'pending' },
-  { initial_status: 'cancelled', new_status: 'waiting_list' },
-  { initial_status: 'cancelled', new_status: 'accepted' },
-].freeze
-
 describe Registration do
   describe 'validations#competing_status_consistency' do
     it 'passes if competing_status and competing lane status match' do
@@ -38,8 +19,27 @@ describe Registration do
   end
 
   describe '#update_competing_lane.competing_status' do
+    allowed_competing_status_updates = [
+      { initial_status: 'pending', new_status: 'accepted' },
+      { initial_status: 'pending', new_status: 'cancelled' },
+      { initial_status: 'pending', new_status: 'waiting_list' },
+      { initial_status: 'pending', new_status: 'pending' },
+      { initial_status: 'accepted', new_status: 'cancelled' },
+      { initial_status: 'accepted', new_status: 'pending' },
+      { initial_status: 'accepted', new_status: 'waiting_list' },
+      { initial_status: 'accepted', new_status: 'accepted' },
+      { initial_status: 'waiting_list', new_status: 'cancelled' },
+      { initial_status: 'waiting_list', new_status: 'pending' },
+      { initial_status: 'waiting_list', new_status: 'waiting_list' },
+      { initial_status: 'waiting_list', new_status: 'accepted' },
+      { initial_status: 'cancelled', new_status: 'cancelled' },
+      { initial_status: 'cancelled', new_status: 'pending' },
+      { initial_status: 'cancelled', new_status: 'waiting_list' },
+      { initial_status: 'cancelled', new_status: 'accepted' },
+    ]
+
     it 'tests cover all possible status combinations' do
-      expect(REGISTRATION_TRANSITIONS).to match_array(SUCCESSFUL_COMBINATIONS)
+      expect(REGISTRATION_TRANSITIONS).to match_array(allowed_competing_status_updates)
     end
 
     RSpec.shared_examples 'competing_status updates' do |initial_status, new_status|
@@ -50,7 +50,7 @@ describe Registration do
       end
     end
 
-    SUCCESSFUL_COMBINATIONS.each do |params|
+    allowed_competing_status_updates.each do |params|
       it_behaves_like 'competing_status updates', params[:initial_status], params[:new_status]
     end
   end
