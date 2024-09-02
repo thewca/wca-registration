@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 class CompetitionInfo
-  attr_accessor :competition_id
-  attr_accessor :waiting_list
+  attr_accessor :competition_id, :waiting_list
 
   def initialize(competition_json)
     @competition_json = competition_json
