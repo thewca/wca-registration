@@ -78,7 +78,7 @@ class Registration
   end
 
   def event_details_for(event_id)
-    competing_lane.lane_details['event_details'].find { |e| e['event_id'] == event_id}
+    competing_lane.lane_details['event_details'].find { |e| e['event_id'] == event_id }
   end
 
   def competing_waiting_list_position

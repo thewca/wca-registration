@@ -318,7 +318,6 @@ describe Registration do
     ].each do |params|
       it_behaves_like 'ranking qualification: event_registration_state updates', params[:starting_competing_status], params[:new_competing_status], params[:expected_event_state]
     end
-
   end
 
   describe '#accepted_competitors' do

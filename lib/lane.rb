@@ -101,6 +101,7 @@ class Lane
   end
 
   private
+
     # Used for propagating a change in waiting_list_position to all affected registrations
     # increment_value is the value by which position should be shifted - usually 1 or -1
     # Lower waiting_list_position = higher up the waiting list (1 on waiting list will be accepted before 10)
