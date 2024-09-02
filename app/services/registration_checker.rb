@@ -150,7 +150,7 @@ class RegistrationChecker
       converted_position = Integer(waiting_list_position, exception: false)
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) unless converted_position.is_a? Integer
 
-      waiting_list = WaitingList.find(@competition_info.id).entries
+      waiting_list = @competition_info.waiting_list.entries
       raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if waiting_list.empty? && converted_position != 1
       raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position > waiting_list.length
       raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position < 1
@@ -167,13 +167,6 @@ class RegistrationChecker
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(new_status)
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
         new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
-
-      # Organizers cant accept someone from the waiting list who isn't in the leading position
-      begin
-        WaitingList.find(@competition_info.id)
-      rescue Dynamoid::Errors::RecordNotFound
-        WaitingList.create(id: @competition_info.id, entries: [])
-      end
 
       # Otherwise, organizers can make any status change they want to
       return if UserApi.can_administer?(@requester_user_id, @competition_info.id)

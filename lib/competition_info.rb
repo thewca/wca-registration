@@ -2,11 +2,17 @@
 
 class CompetitionInfo
   attr_accessor :competition_id
+  attr_accessor :waiting_list
 
   def initialize(competition_json)
     @competition_json = competition_json
     @competition_id = competition_json['id']
     @qualifications = fetch_qualifications
+    @waiting_list = begin
+                      WaitingList.find(@competition_id)
+                    rescue Dynamoid::Errors::RecordNotFound
+                      WaitingList.create(id: @competition_id, entries: [])
+                    end
   end
 
   def start_date
