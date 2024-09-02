@@ -131,7 +131,7 @@ class RegistrationChecker
     def validate_organizer_fields!
       @organizer_fields = ['organizer_comment', 'waiting_list_position']
 
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if contains_organizer_fields? && !@competition_info.is_organizer_or_delegate?(@requester_user_id)
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if contains_organizer_fields? && !UserApi.can_administer?(@requester_user_id, @competition_info.id)
     end
 
     def validate_organizer_comment!
