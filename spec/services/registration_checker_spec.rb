@@ -1051,7 +1051,6 @@ describe RegistrationChecker do
         end
       end
 
-
       it 'organizer can accept registrations up to the limit' do
         FactoryBot.create_list(:registration, 2, registration_status: 'accepted')
         registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
