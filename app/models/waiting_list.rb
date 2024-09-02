@@ -28,4 +28,11 @@ class WaitingList
 
     update_attributes!(entries: entries.insert(new_position-1, entries.delete_at(old_index)))
   end
+
+  def self.find_or_create!(id)
+    puts("called find from #{caller[0..2]}")
+    WaitingList.find(id)
+  rescue Dynamoid::Errors::RecordNotFound
+    WaitingList.create(id: id, entries: [])
+  end
 end

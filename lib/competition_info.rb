@@ -8,11 +8,7 @@ class CompetitionInfo
     @competition_json = competition_json
     @competition_id = competition_json['id']
     @qualifications = fetch_qualifications
-    @waiting_list = begin
-                      WaitingList.find(@competition_id)
-                    rescue Dynamoid::Errors::RecordNotFound
-                      WaitingList.create(id: @competition_id, entries: [])
-                    end
+    @waiting_list = WaitingList.find_or_create!(@competition_id)
   end
 
   def start_date

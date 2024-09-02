@@ -279,14 +279,13 @@ class RegistrationController < ApplicationController
     end
 
     def add_waiting_list(competition_id, registrations)
-      list = WaitingList.find(competition_id).entries
+      list = WaitingList.find_or_create!(competition_id).entries
+      return registrations if list.empty?
       registrations.map do |r|
         waiting_list_index = list.find_index(r[:user_id])
         r[:competing].merge!(waiting_list_position: waiting_list_index + 1) if waiting_list_index.present?
         r
       end
-    rescue Dynamoid::Errors::RecordNotFound
-      registrations
     end
 
     def get_registrations(competition_id, only_attending: false)

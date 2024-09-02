@@ -97,9 +97,9 @@ class Registration
     payment_lane&.lane_details&.[]('amount_lowest_denominator')
   end
 
-  def waiting_list_position
+  def waiting_list_position(waiting_list)
     return nil if competing_status != 'waiting_list'
-    WaitingList.find(competition_id).entries.find_index(user_id) + 1
+    waiting_list.entries.find_index(user_id) + 1
   end
 
   def payment_amount_human_readable
@@ -172,9 +172,9 @@ class Registration
   end
 
   def update_waiting_list(update_params)
-    raise ArgumentError.new('Can only accept waiting list leader') if waiting_list_position != 1 && update_params[:status] == 'accepted'
+    waiting_list = WaitingList.find_or_create!(competition_id)
+    raise ArgumentError.new('Can only accept waiting list leader') if update_params[:status] == 'accepted' && waiting_list_position(waiting_list) != 1
 
-    waiting_list = WaitingList.find(competition_id)
     waiting_list.add(self.user_id) if update_params[:status] == 'waiting_list'
     waiting_list.remove(self.user_id) if update_params[:status] == 'accepted'
     waiting_list.remove(self.user_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
