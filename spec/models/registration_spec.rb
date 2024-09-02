@@ -3,10 +3,6 @@
 require 'rails_helper'
 
 describe Registration do
-  before do
-    @waiting_list = FactoryBot.create(:waiting_list)
-  end
-
   describe 'validations#competing_status_consistency' do
     it 'passes if competing_status and competing lane status match' do
       registration = FactoryBot.build(:registration, registration_status: 'accepted')
@@ -23,6 +19,10 @@ describe Registration do
   end
 
   describe '#update_competing_lane!' do
+    before do
+      @waiting_list = FactoryBot.create(:waiting_list)
+    end
+
     it 'given accepted status, it changes the users status to accepted' do
       registration = FactoryBot.create(:registration, registration_status: 'pending')
       registration.update_competing_lane!({ status: 'accepted' }, @waiting_list)
@@ -42,7 +42,6 @@ describe Registration do
     end
 
     it 'accepted given waiting_list, it sets competing_status' do
-      FactoryBot.create(:waiting_list)
       registration = FactoryBot.create(:registration, registration_status: 'accepted')
       registration.update_competing_lane!({ status: 'waiting_list' }, @waiting_list)
       expect(registration.competing_status).to eq('waiting_list')
@@ -52,16 +51,16 @@ describe Registration do
   describe '#competing_waiting_list_position' do
     it '1st competitor is at position 1' do
       registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
-      FactoryBot.create(:waiting_list, entries: [registration.user_id])
-      expect(registration.waiting_list_position).to eq(1)
+      waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id])
+      expect(registration.waiting_list_position(waiting_list)).to eq(1)
     end
 
     it '5th competitor is at position 5' do
-      waiting_list = FactoryBot.create(:waiting_list, populate: 4)
+      waiting_list = FactoryBot.create(:waiting_list, id: "AnotherComp2024", populate: 4)
       registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
       waiting_list.add(registration.user_id)
 
-      expect(registration.waiting_list_position).to eq(5)
+      expect(registration.waiting_list_position(waiting_list)).to eq(5)
     end
   end
 
@@ -80,8 +79,8 @@ describe Registration do
         @waiting_list.reload
 
         expect(@reg1.competing_status).to eq('accepted')
-        expect(@reg1.waiting_list_position).to eq(nil)
-        expect(@reg2.waiting_list_position).to eq(1)
+        expect(@reg1.waiting_list_position(@waiting_list)).to eq(nil)
+        expect(@reg2.waiting_list_position(@waiting_list)).to eq(1)
         expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(false)
       end
 
@@ -98,8 +97,8 @@ describe Registration do
         @waiting_list.reload
 
         expect(@reg1.competing_status).to eq('cancelled')
-        expect(@reg1.waiting_list_position).to eq(nil)
-        expect(@reg2.waiting_list_position).to eq(1)
+        expect(@reg1.waiting_list_position(@waiting_list)).to eq(nil)
+        expect(@reg2.waiting_list_position(@waiting_list)).to eq(1)
         expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(false)
       end
 
@@ -108,8 +107,8 @@ describe Registration do
         @waiting_list.reload
 
         expect(@reg1.competing_status).to eq('pending')
-        expect(@reg1.waiting_list_position).to eq(nil)
-        expect(@reg2.waiting_list_position).to eq(1)
+        expect(@reg1.waiting_list_position(@waiting_list)).to eq(nil)
+        expect(@reg2.waiting_list_position(@waiting_list)).to eq(1)
         expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(false)
       end
     end
@@ -120,8 +119,8 @@ describe Registration do
         @waiting_list.reload
 
         expect(@reg1.competing_status).to eq('waiting_list')
-        expect(@reg1.waiting_list_position).to eq(1)
-        expect(@reg2.waiting_list_position).to eq(2)
+        expect(@reg1.waiting_list_position(@waiting_list)).to eq(1)
+        expect(@reg2.waiting_list_position(@waiting_list)).to eq(2)
         expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(true)
       end
 
@@ -129,8 +128,8 @@ describe Registration do
         @reg2.update_competing_lane!({ status: 'waiting_list', waiting_list_position: 1 }, @waiting_list)
 
         expect(@reg1.competing_status).to eq('waiting_list')
-        expect(@reg1.waiting_list_position).to eq(2)
-        expect(@reg2.waiting_list_position).to eq(1)
+        expect(@reg1.waiting_list_position(@waiting_list)).to eq(2)
+        expect(@reg2.waiting_list_position(@waiting_list)).to eq(1)
         expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(true)
       end
     end

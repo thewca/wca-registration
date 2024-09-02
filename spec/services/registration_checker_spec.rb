@@ -8,9 +8,6 @@ require 'rails_helper'
 RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
   it "user cant change 'status' => #{old_status} to: #{new_status}" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
-    if old_status == 'waiting_list'
-      FactoryBot.create(:waiting_list, entries: [registration.user_id])
-    end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => new_status })
     stub_request(:get, UserApi.permissions_path(registration[:user_id])).to_return(status: 200, body: FactoryBot.build(:permissions_response).to_json, headers: { content_type: 'application/json' })
@@ -27,9 +24,6 @@ end
 RSpec.shared_examples 'valid organizer status updates' do |old_status, new_status|
   it "organizer can change 'status' => #{old_status} to: #{new_status} before close" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
-    if old_status == 'waiting_list'
-      FactoryBot.create(:waiting_list, entries: [registration.user_id])
-    end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
     stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
@@ -44,9 +38,6 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
 
   it "site admin can change 'status' => #{old_status} to: #{new_status} before close" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
-    if old_status == 'waiting_list'
-      FactoryBot.create(:waiting_list, entries: [registration.user_id])
-    end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
     update_request = FactoryBot.build(:update_request, :site_admin, user_id: registration[:user_id], competing: { 'status' => new_status })
     stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
@@ -61,9 +52,6 @@ RSpec.shared_examples 'valid organizer status updates' do |old_status, new_statu
 
   it "after edit deadline/reg close, organizer can change 'status' => #{old_status} to: #{new_status}" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
-    if old_status == 'waiting_list'
-      FactoryBot.create(:waiting_list, entries: [registration.user_id])
-    end
     competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
     update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => new_status })
     stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
@@ -866,7 +854,11 @@ describe RegistrationChecker do
 
       it 'user cant submit an organizer comment' do
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'organizer_comment' => 'new admin comment' })
-
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
         }.to raise_error(RegistrationError) do |error|
@@ -877,7 +869,11 @@ describe RegistrationChecker do
 
       it 'user cant submit waiting_list_position' do
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'waiting_list_position' => '1' })
-
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+          )
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
         }.to raise_error(RegistrationError) do |error|
@@ -1295,7 +1291,7 @@ describe RegistrationChecker do
 
     describe '#update_registration_allowed!.validate_waiting_list_position!' do
       before do
-        @waiting_list = FactoryBot.create(:waiting_list)
+        @waiting_list = @competition_info.waiting_list
       end
 
       it 'must be an integer, not string' do

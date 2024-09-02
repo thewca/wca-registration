@@ -11,14 +11,14 @@ describe WaitingList do
     it 'first competitor in the waiting list gets set to position 1' do
       registration = FactoryBot.create(:registration, registration_status: 'pending')
       registration.update_competing_lane!({ status: 'waiting_list' }, @waiting_list)
-      expect(registration.waiting_list_position).to eq(1)
+      expect(registration.waiting_list_position(@waiting_list)).to eq(1)
     end
 
     it 'second competitor gets set to position 2' do
       @waiting_list.add(FactoryBot.create(:registration, :waiting_list).user_id)
       registration = FactoryBot.create(:registration, registration_status: 'pending')
       registration.update_competing_lane!({ status: 'waiting_list' }, @waiting_list)
-      expect(registration.waiting_list_position).to eq(2)
+      expect(registration.waiting_list_position(@waiting_list)).to eq(2)
     end
   end
 
@@ -42,51 +42,51 @@ describe WaitingList do
     it 'can be moved forward in the list' do
       @waiting_list.move_to_position(@registration4.user_id, 2)
 
-      expect(@registration1.waiting_list_position).to eq(1)
-      expect(@registration2.waiting_list_position).to eq(3)
-      expect(@registration3.waiting_list_position).to eq(4)
-      expect(@registration4.waiting_list_position).to eq(2)
-      expect(@registration5.waiting_list_position).to eq(5)
+      expect(@registration1.waiting_list_position(@waiting_list)).to eq(1)
+      expect(@registration2.waiting_list_position(@waiting_list)).to eq(3)
+      expect(@registration3.waiting_list_position(@waiting_list)).to eq(4)
+      expect(@registration4.waiting_list_position(@waiting_list)).to eq(2)
+      expect(@registration5.waiting_list_position(@waiting_list)).to eq(5)
     end
 
     it 'can be moved backward in the list' do
       @waiting_list.move_to_position(@registration2.user_id, 5)
 
-      expect(@registration1.waiting_list_position).to eq(1)
-      expect(@registration2.waiting_list_position).to eq(5)
-      expect(@registration3.waiting_list_position).to eq(2)
-      expect(@registration4.waiting_list_position).to eq(3)
-      expect(@registration5.waiting_list_position).to eq(4)
+      expect(@registration1.waiting_list_position(@waiting_list)).to eq(1)
+      expect(@registration2.waiting_list_position(@waiting_list)).to eq(5)
+      expect(@registration3.waiting_list_position(@waiting_list)).to eq(2)
+      expect(@registration4.waiting_list_position(@waiting_list)).to eq(3)
+      expect(@registration5.waiting_list_position(@waiting_list)).to eq(4)
     end
 
     it 'can be moved to the first position in the list' do
       @waiting_list.move_to_position(@registration5.user_id, 1)
 
-      expect(@registration1.waiting_list_position).to eq(2)
-      expect(@registration2.waiting_list_position).to eq(3)
-      expect(@registration3.waiting_list_position).to eq(4)
-      expect(@registration4.waiting_list_position).to eq(5)
-      expect(@registration5.waiting_list_position).to eq(1)
+      expect(@registration1.waiting_list_position(@waiting_list)).to eq(2)
+      expect(@registration2.waiting_list_position(@waiting_list)).to eq(3)
+      expect(@registration3.waiting_list_position(@waiting_list)).to eq(4)
+      expect(@registration4.waiting_list_position(@waiting_list)).to eq(5)
+      expect(@registration5.waiting_list_position(@waiting_list)).to eq(1)
     end
 
     it 'nothing happens if you move an item to its current position' do
       @waiting_list.move_to_position(@registration3.user_id, 3)
 
-      expect(@registration1.waiting_list_position).to eq(1)
-      expect(@registration2.waiting_list_position).to eq(2)
-      expect(@registration3.waiting_list_position).to eq(3)
-      expect(@registration4.waiting_list_position).to eq(4)
-      expect(@registration5.waiting_list_position).to eq(5)
+      expect(@registration1.waiting_list_position(@waiting_list)).to eq(1)
+      expect(@registration2.waiting_list_position(@waiting_list)).to eq(2)
+      expect(@registration3.waiting_list_position(@waiting_list)).to eq(3)
+      expect(@registration4.waiting_list_position(@waiting_list)).to eq(4)
+      expect(@registration5.waiting_list_position(@waiting_list)).to eq(5)
     end
 
     it 'can be moved to the last position in the list' do
       @waiting_list.move_to_position(@registration2.user_id, 5)
 
-      expect(@registration1.waiting_list_position).to eq(1)
-      expect(@registration2.waiting_list_position).to eq(5)
-      expect(@registration3.waiting_list_position).to eq(2)
-      expect(@registration4.waiting_list_position).to eq(3)
-      expect(@registration5.waiting_list_position).to eq(4)
+      expect(@registration1.waiting_list_position(@waiting_list)).to eq(1)
+      expect(@registration2.waiting_list_position(@waiting_list)).to eq(5)
+      expect(@registration3.waiting_list_position(@waiting_list)).to eq(2)
+      expect(@registration4.waiting_list_position(@waiting_list)).to eq(3)
+      expect(@registration5.waiting_list_position(@waiting_list)).to eq(4)
     end
 
     it 'cant be moved to a position greater than the list length' do
