@@ -55,9 +55,6 @@ class RegistrationController < ApplicationController
 
     RegistrationProcessor.set(message_group_id: message_group_id, message_deduplication_id: message_deduplication_id).perform_later(step_data)
 
-    # Invalidate Cache
-    Rails.cache.delete("#{@user_id}-registrations-by-user")
-
     render json: { status: 'accepted', message: 'Started Registration Process' }, status: :accepted
   end
 
