@@ -9,7 +9,7 @@ class LaneFactory
     competing_lane.completed_steps = ['Event Registration']
     competing_lane.lane_state = registration_status
     competing_lane.lane_details = {
-      'event_details' => event_ids.map { |event_id| { event_id: event_id, event_registration_state: registration_status } },
+      'event_details' => event_ids.map { |event_id| { 'event_id' => event_id, 'event_registration_state' => registration_status } },
       'comment' => comment,
       'admin_comment' => admin_comment,
       'waiting_list_position' => waiting_list_position.to_i,

@@ -77,6 +77,10 @@ class Registration
     competing_lane&.lane_details&.[]('event_details')
   end
 
+  def event_details_for(event_id)
+    competing_lane.lane_details['event_details'].find { |e| e['event_id'] == event_id }
+  end
+
   def competing_waiting_list_position
     competing_lane&.lane_details&.[]('waiting_list_position')
   end
@@ -141,9 +145,12 @@ class Registration
           lane.lane_state = update_params[:status]
 
           lane.lane_details['event_details'].each do |event|
-            # NOTE: Currently event_registration_state is not used - when per-event registrations are added, we need to add validation logic to support cases like
-            # limited registrations and waiting lists for certain events
-            event['event_registration_state'] = update_params[:status]
+            competition = CompetitionApi.find(competition_id)
+            if competition.get_qualification_for(event['event_id'])['type'] == 'ranking' && update_params[:status] == 'accepted'
+              event['event_registration_state'] = 'waiting_list'
+            else
+              event['event_registration_state'] = update_params[:status]
+            end
           end
         end
 
