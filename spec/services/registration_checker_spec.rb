@@ -21,6 +21,22 @@ RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
   end
 end
 
+RSpec.shared_examples 'user cant update rejected registration' do |old_status, new_status|
+  it "user cant change 'status' => #{old_status} to: #{new_status}" do
+    registration = FactoryBot.create(:registration, registration_status: old_status)
+    competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+    update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => new_status })
+    stub_request(:get, UserApi.permissions_path(registration[:user_id])).to_return(status: 200, body: FactoryBot.build(:permissions_response).to_json, headers: { content_type: 'application/json' })
+
+    expect {
+      RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+    }.to raise_error(RegistrationError) do |error|
+      expect(error.http_status).to eq(:unauthorized)
+      expect(error.error).to eq(ErrorCodes::REGISTRATION_IS_REJECTED)
+    end
+  end
+end
+
 RSpec.shared_examples 'valid organizer status updates' do |old_status, new_status|
   it "organizer can change 'status' => #{old_status} to: #{new_status} before close" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
@@ -1081,16 +1097,29 @@ describe RegistrationChecker do
         { old_status: 'pending', new_status: 'accepted' },
         { old_status: 'pending', new_status: 'waiting_list' },
         { old_status: 'pending', new_status: 'pending' },
+        { old_status: 'pending', new_status: 'rejected' },
         { old_status: 'waiting_list', new_status: 'pending' },
         { old_status: 'waiting_list', new_status: 'waiting_list' },
         { old_status: 'waiting_list', new_status: 'accepted' },
+        { old_status: 'waiting_list', new_status: 'rejected' },
         { old_status: 'accepted', new_status: 'pending' },
         { old_status: 'accepted', new_status: 'waiting_list' },
         { old_status: 'accepted', new_status: 'accepted' },
+        { old_status: 'accepted', new_status: 'rejected' },
         { old_status: 'cancelled', new_status: 'accepted' },
         { old_status: 'cancelled', new_status: 'waiting_list' },
+        { old_status: 'cancelled', new_status: 'rejected' },
       ].each do |params|
         it_behaves_like 'invalid user status updates', params[:old_status], params[:new_status]
+      end
+
+      [
+        { old_status: 'rejected', new_status: 'cancelled' },
+        { old_status: 'rejected', new_status: 'accepted' },
+        { old_status: 'rejected', new_status: 'waiting_list' },
+        { old_status: 'rejected', new_status: 'pending' },
+      ].each do |params|
+        it_behaves_like 'user cant update rejected registration', params[:old_status], params[:new_status]
       end
 
       it 'user cant cancel accepted registration if competition requires organizers to cancel registration' do
@@ -1138,18 +1167,26 @@ describe RegistrationChecker do
         { old_status: 'pending', new_status: 'waiting_list' },
         { old_status: 'pending', new_status: 'cancelled' },
         { old_status: 'pending', new_status: 'pending' },
+        { old_status: 'pending', new_status: 'rejected' },
         { old_status: 'waiting_list', new_status: 'pending' },
         { old_status: 'waiting_list', new_status: 'cancelled' },
         { old_status: 'waiting_list', new_status: 'waiting_list' },
         { old_status: 'waiting_list', new_status: 'accepted' },
+        { old_status: 'waiting_list', new_status: 'rejected' },
         { old_status: 'accepted', new_status: 'pending' },
         { old_status: 'accepted', new_status: 'cancelled' },
         { old_status: 'accepted', new_status: 'waiting_list' },
         { old_status: 'accepted', new_status: 'accepted' },
+        { old_status: 'accepted', new_status: 'rejected' },
         { old_status: 'cancelled', new_status: 'accepted' },
         { old_status: 'cancelled', new_status: 'pending' },
         { old_status: 'cancelled', new_status: 'waiting_list' },
+        { old_status: 'cancelled', new_status: 'rejected' },
         { old_status: 'cancelled', new_status: 'cancelled' },
+        { old_status: 'rejected', new_status: 'accepted' },
+        { old_status: 'rejected', new_status: 'pending' },
+        { old_status: 'rejected', new_status: 'waiting_list' },
+        { old_status: 'rejected', new_status: 'cancelled' },
       ].each do |params|
         it_behaves_like 'valid organizer status updates', params[:old_status], params[:new_status]
       end
