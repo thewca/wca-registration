@@ -18,7 +18,7 @@ describe Registration do
     end
   end
 
-  describe '#update_competing_lane!', :tag do
+  describe '#update_competing_lane!' do
     RSpec.shared_examples 'competing_status updates' do |old_status, new_status|
       it "given #{new_status}, #{old_status} updates as expected" do
         registration = FactoryBot.create(:registration, registration_status: old_status)
@@ -298,6 +298,27 @@ describe Registration do
         expect(registration_3.competing_waiting_list_position).to eq(2)
       end
     end
+  end
+
+  describe '#update_competing_lane#event_waiting_lists', :tag do
+    RSpc.shared_examples 'ranking qualification: event_registration_state updates' do
+      it 'event_status must correspond to updated competing_status' do |start_status, new_status, event_status|
+        competition = FactoryBot.build(:competition, :has_qualifications)
+        stub_json(CompetitionApi.url(competition['id']), 200, competition)
+        stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
+
+        registration = FactoryBot.create(:registration, registration_status: start_status, events: ['pyram'])
+        registration.update_competing_lane!({ status: new_status })
+
+        expect(registration.event_details_for('pyram')['event_registration_state']).to eq(event_status)
+      end
+    end
+    [
+      { starting_competing_status: 'pending', new_competing_status: 'accepted', expected_event_state: 'waiting_list' },
+    ].each do |params|
+      it_behaves_like 'ranking qualification: event_registration_state updates', params[:starting_competing_status], params[:new_competing_status], params[:expected_event_state]
+    end
+
   end
 
   describe '#accepted_competitors' do
