@@ -48,6 +48,14 @@ unless Rails.env.production?
   ]
   begin
     dynamodb.create_table({
+                            table_name: EnvConfig.WAITING_LIST_DYNAMO_TABLE,
+                            key_schema: [{ attribute_name: 'id', key_type: 'HASH' }],
+                            provisioned_throughput: provisioned_throughput,
+                            attribute_definitions: [
+                              { attribute_name: 'id', attribute_type: 'S' },
+                            ],
+                          })
+    dynamodb.create_table({
                             table_name: table_name,
                             key_schema: key_schema,
                             attribute_definitions: attribute_definitions,
