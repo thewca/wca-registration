@@ -5,21 +5,27 @@ require 'rails_helper'
 # TODO: Add a test where one comp has a lot of competitors and another doesnt but you can still accept, to ensure that we're checking the reg count
 # for the COMPETITION, not all registrations
 
-RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
-  it "user cant change 'status' => #{old_status} to: #{new_status}" do
-    registration = FactoryBot.create(:registration, registration_status: old_status)
-    competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
-    update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => new_status })
-    stub_request(:get, UserApi.permissions_path(registration[:user_id])).to_return(status: 200, body: FactoryBot.build(:permissions_response).to_json, headers: { content_type: 'application/json' })
+USER_ALLOWED_STATUS_UPDATES = [
+  { initial_status: 'pending', new_status: 'cancelled' },
+  { initial_status: 'waiting_list', new_status: 'cancelled' },
+  { initial_status: 'accepted', new_status: 'cancelled' },
+  { initial_status: 'cancelled', new_status: 'pending' },
+  { initial_status: 'cancelled', new_status: 'cancelled' },
+].freeze
 
-    expect {
-      RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
-    }.to raise_error(RegistrationError) do |error|
-      expect(error.http_status).to eq(:unauthorized)
-      expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
-    end
-  end
-end
+USER_FORBIDDEN_STATUS_UPDATES = [
+  { initial_status: 'pending', new_status: 'accepted' },
+  { initial_status: 'pending', new_status: 'waiting_list' },
+  { initial_status: 'pending', new_status: 'pending' },
+  { initial_status: 'waiting_list', new_status: 'pending' },
+  { initial_status: 'waiting_list', new_status: 'waiting_list' },
+  { initial_status: 'waiting_list', new_status: 'accepted' },
+  { initial_status: 'accepted', new_status: 'pending' },
+  { initial_status: 'accepted', new_status: 'waiting_list' },
+  { initial_status: 'accepted', new_status: 'accepted' },
+  { initial_status: 'cancelled', new_status: 'accepted' },
+  { initial_status: 'cancelled', new_status: 'waiting_list' },
+].freeze
 
 RSpec.shared_examples 'valid organizer status updates' do |old_status, new_status|
   it "organizer can change 'status' => #{old_status} to: #{new_status} before close" do
@@ -999,7 +1005,51 @@ describe RegistrationChecker do
     end
 
     describe '#update_registration_allowed!.validate_update_status!' do
-      it 'user cant submit an invalid status' do
+      describe 'user status combinations' do
+        it 'tests cover all possible user status update combinations' do
+          combined_updates = (USER_ALLOWED_STATUS_UPDATES << USER_FORBIDDEN_STATUS_UPDATES).flatten
+          expect(combined_updates).to match_array(REGISTRATION_TRANSITIONS)
+        end
+
+        RSpec.shared_examples 'forbidden user status updates' do |initial_status, new_status|
+          it "user cant change status '#{initial_status}' to: #{new_status}" do
+            override_registration = FactoryBot.create(:registration, registration_status: initial_status)
+            update_request = FactoryBot.build(:update_request, user_id: override_registration[:user_id], competing: { 'status' => new_status })
+            stub_request(:get, UserApi.permissions_path(override_registration[:user_id])).to_return(
+              status: 200,
+              body: FactoryBot.build(:permissions_response).to_json,
+              headers: { content_type: 'application/json' },
+            )
+
+            expect {
+              RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
+            }.to raise_error(RegistrationError) do |error|
+              expect(error.http_status).to eq(:unauthorized)
+              expect(error.error).to eq(ErrorCodes::USER_INSUFFICIENT_PERMISSIONS)
+            end
+          end
+        end
+
+        USER_FORBIDDEN_STATUS_UPDATES.each do |params|
+          it_behaves_like 'forbidden user status updates', params[:initial_status], params[:new_status]
+        end
+
+        RSpec.shared_examples 'allowed user status updates' do |initial_status, new_status|
+          it "user may change status '#{initial_status}' to: #{new_status}" do
+            override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
+            update_request = FactoryBot.build(:update_request, user_id: override_registration[:user_id], competing: { 'status' => 'cancelled' })
+
+            expect { RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by']) }
+              .not_to raise_error
+          end
+        end
+
+        USER_ALLOWED_STATUS_UPDATES.each do |params|
+          it_behaves_like 'allowed user status updates', params[:initial_status], params[:new_status]
+        end
+      end
+
+      it 'user cant submit a non-existent status' do
         override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
         update_request = FactoryBot.build(:update_request, user_id: override_registration[:user_id], competing: { 'status' => 'random_status' })
 
@@ -1011,7 +1061,7 @@ describe RegistrationChecker do
         end
       end
 
-      it 'organizer cant submit an invalid status' do
+      it 'organizer cant submit a non-existent status' do
         override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
         update_request = FactoryBot.build(:update_request, :organizer_as_user, user_id: override_registration[:user_id], competing: { 'status' => 'random_status' })
 
@@ -1047,14 +1097,6 @@ describe RegistrationChecker do
           .not_to raise_error
       end
 
-      it 'user can change state to cancelled' do
-        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
-        update_request = FactoryBot.build(:update_request, user_id: override_registration[:user_id], competing: { 'status' => 'cancelled' })
-
-        expect { RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by']) }
-          .not_to raise_error
-      end
-
       it 'user cant change events when cancelling' do
         override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
         update_request = FactoryBot.build(
@@ -1067,30 +1109,6 @@ describe RegistrationChecker do
           expect(error.http_status).to eq(:unprocessable_entity)
           expect(error.error).to eq(ErrorCodes::INVALID_REQUEST_DATA)
         end
-      end
-
-      it 'user can change state from cancelled to pending' do
-        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'cancelled')
-        update_request = FactoryBot.build(:update_request, user_id: override_registration[:user_id], competing: { 'status' => 'pending' })
-
-        expect { RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by']) }
-          .not_to raise_error
-      end
-
-      [
-        { old_status: 'pending', new_status: 'accepted' },
-        { old_status: 'pending', new_status: 'waiting_list' },
-        { old_status: 'pending', new_status: 'pending' },
-        { old_status: 'waiting_list', new_status: 'pending' },
-        { old_status: 'waiting_list', new_status: 'waiting_list' },
-        { old_status: 'waiting_list', new_status: 'accepted' },
-        { old_status: 'accepted', new_status: 'pending' },
-        { old_status: 'accepted', new_status: 'waiting_list' },
-        { old_status: 'accepted', new_status: 'accepted' },
-        { old_status: 'cancelled', new_status: 'accepted' },
-        { old_status: 'cancelled', new_status: 'waiting_list' },
-      ].each do |params|
-        it_behaves_like 'invalid user status updates', params[:old_status], params[:new_status]
       end
 
       it 'user cant cancel accepted registration if competition requires organizers to cancel registration' do
