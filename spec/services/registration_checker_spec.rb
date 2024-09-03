@@ -701,6 +701,11 @@ describe RegistrationChecker do
       it 'user cant update registration if registration edits arent allowed' do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, allow_registration_edits: false))
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id])
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
@@ -713,6 +718,11 @@ describe RegistrationChecker do
       it 'user cant change events after event change deadline' do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :event_change_deadline_passed))
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'event_ids' => ['333', '444', '555'] })
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
@@ -837,6 +847,11 @@ describe RegistrationChecker do
       it 'user cant change comment after edit events deadline' do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :event_change_deadline_passed))
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'comment' => 'this is a new comment' })
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
@@ -1004,7 +1019,11 @@ describe RegistrationChecker do
       it 'user cant change guests after registration change deadline' do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, event_change_deadline_date: '2022-06-14T00:00:00.000Z'))
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], guests: 2)
-
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
         }.to raise_error(RegistrationError) do |error|
@@ -1161,6 +1180,11 @@ describe RegistrationChecker do
       it 'user cant cancel registration after registration ends' do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'status' => 'cancelled' })
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
