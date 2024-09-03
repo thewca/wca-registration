@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
 class CompetitionInfo
-  attr_accessor :competition_id, :waiting_list
+  attr_accessor :competition_id
 
   def initialize(competition_json)
     @competition_json = competition_json
     @competition_id = competition_json['id']
     @qualifications = fetch_qualifications
-    @waiting_list = WaitingList.find_or_create!(@competition_id)
+    @waiting_list = nil
+  end
+
+  def waiting_list
+    @waiting_list ||= WaitingList.find_or_create!(@competition_id)
   end
 
   def start_date
