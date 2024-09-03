@@ -322,6 +322,12 @@ class RegistrationController < ApplicationController
 
     def get_single_registration(user_id, competition_id)
       registration = Registration.find("#{competition_id}-#{user_id}")
+      waiting_list_position = if registration.competing_status == 'waiting_list'
+                                waiting_list = WaitingList.find_or_create!(competition_id)
+                                registration.waiting_list_position(waiting_list)
+                              else
+                                nil
+                              end
       {
         user_id: registration['user_id'],
         guests: registration.guests,
@@ -331,6 +337,7 @@ class RegistrationController < ApplicationController
           registered_on: registration['created_at'],
           comment: registration.competing_comment,
           admin_comment: registration.admin_comment,
+          waiting_list_position: waiting_list_position,
         },
         payment: {
           payment_status: registration.payment_status,
