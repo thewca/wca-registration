@@ -217,7 +217,7 @@ resource "aws_ecs_service" "this" {
   }
 
   network_configuration {
-    security_groups = []
+    security_groups = [var.shared_resources.cluster_security.id]
     subnets         = var.shared_resources.private_subnets
   }
 

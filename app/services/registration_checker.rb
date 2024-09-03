@@ -62,6 +62,7 @@ class RegistrationChecker
       # Only organizers can register when registration is closed, and they can only register for themselves - not for other users
       raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || organizer_modifying_own_registration?
 
+      # Users must have the necessary permissions to compete - eg, they cannot be banned or have incomplete profiles
       can_compete = UserApi.can_compete?(@requestee_user_id, @competition_info.start_date)
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
 
@@ -72,7 +73,12 @@ class RegistrationChecker
     def user_can_modify_registration!
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless can_administer_or_current_user?
       raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || UserApi.can_administer?(@requester_user_id, @competition_info.id)
+      raise RegistrationError.new(:unauthorized, ErrorCodes::REGISTRATION_IS_REJECTED) if user_is_rejected?
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
+    end
+
+    def user_is_rejected?
+      @requester_user_id == @requestee_user_id && @registration.competing_status == 'rejected'
     end
 
     def organizer_modifying_own_registration?
