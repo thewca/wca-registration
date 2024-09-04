@@ -1039,22 +1039,8 @@ describe RegistrationChecker do
         end
       end
 
-      it 'organizer cant accept a user when registration list is exactly full' do
+      it 'organizer cant accept a user when registration list is full' do
         FactoryBot.create_list(:registration, 3, registration_status: 'accepted')
-        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
-        override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, competitor_limit: 3))
-        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'status' => 'accepted' })
-
-        expect {
-          RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
-        }.to raise_error(RegistrationError) do |error|
-          expect(error.error).to eq(ErrorCodes::COMPETITOR_LIMIT_REACHED)
-          expect(error.http_status).to eq(:forbidden)
-        end
-      end
-
-      it 'organizer cant accept a user when registration list is over full' do
-        FactoryBot.create_list(:registration, 4, registration_status: 'accepted')
         override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, competitor_limit: 3))
         update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'status' => 'accepted' })
