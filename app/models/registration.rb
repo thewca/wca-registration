@@ -32,7 +32,7 @@ class Registration
   end
 
   def self.accepted_competitors_count(competition_id)
-    Rails.cache.fetch("#{competition_id}-accepted-count", expires_in: 60.minutes, raw: true) do
+    Integer(Rails.cache.fetch("#{competition_id}-accepted-count", expires_in: 60.minutes, raw: true)) do
       self.accepted_competitors(competition_id)
     end
   end
