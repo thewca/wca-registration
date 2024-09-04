@@ -43,9 +43,7 @@ resource "aws_dynamodb_table" "registrations" {
 
 resource "aws_dynamodb_table" "registration_history" {
   name           = "registrations_history-staging"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 5
-  write_capacity = 5
+  billing_mode   = "PAY_PER_REQUEST"
   hash_key = "attendee_id"
 
   attribute {
@@ -61,6 +59,21 @@ resource "aws_dynamodb_table" "registration_history" {
   lifecycle {
     ignore_changes = [ttl]
   }
+  tags = {
+    Env = "staging"
+  }
+}
+
+resource "aws_dynamodb_table" "waiting_list" {
+  name           = "waiting_list-staging"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key = "id"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+
   tags = {
     Env = "staging"
   }

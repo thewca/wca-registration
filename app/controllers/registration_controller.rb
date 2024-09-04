@@ -5,7 +5,7 @@ require 'jwt'
 require 'time'
 
 class RegistrationController < ApplicationController
-  skip_before_action :validate_jwt_token, only: [:list, :list_waiting, :count]
+  skip_before_action :validate_jwt_token, only: [:list, :count]
   # The order of the validations is important to not leak any non public info via the API
   # That's why we should always validate a request first, before taking any other before action
   # before_actions are triggered in the order they are defined
@@ -63,6 +63,7 @@ class RegistrationController < ApplicationController
     @user_id = registration_params[:user_id]
     RegistrationChecker.create_registration_allowed!(registration_params, CompetitionApi.find(@competition_id), @current_user)
   rescue RegistrationError => e
+    Rails.logger.debug { "Create was rejected with error #{e.error} at #{e.backtrace[0]}" }
     render_error(e.http_status, e.error, e.data)
   end
 
@@ -78,8 +79,9 @@ class RegistrationController < ApplicationController
   def validate_update_request
     @user_id = params[:user_id]
     @competition_id = params[:competition_id]
+    @competition_info = CompetitionApi.find!(@competition_id)
 
-    RegistrationChecker.update_registration_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
+    RegistrationChecker.update_registration_allowed!(params, @competition_info, @current_user)
   rescue RegistrationError => e
     render_error(e.http_status, e.error, e.data)
   end
@@ -102,7 +104,8 @@ class RegistrationController < ApplicationController
 
   def validate_bulk_update_request
     @competition_id = params.require('competition_id')
-    RegistrationChecker.bulk_update_allowed!(params, CompetitionApi.find!(@competition_id), @current_user)
+    @competition_info = CompetitionApi.find!(@competition_id)
+    RegistrationChecker.bulk_update_allowed!(params, @competition_info, @current_user)
   rescue BulkUpdateError => e
     render_error(e.http_status, e.errors)
   rescue NoMethodError
@@ -121,7 +124,8 @@ class RegistrationController < ApplicationController
 
     registration = Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
-    updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position })
+    waiting_list = @competition_info.waiting_list
+    updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position }, waiting_list)
     registration.history.add_entry(update_changes(update_request), 'user', @current_user, action_type(update_request))
     if old_status == 'accepted' && status != 'accepted'
       Registration.decrement_competitors_count(@competition_id)
@@ -194,24 +198,6 @@ class RegistrationController < ApplicationController
            status: :internal_server_error
   end
 
-  def list_waiting
-    competition_id = list_params
-
-    waiting = Registration.get_registrations_by_status(competition_id, 'waiting_list').map do |registration|
-      {
-        user_id: registration[:user_id],
-        waiting_list_position: registration.competing_waiting_list_position || 0,
-      }
-    end
-    render json: waiting
-  rescue Dynamoid::Errors::Error => e
-    # Render an error response
-    Rails.logger.debug e
-    Metrics.registration_dynamodb_errors_counter.increment
-    render json: { error: "Error getting registrations #{e}" },
-           status: :internal_server_error
-  end
-
   # To list Registrations in the admin view you need to be able to administer the competition
   def validate_list_admin
     @competition_id = list_params
@@ -222,10 +208,10 @@ class RegistrationController < ApplicationController
 
   def list_admin
     registrations = get_registrations(@competition_id)
-    render json: add_pii(registrations)
+    registrations_with_pii = add_pii(registrations)
+    render json: add_waiting_list(@competition_id, registrations_with_pii)
   rescue Dynamoid::Errors::Error => e
     Rails.logger.debug e
-    # Is there a reason we aren't using an error code here?
     Metrics.registration_dynamodb_errors_counter.increment
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
@@ -301,6 +287,16 @@ class RegistrationController < ApplicationController
       end
     end
 
+    def add_waiting_list(competition_id, registrations)
+      list = WaitingList.find_or_create!(competition_id).entries
+      return registrations if list.empty?
+      registrations.map do |r|
+        waiting_list_index = list.find_index(r[:user_id])
+        r[:competing].merge!(waiting_list_position: waiting_list_index + 1) if waiting_list_index.present?
+        r
+      end
+    end
+
     def get_registrations(competition_id, only_attending: false)
       if only_attending
         Registration.where(competition_id: competition_id, competing_status: 'accepted').all.map do |x|
@@ -318,7 +314,6 @@ class RegistrationController < ApplicationController
               registered_on: x['created_at'],
               comment: x.competing_comment,
               admin_comment: x.admin_comment,
-              waiting_list_position: x.competing_waiting_list_position,
             },
             payment: {
               payment_status: x.payment_status,
@@ -333,6 +328,12 @@ class RegistrationController < ApplicationController
 
     def get_single_registration(user_id, competition_id)
       registration = Registration.find("#{competition_id}-#{user_id}")
+      waiting_list_position = if registration.competing_status == 'waiting_list'
+                                waiting_list = WaitingList.find_or_create!(competition_id)
+                                registration.waiting_list_position(waiting_list)
+                              else
+                                nil
+                              end
       {
         user_id: registration['user_id'],
         guests: registration.guests,
@@ -342,7 +343,7 @@ class RegistrationController < ApplicationController
           registered_on: registration['created_at'],
           comment: registration.competing_comment,
           admin_comment: registration.admin_comment,
-          waiting_list_position: registration.competing_waiting_list_position,
+          waiting_list_position: waiting_list_position,
         },
         payment: {
           payment_status: registration.payment_status,

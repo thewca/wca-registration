@@ -10,7 +10,6 @@ FactoryBot.define do
       guests { 0 }
       registration_status { 'incoming' }
       organizer_comment { '' }
-      waiting_list_position { nil }
     end
 
     user_id { rand(100000..200000) }
@@ -22,10 +21,17 @@ FactoryBot.define do
         comment: comment,
         registration_status: registration_status,
         admin_comment: organizer_comment,
-        waiting_list_position: waiting_list_position,
       )]
     }
     history { association :registration_history, attendee_id: "#{competition_id}-#{user_id}" }
+  end
+
+  trait :waiting_list do
+    registration_status { 'waiting_list' }
+  end
+
+  trait :accepted do
+    registration_status { 'accepted' }
   end
 
   trait :admin do

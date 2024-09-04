@@ -57,6 +57,10 @@ variable "shared_resources" {
       name: string,
       arn: string
     }),
+    dynamo_waiting_list_table: object({
+      name: string,
+      arn: string
+    }),
     queue: object({
       arn: string,
       name: string
