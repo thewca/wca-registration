@@ -77,10 +77,6 @@ class Registration
     competing_lane&.lane_details&.[]('event_details')
   end
 
-  def competing_waiting_list_position
-    competing_lane&.lane_details&.[]('waiting_list_position')
-  end
-
   def competing_comment
     competing_lane&.lane_details&.[]('comment')
   end
@@ -101,6 +97,11 @@ class Registration
     payment_lane&.lane_details&.[]('amount_lowest_denominator')
   end
 
+  def waiting_list_position(waiting_list)
+    return nil if competing_status != 'waiting_list'
+    waiting_list.entries.find_index(user_id) + 1
+  end
+
   def payment_amount_human_readable
     payment_details = payment_lane&.lane_details
     unless payment_details.nil?
@@ -116,17 +117,7 @@ class Registration
     payment_lane&.lane_details&.[]('payment_history')
   end
 
-  def update_competing_waiting_list_position(new_position)
-    updated_lanes = lanes.map do |lane|
-      if lane.lane_name == 'competing'
-        lane.lane_details['waiting_list_position'] = new_position
-      end
-      lane
-    end
-    update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: guests)
-  end
-
-  def update_competing_lane!(update_params)
+  def update_competing_lane!(update_params, waiting_list)
     has_waiting_list_changed = waiting_list_changed?(update_params)
 
     updated_lanes = lanes.map do |lane|
@@ -134,7 +125,7 @@ class Registration
 
         # Update status for lane and events
         if has_waiting_list_changed
-          update_waiting_list(lane, update_params)
+          update_waiting_list(update_params, waiting_list)
         end
 
         if update_params[:status].present?
@@ -158,14 +149,7 @@ class Registration
     end
     # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
     updated_guests = (update_params[:guests].presence || guests)
-    updated_values = update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests)
-    if has_waiting_list_changed
-      # Update waiting list caches
-      Rails.cache.delete("#{competition_id}-waiting_list_registrations")
-      Rails.cache.delete("#{competition_id}-waiting_list_boundaries")
-      competing_lane.get_waiting_list_boundaries(competition_id)
-    end
-    updated_values
+    update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests)
   end
 
   def init_payment_lane(amount, currency_code, id, donation)
@@ -187,15 +171,15 @@ class Registration
     update_attributes!(lanes: updated_lanes)
   end
 
-  def update_waiting_list(lane, update_params)
-    update_params[:waiting_list_position]&.to_i
-    lane.add_to_waiting_list(competition_id) if update_params[:status] == 'waiting_list'
-    lane.accept_from_waiting_list if update_params[:status] == 'accepted'
-    lane.remove_from_waiting_list(competition_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
-    lane.move_within_waiting_list(competition_id, update_params[:waiting_list_position].to_i) if
-      update_params[:waiting_list_position].present? && update_params[:waiting_list_position] != competing_waiting_list_position
-  end
+  def update_waiting_list(update_params, waiting_list)
+    raise ArgumentError.new('Can only accept waiting list leader') if update_params[:status] == 'accepted' && waiting_list_position(waiting_list) != 1
 
+    waiting_list.add(self.user_id) if update_params[:status] == 'waiting_list'
+    waiting_list.remove(self.user_id) if update_params[:status] == 'accepted'
+    waiting_list.remove(self.user_id) if update_params[:status] == 'cancelled' || update_params[:status] == 'pending'
+    waiting_list.move_to_position(self.user_id, update_params[:waiting_list_position].to_i) if
+      update_params[:waiting_list_position].present?
+  end
   # Fields
   field :user_id, :integer
   field :guests, :integer
@@ -224,8 +208,7 @@ class Registration
     end
 
     def waiting_list_position_changed?(update_params)
-      return false if update_params[:waiting_list_position].blank?
-      update_params[:waiting_list_position] != competing_waiting_list_position
+      update_params[:waiting_list_position].present?
     end
 
     def waiting_list_status_changed?(update_params)

@@ -21,7 +21,6 @@ Rails.application.routes.draw do
   get '/api/v1/registrations/mine', to: 'registration#mine'
   get '/api/v1/registrations/:competition_id', to: 'registration#list'
   get '/api/v1/registrations/:competition_id/admin', to: 'registration#list_admin'
-  get '/api/v1/registrations/:competition_id/waiting', to: 'registration#list_waiting'
   get '/api/v1/:competition_id/payment', to: 'registration#payment_ticket'
   get '/api/v1/:competition_id/count', to: 'registration#count'
   post '/api/v1/:competition_id/import', to: 'registration#import'

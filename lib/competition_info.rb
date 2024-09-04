@@ -7,6 +7,11 @@ class CompetitionInfo
     @competition_json = competition_json
     @competition_id = competition_json['id']
     @qualifications = fetch_qualifications
+    @waiting_list = nil
+  end
+
+  def waiting_list
+    @waiting_list ||= WaitingList.find_or_create!(@competition_id)
   end
 
   def start_date
