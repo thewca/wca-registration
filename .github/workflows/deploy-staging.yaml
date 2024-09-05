@@ -1,0 +1,48 @@
+name: Deploy Main to Staging
+on:
+  workflow_dispatch:
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.CI_CD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CI_CD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push handler Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          file: dockerfile.handler
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/wca-registration-handler:staging
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_TAG=${{ github.sha }}
+      - name: Build and push worker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          file: dockerfile.worker
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/wca-registration-worker:staging
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_TAG=${{ github.sha }}
+      - name: Deploy
+        env:
+          CLUSTER_NAME: wca-registration-staging
+        run: |
+          aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service Staging-Service --force-new-deployment

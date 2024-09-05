@@ -22,10 +22,13 @@ jobs:
         id: comment-branch
         uses: xt0rted/pull-request-comment-branch@v2
         if: steps.trigger-deployment.outputs.triggered == 'true'
-      - name: Checkout repository
+      - name: Checkout `main` branch
         uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.comment-branch.outputs.head_ref }}
+      - name: Checkout PR branch
+        run: gh pr checkout $PR_NUMBER
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
         if: steps.trigger-deployment.outputs.triggered == 'true'
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -41,23 +44,35 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
         if: steps.trigger-deployment.outputs.triggered == 'true'
+      - name: Build and push handler Image
+        if: steps.trigger-deployment.outputs.triggered == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          file: dockerfile.handler
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/wca-registration-handler:staging
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_TAG=${{ github.sha }}
+      - name: Build and push worker Image
+        if: steps.trigger-deployment.outputs.triggered == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          file: dockerfile.worker
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/wca-registration-worker:staging
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_TAG=${{ github.sha }}
       - name: Deploy if triggered
         if: steps.trigger-deployment.outputs.triggered == 'true'
         env:
           CLUSTER_NAME: wca-registration-staging
         run: |
-          docker build -f dockerfile.handler -t wca-registration-handler .
-          docker build -f dockerfile.worker -t wca-registration-worker .
-          docker tag wca-registration-handler:latest ${{ steps.login-ecr.outputs.registry }}/wca-registration-handler:staging
-          docker tag wca-registration-worker:latest ${{ steps.login-ecr.outputs.registry }}/wca-registration-worker:staging
-          docker push ${{ steps.login-ecr.outputs.registry }}/wca-registration-handler:staging
-          docker push ${{ steps.login-ecr.outputs.registry }}/wca-registration-worker:staging
-          aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service Staging-Service --force-new-deployment --desired-count 1
-      - name: Deploy Frontend
-        if: steps.trigger-deployment.outputs.triggered == 'true'
-        run: |
-          cd ./Frontend
-          npm install
-          npm run build:staging
-          aws s3 sync dist s3://assets.registration.worldcubeassociation.org/staging/dist
-          aws cloudfront create-invalidation --distribution-id E322K044MBR5FG --paths "/staging/dist/*" --output text
+          aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service Staging-Service --force-new-deployment

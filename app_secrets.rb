@@ -9,7 +9,7 @@ SuperConfig::Base.class_eval do
   #   (method SuperConfig::Base#credential). The inner Vault fetching logic is custom-written :)
   def vault(secret_name, &block)
     define_singleton_method(secret_name) do
-      @__cache__["_vault_#{secret_name}".to_sym] ||= begin
+      @__cache__["_vault_#{secret_name}"] ||= begin
         value = self.vault_read(secret_name)[:value]
         block ? block.call(value) : value
       end
@@ -21,7 +21,7 @@ SuperConfig::Base.class_eval do
       puts "Received exception #{e} from Vault - attempt #{attempt}" if e.present?
 
       secret = Vault.logical.read("kv/data/#{EnvConfig.VAULT_APPLICATION}/#{secret_name}")
-      raise "Tried to read #{secret_name}, but doesn't exist" unless secret.present?
+      raise "Tried to read #{secret_name}, but doesn't exist" if secret.blank?
 
       secret.data[:data]
     end
@@ -34,6 +34,7 @@ AppSecrets = SuperConfig.new do
 
     vault :JWT_SECRET
     vault :SECRET_KEY_BASE
+    vault :NEW_RELIC_LICENSE_KEY
 
   else
     mandatory :JWT_SECRET, :string

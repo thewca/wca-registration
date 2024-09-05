@@ -10,6 +10,18 @@ variable "name_prefix" {
   default     = "wca-registration-worker"
 }
 
+variable "vault_address" {
+  type = string
+  description = "The Address that vault is running at"
+  default = "http://vault.worldcubeassociation.org:8200"
+}
+
+variable "host" {
+  type        = string
+  description = "The host for generating absolute URLs in the application"
+  default     = "registration.worldcubeassociation.org"
+}
+
 variable "region" {
   type        = string
   description = "The region to operate in"
@@ -30,7 +42,7 @@ variable "availability_zones" {
 variable "wca_host" {
   type        = string
   description = "The host for generating absolute URLs in the application"
-  default     = "worldcubeassociation.org"
+  default     = "https://www.worldcubeassociation.org"
 }
 
 variable "shared_resources" {
@@ -40,9 +52,18 @@ variable "shared_resources" {
       name: string,
       arn: string
     }),
+    dynamo_registration_history_table: object({
+      name: string,
+      arn: string
+    }),
+    dynamo_waiting_list_table: object({
+      name: string,
+      arn: string
+    }),
     queue: object({
       arn: string,
-      url: string
+      url: string,
+      name: string
     }),
     ecs_cluster: object({
       id: string,
@@ -50,9 +71,6 @@ variable "shared_resources" {
     }),
     capacity_provider: object({
       name: string
-    }),
-    main_target_group: object({
-      arn: string
     }),
     cluster_security: object({
       id: string
@@ -72,6 +90,9 @@ variable "shared_resources" {
     api_gateway: object({
       id: string,
       root_resource_id: string
+    }),
+    aws_elasticache_cluster: object({
+      cache_nodes: any
     })
   })
 }

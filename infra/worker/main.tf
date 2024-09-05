@@ -5,6 +5,10 @@ resource "aws_cloudwatch_log_group" "this" {
 locals {
   app_environment = [
     {
+      name  = "HOST"
+      value = var.host
+    },
+    {
       name  = "WCA_HOST"
       value = var.wca_host
     },
@@ -13,20 +17,44 @@ locals {
       value = var.region
     },
     {
-      name = "QUEUE_URL",
-      value = var.shared_resources.queue.url
+      name = "QUEUE_NAME",
+      value = var.shared_resources.queue.name
     },
     {
-      name = "CODE_ENVIRONMENT"
-      value = "production"
+      name = "VAULT_ADDR"
+      value = var.vault_address
+    },
+    {
+      name = "VAULT_APPLICATION",
+      value = "wca-registration-production"
+    },
+    {
+      name = "REGISTRATION_LIVE_SITE",
+      value = "true"
     },
     {
       name = "PROMETHEUS_EXPORTER"
       value = var.prometheus_address
     },
     {
+      name = "TASK_ROLE"
+      value = aws_iam_role.task_role.name
+    },
+    {
       name = "DYNAMO_REGISTRATIONS_TABLE",
       value = var.shared_resources.dynamo_registration_table.name
+    },
+    {
+      name = "REGISTRATION_HISTORY_DYNAMO_TABLE",
+      value = var.shared_resources.dynamo_registration_history_table.name
+    },
+    {
+      name = "WAITING_LIST_DYNAMO_TABLE",
+      value = var.shared_resources.dynamo_waiting_list_table.name
+    },
+    {
+      name = "REDIS_URL"
+      value = "redis://${var.shared_resources.aws_elasticache_cluster.cache_nodes.0.address}:${var.shared_resources.aws_elasticache_cluster.cache_nodes.0.port}"
     },
   ]
 }
@@ -78,7 +106,9 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:DeleteItem",
       "dynamodb:DescribeTable",
     ]
-    resources = [var.shared_resources.dynamo_registration_table.arn, "${var.shared_resources.dynamo_registration_table.arn}/*"]
+    resources = [var.shared_resources.dynamo_registration_table.arn, "${var.shared_resources.dynamo_registration_table.arn}/*",
+                 var.shared_resources.dynamo_registration_history_table.arn, "${var.shared_resources.dynamo_registration_history_table.arn}/*",
+                 var.shared_resources.dynamo_waiting_list_table.arn, "${var.shared_resources.dynamo_waiting_list_table.arn}/*"]
   }
   statement {
     effect = "Allow"
@@ -187,7 +217,7 @@ resource "aws_ecs_service" "this" {
   }
 
   network_configuration {
-    security_groups = []
+    security_groups = [var.shared_resources.cluster_security.id]
     subnets         = var.shared_resources.private_subnets
   }
 

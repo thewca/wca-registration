@@ -43,7 +43,7 @@ variable "availability_zones" {
 variable "wca_host" {
   type        = string
   description = "The host for the WCA Monolith"
-  default     = "staging.worldcubeassociation.org"
+  default     = "https://staging.worldcubeassociation.org"
 }
 
 variable "registration-handler-ecr-repository" {

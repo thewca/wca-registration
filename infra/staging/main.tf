@@ -3,32 +3,6 @@ resource "aws_cloudwatch_log_group" "this" {
 }
 
 locals {
-  worker_environment = [
-    {
-      name = "PROMETHEUS_EXPORTER"
-      value = var.prometheus_address
-    },
-    {
-      name = "AWS_REGION"
-      value = var.region
-    },
-    {
-      name  = "WCA_HOST"
-      value = var.wca_host
-    },
-    {
-      name = "DYNAMO_REGISTRATIONS_TABLE",
-      value = aws_dynamodb_table.registrations.name
-    },
-    {
-      name = "QUEUE_URL",
-      value = aws_sqs_queue.this.url
-    },
-    { # We don't have access to RAILS_ENV as the worker uses plain ruby
-      name = "CODE_ENVIRONMENT",
-      value = "staging"
-    }
-  ]
   app_environment = [
     {
       name  = "WCA_HOST"
@@ -55,8 +29,8 @@ locals {
       value = var.vault_address
     },
     {
-      name = "QUEUE_URL",
-      value = aws_sqs_queue.this.url
+      name = "QUEUE_NAME",
+      value = aws_sqs_queue.this.name
     },
     {
       name = "TASK_ROLE"
@@ -65,6 +39,14 @@ locals {
     {
       name = "DYNAMO_REGISTRATIONS_TABLE",
       value = aws_dynamodb_table.registrations.name
+    },
+    {
+      name = "REGISTRATION_HISTORY_DYNAMO_TABLE",
+      value = aws_dynamodb_table.registration_history.name
+    },
+    {
+      name = "WAITING_LIST_DYNAMO_TABLE",
+      value = aws_dynamodb_table.waiting_list.name
     },
     {
       name = "PROMETHEUS_EXPORTER"
@@ -132,7 +114,9 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:DeleteItem",
       "dynamodb:DescribeTable",
     ]
-    resources = [aws_dynamodb_table.registrations.arn,"${aws_dynamodb_table.registrations.arn}/*"]
+    resources = [aws_dynamodb_table.registrations.arn,"${aws_dynamodb_table.registrations.arn}/*",
+                 aws_dynamodb_table.registration_history.arn,"${aws_dynamodb_table.registration_history.arn}/*",
+                 aws_dynamodb_table.waiting_list.arn,"${aws_dynamodb_table.waiting_list.arn}/*"]
   }
   statement {
     effect = "Allow"
@@ -242,7 +226,7 @@ resource "aws_ecs_task_definition" "this" {
           awslogs-stream-prefix = "${var.name_prefix}-worker"
         }
       }
-      environment = local.worker_environment
+      environment = local.app_environment
       healthCheck       = {
         command            = ["CMD-SHELL", "pgrep ruby || exit 1"]
         interval           = 30

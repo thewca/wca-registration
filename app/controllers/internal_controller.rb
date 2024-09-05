@@ -3,11 +3,12 @@
 require 'time'
 
 class InternalController < ApplicationController
-  prepend_before_action :validate_token
+  prepend_before_action :validate_wca_token unless Rails.env.local?
+  skip_before_action :validate_jwt_token
 
-  def validate_token
+  def validate_wca_token
     service_token = request.headers['X-WCA-Service-Token']
-    unless service_token.present?
+    if service_token.blank?
       return render json: { error: 'Missing Authentication' }, status: :forbidden
     end
     # The Vault CLI can't parse the response from identity/oidc/introspect so
@@ -39,8 +40,48 @@ class InternalController < ApplicationController
     iso_amount = params.require(:iso_amount)
     currency_iso = params.require(:currency_iso)
     payment_status = params.require(:payment_status)
+    acting_id = params.require(:acting_id)
+    acting_type = params.require(:acting_type)
     registration = Registration.find(attendee_id)
     registration.update_payment_lane(payment_id, iso_amount, currency_iso, payment_status)
+    if payment_status == 'refund'
+      registration.history.add_entry({ payment_status: payment_status, iso_amount: iso_amount }, acting_type, acting_id, 'Payment Refund')
+    else
+      registration.history.add_entry({ payment_status: payment_status, iso_amount: iso_amount }, acting_type, acting_id, 'Payment')
+    end
     render json: { status: 'ok' }
+  end
+
+  def list_registrations
+    competition_id = params.require(:competition_id)
+
+    status = params[:status]
+    event_id = params[:event_id]
+
+    registrations = if status.present?
+                      Registration.where(competition_id: competition_id, competing_status: status).to_a
+                    else
+                      Registration.where(competition_id: competition_id).to_a
+                    end
+
+    if event_id.present?
+      return render json: registrations.filter { |r| r.event_details.pluck('event_id').include?(event_id) }
+    end
+
+    render json: registrations
+  end
+
+  def registrations_for_user
+    user_id = params.require(:user_id)
+    registrations = Rails.cache.fetch("#{user_id}-registrations-by-user") do
+      Registration.where(user_id: user_id).to_a
+    end
+    render json: registrations
+  end
+
+  def show_registration
+    attendee_id = params.require(:attendee_id)
+    registration = Registration.find(attendee_id)
+    render json: registration
   end
 end

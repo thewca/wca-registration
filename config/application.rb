@@ -13,9 +13,11 @@ require_relative '../app_secrets'
 module WcaRegistration
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+    config.load_defaults 7.1
 
     config.autoload_paths += Dir["#{config.root}/lib"]
+    config.active_job.queue_adapter = :shoryuken
+    config.site_name = 'WCA Registration Service'
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.

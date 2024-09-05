@@ -3,11 +3,11 @@
 source 'https://rubygems.org'
 git_source(:github) { |_repo| 'https://github.com/thewca/wca-registration.git' }
 
-ruby '3.2.2'
+ruby '3.3.0'
 
 # Gems that are only needed by the handler not the worker
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '~> 7.0.8'
+gem 'rails', '~> 7.1.3'
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.4'
@@ -21,6 +21,8 @@ gem 'jbuilder'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors'
 
+gem 'money-rails'
+
 # much better gem for http requests than the native ruby one
 gem 'httparty'
 
@@ -32,7 +34,7 @@ gem 'bootsnap', require: false
 
 # Use Redis adapter to run Action Cable in production
 gem 'hiredis'
-gem 'redis', '~> 5.0'
+gem 'redis', '~> 5.3'
 # So Redis can share connections
 gem 'connection_pool'
 
@@ -42,6 +44,9 @@ gem 'dynamoid', '3.8.0'
 
 # SQS for adding data into a queue
 gem 'aws-sdk-sqs'
+
+# SQS Job Management
+gem 'shoryuken'
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 gem 'kredis'
@@ -56,7 +61,7 @@ gem 'prometheus_exporter'
 gem 'vault'
 
 # for environment variable management
-gem 'dotenv-rails', require: 'dotenv/rails-now'
+gem 'dotenv-rails', require: 'dotenv/load'
 gem 'superconfig'
 
 group :development, :test do
@@ -79,6 +84,7 @@ group :development, :test do
   gem 'webmock', require: false
 
   gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
 
   # Use factories instead of fixtures
   gem 'factory_bot_rails'
@@ -88,4 +94,12 @@ group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
   gem 'ruby-prof'
+
+  # Better Errors replaces the standard Rails error page with a much better and more useful error page.
+  gem 'better_errors'
+  gem 'binding_of_caller'
+end
+
+group :production do
+  gem 'newrelic_rpm'
 end

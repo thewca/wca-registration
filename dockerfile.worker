@@ -1,12 +1,13 @@
-FROM ruby:3.2.2
+FROM ruby:3.3.0
 EXPOSE 3000
-
-ENV DEBIAN_FRONTEND noninteractive
+ARG BUILD_TAG=local
+ENV DEBIAN_FRONTEND=noninteractive \
+    BUILD_TAG=$BUILD_TAG
 WORKDIR /app
 
 # Add PPA needed to install nodejs.
 # From: https://github.com/nodesource/distributions
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 
 # Add PPA needed to install yarn.
 # From: https://yarnpkg.com/en/docs/install#debian-stable
@@ -28,4 +29,4 @@ ENV RAILS_ENV production
 
 RUN bundle install --without development test # Install production gems for the worker
 
-CMD ["ruby", "-r", "/app/app/worker/queue_poller.rb", "-e" , "QueuePoller.perform"]
+ENTRYPOINT ["/app/bin/entrypoint-worker.sh"]

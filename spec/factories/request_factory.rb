@@ -2,16 +2,6 @@
 
 require 'factory_bot_rails'
 
-# Couldn't get the import from a support folder to work, so defining directly in the factory file
-def fetch_jwt_token(user_id)
-  iat = Time.now.to_i
-  jti_raw = [JwtOptions.secret, iat].join(':').to_s
-  jti = Digest::MD5.hexdigest(jti_raw)
-  payload = { user_id: user_id, exp: Time.now.to_i + JwtOptions.expiry, sub: user_id, iat: iat, jti: jti }
-  token = JWT.encode payload, JwtOptions.secret, JwtOptions.algorithm
-  "Bearer #{token}"
-end
-
 FactoryBot.define do
   factory :registration_request, class: Hash do
     transient do
@@ -19,7 +9,7 @@ FactoryBot.define do
       raw_comment { nil }
     end
 
-    user_id { '158817' }
+    user_id { 158817 }
     submitted_by { user_id }
     competition_id { 'CubingZANationalChampionship2023' }
     competing { { 'event_ids' => events, 'lane_state' => 'pending' } }
@@ -32,24 +22,28 @@ FactoryBot.define do
     end
 
     trait :organizer do
-      user_id { '1306' }
+      user_id { 1306 }
       jwt_token { fetch_jwt_token(user_id) }
     end
 
     trait :organizer_submits do
-      submitted_by { '1306' }
+      submitted_by { 1306 }
     end
 
     trait :impersonation do
-      submitted_by { '158810' }
+      submitted_by { 158810 }
     end
 
     trait :banned do
-      user_id { '209943' }
+      user_id { 209943 }
+    end
+
+    trait :unbanned_soon do
+      user_id { 209944 }
     end
 
     trait :incomplete do
-      user_id { '999999' }
+      user_id { 999999 }
     end
 
     initialize_with { attributes.stringify_keys }
@@ -58,7 +52,7 @@ end
 
 FactoryBot.define do
   factory :update_request, class: Hash do
-    user_id { '158817' }
+    user_id { 158817 }
     submitted_by { user_id }
     jwt_token { fetch_jwt_token(submitted_by) }
     competition_id { 'CubingZANationalChampionship2023' }
@@ -69,15 +63,19 @@ FactoryBot.define do
     end
 
     trait :organizer_as_user do
-      user_id { '1306' }
+      user_id { 1306 }
+    end
+
+    trait :site_admin do
+      submitted_by { 1307 }
     end
 
     trait :organizer_for_user do
-      submitted_by { '1306' }
+      submitted_by { 1306 }
     end
 
     trait :for_another_user do
-      submitted_by { '158818' }
+      submitted_by { 158818 }
     end
 
     # initialize_with { attributes }
@@ -87,5 +85,38 @@ FactoryBot.define do
       instance['guests'] = evaluator.guests if evaluator.guests
       instance['competing'] = evaluator.competing if evaluator.competing
     end
+  end
+end
+
+FactoryBot.define do
+  factory :bulk_update_request, class: Hash do
+    transient do
+      user_ids { [] }
+    end
+
+    submitted_by { 1400 }
+    competition_id { 'CubingZANationalChampionship2023' }
+    jwt_token { fetch_jwt_token(submitted_by) }
+    requests do
+      user_ids.map do |user_id|
+        FactoryBot.build(:update_request, user_id: user_id, competing: { 'status' => 'cancelled' })
+      end
+    end
+
+    initialize_with { attributes.stringify_keys }
+  end
+end
+
+FactoryBot.define do
+  factory :permissions, class: Hash do
+    can_attend_competitions { { 'scope' => '*' } }
+    can_organize_competitions { { 'scope' => [] } }
+    can_administer_competitions { { 'scope' => [] } }
+
+    transient do
+      user_id { nil }
+    end
+
+    initialize_with { attributes.stringify_keys }
   end
 end

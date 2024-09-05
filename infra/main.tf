@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.11"
+      version = "~> 5.58"
     }
   }
 
@@ -40,10 +40,6 @@ module "handler" {
 
   shared_resources = module.shared_resources
   depends_on = [module.shared_resources]
-}
-
-module "frontend" {
-  source = "./frontend"
 }
 
 module "staging" {

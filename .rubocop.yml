@@ -3,18 +3,19 @@ AllCops:
   DisplayCopNames: true
   NewCops: enable
   Exclude:
-    - 'node_modules/**/*'
-    - 'Frontend/**/*'
     - 'bin/**/*'
     - 'vendor/**/*'
     - 'infra/**/*'
+
+require: rubocop-rails
 
 Bundler/OrderedGems:
   Enabled: false
 
 Lint/MissingSuper:
-  Exclude: 
+  Exclude:
     - 'lib/registration_error.rb'
+    - 'lib/bulk_update_error.rb'
     - 'app/helpers/competition_api.rb'
 
 Lint/EmptyWhen:
@@ -34,6 +35,18 @@ Style/Alias:
 
 Style/NumericLiterals:
   Enabled: false
+
+# Dynamoid needs update_attributes
+Rails/ActiveRecordAliases:
+  Enabled: false
+
+# Dynamoid doesn't have inverse_of for belongs_to
+Rails/InverseOf:
+  Enabled: false
+
+Rails:
+  Exclude:
+    - 'app/worker/**/*'
 
 Style/EmptyMethod:
   EnforcedStyle: expanded

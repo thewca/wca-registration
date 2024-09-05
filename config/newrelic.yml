@@ -1,0 +1,58 @@
+#
+# This file configures the New Relic Agent.  New Relic monitors Ruby, Java,
+# .NET, PHP, Python and Node applications with deep visibility and low
+# overhead.  For more information, visit www.newrelic.com.
+#
+# Generated August 19, 2015
+#
+# This configuration file is custom generated for World Cube Association_1
+#
+# For full documentation of agent configuration options, please refer to
+# https://docs.newrelic.com/docs/agents/ruby-agent/installation-configuration/ruby-agent-configuration
+
+common: &default_settings
+  # Required license key associated with your New Relic account.
+  license_key: <%= AppSecrets.NEW_RELIC_LICENSE_KEY %>
+
+  # Your application name. Renaming here affects where data displays in New
+  # Relic.  For more details, see https://docs.newrelic.com/docs/apm/new-relic-apm/maintenance/renaming-applications
+  app_name: <%= WcaRegistration::Application.config.site_name %> <%= EnvConfig.REGISTRATION_LIVE_SITE? ? "production" : "staging" %>
+
+  # To disable the agent regardless of other settings, uncomment the following:
+  # agent_enabled: false
+
+  # Logging level for log/newrelic_agent.log
+  log_level: info
+
+  # Error collector captures information about uncaught exceptions and
+  # sends them to RPM for viewing
+  error_collector:
+
+    # Error collector is enabled by default. Set this to false to turn
+    # it off. This feature is only available at the Silver and above
+    # product levels
+    enabled: true
+
+    # Tells error collector whether or not to capture a source snippet
+    # around the place of the error when errors are View related.
+    capture_source: true
+
+    # To stop specific errors from reporting to RPM, set this property
+    # to comma separated values.
+    ignore_errors: "ActionController::RoutingError, ActiveRecord::RecordNotFound"
+
+
+# Environment-specific settings are in this section.
+# RAILS_ENV or RACK_ENV (as appropriate) is used to determine the environment.
+# If your application has other named environments, configure them here.
+development:
+  <<: *default_settings
+  monitor_mode: false
+
+test:
+  <<: *default_settings
+  # It doesn't make sense to report to New Relic from automated test runs.
+  monitor_mode: false
+
+production:
+  <<: *default_settings

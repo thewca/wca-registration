@@ -43,7 +43,7 @@ variable "host" {
 variable "wca_host" {
   type        = string
   description = "The host for generating URLs to the monolith"
-  default     = "https://worldcubeassociation.org"
+  default     = "https://www.worldcubeassociation.org"
 }
 
 variable "shared_resources" {
@@ -53,9 +53,17 @@ variable "shared_resources" {
       name: string,
       arn: string
     }),
+    dynamo_registration_history_table: object({
+      name: string,
+      arn: string
+    }),
+    dynamo_waiting_list_table: object({
+      name: string,
+      arn: string
+    }),
     queue: object({
       arn: string,
-      url: string
+      name: string
     }),
     ecs_cluster: object({
       id: string,
@@ -66,9 +74,6 @@ variable "shared_resources" {
     })
     capacity_provider: object({
       name: string
-    }),
-    main_target_group: object({
-      arn: string
     }),
     cluster_security: object({
       id: string
