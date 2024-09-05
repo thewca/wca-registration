@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'csv'
 require_relative '../csv_import'
 
 namespace :import do
@@ -22,6 +23,22 @@ namespace :import do
       registrations.each do |reg|
         puts reg
         Registration.create(reg)
+
+        # initial_history = History.new(
+        #   { 'changed_attributes' => {
+        #     event_ids: reg['competing.event_ids'],
+        #     comment: reg['competing.comment'],
+        #     guests: reg['guests'],
+        #     status: reg['competing.registration_status']
+        #   },
+        #   'actor_type' => 'user',
+        #   'actor_id' => reg['user_id'],
+        #   'action' => 'Worker processed',
+        #   'timestamp' => reg['competing.registered_on'] 
+        #   }
+        # )
+        # RegistrationHistory.create(attendee_id: "#{competition_id}-#{reg['user_id']}", entries: [initial_history])
+
       end
     end
   end
