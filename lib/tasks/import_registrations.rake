@@ -18,7 +18,7 @@ namespace :import do
     # Step 2: Import records for each competition_id
     competitions_with_events.each do |competition_id, events|
       registrations = build_import_hash(registrations_csv_path, competition_id, events)
-      puts "***REGISTRATIONS TO CREATE:\n\n #{registrations}"
+      # puts "***REGISTRATIONS TO CREATE:\n\n #{registrations}"
 
       registrations.each do |reg|
         puts reg
@@ -32,12 +32,12 @@ namespace :import do
             status: reg['competing.registration_status']
           },
           'actor_type' => 'user',
-          'actor_id' => reg['user_id'],
+          'actor_id' => reg[:user_id],
           'action' => 'Worker processed',
           'timestamp' => reg['competing.registered_on'] 
           }
         )
-        RegistrationHistory.create(attendee_id: "#{competition_id}-#{reg['user_id']}", entries: [initial_history])
+        RegistrationHistory.create(attendee_id: "#{competition_id}-#{reg[:user_id]}", entries: [initial_history])
 
       end
     end
