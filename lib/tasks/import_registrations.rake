@@ -6,7 +6,8 @@ namespace :import do
   include CsvImport
   desc 'Import registrations from CSV for specified competition_ids'
   task registrations: :environment do
-    competitions_with_events_path = './lib/tasks/competitions_and_events.csv'
+    # SELECT c.id, e.event_ids FROM `Competitions` c JOIN ( SELECT `competition_id`, GROUP_CONCAT(DISTINCT `event_id` ORDER BY `event_id`) AS event_ids FROM `competition_events` GROUP BY `competition_id` ) e ON c.id = e.competition_id WHERE c.registration_close > "2024-07-01" 
+    competitions_with_events_path = './lib/tasks/competitions_and_events.csv' # Use query above to generate this, changing the target date as appropriate
     registrations_csv_path = './lib/tasks/registrations_import.csv'
 
     # Step 1: Generate a list of competitions and their event_ids
