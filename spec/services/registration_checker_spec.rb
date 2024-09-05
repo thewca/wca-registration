@@ -1400,7 +1400,7 @@ describe RegistrationChecker do
         end
       end
 
-      it 'cannot move to less than position 1', :tag2 do
+      it 'cannot move to less than position 1' do
         @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
         @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
         @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
