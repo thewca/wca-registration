@@ -5,6 +5,7 @@ module ErrorCodes
   INVALID_TOKEN = -1
   EXPIRED_TOKEN = -2
   MISSING_AUTHENTICATION = -3
+  INTERNAL_SERVER_ERROR = -4
 
   # Competition Errors
   COMPETITION_NOT_FOUND = -1000

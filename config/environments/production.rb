@@ -98,4 +98,9 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  # Returns json on error
+  config.exceptions_app = ->(env) {
+    ErrorsController.action(:show).call(env)
+  }
 end
