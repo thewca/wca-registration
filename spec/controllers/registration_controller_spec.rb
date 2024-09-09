@@ -265,7 +265,7 @@ describe RegistrationController do
     end
   end
 
-  describe '#list_admin', :tag do
+  describe '#list_admin' do
     before do
       @competition = FactoryBot.build(:competition)
       stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))

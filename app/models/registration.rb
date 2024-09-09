@@ -172,7 +172,7 @@ class Registration
   end
 
   def update_waiting_list(update_params, waiting_list)
-    raise ArgumentError.new('Can only accept waiting list leader') if update_params[:status] == 'accepted' && waiting_list_position(waiting_list) != 1
+    # TODO: Send email if update_params[:status] == 'accepted' && waiting_list_position(waiting_list) != 1
 
     waiting_list.add(self.user_id) if update_params[:status] == 'waiting_list'
     waiting_list.remove(self.user_id) if update_params[:status] == 'accepted'
