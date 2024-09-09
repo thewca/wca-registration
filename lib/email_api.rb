@@ -38,6 +38,5 @@ class EmailApi < WcaApi
                     user_id: user_id,
                     position: position,
                   })
-
   end
 end

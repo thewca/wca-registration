@@ -172,9 +172,11 @@ class Registration
   end
 
   def update_waiting_list(update_params, waiting_list)
-    EmailApi.send_waiting_list_leader_email(
-      self.competition_id, self.user_id, waiting_list_position(waiting_list)
-    ) if update_params[:status] == 'accepted' && waiting_list_position(waiting_list) != 1
+    if update_params[:status] == 'accepted' && waiting_list_position(waiting_list) != 1
+      EmailApi.send_waiting_list_leader_email(
+        self.competition_id, self.user_id, waiting_list_position(waiting_list)
+      )
+    end
 
     waiting_list.add(self.user_id) if update_params[:status] == 'waiting_list'
     waiting_list.remove(self.user_id) if update_params[:status] == 'accepted'
