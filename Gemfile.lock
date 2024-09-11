@@ -211,8 +211,6 @@ GEM
     parser (3.3.4.2)
       ast (~> 2.4.1)
       racc
-    prometheus_exporter (2.1.1)
-      webrick
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -375,7 +373,6 @@ DEPENDENCIES
   money-rails
   newrelic_rpm
   overcommit
-  prometheus_exporter
   pry
   puma (~> 6.4)
   rack-cors
