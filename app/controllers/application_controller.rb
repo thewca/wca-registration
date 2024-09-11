@@ -17,7 +17,7 @@ class ApplicationController < ActionController::API
       decoded_token = (JWT.decode token, JwtOptions.secret, true, { algorithm: JwtOptions.algorithm })[0]
       @current_user = decoded_token['user_id'].to_i
     rescue JWT::VerificationError, JWT::InvalidJtiError
-      Metrics.jwt_verification_error_counter.increment
+      Metrics.increment("jwt_verification_error_counter")
       render json: { error: ErrorCodes::INVALID_TOKEN }, status: :unauthorized
     rescue JWT::ExpiredSignature
       render json: { error: ErrorCodes::EXPIRED_TOKEN }, status: :unauthorized
@@ -37,7 +37,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_error(http_status, error, data = nil)
-    Metrics.registration_validation_errors_counter.increment
+    Metrics.increment("registration_validation_errors_counter")
     if data.present?
       render json: { error: error, data: data }, status: http_status
     else
