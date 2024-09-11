@@ -71,7 +71,7 @@ class RegistrationController < ApplicationController
     render json: { status: 'ok', registration: process_update(params) }
   rescue Dynamoid::Errors::Error => e
     Rails.logger.debug e
-    Metrics.increment("registration_dynamodb_errors_counter")
+    Metrics.increment('registration_dynamodb_errors_counter')
     render json: { error: "Error Updating Registration: #{e.message}" },
            status: :internal_server_error
   end
@@ -179,7 +179,7 @@ class RegistrationController < ApplicationController
   rescue Dynamoid::Errors::Error => e
     # Render an error response
     Rails.logger.debug e
-    Metrics.increment("registration_dynamodb_errors_counter")
+    Metrics.increment('registration_dynamodb_errors_counter')
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
@@ -193,7 +193,7 @@ class RegistrationController < ApplicationController
   rescue Dynamoid::Errors::Error => e
     # Render an error response
     Rails.logger.debug e
-    Metrics.increment("registration_dynamodb_errors_counter")
+    Metrics.increment('registration_dynamodb_errors_counter')
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
@@ -212,7 +212,7 @@ class RegistrationController < ApplicationController
     render json: add_waiting_list(@competition_id, registrations_with_pii)
   rescue Dynamoid::Errors::Error => e
     Rails.logger.debug e
-    Metrics.increment("registration_dynamodb_errors_counter")
+    Metrics.increment('registration_dynamodb_errors_counter')
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
