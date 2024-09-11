@@ -49,10 +49,6 @@ locals {
       value = var.shared_resources.queue.name
     },
     {
-      name = "PROMETHEUS_EXPORTER"
-      value = var.prometheus_address
-    },
-    {
       name = "REDIS_URL"
       value = "redis://${var.shared_resources.aws_elasticache_cluster.cache_nodes.0.address}:${var.shared_resources.aws_elasticache_cluster.cache_nodes.0.port}"
     },

@@ -23,7 +23,6 @@ EnvConfig = SuperConfig.new do
   end
   # We even need the AWS_REGION in dev because we fake authenticate with localstack
   mandatory :AWS_REGION, :string
-  mandatory :PROMETHEUS_EXPORTER, :string
   mandatory :DYNAMO_REGISTRATIONS_TABLE, :string
   mandatory :REGISTRATION_HISTORY_DYNAMO_TABLE, :string
   mandatory :WAITING_LIST_DYNAMO_TABLE, :string
