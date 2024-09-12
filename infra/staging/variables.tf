@@ -22,12 +22,6 @@ variable "vault_address" {
   default = "http://vault.worldcubeassociation.org:8200"
 }
 
-variable "prometheus_address" {
-  type = string
-  description = "The Address that prometheus is running at"
-  default = "prometheus.worldcubeassociation.org"
-}
-
 variable "region" {
   type        = string
   description = "The region to operate in"

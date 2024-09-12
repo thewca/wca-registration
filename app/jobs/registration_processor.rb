@@ -16,6 +16,7 @@ class RegistrationProcessor < ApplicationJob
                          message[:created_at])
     end
     Rails.cache.delete("#{message[:user_id]}-registrations-by-user")
+    Metrics.increment('registrations_processed')
   end
 
   private

@@ -33,10 +33,6 @@ locals {
       value = "true"
     },
     {
-      name = "PROMETHEUS_EXPORTER"
-      value = var.prometheus_address
-    },
-    {
       name = "TASK_ROLE"
       value = aws_iam_role.task_role.name
     },
