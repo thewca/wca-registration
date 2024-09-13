@@ -106,10 +106,10 @@ class RegistrationChecker
       # TODO: Read the request payload in as an object, and handle cases where expected values aren't found
       event_ids = @request.dig('competing', 'event_ids')
 
-      unqualified_events = event_ids.map do |event|
+      unqualified_events = event_ids.filter_map do |event|
         qualification = @competition_info.get_qualification_for(event)
         event if qualification.present? && !competitor_qualifies_for_event?(event, qualification)
-      end.compact
+      end
 
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET, unqualified_events) unless unqualified_events.empty?
     end

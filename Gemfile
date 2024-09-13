@@ -82,6 +82,7 @@ group :development, :test do
 
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
+  gem 'rubocop-performance', require: false
 
   # Use factories instead of fixtures
   gem 'factory_bot_rails'
