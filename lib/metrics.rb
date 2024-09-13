@@ -3,6 +3,6 @@
 module Metrics
   def self.increment(metric)
     return if Rails.env.local?
-    ::NewRelic::Agent.increment_metric("Custom/Registration/#{metric}")
+    ::NewRelic::Agent.increment_metric("Custom/Registration/#{metric}", 1)
   end
 end
