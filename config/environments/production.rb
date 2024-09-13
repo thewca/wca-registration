@@ -8,7 +8,7 @@ Rails.application.configure do
 
   # Exclude requests for the /healthcheck/ path from host checking
   Rails.application.config.host_authorization = {
-    exclude: ->(request) { request.path =~ /healthcheck/ },
+    exclude: ->(request) { request.path.include?('healthcheck') },
   }
 
   # Code is not reloaded between requests.

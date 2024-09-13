@@ -292,7 +292,7 @@ class RegistrationController < ApplicationController
       return registrations if list.empty?
       registrations.map do |r|
         waiting_list_index = list.find_index(r[:user_id])
-        r[:competing].merge!(waiting_list_position: waiting_list_index + 1) if waiting_list_index.present?
+        r[:competing][:waiting_list_position] = waiting_list_index + 1 if waiting_list_index.present?
         r
       end
     end
