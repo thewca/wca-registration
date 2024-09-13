@@ -10,7 +10,15 @@ resource "aws_sqs_queue" "this" {
   receive_wait_time_seconds  = 1 # The time the queue waits until it sends messages when polling to better batch message
   visibility_timeout_seconds = 60 # The time until the message is set to be available again to be picked up by another worker
   # because the initial worker might have died
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.deadletter-queue.arn
+    maxReceiveCount     = 4
+  })
   tags = {
     Env = "staging"
   }
+}
+
+resource "aws_sqs_queue" "deadletter-queue" {
+  name = "registrations-staging-dlq"
 }
