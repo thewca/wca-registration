@@ -85,13 +85,14 @@ class InternalController < ApplicationController
     event_ids = params.require(:event_ids)
     current_user = params.require(:current_user)
     status = params.require(:competing_status)
+    comment = params[:comment] || ''
 
     begin
       Registration.find("#{competition_id}-#{user_id}")
       return render_error(400, ErrorCodes::COMPETITOR_ALREADY_REGISTERED)
     rescue Dynamoid::Errors::RecordNotFound
       initial_history = History.new({ 'changed_attributes' =>
-                                        { event_ids: event_ids, status: status },
+                                        { event_ids: event_ids, status: status, comment: comment },
                                       'actor_type' => 'user',
                                       'actor_id' => current_user,
                                       'action' => 'Organizer added',
@@ -101,7 +102,9 @@ class InternalController < ApplicationController
                        competition_id: competition_id,
                        user_id: user_id,
                        created_at: Time.now.utc,
-                       lanes: [LaneFactory.competing_lane(event_ids: event_ids)])
+                       lanes: [LaneFactory.competing_lane(event_ids: event_ids,
+                                                          comment: comment,
+                                                          registration_status: status)])
       render json: { status: 'ok' }
     end
   end
