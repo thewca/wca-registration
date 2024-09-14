@@ -104,7 +104,8 @@ class InternalController < ApplicationController
                           created_at: Time.now.utc,
                           lanes: [LaneFactory.competing_lane(event_ids: event_ids,
                                                              comment: comment,
-                                                             registration_status: status)])
+                                                             registration_status: status)],
+                          guests: 0)
       render json: { status: 'ok' }
     end
   end
