@@ -1386,7 +1386,7 @@ describe RegistrationChecker do
         end
       end
 
-      it 'cannot move to less than position 1', :tag2 do
+      it 'cannot move to less than position 1' do
         @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
         @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
         @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
@@ -1555,6 +1555,42 @@ describe RegistrationChecker do
 
         it_behaves_like 'update succeed: qualification enforced', 'can register when pyram average exists for ranking-single', ['pyram']
         it_behaves_like 'update succeed: qualification enforced', 'can register when minx average exists for ranking-average', ['minx']
+      end
+    end
+
+    describe '#update_registration_allowed!.organizer updates series reg' do
+      it 'organizer cant set status to accepted if attendee is accepted for another series comp' do
+        cancelled_registration = FactoryBot.create(:registration, registration_status: 'cancelled')
+        FactoryBot.create(:registration, user_id: cancelled_registration['user_id'], registration_status: 'accepted', competition_id: 'CubingZAWarmup2023')
+
+        series_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: cancelled_registration[:user_id], competing: { 'status' => 'accepted' })
+
+        expect {
+          RegistrationChecker.update_registration_allowed!(update_request, series_competition_info, update_request['submitted_by'])
+        }.to raise_error(RegistrationError) do |error|
+          expect(error.error).to eq(ErrorCodes::ALREADY_REGISTERED_IN_SERIES)
+          expect(error.http_status).to eq(:forbidden)
+        end
+      end
+
+      it 'organizer can update admin comment in attendees non-accepted series comp registration' do
+        cancelled_registration = FactoryBot.create(:registration, registration_status: 'cancelled')
+        FactoryBot.create(:registration, user_id: cancelled_registration['user_id'], registration_status: 'accepted', competition_id: 'CubingZAWarmup2023')
+
+        series_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+        update_request = FactoryBot.build(
+          :update_request,
+          :organizer_for_user,
+          user_id: cancelled_registration[:user_id],
+          competing: { 'admin_comment' => 'why they were cancelled' }
+        )
+
+        expect {
+          RegistrationChecker.update_registration_allowed!(update_request, series_competition_info, update_request['submitted_by'])
+        }.not_to raise_error
       end
     end
   end
