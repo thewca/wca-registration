@@ -152,7 +152,7 @@ GEM
     json (2.7.2)
     json-schema (4.3.1)
       addressable (>= 2.8)
-    jwt (2.8.2)
+    jwt (2.9.0)
       base64
     kredis (1.7.0)
       activemodel (>= 6.0.0)
