@@ -215,7 +215,7 @@ class RegistrationChecker
 
       @competition_info.other_series_ids.each do |comp_id|
         series_reg = Registration.find("#{comp_id}-#{@requestee_user_id}")
-        return %w[cancelled rejected].exclude?(series_reg.competing_status)
+        return series_reg.might_attend?
       rescue Dynamoid::Errors::RecordNotFound
         next
       end
