@@ -1585,7 +1585,7 @@ describe RegistrationChecker do
           :update_request,
           :organizer_for_user,
           user_id: cancelled_registration[:user_id],
-          competing: { 'admin_comment' => 'why they were cancelled' }
+          competing: { 'admin_comment' => 'why they were cancelled' },
         )
 
         expect {
