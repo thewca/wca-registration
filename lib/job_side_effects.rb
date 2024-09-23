@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class JobHooks
+class JobSideEffects
   attr_writer :after_processing
 
   def initialize
