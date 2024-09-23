@@ -14,6 +14,10 @@ class Registration
   # Pre-validations
   before_validation :set_competing_status
 
+  # Hooks
+  after_create :delete_user_registration_from_redis
+  after_update :delete_user_registration_from_redis
+
   # Validations
   validate :competing_status_consistency
 
@@ -215,5 +219,9 @@ class Registration
       lane_state_present = competing_status == 'waiting_list' || update_params[:status] == 'waiting_list'
       states_are_different = competing_status != update_params[:status]
       lane_state_present && states_are_different
+    end
+
+    def delete_user_registration_from_redis
+      RedisHelper.delete_user_registrations(user_id)
     end
 end

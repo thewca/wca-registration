@@ -138,9 +138,6 @@ class RegistrationController < ApplicationController
       EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
-    # Invalidate cache
-    Rails.cache.delete("#{user_id}-registrations-by-user")
-
     {
       user_id: updated_registration['user_id'],
       guests: updated_registration.guests,

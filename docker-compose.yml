@@ -48,6 +48,7 @@ services:
       REGISTRATION_HISTORY_DYNAMO_TABLE: "registration-history-development"
       CODE_ENVIRONMENT: "development"
       QUEUE_NAME: "registrations.fifo"
+      REDIS_URL: "redis://redis:6379"
     volumes:
       - .:/app
       - gems_volume_worker:/usr/local/bundle
