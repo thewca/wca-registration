@@ -74,7 +74,8 @@ class RegistrationChecker
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless can_administer_or_current_user?
       raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || UserApi.can_administer?(@requester_user_id, @competition_info.id)
       raise RegistrationError.new(:unauthorized, ErrorCodes::REGISTRATION_IS_REJECTED) if user_is_rejected?
-      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
+      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if
+        existing_registration_in_series? && !UserApi.can_administer?(@requester_user_id, @competition_info.id)
     end
 
     def user_is_rejected?
@@ -173,6 +174,8 @@ class RegistrationChecker
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(new_status)
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
         new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
+      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if
+        new_status == 'accepted' && existing_registration_in_series?
 
       # Otherwise, organizers can make any status change they want to
       return if UserApi.can_administer?(@requester_user_id, @competition_info.id)
@@ -211,7 +214,8 @@ class RegistrationChecker
       return false if @competition_info.other_series_ids.nil?
 
       @competition_info.other_series_ids.each do |comp_id|
-        return Registration.find("#{comp_id}-#{@requestee_user_id}").competing_status != 'cancelled'
+        series_reg = Registration.find("#{comp_id}-#{@requestee_user_id}")
+        return series_reg.might_attend?
       rescue Dynamoid::Errors::RecordNotFound
         next
       end

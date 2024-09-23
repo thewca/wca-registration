@@ -10,6 +10,7 @@ class Registration
 
   REGISTRATION_STATES = %w[pending waiting_list accepted cancelled rejected].freeze
   ADMIN_ONLY_STATES = %w[pending waiting_list accepted rejected].freeze # Only admins are allowed to change registration state to one of these states
+  MIGHT_ATTEND_STATES = %w[pending waiting_list accepted].freeze
 
   # Pre-validations
   before_validation :set_competing_status
@@ -173,6 +174,10 @@ class Registration
       lane
     end
     update_attributes!(lanes: updated_lanes)
+  end
+
+  def might_attend?
+    MIGHT_ATTEND_STATES.include?(self.competing_status)
   end
 
   def update_waiting_list(update_params, waiting_list)
