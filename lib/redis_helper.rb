@@ -9,6 +9,10 @@ module RedisHelper
     end
   end
 
+  def self.delete_user_registrations(user_id)
+    Rails.cache.delete("#{user_id}-registrations-by-user")
+  end
+
   def self.decrement_or_initialize(key, &)
     if Rails.cache.exist?(key)
       Rails.cache.decrement(key)
