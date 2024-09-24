@@ -45,7 +45,7 @@ def lambda_handler(event:, context:)
                                                        })
     message_count = queue_attributes.attributes['ApproximateNumberOfMessages'].to_i
 
-    registration = Registration.find(query['attendee_id'])
+    registration = V2Registration.find(query['attendee_id'])
 
     # If we are **really** busy, the lane_init function might not be run yet before we start polling
     # So while we return a 404 here, it doesn't necessarily mean the registration doesn't exist at all

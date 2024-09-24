@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Registration do
+describe V2Registration do
   describe 'validations#competing_status_consistency' do
     it 'passes if competing_status and competing lane status match' do
       registration = FactoryBot.build(:registration, registration_status: 'accepted')
@@ -141,7 +141,7 @@ describe Registration do
       FactoryBot.create_list(:registration, 3, registration_status: 'accepted')
       FactoryBot.create_list(:registration, 3, registration_status: 'accepted', competition_id: target_comp)
 
-      comp_registration_count = Registration.accepted_competitors_count(target_comp)
+      comp_registration_count = V2Registration.accepted_competitors_count(target_comp)
 
       expect(comp_registration_count).to eq(3)
     end
@@ -152,7 +152,7 @@ describe Registration do
       FactoryBot.create_list(:registration, 3, registration_status: 'accepted', competition_id: target_comp)
       FactoryBot.create_list(:registration, 3, registration_status: 'cancelled', competition_id: target_comp)
 
-      comp_registration_count = Registration.accepted_competitors_count(target_comp)
+      comp_registration_count = V2Registration.accepted_competitors_count(target_comp)
 
       expect(comp_registration_count).to eq(3)
     end
@@ -161,12 +161,12 @@ describe Registration do
   describe '#set_is_competing' do
     it 'persists a true state to the database' do
       registration = FactoryBot.create(:registration, registration_status: 'accepted')
-      expect(Registration.find(registration.attendee_id).competing_status).to eq('accepted')
+      expect(V2Registration.find(registration.attendee_id).competing_status).to eq('accepted')
     end
 
     it 'persists a false state to the database' do
       registration = FactoryBot.create(:registration, registration_status: 'pending')
-      expect(Registration.find(registration.attendee_id).competing_status).to eq('pending')
+      expect(V2Registration.find(registration.attendee_id).competing_status).to eq('pending')
     end
   end
 end

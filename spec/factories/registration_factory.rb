@@ -3,7 +3,7 @@
 require 'factory_bot_rails'
 
 FactoryBot.define do
-  factory :registration do
+  factory :v2_registration do
     transient do
       events { ['333', '333mbf'] }
       comment { '' }

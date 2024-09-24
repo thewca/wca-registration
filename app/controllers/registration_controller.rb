@@ -28,7 +28,7 @@ class RegistrationController < ApplicationController
   def count
     competition_id = params.require(:competition_id)
 
-    render json: { count: Registration.accepted_competitors_count(competition_id).to_i }
+    render json: { count: Competition.accepted_competitors_count(competition_id) }
   end
 
   def create
@@ -122,15 +122,15 @@ class RegistrationController < ApplicationController
     waiting_list_position = update_request.dig('competing', 'waiting_list_position')
     user_id = update_request[:user_id]
 
-    registration = Registration.find("#{@competition_id}-#{user_id}")
+    registration = V2Registration.find("#{@competition_id}-#{user_id}")
     old_status = registration.competing_status
     waiting_list = @competition_info.waiting_list
     updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position }, waiting_list)
     registration.history.add_entry(update_changes(update_request), 'user', @current_user, action_type(update_request))
     if old_status == 'accepted' && status != 'accepted'
-      Registration.decrement_competitors_count(@competition_id)
+      V2Registration.decrement_competitors_count(@competition_id)
     elsif old_status != 'accepted' && status == 'accepted'
-      Registration.increment_competitors_count(@competition_id)
+      V2Registration.increment_competitors_count(@competition_id)
     end
 
     # Only send emails when we update the competing status
@@ -165,7 +165,7 @@ class RegistrationController < ApplicationController
     @competition = CompetitionApi.find!(competition_id)
     render_error(:forbidden, ErrorCodes::PAYMENT_NOT_ENABLED) unless @competition.using_wca_payment?
 
-    @registration = Registration.find("#{competition_id}-#{@current_user}")
+    @registration = V2Registration.find("#{competition_id}-#{@current_user}")
     render_error(:forbidden, ErrorCodes::PAYMENT_NOT_READY) if @registration.nil? || @registration.competing_status.nil?
   end
 
@@ -183,7 +183,7 @@ class RegistrationController < ApplicationController
 
   def mine
     registrations = Rails.cache.fetch("#{@current_user}-registrations-by-user") do
-      Registration.where(user_id: @current_user).to_a
+      V2Registration.where(user_id: @current_user).to_a
     end
     my_registrations = registrations.map { |x| { competition_id: x.competition_id, status: x.competing_status } }
     render json: my_registrations
@@ -222,7 +222,7 @@ class RegistrationController < ApplicationController
       registrations = CSV.parse(File.read(file), headers: true).map do |row|
         CsvImport.parse_row_to_registration(row.to_h, competition_id)
       end
-      Registration.import(registrations)
+      V2Registration.import(registrations)
 
       Rails.cache.delete("#{competition_id}-accepted-count")
 
@@ -261,7 +261,8 @@ class RegistrationController < ApplicationController
     end
 
     def show_params
-      params.require([:user_id, :competition_id])
+      user_id, competition_id = params.require([:user_id, :competition_id])
+      [user_id.to_i, competition_id]
     end
 
     def update_params
@@ -296,14 +297,14 @@ class RegistrationController < ApplicationController
 
     def get_registrations(competition_id, only_attending: false)
       if only_attending
-        Registration.where(competition_id: competition_id, competing_status: 'accepted').all.map do |x|
+        V2Registration.where(competition_id: competition_id, competing_status: 'accepted').all.map do |x|
           { user_id: x['user_id'],
             competing: {
               event_ids: x.event_ids,
             } }
         end
       else
-        Registration.where(competition_id: competition_id).all.map do |x|
+        V2Registration.where(competition_id: competition_id).all.map do |x|
           { user_id: x['user_id'],
             competing: {
               event_ids: x.event_ids,
@@ -324,7 +325,7 @@ class RegistrationController < ApplicationController
     end
 
     def get_single_registration(user_id, competition_id)
-      registration = Registration.find("#{competition_id}-#{user_id}")
+      registration = V2Registration.find_by(user_id: user_id, competition_id: competition_id)
       waiting_list_position = if registration.competing_status == 'waiting_list'
                                 waiting_list = WaitingList.find_or_create!(competition_id)
                                 registration.waiting_list_position(waiting_list)
@@ -347,7 +348,7 @@ class RegistrationController < ApplicationController
           payment_amount_human_readable: registration.payment_amount_human_readable,
           updated_at: registration.payment_date,
         },
-        history: registration.history.entries,
+        history: registration.registration_history_entry,
       }
     end
 end

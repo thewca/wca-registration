@@ -2,64 +2,43 @@
 
 require 'time'
 
-class Registration
-  include Dynamoid::Document
+REGISTRATION_STATES = %w[pending waiting_list accepted cancelled rejected].freeze
+ADMIN_ONLY_STATES = %w[pending waiting_list accepted rejected].freeze # Only admins are allowed to change registration state to one of these states
+MIGHT_ATTEND_STATES = %w[pending waiting_list accepted].freeze
 
-  # We autoscale dynamodb
-  table name: EnvConfig.DYNAMO_REGISTRATIONS_TABLE, capacity_mode: nil, key: :attendee_id
+class V2Registration < ActiveRecord::Base
 
-  REGISTRATION_STATES = %w[pending waiting_list accepted cancelled rejected].freeze
-  ADMIN_ONLY_STATES = %w[pending waiting_list accepted rejected].freeze # Only admins are allowed to change registration state to one of these states
-  MIGHT_ATTEND_STATES = %w[pending waiting_list accepted].freeze
-
-  # Pre-validations
-  before_validation :set_competing_status
+  # Fields
+  # field :user_id, :integer
+  # field :guests, :integer
+  # field :competition_id, :string
+  # field :competing_status, :string
+  # field :hide_name_publicly, :boolean
+  has_many :registration_history_entry, foreign_key: :registration_id
+  has_many :registration_lane, foreign_key: :registration_id
 
   # Hooks
   after_create :delete_user_registration_from_redis
   after_update :delete_user_registration_from_redis
 
-  # Validations
-  validate :competing_status_consistency
+  # Scopes
+  scope :accepted_competitors, -> {
+    joins(:registration_lane)
 
-  def self.accepted_competitors(competition_id)
-    where(competition_id: competition_id, competing_status: 'accepted').count
-  end
+  }
 
-  def self.get_registrations_by_status(competition_id, status)
-    result = Rails.cache.fetch("#{competition_id}-#{status}_registrations", expires_in: 60.minutes) do
-      Registration.where(competition_id: competition_id, competing_status: status).to_a
-    end
-    unless result.is_a? Array
-      return []
-    end
-    result
-  end
-
-  def self.accepted_competitors_count(competition_id)
-    Rails.cache.fetch("#{competition_id}-accepted-count", expires_in: 60.minutes, raw: true) do
-      self.accepted_competitors(competition_id)
-    end
-  end
-
-  def self.decrement_competitors_count(competition_id)
-    RedisHelper.decrement_or_initialize("#{competition_id}-accepted-count") do
-      self.accepted_competitors(competition_id)
-    end
-  end
-
-  def self.increment_competitors_count(competition_id)
-    RedisHelper.increment_or_initialize("#{competition_id}-accepted-count") do
-      self.accepted_competitors(competition_id)
-    end
-  end
+  scope :registrations_by_status, ->(status) {
+    joins(:registration_lanes)
+      .where(registration_lanes: { lane_state: status })
+      .distinct
+  }
 
   def competing_lane
-    lanes&.find { |x| x.lane_name == 'competing' }
+    registration_lane.find_by(lane_name: 'competing')
   end
 
   def payment_lane
-    lanes&.find { |x| x.lane_name == 'payment' }
+    registration_lane.find_by(lane_name: 'payment')
   end
 
   # Returns all event ids irrespective of registration status
@@ -125,7 +104,8 @@ class Registration
   def update_competing_lane!(update_params, waiting_list)
     has_waiting_list_changed = waiting_list_changed?(update_params)
 
-    updated_lanes = lanes.map do |lane|
+
+    updated_lanes = registration_lane.map do |lane|
       if lane.lane_name == 'competing'
 
         # Update status for lane and events
@@ -152,28 +132,24 @@ class Registration
       end
       lane
     end
-    # TODO: In the future we will need to check if any of the other lanes have a status set to accepted
     updated_guests = (update_params[:guests].presence || guests)
-    update_attributes!(lanes: updated_lanes, competing_status: competing_lane.lane_state, guests: updated_guests)
+    update_attributes!(lanes: updated_lanes, guests: updated_guests)
   end
 
   def init_payment_lane(amount, currency_code, id, donation)
-    payment_lane = LaneFactory.payment_lane(amount, currency_code, id, donation)
-    update_attributes(lanes: lanes.append(payment_lane))
+    registration_lane.create(LaneFactory.payment_lane(amount, currency_code, id, donation))
   end
 
   def update_payment_lane(id, iso_amount, currency_iso, status)
-    updated_lanes = lanes.map do |lane|
-      if lane.lane_name == 'payment'
-        lane.lane_state = status
-        lane.lane_details['payment_id'] = id
-        lane.lane_details['amount_lowest_denominator'] = iso_amount
-        lane.lane_details['currency_code'] = currency_iso
-        lane.lane_details['last_updated'] = Time.now.utc
-      end
-      lane
-    end
-    update_attributes!(lanes: updated_lanes)
+    payment_lane&.update_attributes!(lane_state: status, lane_details: {
+      payment_id: id,
+      amount_lowest_denominator: iso_amount,
+      currency_code: currency_iso,
+    })
+  end
+
+  def competing_status
+    competing_lane&.lane_state
   end
 
   def might_attend?
@@ -189,29 +165,8 @@ class Registration
     waiting_list.move_to_position(self.user_id, update_params[:waiting_list_position].to_i) if
       update_params[:waiting_list_position].present?
   end
-  # Fields
-  field :user_id, :integer
-  field :guests, :integer
-  field :competition_id, :string
-  field :competing_status, :string
-  field :hide_name_publicly, :boolean
-  field :lanes, :array, of: Lane
-  # We only do this one way because Dynamoid doesn't allow us to overwrite the foreign_key for has_one see https://github.com/Dynamoid/dynamoid/issues/740
-  belongs_to :history, class: RegistrationHistory, foreign_key: :attendee_id
-
-  global_secondary_index hash_key: :user_id, projected_attributes: :all
-  global_secondary_index hash_key: :competition_id, projected_attributes: :all
 
   private
-
-    def set_competing_status
-      self.competing_status = competing_lane&.lane_state
-    end
-
-    def competing_status_consistency
-      errors.add(:competing_status, '') unless competing_status == competing_lane&.lane_state
-    end
-
     def waiting_list_changed?(update_params)
       waiting_list_position_changed?(update_params) || waiting_list_status_changed?(update_params)
     end

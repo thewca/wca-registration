@@ -42,7 +42,7 @@ class InternalController < ApplicationController
     payment_status = params.require(:payment_status)
     acting_id = params.require(:acting_id)
     acting_type = params.require(:acting_type)
-    registration = Registration.find(attendee_id)
+    registration = V2Registration.find(attendee_id)
     registration.update_payment_lane(payment_id, iso_amount, currency_iso, payment_status)
     if payment_status == 'refund'
       registration.history.add_entry({ payment_status: payment_status, iso_amount: iso_amount }, acting_type, acting_id, 'Payment Refund')
@@ -59,9 +59,9 @@ class InternalController < ApplicationController
     event_id = params[:event_id]
 
     registrations = if status.present?
-                      Registration.where(competition_id: competition_id, competing_status: status).to_a
+                      V2Registration.where(competition_id: competition_id, competing_status: status).to_a
                     else
-                      Registration.where(competition_id: competition_id).to_a
+                      V2Registration.where(competition_id: competition_id).to_a
                     end
 
     if event_id.present?
@@ -74,7 +74,7 @@ class InternalController < ApplicationController
   def registrations_for_user
     user_id = params.require(:user_id)
     registrations = Rails.cache.fetch("#{user_id}-registrations-by-user") do
-      Registration.where(user_id: user_id).to_a
+      V2Registration.where(user_id: user_id).to_a
     end
     render json: registrations
   end
@@ -88,7 +88,7 @@ class InternalController < ApplicationController
     comment = params[:comment] || ''
 
     begin
-      Registration.find("#{competition_id}-#{user_id}")
+      V2Registration.find("#{competition_id}-#{user_id}")
       render_error(400, ErrorCodes::COMPETITOR_ALREADY_REGISTERED)
     rescue Dynamoid::Errors::RecordNotFound
       initial_history = History.new({ 'changed_attributes' =>
@@ -98,21 +98,21 @@ class InternalController < ApplicationController
                                       'action' => 'Organizer added',
                                       'timestamp' => Time.now.utc })
       RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}", entries: [initial_history])
-      Registration.create(attendee_id: "#{competition_id}-#{user_id}",
-                          competition_id: competition_id,
-                          user_id: user_id,
-                          created_at: Time.now.utc,
-                          lanes: [LaneFactory.competing_lane(event_ids: event_ids,
+      V2Registration.create(attendee_id: "#{competition_id}-#{user_id}",
+                            competition_id: competition_id,
+                            user_id: user_id,
+                            created_at: Time.now.utc,
+                            lanes: [LaneFactory.competing_lane(event_ids: event_ids,
                                                              comment: comment,
                                                              registration_status: status)],
-                          guests: 0)
+                            guests: 0)
       render json: { status: 'ok' }
     end
   end
 
   def show_registration
     attendee_id = params.require(:attendee_id)
-    registration = Registration.find(attendee_id)
+    registration = V2Registration.find(attendee_id)
     render json: registration
   end
 end

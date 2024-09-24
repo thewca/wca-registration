@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
-class WaitingList
-  include Dynamoid::Document
-
-  # We autoscale dynamodb
-  table name: EnvConfig.WAITING_LIST_DYNAMO_TABLE, capacity_mode: nil, key: :id
-
-  field :entries, :array, of: :integer
+class WaitingList < ActiveRecord::Base
+  belongs_to :holder, polymorphic: true
 
   def remove(user_id)
     update_attributes!(entries: entries - [user_id])
@@ -27,11 +22,5 @@ class WaitingList
     return if old_index == new_position-1
 
     update_attributes!(entries: entries.insert(new_position-1, entries.delete_at(old_index)))
-  end
-
-  def self.find_or_create!(id)
-    WaitingList.find(id)
-  rescue Dynamoid::Errors::RecordNotFound
-    WaitingList.create(id: id, entries: [])
   end
 end

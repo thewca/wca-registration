@@ -29,7 +29,7 @@ describe RegistrationController do
 
       expect(response.code).to eq('202')
 
-      created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
+      created_registration = V2Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
       expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
     end
 
@@ -47,7 +47,7 @@ describe RegistrationController do
         post :create, params: @registration_request, as: :json
         sleep 0.1 # Give the queue time to work off the registration - perhaps this should be a queue length query instead?
 
-        created_registration = Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
+        created_registration = V2Registration.find("#{@competition['id']}-#{@registration_request['user_id']}")
 
         expect(response.code).to eq('202')
         expect(created_registration.event_ids).to eq(@registration_request['competing']['event_ids'])
@@ -62,7 +62,7 @@ describe RegistrationController do
 
         expect(response.code).to eq('422')
         expect(response.body).to eq({ error: -4012, data: ['333'] }.to_json)
-        expect { Registration.find("#{@competition['id']}-#{@registration_request['user_id']}") }.to raise_error(Dynamoid::Errors::RecordNotFound)
+        expect { V2Registration.find("#{@competition['id']}-#{@registration_request['user_id']}") }.to raise_error(Dynamoid::Errors::RecordNotFound)
       end
     end
   end
@@ -89,7 +89,7 @@ describe RegistrationController do
       @response = response
 
       @body = response.parsed_body
-      @updated_registration = Registration.find("#{@competition['id']}-#{@registration[:user_id]}")
+      @updated_registration = V2Registration.find("#{@competition['id']}-#{@registration[:user_id]}")
     end
 
     it 'returns the expected response code' do
@@ -155,11 +155,11 @@ describe RegistrationController do
 
         expect(response.code).to eq('200')
 
-        updated_registration = Registration.find("#{@competition['id']}-#{registration[:user_id]}")
+        updated_registration = V2Registration.find("#{@competition['id']}-#{registration[:user_id]}")
         expect(updated_registration.competing_status).to eq('accepted')
-        updated_registration2 = Registration.find("#{@competition['id']}-#{registration2[:user_id]}")
+        updated_registration2 = V2Registration.find("#{@competition['id']}-#{registration2[:user_id]}")
         expect(updated_registration2.competing_status).to eq('accepted')
-        updated_registration3 = Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
+        updated_registration3 = V2Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
         expect(updated_registration3.competing_status).to eq('accepted')
 
         expect(waiting_list.reload.entries.empty?).to eq(true)
@@ -196,10 +196,10 @@ describe RegistrationController do
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: bulk_update_request, as: :json
 
-      updated_registration = Registration.find("#{@competition['id']}-#{registration[:user_id]}")
+      updated_registration = V2Registration.find("#{@competition['id']}-#{registration[:user_id]}")
       expect(updated_registration.competing_status).to eq('incoming')
 
-      updated_registration = Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
+      updated_registration = V2Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
       expect(updated_registration.competing_status).to eq('incoming')
     end
 
@@ -239,10 +239,10 @@ describe RegistrationController do
       patch :bulk_update, params: bulk_update_request, as: :json
       expect(response.code).to eq('200')
 
-      updated_registration = Registration.find("#{@competition['id']}-#{registration[:user_id]}")
+      updated_registration = V2Registration.find("#{@competition['id']}-#{registration[:user_id]}")
       expect(updated_registration.competing_status).to eq('accepted')
 
-      updated_registration3 = Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
+      updated_registration3 = V2Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
       expect(updated_registration3.competing_comment).to eq('test comment update')
     end
 

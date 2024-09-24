@@ -21,7 +21,7 @@ class RegistrationChecker
     @competition_info = competition_info
     @requestee_user_id = @request['user_id']
     @requester_user_id = requesting_user
-    @registration = Registration.find("#{competition_info.id}-#{update_request['user_id']}")
+    @registration = V2Registration.find("#{competition_info.id}-#{update_request['user_id']}")
 
     user_can_modify_registration!
     validate_guests!
@@ -171,9 +171,9 @@ class RegistrationChecker
       return if (new_status = @request.dig('competing', 'status')).nil?
       current_status = @registration.competing_status
 
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(new_status)
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless V2Registration::REGISTRATION_STATES.include?(new_status)
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
-        new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
+        new_status == 'accepted' && V2Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if
         new_status == 'accepted' && existing_registration_in_series?
 
@@ -214,10 +214,11 @@ class RegistrationChecker
       return false if @competition_info.other_series_ids.nil?
 
       @competition_info.other_series_ids.each do |comp_id|
-        series_reg = Registration.find("#{comp_id}-#{@requestee_user_id}")
+        series_reg = V2Registration.find_by(competition_id: comp_id, user_id: @requestee_user_id)
+        if series_reg.nil?
+          next
+        end
         return series_reg.might_attend?
-      rescue Dynamoid::Errors::RecordNotFound
-        next
       end
       false
     end

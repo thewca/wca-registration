@@ -77,6 +77,8 @@ group :development, :test do
   # Use pry for live debugging
   gem 'pry'
 
+  gem 'mysql2'
+
   # webmock for mocking responses from other microservices
   gem 'webmock', require: false
 
