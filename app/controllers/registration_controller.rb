@@ -107,8 +107,10 @@ class RegistrationController < ApplicationController
     @competition_info = CompetitionApi.find!(@competition_id)
     RegistrationChecker.bulk_update_allowed!(params, @competition_info, @current_user)
   rescue BulkUpdateError => e
+    Rails.logger.debug { "Bulk update was rejected with error #{e.errors} at #{e.backtrace[0]}" }
     render_error(e.http_status, e.errors)
-  rescue NoMethodError
+  rescue NoMethodError => e
+    Rails.logger.debug { "Bulk update was rejected with error #{e.exception} at #{e.backtrace[0]}" }
     render_error(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA)
   end
 
@@ -134,9 +136,9 @@ class RegistrationController < ApplicationController
     registration.add_history_entry(changes, 'user', @current_user, action_type(update_request))
 
     if old_status == 'accepted' && status != 'accepted'
-      V2Registration.decrement_competitors_count(@competition_id)
+      Competition.decrement_competitors_count(@competition_id)
     elsif old_status != 'accepted' && status == 'accepted'
-      V2Registration.increment_competitors_count(@competition_id)
+      Competition.increment_competitors_count(@competition_id)
     end
 
     # Only send emails when we update the competing status
@@ -282,7 +284,7 @@ class RegistrationController < ApplicationController
     end
 
     def add_waiting_list(competition_id, registrations)
-      list = WaitingList.find_or_create!(competition_id).entries
+      list = []#WaitingList.find_or_create!(competition_id).entries
       return registrations if list.empty?
       registrations.map do |r|
         waiting_list_index = list.find_index(r[:user_id])
@@ -345,7 +347,7 @@ class RegistrationController < ApplicationController
           payment_amount_human_readable: registration.payment_amount_human_readable,
           updated_at: registration.payment_date,
         },
-        history: registration.registration_history_entry,
+        history: registration.registration_history,
       }
     end
 end

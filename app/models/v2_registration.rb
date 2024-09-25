@@ -91,6 +91,28 @@ class V2Registration < ActiveRecord::Base
     payment_lane&.lane_details&.[]('payment_history')
   end
 
+  def registration_history
+    registration_history_entry.map do |r|
+      # Step 1: Extract changes from the associated `registration_history_changes`
+      changed_attributes = r.registration_history_change.each_with_object({}) do |change, attrs|
+        attrs[change.key] = if change.key == 'event_ids'
+                              JSON.parse(change.to) # Assuming 'event_ids' is stored as JSON array in `to`
+                            else
+                              change.to
+                            end
+      end
+
+      # Step 2: Build the full JSON structure for this `registration_history_entry`
+      {
+        changed_attributes: changed_attributes,
+        actor_type: r.actor_type,
+        actor_id: r.actor_id,
+        timestamp: r.timestamp,
+        action: r.action
+      }
+    end
+  end
+
   def update_competing_lane!(update_params, waiting_list)
     if waiting_list_changed?(update_params)
       update_waiting_list(update_params, waiting_list)

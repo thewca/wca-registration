@@ -7,13 +7,13 @@ module Competition
 
   def self.decrement_competitors_count(competition_id)
     RedisHelper.decrement_or_initialize("#{competition_id}-accepted-count") do
-      self.accepted_competitors.count
+      self.accepted_competitors_count(competition_id)
     end
   end
 
   def self.increment_competitors_count(competition_id)
     RedisHelper.increment_or_initialize("#{competition_id}-accepted-count") do
-      self.accepted_competitors.count
+      self.accepted_competitors_count(competition_id)
     end
   end
 end
