@@ -21,7 +21,7 @@ class RegistrationChecker
     @competition_info = competition_info
     @requestee_user_id = @request['user_id']
     @requester_user_id = requesting_user
-    @registration = V2Registration.find("#{competition_info.id}-#{update_request['user_id']}")
+    @registration = V2Registration.find_by(competition_id: competition_info.id, user_id: update_request['user_id'])
 
     user_can_modify_registration!
     validate_guests!
@@ -125,7 +125,7 @@ class RegistrationChecker
     def validate_comment!
       if (comment = @request.dig('competing', 'comment')).nil?
         # Return if no comment was supplied in the request but one already exists for the registration
-        return if @registration.present? && !@registration.competing_comment.nil? && !(@registration.competing_comment == '')
+        return if @registration.present? && !@registration.comment.nil? && !(@registration.comment == '')
 
         # Raise error if comment is mandatory, none has been supplied, and none exists for the registration
         raise RegistrationError.new(:unprocessable_entity, ErrorCodes::REQUIRED_COMMENT_MISSING) if @competition_info.force_comment?
@@ -171,7 +171,7 @@ class RegistrationChecker
       return if (new_status = @request.dig('competing', 'status')).nil?
       current_status = @registration.competing_status
 
-      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless V2Registration::REGISTRATION_STATES.include?(new_status)
+      raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless RegistrationHelper::REGISTRATION_STATES.include?(new_status)
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
         new_status == 'accepted' && V2Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if

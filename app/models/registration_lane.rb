@@ -4,9 +4,9 @@ class RegistrationLane < ActiveRecord::Base
   EVENT_IDS = %w[333 222 444 555 666 777 333bf 333oh clock minx pyram skewb sq1 444bf 555bf 333mbf 333fm].freeze
 
 
-  def update_events(new_event_ids)
-    if @lane_name == 'competing'
-      current_event_ids = @lane_details['event_details'].pluck('event_id')
+  def update_events!(new_event_ids)
+    if lane_name == 'competing'
+      current_event_ids = lane_details['event_details'].pluck('event_id')
 
       # Update events list with new events
       new_event_ids.each do |id|
@@ -15,15 +15,16 @@ class RegistrationLane < ActiveRecord::Base
           'event_id' => id,
           # NOTE: Currently event_registration_state is not used - when per-event registrations are added, we need to add validation logic to support cases like
           # limited registrations and waiting lists for certain events
-          'event_registration_state' => @lane_state,
+          'event_registration_state' => lane_state,
         }
-        @lane_details['event_details'] << new_details
+        lane_details['event_details'] << new_details
       end
 
       # Remove events not in the new events list
-      @lane_details['event_details'].delete_if do |event|
+      lane_details['event_details'].delete_if do |event|
         !(new_event_ids.include?(event['event_id']))
       end
+      save
     end
   end
 end

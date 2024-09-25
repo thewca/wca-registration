@@ -243,7 +243,7 @@ describe RegistrationController do
       expect(updated_registration.competing_status).to eq('accepted')
 
       updated_registration3 = V2Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
-      expect(updated_registration3.competing_comment).to eq('test comment update')
+      expect(updated_registration3.comment).to eq('test comment update')
     end
 
     it 'admin submits a bulk update containing 1 update' do

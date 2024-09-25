@@ -122,11 +122,17 @@ class RegistrationController < ApplicationController
     waiting_list_position = update_request.dig('competing', 'waiting_list_position')
     user_id = update_request[:user_id]
 
-    registration = V2Registration.find("#{@competition_id}-#{user_id}")
+    registration = V2Registration.find_by(competition_id: @competition_id, user_id: user_id)
     old_status = registration.competing_status
-    waiting_list = @competition_info.waiting_list
-    updated_registration = registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position }, waiting_list)
-    registration.history.add_entry(update_changes(update_request), 'user', @current_user, action_type(update_request))
+
+    if old_status === "waiting_list" || status === "waiting_list"
+      waiting_list = @competition_info.waiting_list
+    end
+
+    changes = RegistrationHelper.update_changes(update_request['competing'], registration)
+    registration.update_competing_lane!({ status: status, comment: comment, event_ids: event_ids, admin_comment: admin_comment, guests: guests, waiting_list_position: waiting_list_position }, waiting_list)
+    registration.add_history_entry(changes, 'user', @current_user, action_type(update_request))
+
     if old_status == 'accepted' && status != 'accepted'
       V2Registration.decrement_competitors_count(@competition_id)
     elsif old_status != 'accepted' && status == 'accepted'
@@ -135,20 +141,20 @@ class RegistrationController < ApplicationController
 
     # Only send emails when we update the competing status
     if status.present? && old_status != status
-      EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
+      #EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
     {
-      user_id: updated_registration['user_id'],
-      guests: updated_registration.guests,
+      user_id: registration.user_id,
+      guests: registration.guests,
       competing: {
-        event_ids: updated_registration.registered_event_ids,
-        registration_status: updated_registration.competing_status,
-        registered_on: updated_registration['created_at'],
-        comment: updated_registration.competing_comment,
-        admin_comment: updated_registration.admin_comment,
+        event_ids: registration.registered_event_ids,
+        registration_status: registration.competing_status,
+        registered_on: registration['created_at'],
+        comment: registration.comment,
+        admin_comment: registration.admin_comment,
       },
-      history: updated_registration.history.entries,
+      history: registration.registration_history_entry.to_a,
     }
   end
 
@@ -243,16 +249,6 @@ class RegistrationController < ApplicationController
       self_updating ? 'Competitor update' : 'Admin update'
     end
 
-    def update_changes(update_request)
-      changes = {}
-
-      update_request['competing']&.each do |key, value|
-        changes[key.to_sym] = value if value.present?
-      end
-
-      changes[:guests] = update_request[:guests] if update_request[:guests].present?
-      changes
-    end
 
     def registration_params
       params.require([:user_id, :competition_id])
@@ -310,7 +306,7 @@ class RegistrationController < ApplicationController
               event_ids: x.event_ids,
               registration_status: x.competing_status,
               registered_on: x['created_at'],
-              comment: x.competing_comment,
+              comment: x.comment,
               admin_comment: x.admin_comment,
             },
             payment: {
@@ -326,6 +322,7 @@ class RegistrationController < ApplicationController
 
     def get_single_registration(user_id, competition_id)
       registration = V2Registration.find_by(user_id: user_id, competition_id: competition_id)
+      return nil if registration.nil?
       waiting_list_position = if registration.competing_status == 'waiting_list'
                                 waiting_list = WaitingList.find_or_create!(competition_id)
                                 registration.waiting_list_position(waiting_list)
@@ -339,7 +336,7 @@ class RegistrationController < ApplicationController
           event_ids: registration.event_ids,
           registration_status: registration.competing_status,
           registered_on: registration['created_at'],
-          comment: registration.competing_comment,
+          comment: registration.comment,
           admin_comment: registration.admin_comment,
           waiting_list_position: waiting_list_position,
         },

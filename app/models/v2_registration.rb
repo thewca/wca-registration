@@ -2,18 +2,8 @@
 
 require 'time'
 
-REGISTRATION_STATES = %w[pending waiting_list accepted cancelled rejected].freeze
-ADMIN_ONLY_STATES = %w[pending waiting_list accepted rejected].freeze # Only admins are allowed to change registration state to one of these states
-MIGHT_ATTEND_STATES = %w[pending waiting_list accepted].freeze
-
 class V2Registration < ActiveRecord::Base
 
-  # Fields
-  # field :user_id, :integer
-  # field :guests, :integer
-  # field :competition_id, :string
-  # field :competing_status, :string
-  # field :hide_name_publicly, :boolean
   has_many :registration_history_entry, foreign_key: :registration_id
   has_many :registration_lane, foreign_key: :registration_id
 
@@ -34,16 +24,16 @@ class V2Registration < ActiveRecord::Base
   }
 
   def competing_lane
-    registration_lane.find_by(lane_name: 'competing')
+    registration_lane.select { |l| l.lane_name == 'competing' }.first
   end
 
   def payment_lane
-    registration_lane.find_by(lane_name: 'payment')
+    registration_lane.select { |l| l.lane_name ==  'payment' }.first
   end
 
   # Returns all event ids irrespective of registration status
   def event_ids
-    competing_lane&.lane_details&.[]('event_details')&.pluck('event_id')
+    competing_lane.lane_details&.[]('event_details')&.pluck('event_id')
   end
 
   def registered_event_ids
@@ -61,7 +51,7 @@ class V2Registration < ActiveRecord::Base
     competing_lane&.lane_details&.[]('event_details')
   end
 
-  def competing_comment
+  def comment
     competing_lane&.lane_details&.[]('comment')
   end
 
@@ -102,38 +92,38 @@ class V2Registration < ActiveRecord::Base
   end
 
   def update_competing_lane!(update_params, waiting_list)
-    has_waiting_list_changed = waiting_list_changed?(update_params)
+    if waiting_list_changed?(update_params)
+      update_waiting_list(update_params, waiting_list)
+    end
+    ActiveRecord::Base.transaction do
+      if update_params[:status].present?
+        competing_lane.lane_state = update_params[:status]
 
-
-    updated_lanes = registration_lane.map do |lane|
-      if lane.lane_name == 'competing'
-
-        # Update status for lane and events
-        if has_waiting_list_changed
-          update_waiting_list(update_params, waiting_list)
-        end
-
-        if update_params[:status].present?
-          lane.lane_state = update_params[:status]
-
-          lane.lane_details['event_details'].each do |event|
-            # NOTE: Currently event_registration_state is not used - when per-event registrations are added, we need to add validation logic to support cases like
-            # limited registrations and waiting lists for certain events
-            event['event_registration_state'] = update_params[:status]
-          end
-        end
-
-        lane.lane_details['comment'] = update_params[:comment] if update_params[:comment].present?
-        lane.lane_details['admin_comment'] = update_params[:admin_comment] if update_params[:admin_comment].present?
-
-        if update_params[:event_ids].present? && update_params[:status] != 'cancelled'
-          lane.update_events(update_params[:event_ids])
+        competing_lane.lane_details['event_details'].each do |event|
+          # NOTE: Currently event_registration_state is not used - when per-event registrations are added, we need to add validation logic to support cases like
+          # limited registrations and waiting lists for certain events
+          event['event_registration_state'] = update_params[:status]
         end
       end
-      lane
+
+      competing_lane.lane_details['comment'] = update_params[:comment] if update_params[:comment].present?
+      competing_lane.lane_details['admin_comment'] = update_params[:admin_comment] if update_params[:admin_comment].present?
+
+      competing_lane.save!
+
+      if update_params[:event_ids].present? && update_params[:status] != 'cancelled'
+        competing_lane.update_events!(update_params[:event_ids])
+      end
+
+      update_column(:guests, update_params[:guests]) if update_params[:guests].present?
     end
-    updated_guests = (update_params[:guests].presence || guests)
-    update_attributes!(lanes: updated_lanes, guests: updated_guests)
+  end
+
+  def add_history_entry(changes, actor_type, actor_id, action, timestamp = Time.now.utc)
+    new_entry = registration_history_entry.create(actor_type: actor_type, actor_id: actor_id, action: action, timestamp: timestamp)
+    changes.keys.each do |key|
+      new_entry.registration_history_change.create(from: changes[key][:from] || '', to: changes[key][:to], key: key.to_s)
+    end
   end
 
   def init_payment_lane(amount, currency_code, id, donation)
@@ -141,7 +131,7 @@ class V2Registration < ActiveRecord::Base
   end
 
   def update_payment_lane(id, iso_amount, currency_iso, status)
-    payment_lane&.update_attributes!(lane_state: status, lane_details: {
+    payment_lane.update_columns(lane_state: status, lane_details: {
       payment_id: id,
       amount_lowest_denominator: iso_amount,
       currency_code: currency_iso,
