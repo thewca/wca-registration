@@ -41,12 +41,12 @@ locals {
       value = var.shared_resources.dynamo_registration_history_table.name
     },
     {
-      name = "QUEUE_NAME",
-      value = var.shared_resources.queue.name
+      name = "WAITING_LIST_DYNAMO_TABLE",
+      value = var.shared_resources.dynamo_waiting_list_table.name
     },
     {
-      name = "PROMETHEUS_EXPORTER"
-      value = var.prometheus_address
+      name = "QUEUE_NAME",
+      value = var.shared_resources.queue.name
     },
     {
       name = "REDIS_URL"
@@ -103,7 +103,8 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:DescribeTable",
     ]
     resources = [var.shared_resources.dynamo_registration_table.arn, "${var.shared_resources.dynamo_registration_table.arn}/*",
-                 var.shared_resources.dynamo_registration_history_table.arn, "${var.shared_resources.dynamo_registration_history_table.arn}/*"]
+                 var.shared_resources.dynamo_registration_history_table.arn, "${var.shared_resources.dynamo_registration_history_table.arn}/*",
+                 var.shared_resources.dynamo_waiting_list_table.arn, "${var.shared_resources.dynamo_waiting_list_table.arn}/*"]
   }
   statement {
     effect = "Allow"

@@ -1,8 +1,0 @@
-FROM ruby:3.3.0-alpine
-
-RUN gem install prometheus_exporter
-
-CMD ["-v","-b", "0.0.0.0", "-p", "9091"]
-
-
-ENTRYPOINT ["/usr/local/bundle/bin/prometheus_exporter"]

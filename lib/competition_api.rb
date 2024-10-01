@@ -29,10 +29,10 @@ class CompetitionApi < WcaApi
         @status = 200
         response.parsed_response
       when 404
-        Metrics.registration_competition_api_error_counter.increment
+        Metrics.increment('registration_competition_api_404_counter')
         raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
       else
-        Metrics.registration_competition_api_error_counter.increment
+        Metrics.increment('registration_competition_api_error_counter')
         raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
       end
     end
@@ -45,10 +45,10 @@ class CompetitionApi < WcaApi
       when 200
         response.parsed_response
       when 404
-        Metrics.registration_competition_api_error_counter.increment
+        Metrics.increment('registration_competition_api_404_counter')
         raise RegistrationError.new(404, ErrorCodes::COMPETITION_NOT_FOUND)
       else
-        Metrics.registration_competition_api_error_counter.increment
+        Metrics.increment('registration_competition_api_error_counter')
         raise RegistrationError.new(response.code.to_i, ErrorCodes::COMPETITION_API_5XX)
       end
     end

@@ -7,20 +7,24 @@ class RegistrationProcessor < ApplicationJob
 
   def perform(message)
     Rails.logger.debug { "Working on Message: #{message}" }
+    side_effects = JobSideEffects.new
     if message[:step] == 'EventRegistration'
       event_registration(message[:competition_id],
                          message[:user_id],
                          message[:step_details][:event_ids],
                          message[:step_details][:comment],
                          message[:step_details][:guests],
-                         message[:created_at])
+                         message[:created_at],
+                         side_effects)
     end
+    side_effects.run(:after_processing)
+    Metrics.increment('registrations_processed')
   end
 
   private
 
     # rubocop:disable Metrics/ParameterLists
-    def event_registration(competition_id, user_id, event_ids, comment, guests, created_at)
+    def event_registration(competition_id, user_id, event_ids, comment, guests, created_at, side_effects)
       # Event Registration might not be the first lane that is completed
       # TODO: When we add another lane, we need to update the registration history instead of creating it
       registration = begin
@@ -44,7 +48,9 @@ class RegistrationProcessor < ApplicationJob
       else
         registration.update_attributes(lanes: registration.lanes.append(competing_lane), guests: guests)
       end
-      EmailApi.send_creation_email(competition_id, user_id)
+      side_effects.after_processing do
+        EmailApi.send_creation_email(competition_id, user_id)
+      end
     end
   # rubocop:enable Metrics/ParameterLists
 end

@@ -45,8 +45,8 @@ locals {
       value = aws_dynamodb_table.registration_history.name
     },
     {
-      name = "PROMETHEUS_EXPORTER"
-      value = var.prometheus_address
+      name = "WAITING_LIST_DYNAMO_TABLE",
+      value = aws_dynamodb_table.waiting_list.name
     },
     {
       name = "REDIS_URL"
@@ -111,7 +111,8 @@ data "aws_iam_policy_document" "task_policy" {
       "dynamodb:DescribeTable",
     ]
     resources = [aws_dynamodb_table.registrations.arn,"${aws_dynamodb_table.registrations.arn}/*",
-                 aws_dynamodb_table.registration_history.arn,"${aws_dynamodb_table.registration_history.arn}/*"]
+                 aws_dynamodb_table.registration_history.arn,"${aws_dynamodb_table.registration_history.arn}/*",
+                 aws_dynamodb_table.waiting_list.arn,"${aws_dynamodb_table.waiting_list.arn}/*"]
   }
   statement {
     effect = "Allow"

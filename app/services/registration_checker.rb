@@ -38,6 +38,8 @@ class RegistrationChecker
   end
 
   def self.bulk_update_allowed!(bulk_update_request, competition_info, requesting_user)
+    @competition_info = competition_info
+
     raise BulkUpdateError.new(:unauthorized, [ErrorCodes::USER_INSUFFICIENT_PERMISSIONS]) unless
       UserApi.can_administer?(requesting_user, competition_info.id)
 
@@ -45,9 +47,11 @@ class RegistrationChecker
     bulk_update_request['requests'].each do |update_request|
       update_registration_allowed!(update_request, competition_info, requesting_user)
     rescue RegistrationError => e
+      Rails.logger.debug { "Bulk update was rejected with error #{e.error} at #{e.backtrace[0]}" }
       errors[update_request['user_id']] = e.error
     end
-    raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors == {}
+
+    raise BulkUpdateError.new(:unprocessable_entity, errors) unless errors.empty?
   end
 
   class << self
@@ -58,6 +62,7 @@ class RegistrationChecker
       # Only organizers can register when registration is closed, and they can only register for themselves - not for other users
       raise RegistrationError.new(:forbidden, ErrorCodes::REGISTRATION_CLOSED) unless @competition_info.registration_open? || organizer_modifying_own_registration?
 
+      # Users must have the necessary permissions to compete - eg, they cannot be banned or have incomplete profiles
       can_compete = UserApi.can_compete?(@requestee_user_id, @competition_info.start_date)
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_CANNOT_COMPETE) unless can_compete
 
@@ -67,8 +72,14 @@ class RegistrationChecker
 
     def user_can_modify_registration!
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless can_administer_or_current_user?
-      raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || @competition_info.is_organizer_or_delegate?(@requester_user_id)
-      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if existing_registration_in_series?
+      raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || UserApi.can_administer?(@requester_user_id, @competition_info.id)
+      raise RegistrationError.new(:unauthorized, ErrorCodes::REGISTRATION_IS_REJECTED) if user_is_rejected?
+      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if
+        existing_registration_in_series? && !UserApi.can_administer?(@requester_user_id, @competition_info.id)
+    end
+
+    def user_is_rejected?
+      @requester_user_id == @requestee_user_id && @registration.competing_status == 'rejected'
     end
 
     def organizer_modifying_own_registration?
@@ -96,10 +107,10 @@ class RegistrationChecker
       # TODO: Read the request payload in as an object, and handle cases where expected values aren't found
       event_ids = @request.dig('competing', 'event_ids')
 
-      unqualified_events = event_ids.map do |event|
+      unqualified_events = event_ids.filter_map do |event|
         qualification = @competition_info.get_qualification_for(event)
         event if qualification.present? && !competitor_qualifies_for_event?(event, qualification)
-      end.compact
+      end
 
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::QUALIFICATION_NOT_MET, unqualified_events) unless unqualified_events.empty?
     end
@@ -127,7 +138,7 @@ class RegistrationChecker
     def validate_organizer_fields!
       @organizer_fields = ['organizer_comment', 'waiting_list_position']
 
-      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if contains_organizer_fields? && !@competition_info.is_organizer_or_delegate?(@requester_user_id)
+      raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) if contains_organizer_fields? && !UserApi.can_administer?(@requester_user_id, @competition_info.id)
     end
 
     def validate_organizer_comment!
@@ -146,13 +157,10 @@ class RegistrationChecker
       converted_position = Integer(waiting_list_position, exception: false)
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_WAITING_LIST_POSITION) unless converted_position.is_a? Integer
 
-      boundaries = @registration.competing_lane.get_waiting_list_boundaries(@competition_info.competition_id)
-      if boundaries['waiting_list_position_min'].nil? && boundaries['waiting_list_position_max'].nil?
-        raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position != 1
-      else
-        raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if
-          converted_position < boundaries['waiting_list_position_min'] || converted_position > boundaries['waiting_list_position_max']
-      end
+      waiting_list = @competition_info.waiting_list.entries
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if waiting_list.empty? && converted_position != 1
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position > waiting_list.length
+      raise RegistrationError.new(:forbidden, ErrorCodes::INVALID_WAITING_LIST_POSITION) if converted_position < 1
     end
 
     def contains_organizer_fields?
@@ -166,11 +174,8 @@ class RegistrationChecker
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(new_status)
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
         new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
-
-      # Organizers cant accept someone from the waiting list who isn't in the leading position
-      min_waiting_list_position = @registration.competing_lane.get_waiting_list_boundaries(@registration.competition_id)['waiting_list_position_min']
-      raise RegistrationError.new(:forbidden, ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER) if
-        current_status == 'waiting_list' && new_status == 'accepted' && @registration.competing_waiting_list_position != min_waiting_list_position
+      raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if
+        new_status == 'accepted' && existing_registration_in_series?
 
       # Otherwise, organizers can make any status change they want to
       return if UserApi.can_administer?(@requester_user_id, @competition_info.id)
@@ -209,7 +214,8 @@ class RegistrationChecker
       return false if @competition_info.other_series_ids.nil?
 
       @competition_info.other_series_ids.each do |comp_id|
-        return Registration.find("#{comp_id}-#{@requestee_user_id}").competing_status != 'cancelled'
+        series_reg = Registration.find("#{comp_id}-#{@requestee_user_id}")
+        return series_reg.might_attend?
       rescue Dynamoid::Errors::RecordNotFound
         next
       end

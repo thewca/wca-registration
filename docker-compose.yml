@@ -9,7 +9,6 @@ services:
       - "8000:3000"
     environment:
       LOCALSTACK_ENDPOINT: "http://localstack:4566"
-      PROMETHEUS_EXPORTER: "prometheus_exporter"
       REDIS_URL: "redis://redis:6379"
       RAILS_ENV: development
       QUEUE_NAME: "registrations.fifo"
@@ -27,24 +26,12 @@ services:
       - wca-main
     depends_on:
       - localstack
-      - prometheus_exporter
       - redis
     healthcheck:
       test: curl --fail http://localhost:3000/healthcheck
     dns:
       # Set the DNS server to be the LocalStack container
       - 10.0.2.20
-
-  prometheus_exporter:
-    container_name: prometheus_exporter
-    build:
-      context: .
-      dockerfile: dockerfile.metrics
-    tty: true
-    ports:
-      - "9091:9091"
-    networks:
-      - wca-registration
 
 
   wca_registration_worker:
@@ -57,11 +44,11 @@ services:
       AWS_REGION: "us-east-1"
       AWS_ACCESS_KEY_ID: "fake-key"
       AWS_SECRET_ACCESS_KEY: "fake-access-key"
-      PROMETHEUS_EXPORTER: "prometheus_exporter"
       DYNAMO_REGISTRATIONS_TABLE: "registrations-development"
       REGISTRATION_HISTORY_DYNAMO_TABLE: "registration-history-development"
       CODE_ENVIRONMENT: "development"
       QUEUE_NAME: "registrations.fifo"
+      REDIS_URL: "redis://redis:6379"
     volumes:
       - .:/app
       - gems_volume_worker:/usr/local/bundle

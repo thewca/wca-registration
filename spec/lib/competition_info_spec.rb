@@ -59,7 +59,7 @@ describe CompetitionInfo do
     describe '#events_held?' do
       it 'PASSING true if competition is hosting given events' do
         # Create a sample competition JSON (adjust as needed)
-        competition_json = { 'event_ids' => ['333', '444', '555'] }
+        competition_json = FactoryBot.build(:competition, event_ids: %w[333 444 555])
 
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
@@ -73,7 +73,7 @@ describe CompetitionInfo do
 
       it 'PASSING false if events list is empty' do
         # Create a sample competition JSON (adjust as needed)
-        competition_json = { 'event_ids' => ['333', '444', '555'] }
+        competition_json = FactoryBot.build(:competition, event_ids: %w[333 444 555])
 
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
@@ -87,7 +87,7 @@ describe CompetitionInfo do
 
       it 'PASSING false if one of the events is not being hosted' do
         # Create a sample competition JSON (adjust as needed)
-        competition_json = { 'event_ids' => ['333', '444', '555'] }
+        competition_json = FactoryBot.build(:competition, event_ids: %w[333 444 555])
 
         # Instantiate a CompetitionInfo object with the sample data
         competition_info = CompetitionInfo.new(competition_json)
@@ -100,14 +100,8 @@ describe CompetitionInfo do
       end
 
       it 'PASSING returns competition payment info' do
-        # Create a sample competition JSON (adjust as needed)
-        competition_json = {
-          'base_entry_fee_lowest_denomination' => 1500,
-          'currency_code' => 'EUR',
-        }
-
         # Instantiate a CompetitionInfo object with the sample data
-        competition_info = CompetitionInfo.new(competition_json)
+        competition_info = CompetitionInfo.new(FactoryBot.build(:competition, base_entry_fee_lowest_denomination: 1500, currency_code: 'EUR'))
 
         # Call the method being tested
         result = competition_info.payment_info

@@ -21,6 +21,22 @@ RSpec.shared_examples 'invalid user status updates' do |old_status, new_status|
   end
 end
 
+RSpec.shared_examples 'user cant update rejected registration' do |old_status, new_status|
+  it "user cant change 'status' => #{old_status} to: #{new_status}" do
+    registration = FactoryBot.create(:registration, registration_status: old_status)
+    competition_info = CompetitionInfo.new(FactoryBot.build(:competition))
+    update_request = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => new_status })
+    stub_request(:get, UserApi.permissions_path(registration[:user_id])).to_return(status: 200, body: FactoryBot.build(:permissions_response).to_json, headers: { content_type: 'application/json' })
+
+    expect {
+      RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+    }.to raise_error(RegistrationError) do |error|
+      expect(error.http_status).to eq(:unauthorized)
+      expect(error.error).to eq(ErrorCodes::REGISTRATION_IS_REJECTED)
+    end
+  end
+end
+
 RSpec.shared_examples 'valid organizer status updates' do |old_status, new_status|
   it "organizer can change 'status' => #{old_status} to: #{new_status} before close" do
     registration = FactoryBot.create(:registration, registration_status: old_status)
@@ -699,6 +715,11 @@ describe RegistrationChecker do
       it 'user cant update registration if registration edits arent allowed' do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, allow_registration_edits: false))
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id])
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
@@ -711,6 +732,11 @@ describe RegistrationChecker do
       it 'user cant change events after event change deadline' do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :event_change_deadline_passed))
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'event_ids' => ['333', '444', '555'] })
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
@@ -835,6 +861,11 @@ describe RegistrationChecker do
       it 'user cant change comment after edit events deadline' do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :event_change_deadline_passed))
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'comment' => 'this is a new comment' })
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
@@ -868,7 +899,11 @@ describe RegistrationChecker do
 
       it 'user cant submit an organizer comment' do
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'organizer_comment' => 'new admin comment' })
-
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
         }.to raise_error(RegistrationError) do |error|
@@ -879,7 +914,11 @@ describe RegistrationChecker do
 
       it 'user cant submit waiting_list_position' do
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'waiting_list_position' => '1' })
-
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
         }.to raise_error(RegistrationError) do |error|
@@ -994,7 +1033,11 @@ describe RegistrationChecker do
       it 'user cant change guests after registration change deadline' do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, event_change_deadline_date: '2022-06-14T00:00:00.000Z'))
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], guests: 2)
-
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
         }.to raise_error(RegistrationError) do |error|
@@ -1053,7 +1096,7 @@ describe RegistrationChecker do
 
       it 'organizer can accept registrations up to the limit' do
         FactoryBot.create_list(:registration, 2, registration_status: 'accepted')
-        registration = FactoryBot.create(:registration, registration_status: 'waiting_list')
+        registration = FactoryBot.create(:registration, registration_status: 'pending')
         competition_info = CompetitionInfo.new(FactoryBot.build(:competition, competitor_limit: 3))
         update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
 
@@ -1095,16 +1138,29 @@ describe RegistrationChecker do
         { old_status: 'pending', new_status: 'accepted' },
         { old_status: 'pending', new_status: 'waiting_list' },
         { old_status: 'pending', new_status: 'pending' },
+        { old_status: 'pending', new_status: 'rejected' },
         { old_status: 'waiting_list', new_status: 'pending' },
         { old_status: 'waiting_list', new_status: 'waiting_list' },
         { old_status: 'waiting_list', new_status: 'accepted' },
+        { old_status: 'waiting_list', new_status: 'rejected' },
         { old_status: 'accepted', new_status: 'pending' },
         { old_status: 'accepted', new_status: 'waiting_list' },
         { old_status: 'accepted', new_status: 'accepted' },
+        { old_status: 'accepted', new_status: 'rejected' },
         { old_status: 'cancelled', new_status: 'accepted' },
         { old_status: 'cancelled', new_status: 'waiting_list' },
+        { old_status: 'cancelled', new_status: 'rejected' },
       ].each do |params|
         it_behaves_like 'invalid user status updates', params[:old_status], params[:new_status]
+      end
+
+      [
+        { old_status: 'rejected', new_status: 'cancelled' },
+        { old_status: 'rejected', new_status: 'accepted' },
+        { old_status: 'rejected', new_status: 'waiting_list' },
+        { old_status: 'rejected', new_status: 'pending' },
+      ].each do |params|
+        it_behaves_like 'user cant update rejected registration', params[:old_status], params[:new_status]
       end
 
       it 'user cant cancel accepted registration if competition requires organizers to cancel registration' do
@@ -1138,6 +1194,11 @@ describe RegistrationChecker do
       it 'user cant cancel registration after registration ends' do
         override_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :closed))
         update_request = FactoryBot.build(:update_request, user_id: @registration[:user_id], competing: { 'status' => 'cancelled' })
+        stub_request(:get, UserApi.permissions_path(update_request['submitted_by'])).to_return(
+          status: 200,
+          body: FactoryBot.build(:permissions_response).to_json,
+          headers: { content_type: 'application/json' },
+        )
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, override_competition_info, update_request['submitted_by'])
@@ -1152,18 +1213,26 @@ describe RegistrationChecker do
         { old_status: 'pending', new_status: 'waiting_list' },
         { old_status: 'pending', new_status: 'cancelled' },
         { old_status: 'pending', new_status: 'pending' },
+        { old_status: 'pending', new_status: 'rejected' },
         { old_status: 'waiting_list', new_status: 'pending' },
         { old_status: 'waiting_list', new_status: 'cancelled' },
         { old_status: 'waiting_list', new_status: 'waiting_list' },
         { old_status: 'waiting_list', new_status: 'accepted' },
+        { old_status: 'waiting_list', new_status: 'rejected' },
         { old_status: 'accepted', new_status: 'pending' },
         { old_status: 'accepted', new_status: 'cancelled' },
         { old_status: 'accepted', new_status: 'waiting_list' },
         { old_status: 'accepted', new_status: 'accepted' },
+        { old_status: 'accepted', new_status: 'rejected' },
         { old_status: 'cancelled', new_status: 'accepted' },
         { old_status: 'cancelled', new_status: 'pending' },
         { old_status: 'cancelled', new_status: 'waiting_list' },
+        { old_status: 'cancelled', new_status: 'rejected' },
         { old_status: 'cancelled', new_status: 'cancelled' },
+        { old_status: 'rejected', new_status: 'accepted' },
+        { old_status: 'rejected', new_status: 'pending' },
+        { old_status: 'rejected', new_status: 'waiting_list' },
+        { old_status: 'rejected', new_status: 'cancelled' },
       ].each do |params|
         it_behaves_like 'valid organizer status updates', params[:old_status], params[:new_status]
       end
@@ -1296,6 +1365,10 @@ describe RegistrationChecker do
     end
 
     describe '#update_registration_allowed!.validate_waiting_list_position!' do
+      before do
+        @waiting_list = @competition_info.waiting_list
+      end
+
       it 'must be an integer, not string' do
         update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: @registration[:user_id], competing: { 'waiting_list_position' => 'b' })
 
@@ -1308,6 +1381,7 @@ describe RegistrationChecker do
       end
 
       it 'can be an integer given as a string' do
+        @waiting_list.add(@registration.user_id)
         update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: @registration[:user_id], competing: { 'waiting_list_position' => '1' })
 
         expect {
@@ -1326,27 +1400,15 @@ describe RegistrationChecker do
         end
       end
 
-      it 'organizer cant accept anyone except the min position on the waiting list' do
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => '1')
-        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list', 'waiting_list_position' => '2')
-        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'status' => 'accepted' })
+      it 'cannot move to less than position 1' do
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
+        @waiting_list.add(override_registration.user_id)
 
-        expect {
-          RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
-        }.to raise_error(RegistrationError) do |error|
-          expect(error.http_status).to eq(:forbidden)
-          expect(error.error).to eq(ErrorCodes::MUST_ACCEPT_WAITING_LIST_LEADER)
-        end
-      end
-
-      it 'cannot move to less than current min position' do
-        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list', 'waiting_list_position' => 1)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
-
-        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'waiting_list_position' => '10' })
+        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'waiting_list_position' => '0' })
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
@@ -1356,14 +1418,14 @@ describe RegistrationChecker do
         end
       end
 
-      it 'cannot move to greater than current max position' do
-        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list', 'waiting_list_position' => 6)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 2)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 3)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 4)
-        FactoryBot.create(:registration, registration_status: 'waiting_list', 'waiting_list_position' => 5)
+      it 'cannot move to greater than the number of items in the waiting list' do
+        override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
+        @waiting_list.add(FactoryBot.create(:registration, registration_status: 'waiting_list').user_id)
 
-        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'waiting_list_position' => '1' })
+        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: override_registration[:user_id], competing: { 'waiting_list_position' => '10' })
 
         expect {
           RegistrationChecker.update_registration_allowed!(update_request, @competition_info, update_request['submitted_by'])
@@ -1521,6 +1583,42 @@ describe RegistrationChecker do
 
         it_behaves_like 'update succeed: qualification enforced', 'can register when pyram average exists for ranking-single', ['pyram']
         it_behaves_like 'update succeed: qualification enforced', 'can register when minx average exists for ranking-average', ['minx']
+      end
+    end
+
+    describe '#update_registration_allowed!.organizer updates series reg' do
+      it 'organizer cant set status to accepted if attendee is accepted for another series comp' do
+        cancelled_registration = FactoryBot.create(:registration, registration_status: 'cancelled')
+        FactoryBot.create(:registration, user_id: cancelled_registration['user_id'], registration_status: 'accepted', competition_id: 'CubingZAWarmup2023')
+
+        series_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: cancelled_registration[:user_id], competing: { 'status' => 'accepted' })
+
+        expect {
+          RegistrationChecker.update_registration_allowed!(update_request, series_competition_info, update_request['submitted_by'])
+        }.to raise_error(RegistrationError) do |error|
+          expect(error.error).to eq(ErrorCodes::ALREADY_REGISTERED_IN_SERIES)
+          expect(error.http_status).to eq(:forbidden)
+        end
+      end
+
+      it 'organizer can update admin comment in attendees non-accepted series comp registration' do
+        cancelled_registration = FactoryBot.create(:registration, registration_status: 'cancelled')
+        FactoryBot.create(:registration, user_id: cancelled_registration['user_id'], registration_status: 'accepted', competition_id: 'CubingZAWarmup2023')
+
+        series_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+        update_request = FactoryBot.build(
+          :update_request,
+          :organizer_for_user,
+          user_id: cancelled_registration[:user_id],
+          competing: { 'admin_comment' => 'why they were cancelled' },
+        )
+
+        expect {
+          RegistrationChecker.update_registration_allowed!(update_request, series_competition_info, update_request['submitted_by'])
+        }.not_to raise_error
       end
     end
   end

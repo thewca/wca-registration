@@ -11,7 +11,7 @@ SuperConfig::Base.class_eval do
     define_singleton_method(secret_name) do
       @__cache__["_vault_#{secret_name}"] ||= begin
         value = self.vault_read(secret_name)[:value]
-        block ? block.call(value) : value
+        block ? yield(value) : value
       end
     end
   end

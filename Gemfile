@@ -3,11 +3,11 @@
 source 'https://rubygems.org'
 git_source(:github) { |_repo| 'https://github.com/thewca/wca-registration.git' }
 
-ruby '3.3.0'
+ruby '3.3.5'
 
 # Gems that are only needed by the handler not the worker
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '~> 7.1.3'
+gem 'rails', '~> 7.2.1'
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.4'
@@ -34,7 +34,7 @@ gem 'bootsnap', require: false
 
 # Use Redis adapter to run Action Cable in production
 gem 'hiredis'
-gem 'redis', '~> 5.2'
+gem 'redis', '~> 5.3'
 # So Redis can share connections
 gem 'connection_pool'
 
@@ -53,9 +53,6 @@ gem 'kredis'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
-
-# Exposes Metrics
-gem 'prometheus_exporter'
 
 # vault for secrets management
 gem 'vault'
@@ -85,6 +82,7 @@ group :development, :test do
 
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
+  gem 'rubocop-performance', require: false
 
   # Use factories instead of fixtures
   gem 'factory_bot_rails'

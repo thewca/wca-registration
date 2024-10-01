@@ -136,7 +136,36 @@ describe RegistrationController do
       )
     end
 
-    # TODO: Consider refactor into separate contexts with one expect() per it-block
+    describe 'waiting list bulk updates' do
+      it 'accepts competitors from the waiting list' do
+        registration = FactoryBot.create(:registration, :waiting_list)
+        update = FactoryBot.build(:update_request, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
+        registration2 = FactoryBot.create(:registration, :waiting_list)
+        update2 = FactoryBot.build(:update_request, user_id: registration2[:user_id], competing: { 'status' => 'accepted' })
+        registration3 = FactoryBot.create(:registration, :waiting_list)
+        update3 = FactoryBot.build(:update_request, user_id: registration3[:user_id], competing: { 'status' => 'accepted' })
+
+        waiting_list = FactoryBot.create(:waiting_list, entries: [registration.user_id, registration2.user_id, registration3.user_id])
+
+        updates = [update, update2, update3]
+        bulk_update_request = FactoryBot.build(:bulk_update_request, requests: updates)
+
+        request.headers['Authorization'] = bulk_update_request['jwt_token']
+        patch :bulk_update, params: bulk_update_request, as: :json
+
+        expect(response.code).to eq('200')
+
+        updated_registration = Registration.find("#{@competition['id']}-#{registration[:user_id]}")
+        expect(updated_registration.competing_status).to eq('accepted')
+        updated_registration2 = Registration.find("#{@competition['id']}-#{registration2[:user_id]}")
+        expect(updated_registration2.competing_status).to eq('accepted')
+        updated_registration3 = Registration.find("#{@competition['id']}-#{registration3[:user_id]}")
+        expect(updated_registration3.competing_status).to eq('accepted')
+
+        expect(waiting_list.reload.entries.empty?).to eq(true)
+      end
+    end
+
     it 'returns a 422 if there are validation errors' do
       registration = FactoryBot.create(:registration)
       update = FactoryBot.build(:update_request, user_id: registration[:user_id])
@@ -233,6 +262,73 @@ describe RegistrationController do
       request.headers['Authorization'] = bulk_update_request['jwt_token']
       patch :bulk_update, params: {}, as: :json
       expect(response.code).to eq('400')
+    end
+  end
+
+  describe '#list_admin' do
+    before do
+      @competition = FactoryBot.build(:competition)
+      stub_json(CompetitionApi.url(@competition['id']), 200, @competition.except('qualifications'))
+
+      @requesting_user_id = 1400
+      stub_request(:get, UserApi.permissions_path(@requesting_user_id)).to_return(
+        status: 200,
+        body: FactoryBot.build(:permissions_response, organized_competitions: [@competition['id']]).to_json,
+        headers: { 'Content-Type' => 'application/json' },
+      )
+    end
+
+    it 'returns single registration' do
+      registration = FactoryBot.create(:registration)
+      stub_pii([registration[:user_id]])
+
+      request.headers['Authorization'] = fetch_jwt_token(@requesting_user_id)
+      get :list_admin, params: { competition_id: @competition['id'] }
+
+      expect(response.code).to eq('200')
+
+      body = response.parsed_body
+      expect(body.count).to eq(1)
+      expect(body.first['user_id']).to eq(registration[:user_id])
+      expect(body.first.dig('competing', 'registration_status')).to eq(registration.competing_status)
+      expect(body.first.dig('competing', 'waiting_list_position')).to eq(nil)
+    end
+
+    it 'returns multiple registrations' do
+      reg = FactoryBot.create(:registration, :accepted)
+      reg2 = FactoryBot.create(:registration, :accepted)
+      reg3 = FactoryBot.create(:registration, :accepted)
+
+      reg4 = FactoryBot.create(:registration, :waiting_list)
+      reg5 = FactoryBot.create(:registration, :waiting_list)
+      reg6 = FactoryBot.create(:registration, :waiting_list)
+
+      FactoryBot.create(:waiting_list, entries: [reg4[:user_id], reg5[:user_id], reg6[:user_id]])
+
+      user_ids = [reg[:user_id], reg2[:user_id], reg3[:user_id], reg4[:user_id], reg5[:user_id], reg6[:user_id]]
+      stub_pii(user_ids)
+
+      request.headers['Authorization'] = fetch_jwt_token(@requesting_user_id)
+      get :list_admin, params: { competition_id: @competition['id'] }
+
+      expect(response.code).to eq('200')
+
+      body = response.parsed_body
+      expect(body.count).to eq(6)
+
+      body.each do |data|
+        expect(user_ids.include?(data['user_id'])).to eq(true)
+        if data['user_id'] == reg[:user_id] || data['user_id'] == reg2[:user_id] ||data['user_id'] == reg3[:user_id]
+          expect(data.dig('competing', 'registration_status')).to eq('accepted')
+          expect(data.dig('competing', 'waiting_list_position')).to eq(nil)
+        elsif data['user_id'] == reg4[:user_id]
+          expect(data.dig('competing', 'waiting_list_position')).to eq(1)
+        elsif data['user_id'] == reg5[:user_id]
+          expect(data.dig('competing', 'waiting_list_position')).to eq(2)
+        elsif data['user_id'] == reg6[:user_id]
+          expect(data.dig('competing', 'waiting_list_position')).to eq(3)
+        end
+      end
     end
   end
 end

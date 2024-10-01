@@ -27,11 +27,6 @@ variable "region" {
   description = "The region to operate in"
   default     = "us-west-2"
 }
-variable "prometheus_address" {
-  type = string
-  description = "The Address that prometheus is running at"
-  default = "prometheus.worldcubeassociation.org"
-}
 
 variable "availability_zones" {
   type        = list(string)
@@ -53,6 +48,10 @@ variable "shared_resources" {
       arn: string
     }),
     dynamo_registration_history_table: object({
+      name: string,
+      arn: string
+    }),
+    dynamo_waiting_list_table: object({
       name: string,
       arn: string
     }),
