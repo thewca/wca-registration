@@ -351,7 +351,7 @@ describe RegistrationChecker do
 
       context 'fail: qualification enforced' do
         today = Time.now.utc.iso8601
-        last_year = (Time.now.utc - 365).iso8601
+        last_year = (Time.now.utc - 365.days).iso8601
 
         it_behaves_like 'fail: qualification enforced', 'no qualifying result for attemptResult-single', ['666'], {
           '666' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10000 },

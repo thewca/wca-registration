@@ -223,7 +223,7 @@ class RegistrationChecker
     end
 
     def competitor_qualifies_for_event?(event, qualification)
-      target_date = Date.parse(qualification['whenDate']) > Time.utc.today ? Time.utc.today.iso8601 : qualification['whenDate']
+      target_date = Date.parse(qualification['whenDate']) > Time.now.utc ? Time.now.utc.iso8601 : qualification['whenDate']
       competitor_qualification_results = UserApi.qualifications(@requestee_user_id, target_date)
       result_type = qualification['resultType']
 

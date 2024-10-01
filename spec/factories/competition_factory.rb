@@ -100,10 +100,10 @@ FactoryBot.define do
           {
             '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10 },
             '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 60 },
-            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.now.utc-3).iso8601, 'level' => 10 },
-            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => (Time.now.utc-3).iso8601, 'level' => 20 },
-            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => (Time.now.utc-3).iso8601, 'level' => 0 },
-            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => (Time.now.utc-3).iso8601, 'level' => 0 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.now.utc-3.days).iso8601, 'level' => 10 },
+            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => (Time.now.utc-3.days).iso8601, 'level' => 20 },
+            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => (Time.now.utc-3.days).iso8601, 'level' => 0 },
+            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => (Time.now.utc-3.days).iso8601, 'level' => 0 },
           }
         }
       end
