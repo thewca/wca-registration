@@ -48,7 +48,7 @@ FactoryBot.define do
     end
 
     trait :has_qualifications do
-      today = Time.utc.today.iso8601
+      today = Time.now.utc.iso8601
 
       transient do
         extra_qualifications { {} }
@@ -56,7 +56,7 @@ FactoryBot.define do
           {
             '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 1000 },
             '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 6000 },
-            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.utc.today-2).iso8601, 'level' => 100 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.now.utc-2).iso8601, 'level' => 100 },
             'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => today, 'level' => 200 },
             '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 0 },
             '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 0 },
@@ -70,7 +70,7 @@ FactoryBot.define do
     end
 
     trait :has_future_qualifications do
-      tomorrow = (Time.utc.today+1).iso8601
+      tomorrow = (Time.now.utc+1).iso8601
 
       transient do
         extra_qualifications { {} }
@@ -92,7 +92,7 @@ FactoryBot.define do
     end
 
     trait :has_hard_qualifications do
-      today = Time.utc.today.iso8601
+      today = Time.now.utc.iso8601
 
       transient do
         extra_qualifications { {} }
@@ -100,10 +100,10 @@ FactoryBot.define do
           {
             '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10 },
             '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 60 },
-            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.utc.today-3).iso8601, 'level' => 10 },
-            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => (Time.utc.today-3).iso8601, 'level' => 20 },
-            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => (Time.utc.today-3).iso8601, 'level' => 0 },
-            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => (Time.utc.today-3).iso8601, 'level' => 0 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.now.utc-3).iso8601, 'level' => 10 },
+            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => (Time.now.utc-3).iso8601, 'level' => 20 },
+            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => (Time.now.utc-3).iso8601, 'level' => 0 },
+            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => (Time.now.utc-3).iso8601, 'level' => 0 },
           }
         }
       end
