@@ -48,7 +48,7 @@ FactoryBot.define do
     end
 
     trait :has_qualifications do
-      today = Time.zone.today.iso8601
+      today = Time.now.utc.iso8601
 
       transient do
         extra_qualifications { {} }
@@ -56,7 +56,7 @@ FactoryBot.define do
           {
             '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 1000 },
             '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 6000 },
-            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.zone.today-2).iso8601, 'level' => 100 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.now.utc-2).iso8601, 'level' => 100 },
             'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => today, 'level' => 200 },
             '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 0 },
             '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 0 },
@@ -69,8 +69,30 @@ FactoryBot.define do
       allow_registration_without_qualification { false }
     end
 
+    trait :has_future_qualifications do
+      tomorrow = (Time.now.utc+1).iso8601
+
+      transient do
+        extra_qualifications { {} }
+        standard_qualifications {
+          {
+            '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => tomorrow, 'level' => 1000 },
+            '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => tomorrow, 'level' => 6000 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => tomorrow, 'level' => 100 },
+            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => tomorrow, 'level' => 200 },
+            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => tomorrow, 'level' => 0 },
+            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => tomorrow, 'level' => 0 },
+          }
+        }
+      end
+
+      qualifications { standard_qualifications.merge(extra_qualifications) }
+      qualification_results { true }
+      allow_registration_without_qualification { false }
+    end
+
     trait :has_hard_qualifications do
-      today = Time.zone.today.iso8601
+      today = Time.now.utc.iso8601
 
       transient do
         extra_qualifications { {} }
@@ -78,10 +100,10 @@ FactoryBot.define do
           {
             '333' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10 },
             '555' => { 'type' => 'attemptResult', 'resultType' => 'average', 'whenDate' => today, 'level' => 60 },
-            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.zone.today-3).iso8601, 'level' => 10 },
-            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => (Time.zone.today-3).iso8601, 'level' => 20 },
-            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => (Time.zone.today-3).iso8601, 'level' => 0 },
-            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => (Time.zone.today-3).iso8601, 'level' => 0 },
+            'pyram' => { 'type' => 'ranking', 'resultType' => 'single', 'whenDate' => (Time.now.utc-3.days).iso8601, 'level' => 10 },
+            'minx' => { 'type' => 'ranking', 'resultType' => 'average', 'whenDate' => (Time.now.utc-3.days).iso8601, 'level' => 20 },
+            '222' => { 'type' => 'anyResult', 'resultType' => 'single', 'whenDate' => (Time.now.utc-3.days).iso8601, 'level' => 0 },
+            '555bf' => { 'type' => 'anyResult', 'resultType' => 'average', 'whenDate' => (Time.now.utc-3.days).iso8601, 'level' => 0 },
           }
         }
       end

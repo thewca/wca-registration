@@ -254,7 +254,7 @@ describe RegistrationChecker do
       end
 
       it 'smoketest - all qualifications unmet' do
-        stub_qualifications(nil, (Time.zone.today-1).iso8601)
+        stub_qualifications(nil, (Time.now.utc-1).iso8601)
 
         competition = FactoryBot.build(:competition, :has_hard_qualifications)
         stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
@@ -301,11 +301,25 @@ describe RegistrationChecker do
             RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
           }.not_to raise_error
         end
+
+        it "succeeds given future qualification and #{description}" do
+          stub_qualifications
+
+          competition = FactoryBot.build(:competition, :has_future_qualifications)
+          stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
+          competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+          registration_request = FactoryBot.build(:registration_request, events: event_ids)
+
+          expect {
+            RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+          }.not_to raise_error
+        end
       end
 
       RSpec.shared_examples 'fail: qualification enforced' do |description, event_ids, extra_qualifications|
         it "fails given #{description}" do
-          stub_qualifications(nil, (Time.zone.today-1).iso8601)
+          stub_qualifications(nil, (Time.now.utc-1).iso8601)
 
           competition = FactoryBot.build(:competition, :has_qualifications, extra_qualifications: extra_qualifications)
           stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
@@ -336,8 +350,8 @@ describe RegistrationChecker do
       end
 
       context 'fail: qualification enforced' do
-        today = Time.zone.today.iso8601
-        last_year = (Time.zone.today - 365).iso8601
+        today = Time.now.utc.iso8601
+        last_year = (Time.now.utc - 365.days).iso8601
 
         it_behaves_like 'fail: qualification enforced', 'no qualifying result for attemptResult-single', ['666'], {
           '666' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10000 },
@@ -1463,8 +1477,22 @@ describe RegistrationChecker do
       end
 
       RSpec.shared_examples 'update succeed: qualification enforced' do |description, event_ids|
-        it "succeeds given given #{description}" do
+        it "succeeds given #{description}" do
           competition = FactoryBot.build(:competition, :has_qualifications)
+          stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
+          competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+          update_request = FactoryBot.build(:update_request, competing: { 'event_ids' => event_ids })
+
+          FactoryBot.create(:registration, user_id: update_request['user_id'])
+
+          expect {
+            RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+          }.not_to raise_error
+        end
+
+        it "succeeds given future qualification and #{description}" do
+          competition = FactoryBot.build(:competition, :has_future_qualifications)
           stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
           competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
