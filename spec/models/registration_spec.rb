@@ -84,10 +84,16 @@ describe Registration do
         expect(@waiting_list.entries.include?(@reg1.user_id)).to eq(false)
       end
 
-      it 'cant accept if not in leading position of waiting list' do
-        expect {
-          @reg2.update_competing_lane!({ status: 'accepted' }, @waiting_list)
-        }.to raise_error(ArgumentError, 'Can only accept waiting list leader')
+      it 'can accept if not in leading position of waiting list' do
+        stub_request(:post, EmailApi.waiting_list_leader_path).to_return(status: 200, body: { emails_sent: 1 }.to_json)
+
+        @reg2.update_competing_lane!({ status: 'accepted' }, @waiting_list)
+        @waiting_list.reload
+
+        expect(@reg2.competing_status).to eq('accepted')
+        expect(@reg1.waiting_list_position(@waiting_list)).to eq(1)
+        expect(@waiting_list.entries.include?(@reg2.user_id)).to eq(false)
+        expect(WebMock).to have_requested(:post, EmailApi.waiting_list_leader_path)
       end
     end
 
