@@ -68,6 +68,21 @@ Tests are grouped by "context" into success/fail groups. Add the `-e` flag to ru
 
 https://medium.com/@josisusan/factorygirl-as-json-response-a70f4a4e92a0
 
+## Populating Registrations on Staging
+
+1. Generate a list of competitions_ids and their events by running the following script in the staging database: 
+    ```sql
+    SELECT ce.*
+    FROM (
+        SELECT competition_id, GROUP_CONCAT(event_id) as events
+        FROM competition_events
+        GROUP BY competition_id
+    ) AS ce
+    JOIN Competitions on ce.competition_id = Competitions.id
+    WHERE Competitions.start_date > "2024-03-11"
+    ```
+2. 
+=======
 ## Populating Registrations in Staging Environment
 
 We use a rake task to import registrations into the DynamoDB database. The import bypasses all validations, so it is possible to create registrations in invalid states this way. 
@@ -86,4 +101,3 @@ We use a rake task to import registrations into the DynamoDB database. The impor
 3. Now that we're connected to the container, we will need to:
     1. Copy across the rake task and CSVs (so far I've done this by creating the files with vi and manually copying across the raw text of the rake task/CSV)
     2. Run the rake task for each set of CSVs (changing the list of competitions and CSV name for each set of registrations you want to import)
-

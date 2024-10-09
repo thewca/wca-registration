@@ -11,7 +11,7 @@ module CsvImport
   def self.parse_row_to_registration(csv_hash, competition_id)
     {
       attendee_id: "#{competition_id}-#{csv_hash["user_id"]}",
-      user_id: csv_hash['user_id'],
+      user_id: csv_hash['user_id'].to_i,
       competition_id: competition_id,
       lanes: [LaneFactory.competing_lane(event_ids: csv_hash['competing.event_ids'].split(';'), comment: csv_hash['competing.comment'], admin_comment: csv_hash['competing.admin_comment'],
                                          registration_status: csv_hash['competing.registration_status'])],
