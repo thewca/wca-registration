@@ -73,7 +73,7 @@ class RegistrationChecker
     def user_can_modify_registration!
       raise RegistrationError.new(:unauthorized, ErrorCodes::USER_INSUFFICIENT_PERMISSIONS) unless can_administer_or_current_user?
       raise RegistrationError.new(:forbidden, ErrorCodes::USER_EDITS_NOT_ALLOWED) unless @competition_info.registration_edits_allowed? || UserApi.can_administer?(@requester_user_id, @competition_info.id)
-      raise RegistrationError.new(:unauthorized, ErrorCodes::REGISTRATION_IS_REJECTED) if user_is_rejected?
+      raise RegistrationError.new(:unauthorized, ErrorCodes::REGISTRATION_IS_REJECTED) if user_is_rejected? && !organizer_modifying_own_registration?
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if
         existing_registration_in_series? && !UserApi.can_administer?(@requester_user_id, @competition_info.id)
     end
