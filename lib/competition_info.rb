@@ -45,7 +45,7 @@ class CompetitionInfo
   end
 
   def registration_open?
-    @competition_json['registration_currently_open?']
+  @competition_json['registration_open'] <= Time.now && @competition_json['registration_close'] > Time.now
   end
 
   def using_wca_payment?
