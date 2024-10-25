@@ -316,7 +316,7 @@ class RegistrationController < ApplicationController
             payment: {
               payment_status: payment_status,
               payment_statuses: [payment_status],
-              has_paid: payment_status == "succeeded",
+              has_paid: payment_status == 'succeeded',
               payment_amount_iso: x.payment_amount,
               payment_amount_human_readable: x.payment_amount_human_readable,
               updated_at: x.payment_date,
