@@ -173,7 +173,8 @@ class RegistrationChecker
 
       raise RegistrationError.new(:unprocessable_entity, ErrorCodes::INVALID_REQUEST_DATA) unless Registration::REGISTRATION_STATES.include?(new_status)
       raise RegistrationError.new(:forbidden, ErrorCodes::COMPETITOR_LIMIT_REACHED) if
-        new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit
+        new_status == 'accepted' && Registration.accepted_competitors_count(@competition_info.competition_id) == @competition_info.competitor_limit &&
+        @competition_info.competitor_limit != 0
       raise RegistrationError.new(:forbidden, ErrorCodes::ALREADY_REGISTERED_IN_SERIES) if
         new_status == 'accepted' && existing_registration_in_series?
 

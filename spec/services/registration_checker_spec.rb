@@ -1104,6 +1104,15 @@ describe RegistrationChecker do
           .not_to raise_error
       end
 
+      it 'organizer can accept registrations if there is no limit' do
+        registration = FactoryBot.create(:registration, registration_status: 'pending')
+        competition_info = CompetitionInfo.new(FactoryBot.build(:competition, competitor_limit: 0))
+        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
+
+        expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
+          .not_to raise_error
+      end
+
       it 'user can change state to cancelled' do
         override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
         update_request = FactoryBot.build(:update_request, user_id: override_registration[:user_id], competing: { 'status' => 'cancelled' })
