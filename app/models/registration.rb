@@ -10,9 +10,14 @@ class Registration
 
   REGISTRATION_STATES = %w[pending waiting_list accepted cancelled rejected].freeze
   ADMIN_ONLY_STATES = %w[pending waiting_list accepted rejected].freeze # Only admins are allowed to change registration state to one of these states
+  MIGHT_ATTEND_STATES = %w[pending waiting_list accepted].freeze
 
   # Pre-validations
   before_validation :set_competing_status
+
+  # Hooks
+  after_create :delete_user_registration_from_redis
+  after_update :delete_user_registration_from_redis
 
   # Validations
   validate :competing_status_consistency
@@ -173,6 +178,10 @@ class Registration
     update_attributes!(lanes: updated_lanes)
   end
 
+  def might_attend?
+    MIGHT_ATTEND_STATES.include?(self.competing_status)
+  end
+
   def update_waiting_list(update_params, waiting_list)
     raise ArgumentError.new('Can only accept waiting list leader') if update_params[:status] == 'accepted' && waiting_list_position(waiting_list) != 1
 
@@ -217,5 +226,9 @@ class Registration
       lane_state_present = competing_status == 'waiting_list' || update_params[:status] == 'waiting_list'
       states_are_different = competing_status != update_params[:status]
       lane_state_present && states_are_different
+    end
+
+    def delete_user_registration_from_redis
+      RedisHelper.delete_user_registrations(user_id)
     end
 end

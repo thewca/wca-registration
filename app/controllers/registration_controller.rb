@@ -71,7 +71,7 @@ class RegistrationController < ApplicationController
     render json: { status: 'ok', registration: process_update(params) }
   rescue Dynamoid::Errors::Error => e
     Rails.logger.debug e
-    Metrics.registration_dynamodb_errors_counter.increment
+    Metrics.increment('registration_dynamodb_errors_counter')
     render json: { error: "Error Updating Registration: #{e.message}" },
            status: :internal_server_error
   end
@@ -138,9 +138,6 @@ class RegistrationController < ApplicationController
       EmailApi.send_update_email(@competition_id, user_id, status, @current_user)
     end
 
-    # Invalidate cache
-    Rails.cache.delete("#{user_id}-registrations-by-user")
-
     {
       user_id: updated_registration['user_id'],
       guests: updated_registration.guests,
@@ -179,7 +176,7 @@ class RegistrationController < ApplicationController
   rescue Dynamoid::Errors::Error => e
     # Render an error response
     Rails.logger.debug e
-    Metrics.registration_dynamodb_errors_counter.increment
+    Metrics.increment('registration_dynamodb_errors_counter')
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
@@ -193,7 +190,7 @@ class RegistrationController < ApplicationController
   rescue Dynamoid::Errors::Error => e
     # Render an error response
     Rails.logger.debug e
-    Metrics.registration_dynamodb_errors_counter.increment
+    Metrics.increment('registration_dynamodb_errors_counter')
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
@@ -212,7 +209,7 @@ class RegistrationController < ApplicationController
     render json: add_waiting_list(@competition_id, registrations_with_pii)
   rescue Dynamoid::Errors::Error => e
     Rails.logger.debug e
-    Metrics.registration_dynamodb_errors_counter.increment
+    Metrics.increment('registration_dynamodb_errors_counter')
     render json: { error: "Error getting registrations #{e}" },
            status: :internal_server_error
   end
@@ -292,7 +289,7 @@ class RegistrationController < ApplicationController
       return registrations if list.empty?
       registrations.map do |r|
         waiting_list_index = list.find_index(r[:user_id])
-        r[:competing].merge!(waiting_list_position: waiting_list_index + 1) if waiting_list_index.present?
+        r[:competing][:waiting_list_position] = waiting_list_index + 1 if waiting_list_index.present?
         r
       end
     end

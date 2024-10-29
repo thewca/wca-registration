@@ -79,6 +79,37 @@ class InternalController < ApplicationController
     render json: registrations
   end
 
+  def create
+    user_id = params.require(:user_id)
+    competition_id = params.require(:competition_id)
+    event_ids = params.require(:event_ids)
+    current_user = params.require(:current_user)
+    status = params.require(:competing_status)
+    comment = params[:comment] || ''
+
+    begin
+      Registration.find("#{competition_id}-#{user_id}")
+      render_error(400, ErrorCodes::COMPETITOR_ALREADY_REGISTERED)
+    rescue Dynamoid::Errors::RecordNotFound
+      initial_history = History.new({ 'changed_attributes' =>
+                                        { event_ids: event_ids, status: status, comment: comment },
+                                      'actor_type' => 'user',
+                                      'actor_id' => current_user,
+                                      'action' => 'Organizer added',
+                                      'timestamp' => Time.now.utc })
+      RegistrationHistory.create(attendee_id: "#{competition_id}-#{user_id}", entries: [initial_history])
+      Registration.create(attendee_id: "#{competition_id}-#{user_id}",
+                          competition_id: competition_id,
+                          user_id: user_id,
+                          created_at: Time.now.utc,
+                          lanes: [LaneFactory.competing_lane(event_ids: event_ids,
+                                                             comment: comment,
+                                                             registration_status: status)],
+                          guests: 0)
+      render json: { status: 'ok' }
+    end
+  end
+
   def show_registration
     attendee_id = params.require(:attendee_id)
     registration = Registration.find(attendee_id)

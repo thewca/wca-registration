@@ -254,7 +254,7 @@ describe RegistrationChecker do
       end
 
       it 'smoketest - all qualifications unmet' do
-        stub_qualifications(nil, (Time.zone.today-1).iso8601)
+        stub_qualifications(nil, (Time.now.utc-1).iso8601)
 
         competition = FactoryBot.build(:competition, :has_hard_qualifications)
         stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
@@ -301,11 +301,25 @@ describe RegistrationChecker do
             RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
           }.not_to raise_error
         end
+
+        it "succeeds given future qualification and #{description}" do
+          stub_qualifications
+
+          competition = FactoryBot.build(:competition, :has_future_qualifications)
+          stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
+          competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+          registration_request = FactoryBot.build(:registration_request, events: event_ids)
+
+          expect {
+            RegistrationChecker.create_registration_allowed!(registration_request, competition_info, registration_request['submitted_by'])
+          }.not_to raise_error
+        end
       end
 
       RSpec.shared_examples 'fail: qualification enforced' do |description, event_ids, extra_qualifications|
         it "fails given #{description}" do
-          stub_qualifications(nil, (Time.zone.today-1).iso8601)
+          stub_qualifications(nil, (Time.now.utc-1).iso8601)
 
           competition = FactoryBot.build(:competition, :has_qualifications, extra_qualifications: extra_qualifications)
           stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
@@ -336,8 +350,8 @@ describe RegistrationChecker do
       end
 
       context 'fail: qualification enforced' do
-        today = Time.zone.today.iso8601
-        last_year = (Time.zone.today - 365).iso8601
+        today = Time.now.utc.iso8601
+        last_year = (Time.now.utc - 365.days).iso8601
 
         it_behaves_like 'fail: qualification enforced', 'no qualifying result for attemptResult-single', ['666'], {
           '666' => { 'type' => 'attemptResult', 'resultType' => 'single', 'whenDate' => today, 'level' => 10000 },
@@ -1104,6 +1118,15 @@ describe RegistrationChecker do
           .not_to raise_error
       end
 
+      it 'organizer can accept registrations if there is no limit' do
+        registration = FactoryBot.create(:registration, registration_status: 'pending')
+        competition_info = CompetitionInfo.new(FactoryBot.build(:competition, competitor_limit: 0))
+        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: registration[:user_id], competing: { 'status' => 'accepted' })
+
+        expect { RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by']) }
+          .not_to raise_error
+      end
+
       it 'user can change state to cancelled' do
         override_registration = FactoryBot.create(:registration, user_id: 188000, registration_status: 'waiting_list')
         update_request = FactoryBot.build(:update_request, user_id: override_registration[:user_id], competing: { 'status' => 'cancelled' })
@@ -1477,8 +1500,22 @@ describe RegistrationChecker do
       end
 
       RSpec.shared_examples 'update succeed: qualification enforced' do |description, event_ids|
-        it "succeeds given given #{description}" do
+        it "succeeds given #{description}" do
           competition = FactoryBot.build(:competition, :has_qualifications)
+          stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
+          competition_info = CompetitionInfo.new(competition.except('qualifications'))
+
+          update_request = FactoryBot.build(:update_request, competing: { 'event_ids' => event_ids })
+
+          FactoryBot.create(:registration, user_id: update_request['user_id'])
+
+          expect {
+            RegistrationChecker.update_registration_allowed!(update_request, competition_info, update_request['submitted_by'])
+          }.not_to raise_error
+        end
+
+        it "succeeds given future qualification and #{description}" do
+          competition = FactoryBot.build(:competition, :has_future_qualifications)
           stub_json(CompetitionApi.url("#{competition['id']}/qualifications"), 200, competition['qualifications'])
           competition_info = CompetitionInfo.new(competition.except('qualifications'))
 
@@ -1569,6 +1606,42 @@ describe RegistrationChecker do
 
         it_behaves_like 'update succeed: qualification enforced', 'can register when pyram average exists for ranking-single', ['pyram']
         it_behaves_like 'update succeed: qualification enforced', 'can register when minx average exists for ranking-average', ['minx']
+      end
+    end
+
+    describe '#update_registration_allowed!.organizer updates series reg' do
+      it 'organizer cant set status to accepted if attendee is accepted for another series comp' do
+        cancelled_registration = FactoryBot.create(:registration, registration_status: 'cancelled')
+        FactoryBot.create(:registration, user_id: cancelled_registration['user_id'], registration_status: 'accepted', competition_id: 'CubingZAWarmup2023')
+
+        series_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+        update_request = FactoryBot.build(:update_request, :organizer_for_user, user_id: cancelled_registration[:user_id], competing: { 'status' => 'accepted' })
+
+        expect {
+          RegistrationChecker.update_registration_allowed!(update_request, series_competition_info, update_request['submitted_by'])
+        }.to raise_error(RegistrationError) do |error|
+          expect(error.error).to eq(ErrorCodes::ALREADY_REGISTERED_IN_SERIES)
+          expect(error.http_status).to eq(:forbidden)
+        end
+      end
+
+      it 'organizer can update admin comment in attendees non-accepted series comp registration' do
+        cancelled_registration = FactoryBot.create(:registration, registration_status: 'cancelled')
+        FactoryBot.create(:registration, user_id: cancelled_registration['user_id'], registration_status: 'accepted', competition_id: 'CubingZAWarmup2023')
+
+        series_competition_info = CompetitionInfo.new(FactoryBot.build(:competition, :series))
+
+        update_request = FactoryBot.build(
+          :update_request,
+          :organizer_for_user,
+          user_id: cancelled_registration[:user_id],
+          competing: { 'admin_comment' => 'why they were cancelled' },
+        )
+
+        expect {
+          RegistrationChecker.update_registration_allowed!(update_request, series_competition_info, update_request['submitted_by'])
+        }.not_to raise_error
       end
     end
   end
