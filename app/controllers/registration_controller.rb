@@ -304,6 +304,7 @@ class RegistrationController < ApplicationController
         end
       else
         Registration.where(competition_id: competition_id).all.map do |x|
+          payment_status = x.payment_status
           { user_id: x['user_id'],
             competing: {
               event_ids: x.event_ids,
@@ -313,7 +314,9 @@ class RegistrationController < ApplicationController
               admin_comment: x.admin_comment,
             },
             payment: {
-              payment_status: x.payment_status,
+              payment_status: payment_status,
+              payment_statuses: [payment_status],
+              has_paid: payment_status == 'succeeded',
               payment_amount_iso: x.payment_amount,
               payment_amount_human_readable: x.payment_amount_human_readable,
               updated_at: x.payment_date,
