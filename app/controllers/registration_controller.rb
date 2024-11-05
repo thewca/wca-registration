@@ -334,6 +334,7 @@ class RegistrationController < ApplicationController
                               else
                                 nil
                               end
+      payment_status = registration.payment_status
       {
         user_id: registration['user_id'],
         guests: registration.guests,
@@ -346,7 +347,9 @@ class RegistrationController < ApplicationController
           waiting_list_position: waiting_list_position,
         },
         payment: {
-          payment_status: registration.payment_status,
+          payment_status: payment_status,
+          payment_statuses: [payment_status],
+          has_paid: payment_status == 'succeeded',
           payment_amount_human_readable: registration.payment_amount_human_readable,
           updated_at: registration.payment_date,
         },
