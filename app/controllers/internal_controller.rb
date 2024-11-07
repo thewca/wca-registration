@@ -115,4 +115,10 @@ class InternalController < ApplicationController
     registration = Registration.find(attendee_id)
     render json: registration
   end
+
+  def history
+    attendee_id = params.require(:attendee_id)
+    history = RegistrationHistory.find(attendee_id)
+    render json: history
+  end
 end
