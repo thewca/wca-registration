@@ -106,6 +106,7 @@ class RegistrationChecker
       return unless @competition_info.enforces_qualifications?
       # TODO: Read the request payload in as an object, and handle cases where expected values aren't found
       event_ids = @request.dig('competing', 'event_ids')
+      return if event_ids.nil?
 
       unqualified_events = event_ids.filter_map do |event|
         qualification = @competition_info.get_qualification_for(event)
