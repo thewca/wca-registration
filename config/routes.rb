@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   get '/api/internal/v1/:competition_id/registrations', to: 'internal#list_registrations'
   post '/api/internal/v1/:competition_id/add', to: 'internal#create'
   get '/api/internal/v1/:attendee_id', to: 'internal#show_registration'
+  get '/api/internal/v1/:attendee_id/history', to: 'internal#history'
   get '/api/internal/v1/users/:user_id/registrations', to: 'internal#registrations_for_user'
   get '/api/v1/register', to: 'registration#show'
   post '/api/v1/register', to: 'registration#create'
