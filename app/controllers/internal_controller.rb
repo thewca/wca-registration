@@ -124,7 +124,11 @@ class InternalController < ApplicationController
 
   def waiting_list
     competition_id = params.require(:competition_id)
-    waiting_list = WaitingList.find(competition_id)
-    render json: waiting_list.entries
+    begin
+      waiting_list = WaitingList.find(competition_id)
+      render json: waiting_list.entries
+    rescue Dynamoid::Errors::RecordNotFound
+      render json: []
+    end
   end
 end
