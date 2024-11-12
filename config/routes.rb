@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   get '/healthcheck', to: 'healthcheck#index'
   post '/api/internal/v1/update_payment', to: 'internal#update_payment_status'
   get '/api/internal/v1/:competition_id/registrations', to: 'internal#list_registrations'
+  get '/api/internal/v1/:competition_id/waiting_list', to: 'internal#waiting_list'
   post '/api/internal/v1/:competition_id/add', to: 'internal#create'
   get '/api/internal/v1/:attendee_id', to: 'internal#show_registration'
   get '/api/internal/v1/:attendee_id/history', to: 'internal#history'

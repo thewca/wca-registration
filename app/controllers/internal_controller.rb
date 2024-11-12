@@ -121,4 +121,10 @@ class InternalController < ApplicationController
     history = RegistrationHistory.find(attendee_id)
     render json: history
   end
+
+  def waiting_list
+    competition_id = params.require(:competition_id)
+    waiting_list = WaitingList.find(competition_id)
+    render json: waiting_list.entries
+  end
 end
