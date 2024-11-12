@@ -121,4 +121,14 @@ class InternalController < ApplicationController
     history = RegistrationHistory.find(attendee_id)
     render json: history
   end
+
+  def waiting_list
+    competition_id = params.require(:competition_id)
+    begin
+      waiting_list = WaitingList.find(competition_id)
+      render json: waiting_list.entries
+    rescue Dynamoid::Errors::RecordNotFound
+      render json: []
+    end
+  end
 end
