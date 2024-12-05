@@ -1,3 +1,24 @@
+resource "aws_lambda_function" "dlq_lambda" {
+  filename         = "./lambda/registration_dlq.zip"
+  function_name    = "${var.name_prefix}-dlq-handler-staging"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "dlq_handler.lambda_handler"
+  runtime          = "ruby3.3"
+  source_code_hash = filebase64sha256("./lambda/registration_dlq.zip")
+  timeout = 10
+  environment {
+    variables = {
+      DYNAMO_REGISTRATIONS_TABLE = aws_dynamodb_table.registrations.name
+      REGISTRATION_HISTORY_DYNAMO_TABLE = aws_dynamodb_table.registration_history.name
+    }
+  }
+}
+
+resource "aws_lambda_event_source_mapping" "dlq" {
+  event_source_arn = aws_sqs_queue.deadletter-queue.arn
+  function_name    = aws_lambda_function.dlq_lambda.arn
+}
+
 resource "aws_lambda_function" "registration_status_lambda" {
   filename         = "./lambda/registration_status.zip"
   function_name    = "${var.name_prefix}-poller-lambda-staging"
@@ -70,6 +91,13 @@ data "aws_iam_policy_document" "lambda_policy" {
       "sqs:GetQueueUrl"
     ]
     resources = [aws_sqs_queue.this.arn]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:*",
+    ]
+    resources = [aws_sqs_queue.deadletter-queue.arn]
   }
 }
 
