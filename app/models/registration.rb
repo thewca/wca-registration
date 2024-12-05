@@ -183,7 +183,11 @@ class Registration
   end
 
   def update_waiting_list(update_params, waiting_list)
-    raise ArgumentError.new('Can only accept waiting list leader') if update_params[:status] == 'accepted' && waiting_list_position(waiting_list) != 1
+    if update_params[:status] == 'accepted' && waiting_list_position(waiting_list) != 1
+      EmailApi.send_waiting_list_leader_email(
+        self.competition_id, self.user_id, waiting_list_position(waiting_list)
+      )
+    end
 
     waiting_list.add(self.user_id) if update_params[:status] == 'waiting_list'
     waiting_list.remove(self.user_id) if update_params[:status] == 'accepted'
@@ -191,6 +195,7 @@ class Registration
     waiting_list.move_to_position(self.user_id, update_params[:waiting_list_position].to_i) if
       update_params[:waiting_list_position].present?
   end
+
   # Fields
   field :user_id, :integer
   field :guests, :integer
@@ -198,6 +203,7 @@ class Registration
   field :competing_status, :string
   field :hide_name_publicly, :boolean
   field :lanes, :array, of: Lane
+
   # We only do this one way because Dynamoid doesn't allow us to overwrite the foreign_key for has_one see https://github.com/Dynamoid/dynamoid/issues/740
   belongs_to :history, class: RegistrationHistory, foreign_key: :attendee_id
 
